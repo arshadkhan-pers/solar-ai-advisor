@@ -1,0 +1,162 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  text-align: center;
+  margin: 0;
+}
+.container {
+  padding: 20px;
+}
+h1 {
+  font-size: 28px;
+}
+.card {
+  background: white;
+  padding: 15px;
+  margin: 15px auto;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.highlight {
+  font-weight: bold;
+  color: green;
+}
+.cta {
+  background: green;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+.form {
+  margin-top: 20px;
+}
+.form input {
+  display: block;
+  width: 90%;
+  margin: 10px auto;
+  padding: 10px;
+}
+.hidden {
+  display: none;
+}
+.trust {
+  margin-top: 20px;
+  font-size: 14px;
+  color: gray;
+}
+
+/* Landing page specific styles */
+.hero {
+  padding: 60px 20px;
+}
+p {
+  color: #555;
+}
+.input-group {
+  margin-top: 20px;
+}
+input {
+  padding: 12px;
+  width: 250px;
+  max-width: 80%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+button {
+  padding: 12px 20px;
+  background: #16A34A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+button:hover {
+  background: #15803D;
+}
+.section {
+  padding: 50px 20px;
+}
+.section.light {
+  background: #f9f9f9;
+}
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+.steps div {
+  max-width: 200px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  margin: 10px 0;
+}
+.testimonials {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.eyebrow {
+  color: #15803d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+.feature-list li {
+  margin: 10px 0;
+  font-weight: 600;
+}
+.form input,
+.form select {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 10px auto;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+.success-message {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 20px;
+}
+.small-note {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.data-model {
+  text-align: left;
+  background: #111827;
+  color: #f8fafc;
+  padding: 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  max-width: 700px;
+  margin: 0 auto;
+}

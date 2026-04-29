@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solar Recommendation</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- HERO -->
+    <h1 id="systemSize"></h1>
+    <p id="billInfo"></p>
+    <!-- COST CARD -->
+    <div class="card">
+      <h3>Cost Breakdown</h3>
+      <p>Total Cost: ₹<span id="totalCost"></span></p>
+      <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
+      <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
+    </div>
+    <!-- SAVINGS -->
+    <div class="card">
+      <h3>Your Savings</h3>
+      <p>Monthly Savings: ₹<span id="monthlySavings"></span></p>
+      <p>Payback Period: <span id="payback"></span> years</p>
+    </div>
+    <!-- CTA -->
+    <button class="cta" onclick="showForm()">Get Quotes on WhatsApp</button>
+    <!-- LEAD FORM -->
+    <div id="leadForm" class="form hidden">
+      <h3>Send Lead to Installers on WhatsApp</h3>
+      <p class="small-note">Your lead is sent to our trusted installer network.</p>
+      <input type="text" placeholder="Name" id="name">
+      <input type="text" placeholder="Phone" id="phone">
+      <input type="text" placeholder="City" id="city">
+      <button onclick="submitLead()">Send via WhatsApp</button>
+    </div>
+    <!-- TRUST -->
+    <p class="trust">✔ Verified Installers | ✔ Govt Subsidy Support | ✔ No Spam</p>
+  </div>
+  <script src="js/results.js"></script>
+</body>
+</html>

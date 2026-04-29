@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installer Signup | Solar AI Advisor</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">For Solar Installers</p>
+      <h1>Get High-Quality Solar Leads in Your City</h1>
+      <p>Verified homeowners. Ready-to-buy customers. No cold calling.</p>
+      <button onclick="document.getElementById('signupForm').scrollIntoView({ behavior: 'smooth' })">Start Getting Leads</button>
+    </div>
+  </section>
+
+  <section class="section light">
+    <div class="container card">
+      <h2>Why Partner With Us?</h2>
+      <ul class="feature-list">
+        <li>✔ Verified homeowners</li>
+        <li>✔ High-intent solar leads</li>
+        <li>✔ Local city matching</li>
+        <li>✔ Free first leads available</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container card" id="signupForm">
+      <h2>Installer Signup</h2>
+      <form id="installerForm" class="form">
+        <input type="text" id="business" placeholder="Business Name" required />
+        <input type="text" id="name" placeholder="Contact Person" required />
+        <input type="tel" id="phone" placeholder="Phone" required />
+        <input type="text" id="city" placeholder="City" required />
+        <input type="text" id="areas" placeholder="Service Areas (comma separated)" required />
+        <select id="experience" required>
+          <option value="">Experience (Years)</option>
+          <option value="1-2">1-2</option>
+          <option value="3-5">3-5</option>
+          <option value="6+">6+</option>
+        </select>
+        <button type="submit">Register</button>
+      </form>
+      <p class="small-note">After you register, your details are saved locally and a registration email is prepared so we can follow up manually.</p>
+      <div id="successMsg" class="success-message hidden">
+        <h3>Thank you!</h3>
+        <p>Your installer profile was prepared successfully. Check your email client to send the registration details.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section light">
+    <div class="container card">
+      <h2>How We Match Leads</h2>
+      <p>We route leads by city and share each lead with a small group of installers to keep quality high.</p>
+      <pre class="data-model">{
+  "name": "ABC Solar",
+  "phone": "919xxxxxxx",
+  "city": "Lucknow",
+  "areas": ["Lucknow", "Kanpur"],
+  "priority": 1,
+  "active": true
+}</pre>
+    </div>
+  </section>
+
+  <script>
+    function submitInstaller() {
+      const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfDZPbv-Q4QFGoD2--UMn2TqOz0Ns377o2edzCE3cGD59PUvQ/formResponse";
+      const business = document.getElementById("business").value;
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const city = document.getElementById("city").value;
+      const areas = document.getElementById("areas").value;
+      const experience = document.getElementById("experience").value;
+      if (!business || !phone || !city) {
+        alert("Please fill required fields");
+        return;
+      }
+      const params = new URLSearchParams();
+      params.append("entry.2005620554", business);
+      params.append("entry.1045781291", name);
+      params.append("entry.1166974658", phone);
+      params.append("entry.1065046570", city);
+      params.append("entry.839337160", areas);
+      params.append("entry.2037869120", experience);
+      fetch(formURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: params
+      });
+      document.getElementById("successMsg").classList.remove("hidden");
+    }
+
+    document.getElementById('installerForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      submitInstaller();
+    });
+  </script>
+</body>
+</html>
