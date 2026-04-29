@@ -6,37 +6,83 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="container">
-    <!-- HERO -->
-    <h1 id="systemSize"></h1>
-    <p id="billInfo"></p>
-    <!-- COST CARD -->
-    <div class="card">
-      <h3>Cost Breakdown</h3>
-      <p>Total Cost: ₹<span id="totalCost"></span></p>
-      <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
-      <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
-    </div>
-    <!-- SAVINGS -->
-    <div class="card">
-      <h3>Your Savings</h3>
-      <p>Monthly Savings: ₹<span id="monthlySavings"></span></p>
-      <p>Payback Period: <span id="payback"></span> years</p>
-    </div>
-    <!-- CTA -->
-    <button class="cta" onclick="showForm()">Get Quotes on WhatsApp</button>
-    <!-- LEAD FORM -->
-    <div id="leadForm" class="form hidden">
-      <h3>Send Lead to Installers on WhatsApp</h3>
-      <p class="small-note">Your lead is sent to our trusted installer network.</p>
-      <input type="text" placeholder="Name" id="name">
-      <input type="text" placeholder="Phone" id="phone">
-      <input type="text" placeholder="City" id="city">
-      <button onclick="submitLead()">Send via WhatsApp</button>
-    </div>
-    <!-- TRUST -->
-    <p class="trust">✔ Verified Installers | ✔ Govt Subsidy Support | ✔ No Spam</p>
+
+<div class="container">
+
+  <!-- HERO -->
+  <h1 id="systemSize"></h1>
+  <p id="billInfo"></p>
+
+  <!-- COST -->
+  <div class="card">
+    <h3>Cost Breakdown</h3>
+    <p>Total Cost: ₹<span id="totalCost"></span></p>
+    <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
+    <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
   </div>
-  <script src="js/results.js"></script>
+
+  <!-- SAVINGS -->
+  <div class="card">
+    <h3>Your Savings</h3>
+    <p>Monthly Savings: ₹<span id="monthlySavings"></span></p>
+    <p>Payback Period: <span id="payback"></span> years</p>
+    <h3 class="highlight">Lifetime Savings: ₹<span id="lifetimeSavings"></span></h3>
+  </div>
+
+  <!-- SYSTEM DETAILS -->
+  <div class="card">
+    <h3>System Details</h3>
+    <p>Panels Required: <span id="panels"></span></p>
+    <p>Roof Area Needed: <span id="area"></span> sq ft</p>
+    <p>Suitable for: 2–3 BHK homes</p>
+  </div>
+
+  <!-- URGENCY -->
+  <p class="urgent">⚡ Limited subsidy available under Govt scheme</p>
+
+  <!-- CTA -->
+  <button class="cta" onclick="showForm()">Get Exact Price for Your Home</button>
+
+  <!-- WHATSAPP CTA -->
+  <button class="whatsapp" onclick="openWhatsApp()">Get Details on WhatsApp</button>
+
+  <!-- FORM -->
+  <div id="leadForm" class="form hidden">
+    <h3>Enter Details</h3>
+    <input type="text" placeholder="Name" id="name">
+    <input type="text" placeholder="Phone" id="phone">
+    <input type="text" placeholder="City" id="city">
+
+    <select id="propertyType">
+      <option>Independent House</option>
+      <option>Apartment</option>
+    </select>
+
+    <select id="roofType">
+      <option>Concrete</option>
+      <option>Tin/Metal</option>
+    </select>
+
+    <button onclick="submitLead()">Submit</button>
+  </div>
+
+  <!-- TRUST -->
+  <div class="card">
+    <p>✔ Govt subsidy supported</p>
+    <p>✔ 25-year panel warranty</p>
+    <p>✔ Trusted by homeowners</p>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card">
+    <h3>FAQs</h3>
+    <p><b>Will solar work in cloudy weather?</b><br>Yes, output reduces slightly.</p>
+    <p><b>Do I need batteries?</b><br>Not required for grid systems.</p>
+    <p><b>Is subsidy guaranteed?</b><br>Available as per govt norms.</p>
+  </div>
+
+</div>
+
+<script src="js/results.js"></script>
 </body>
 </html>
