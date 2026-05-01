@@ -57,7 +57,7 @@ Bill: ₹${bill}
   window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
 
   // ✅ Redirect to results with captured data
-  const redirectURL = `/results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+  const redirectURL = `results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
   window.location.href = redirectURL;
 }
 
