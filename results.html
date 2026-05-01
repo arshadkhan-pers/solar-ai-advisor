@@ -48,16 +48,42 @@
 
   <!-- FORM -->
   <div id="leadForm" class="form hidden">
-    <h3>Enter Details</h3>
-    <input type="text" placeholder="Name" id="name">
-    <input type="text" placeholder="Phone" id="phone">
-    <input type="text" placeholder="City" id="city">
+    <h3>Complete Your Profile</h3>
+    
+    <p style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin: 10px auto; max-width: 500px; text-align: left; color: #555;">Your details from the initial request</p>
+    
+    <input type="text" id="capturedName" placeholder="Name" readonly style="background: #f3f4f6; opacity: 0.7;">
+    <input type="text" id="capturedPhone" placeholder="Phone" readonly style="background: #f3f4f6; opacity: 0.7;">
+    <input type="text" id="capturedCity" placeholder="City" readonly style="background: #f3f4f6; opacity: 0.7;">
+    <input type="text" id="capturedBill" placeholder="Monthly Bill" readonly style="background: #f3f4f6; opacity: 0.7;">
+    
+    <p style="background: #fffbeb; padding: 12px; border-radius: 8px; margin: 15px auto; max-width: 500px; text-align: left; color: #92400e; font-size: 13px;">👉 Additional Details Needed</p>
+    
+    <div id="billUploadArea" class="bill-upload-area">
+      <p>📄 Drag & drop your last month's bill here or click to select</p>
+      <input type="file" id="billUpload" style="display:none;" accept=".pdf,.jpg,.jpeg,.png">
+    </div>
+    <p id="billFileName" style="font-size:12px; color:#666; margin-top:5px;"></p>
 
+    <label for="rooftopOwnership">Do you own the rooftop?</label>
+    <select id="rooftopOwnership">
+      <option>Yes</option>
+      <option>No</option>
+    </select>
+
+    <label for="connectionType">Connection Type</label>
+    <select id="connectionType">
+      <option>Residential</option>
+      <option>Commercial</option>
+    </select>
+
+    <label for="propertyType">Property Type</label>
     <select id="propertyType">
       <option>Independent House</option>
       <option>Apartment</option>
     </select>
 
+    <label for="roofType">Roof Type</label>
     <select id="roofType">
       <option>Concrete</option>
       <option>Tin/Metal</option>
@@ -65,6 +91,13 @@
 
     <button onclick="submitLead()">Submit</button>
   </div>
+
+  <div id="submitSuccess" class="success-message hidden">
+    <h3>Lead Saved</h3>
+    <p>Your details have been submitted successfully. We will connect you with the best solar installer soon.</p>
+  </div>
+
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
 
   <!-- TRUST -->
   <div class="card">
