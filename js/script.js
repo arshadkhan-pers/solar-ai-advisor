@@ -24,24 +24,21 @@ function submitLeadAndContinue() {
     return;
   }
 
-  // ✅ Google Form URL
-  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSdlaTI5QgDN_im4LKLmN7gfyMXq1FacODSAkFIUqk1xHQa9Wg/formResponse";
+  // 🔥 GENERATE LEAD ID
+  const leadId = Date.now().toString();
+  localStorage.setItem("leadId", leadId);
 
-  const params = new URLSearchParams();
-
-  params.append("entry.1246657926", name);
-  params.append("entry.89782871", phone);
-  params.append("entry.23617969", city);
-  params.append("entry.1483966016", bill);
-
-  // ✅ Save to Google Sheet
-  fetch(formURL, {
-    method: "POST",
-    mode: "no-cors",
-    body: params
+  // 🔥 SAVE TO FIRESTORE
+  db.collection("leads").doc(leadId).set({
+    name: name,
+    phone: phone,
+    city: city,
+    bill: parseFloat(bill),
+    leadType: "New",
+    createdAt: new Date()
   });
 
-  // ✅ WhatsApp Notification (to you)
+  // ✅ WhatsApp Notification (UNCHANGED)
   const message = `
 New Solar Lead:
 
@@ -56,7 +53,7 @@ Bill: ₹${bill}
 
   window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
 
-  // ✅ Redirect to results with captured data
+  // ✅ Redirect (UNCHANGED)
   const redirectURL = `results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
   window.location.href = redirectURL;
 }

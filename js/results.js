@@ -60,35 +60,51 @@ function openWhatsApp() {
   const bill = getBillFromURL();
   const result = calculateSolar(bill);
 
-  const message = `\nHi, I’m interested in installing rooftop solar.\n\nHere are my details:\n\nMonthly Bill: ₹${bill}\nRecommended System: ${result.systemSize} kW\nEstimated Cost (after subsidy): ₹${result.finalCost}\nMonthly Savings: ₹${result.monthlySavings}\nPayback Period: ${result.payback} years\n\nPlease share installation details and next steps.\n`;
+  const message = `Hi, I’m interested in installing rooftop solar.
+
+Monthly Bill: ₹${bill}
+Recommended System: ${result.systemSize} kW
+Estimated Cost: ₹${result.finalCost}
+Monthly Savings: ₹${result.monthlySavings}
+Payback Period: ${result.payback} years`;
 
   const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
-  const url = `https://wa.me/${number}?text=${encodedMessage}`;
 
-  window.open(url, "_blank");
+  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
 }
 
-function submitToGoogleForm(formURL, params) {
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = formURL;
-  form.target = "hidden_iframe";
-  form.style.display = "none";
+// 🔥 UPDATE SAME LEAD IN FIRESTORE
+function submitLead() {
+  const propertyType = document.getElementById("propertyType").value;
+  const roofType = document.getElementById("roofType").value;
+  const rooftopOwnership = document.getElementById("rooftopOwnership").value;
+  const connectionType = document.getElementById("connectionType").value;
+  const billFile = document.getElementById("billUpload").files[0];
 
-  for (const [key, value] of params.entries()) {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = key;
-    input.value = value;
-    form.appendChild(input);
+  const leadId = localStorage.getItem("leadId");
+
+  if (!leadId) {
+    alert("Lead ID not found");
+    return;
   }
 
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+  db.collection("leads").doc(leadId).update({
+    propertyType: propertyType,
+    roofType: roofType,
+    rooftopOwnership: rooftopOwnership,
+    connectionType: connectionType,
+    billUploaded: billFile ? "Yes" : "No",
+    updatedAt: new Date()
+  });
+
+  document.getElementById("leadForm").classList.add("hidden");
+  document.getElementById("submitSuccess").classList.remove("hidden");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// 🔧 File upload UI
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
   const fileInput = document.getElementById("billUpload");
@@ -121,49 +137,17 @@ function setupBillUpload() {
   });
 }
 
+// 🔧 Populate captured data
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
-  const name = params.get("name");
-  const phone = params.get("phone");
-  const city = params.get("city");
-  const bill = params.get("bill");
 
-  if (name) document.getElementById("capturedName").value = name;
-  if (phone) document.getElementById("capturedPhone").value = phone;
-  if (city) document.getElementById("capturedCity").value = city;
-  if (bill) document.getElementById("capturedBill").value = `₹${bill}`;
+  document.getElementById("capturedName").value = params.get("name") || "";
+  document.getElementById("capturedPhone").value = params.get("phone") || "";
+  document.getElementById("capturedCity").value = params.get("city") || "";
+  document.getElementById("capturedBill").value = "₹" + (params.get("bill") || "");
 }
 
-function submitLead() {
-  const propertyType = document.getElementById("propertyType").value;
-  const roofType = document.getElementById("roofType").value;
-  const rooftopOwnership = document.getElementById("rooftopOwnership").value;
-  const connectionType = document.getElementById("connectionType").value;
-  const billFile = document.getElementById("billUpload").files[0];
-
-  const bill = getBillFromURL();
-  const result = calculateSolar(bill);
-
-  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSdlaTI5QgDN_im4LKLmN7gfyMXq1FacODSAkFIUqk1xHQa9Wg/formResponse";
-  const params = new URLSearchParams();
-  params.append("entry.1246657926", document.getElementById("capturedName").value);
-  params.append("entry.89782871", document.getElementById("capturedPhone").value);
-  params.append("entry.23617969", document.getElementById("capturedCity").value);
-  params.append("entry.1483966016", bill);
-  params.append("entry.1063354041", rooftopOwnership);
-  params.append("entry.710758326", billFile ? "Yes" : "No");
-  params.append("entry.1141577223", connectionType);
-  params.append("entry.992838275", propertyType);
-  params.append("entry.1735317832", roofType);
-
-  submitToGoogleForm(formURL, params);
-
-  document.getElementById("leadForm").classList.add("hidden");
-  document.getElementById("submitSuccess").classList.remove("hidden");
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
+// 🔥 INIT
 const bill = getBillFromURL();
 
 if (bill) {

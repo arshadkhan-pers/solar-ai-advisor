@@ -77,18 +77,39 @@
     <button onclick="scrollToTop()">Calculate Now</button>
   </section>
 
-  <script src="js/script.js"></script>
   <!-- LEAD POPUP -->
-<div id="leadPopup" class="popup hidden">
-  <div class="popup-content">
-    <h3>Get Your Solar Estimate</h3>
+  <div id="leadPopup" class="popup hidden">
+    <div class="popup-content">
+      <h3>Get Your Solar Estimate</h3>
 
-    <input type="text" id="leadName" placeholder="Name">
-    <input type="text" id="leadPhone" placeholder="Phone">
-    <input type="text" id="leadCity" placeholder="City">
-<button type="button" onclick="submitLeadAndContinue(event)">Continue</button>
-   <!-- <button onclick="submitLeadAndContinue()">Continue</button>-->
+      <input type="text" id="leadName" placeholder="Name">
+      <input type="text" id="leadPhone" placeholder="Phone">
+      <input type="text" id="leadCity" placeholder="City">
+
+      <button type="button" onclick="submitLeadAndContinue(event)">Continue</button>
+    </div>
   </div>
-</div>
+
+  <!-- YOUR SCRIPT -->
+  <script src="js/script.js"></script>
+
+  <!-- 🔥 FIREBASE (ADD THIS BLOCK) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "XXXX",
+      appId: "XXXX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
 </body>
 </html>
