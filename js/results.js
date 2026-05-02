@@ -5,7 +5,7 @@ function getBillFromURL() {
 
 function calculateSolar(bill) {
   const units = bill / 7;
-  const systemSize = units / 120;
+  const systemSize = Math.round(units / 120);
 
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
@@ -35,8 +35,8 @@ function calculateSolar(bill) {
   const monthlySavings = units * 7;
   const payback = finalCost / (monthlySavings * 12);
 
-  const panels = Math.round(systemSize * 3);
-  const area = Math.round(systemSize * 75);
+  const panels = Math.ceil((systemSize * 1000)/550);
+  const area = Math.round(systemSize * 80);
   const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
   return {
