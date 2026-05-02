@@ -14,32 +14,110 @@ function calculate() {
 
 // 🔥 Lead Scoring Logic
 function getLeadType(bill) {
-  if (bill >= 3000) return "Hot";   // not Premium yet
-  if (bill >= 1500) return "Warm";  // rename from Hot for clarity
+  if (bill >= 3000) return "Hot";
+  if (bill >= 1500) return "Warm";
   return "Basic";
 }
 
 // 🔥 Generate human-readable lead code (safe)
 function generateLeadCode(phone) {
   const d = new Date();
-  const date = d.toISOString().slice(0,10).replace(/-/g,""); // YYYYMMDD
+  const date = d.toISOString().slice(0, 10).replace(/-/g, "");
   const last4 = phone.slice(-4);
-  const rand = Math.random().toString(36).slice(2,6).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `SOL-${date}-${last4}-${rand}`;
+}
+
+// 🔥 Normalize phone (NEW)
+function normalizePhone(phone) {
+  phone = phone.replace(/\D/g, "");
+
+  if (phone.startsWith("91") && phone.length === 12) {
+    phone = phone.slice(2);
+  }
+
+  if (phone.startsWith("0") && phone.length === 11) {
+    phone = phone.slice(1);
+  }
+
+  return phone;
+}
+
+// 🔥 Inline error helpers (NEW)
+function showError(inputId, errorId, message) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+
+  if (errorEl) errorEl.innerText = message;
+  if (inputEl) inputEl.classList.add("invalid");
+}
+
+function clearError(inputId, errorId) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+
+  if (errorEl) errorEl.innerText = "";
+  if (inputEl) inputEl.classList.remove("invalid");
+}
+
+// 🔥 Updated validation (inline + safe fallback)
+function validateLeadForm(name, phone, city) {
+  let isValid = true;
+
+  const nameRegex = /^[A-Za-z ]{2,}$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  const cityRegex = /^[A-Za-z ]{3,}$/;
+
+  // Clear previous errors (safe if elements not present)
+  clearError("leadName", "nameError");
+  clearError("leadPhone", "phoneError");
+  clearError("leadCity", "cityError");
+
+  // Name validation
+  if (!nameRegex.test(name)) {
+    showError("leadName", "nameError", "Enter valid name");
+    isValid = false;
+  }
+
+  // Normalize phone before validation
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!phoneRegex.test(normalizedPhone)) {
+    showError("leadPhone", "phoneError", "Enter valid 10-digit mobile");
+    isValid = false;
+  }
+
+  // Block fake numbers like 9999999999
+  if (/^(\d)\1{9}$/.test(normalizedPhone)) {
+    showError("leadPhone", "phoneError", "Invalid mobile number");
+    isValid = false;
+  }
+
+  // City validation
+  if (!cityRegex.test(city)) {
+    showError("leadCity", "cityError", "Enter valid city");
+    isValid = false;
+  }
+
+  return { isValid, phone: normalizedPhone };
 }
 
 async function submitLeadAndContinue() {
   console.log("🚀 Submit button clicked");
 
-  const name = document.getElementById("leadName").value;
-  const phone = document.getElementById("leadPhone").value;
-  const city = document.getElementById("leadCity").value;
+  const name = document.getElementById("leadName").value.trim();
+  let phone = document.getElementById("leadPhone").value.trim();
+  const city = document.getElementById("leadCity").value.trim();
   const bill = localStorage.getItem("bill") || window.currentBill;
 
-  if (!name || !phone) {
-    alert("Please enter name and phone");
+  const validation = validateLeadForm(name, phone, city);
+
+  if (!validation.isValid) {
     return;
   }
+
+  // 🔥 Use normalized phone everywhere
+  phone = validation.phone;
 
   // 🔍 Safety checks
   if (typeof firebase === "undefined") {
@@ -55,7 +133,6 @@ async function submitLeadAndContinue() {
   try {
     console.log("🔥 Checking for recent duplicate...");
 
-    // 🔥 DEDUPE CHECK (last 30 mins)
     let duplicateLeadId = null;
 
     const snapshot = await db.collection("leads")
@@ -90,7 +167,7 @@ async function submitLeadAndContinue() {
 
       // 🔥 Business fields
       leadCode: leadCode,
-      customerId: phone,              // 🔥 grouping key
+      customerId: phone,
       leadType: leadType,
       status: "New",
       stage: "initial",
@@ -104,7 +181,6 @@ async function submitLeadAndContinue() {
 
     console.log("✅ Lead saved:", docRef.id);
 
-    // Save leadId for step 2
     localStorage.setItem("leadId", docRef.id);
 
   } catch (error) {
@@ -113,7 +189,7 @@ async function submitLeadAndContinue() {
     return;
   }
 
-  // ✅ Redirect (unchanged)
+  // ✅ Redirect (unchanged, but uses normalized phone)
   window.location.href =
     `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 }
@@ -128,5 +204,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // 🔝 Scroll helper
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
