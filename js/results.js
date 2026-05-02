@@ -56,7 +56,7 @@ function showForm() {
   document.getElementById("leadForm").classList.remove("hidden");
 }
 
-// 🔥 FINAL LEAD SCORING (MORE ACCURATE)
+// 🔥 FINAL LEAD SCORING
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
 
@@ -73,7 +73,7 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
   return "Basic";
 }
 
-// ✅ WhatsApp stays here (correct place)
+// ✅ WhatsApp (unchanged)
 function openWhatsApp() {
   const bill = getBillFromURL();
   const result = calculateSolar(bill);
@@ -107,7 +107,13 @@ async function submitLead() {
     return;
   }
 
-  const bill = getBillFromURL();
+  // 🔍 Safety checks (NEW - minimal but important)
+  if (typeof firebase === "undefined" || typeof db === "undefined") {
+    alert("Database not initialized");
+    return;
+  }
+
+  const bill = parseFloat(getBillFromURL());
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
 
   try {
@@ -139,7 +145,7 @@ async function submitLead() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// 🔧 File upload UI
+// 🔧 File upload UI (unchanged)
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
   const fileInput = document.getElementById("billUpload");
@@ -172,7 +178,7 @@ function setupBillUpload() {
   });
 }
 
-// 🔧 Populate captured data
+// 🔧 Populate captured data (unchanged)
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
@@ -182,7 +188,7 @@ function populateCapturedData() {
   document.getElementById("capturedBill").value = "₹" + (params.get("bill") || "");
 }
 
-// 🔥 INIT
+// 🔥 INIT (unchanged)
 const bill = getBillFromURL();
 
 if (bill) {

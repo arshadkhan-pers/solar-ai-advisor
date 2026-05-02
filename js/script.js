@@ -19,6 +19,15 @@ function getLeadType(bill) {
   return "Basic";
 }
 
+// 🔥 Generate human-readable lead code (safe)
+function generateLeadCode(phone) {
+  const d = new Date();
+  const date = d.toISOString().slice(0,10).replace(/-/g,""); // YYYYMMDD
+  const last4 = phone.slice(-4);
+  const rand = Math.random().toString(36).slice(2,6).toUpperCase();
+  return `SOL-${date}-${last4}-${rand}`;
+}
+
 async function submitLeadAndContinue() {
   console.log("🚀 Submit button clicked");
 
@@ -29,14 +38,6 @@ async function submitLeadAndContinue() {
 
   if (!name || !phone) {
     alert("Please enter name and phone");
-    return;
-  }
-
-  // 🔒 Prevent duplicate submission
-  if (localStorage.getItem("leadSaved")) {
-    console.log("⚠️ Lead already saved, skipping...");
-    window.location.href =
-      `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
     return;
   }
 
@@ -52,9 +53,34 @@ async function submitLeadAndContinue() {
   }
 
   try {
-    console.log("🔥 Saving lead to Firestore...");
+    console.log("🔥 Checking for recent duplicate...");
+
+    // 🔥 DEDUPE CHECK (last 30 mins)
+    let duplicateLeadId = null;
+
+    const snapshot = await db.collection("leads")
+      .where("phone", "==", phone)
+      .orderBy("createdAt", "desc")
+      .limit(1)
+      .get();
+
+    if (!snapshot.empty) {
+      const lastDoc = snapshot.docs[0];
+      const lastData = lastDoc.data();
+      const lastTime = lastData.createdAt?.toDate?.() || new Date(0);
+
+      const minutesDiff = (Date.now() - lastTime.getTime()) / 60000;
+
+      if (minutesDiff < 30) {
+        console.log("⚠️ Duplicate detected within 30 mins");
+        duplicateLeadId = lastDoc.id;
+      }
+    }
 
     const leadType = getLeadType(parseFloat(bill));
+    const leadCode = generateLeadCode(phone);
+
+    console.log("🔥 Saving lead to Firestore...");
 
     const docRef = await db.collection("leads").add({
       name: name,
@@ -63,10 +89,15 @@ async function submitLeadAndContinue() {
       bill: parseFloat(bill),
 
       // 🔥 Business fields
+      leadCode: leadCode,
+      customerId: phone,              // 🔥 grouping key
       leadType: leadType,
       status: "New",
       stage: "initial",
       leadSource: "Website",
+
+      // 🔥 Dedupe tracking
+      duplicateOf: duplicateLeadId || null,
 
       createdAt: new Date()
     });
@@ -75,7 +106,6 @@ async function submitLeadAndContinue() {
 
     // Save leadId for step 2
     localStorage.setItem("leadId", docRef.id);
-    localStorage.setItem("leadSaved", "true");
 
   } catch (error) {
     console.error("❌ Firestore ERROR:", error);
@@ -83,7 +113,7 @@ async function submitLeadAndContinue() {
     return;
   }
 
-  // ✅ Redirect to results (NO WhatsApp here)
+  // ✅ Redirect (unchanged)
   window.location.href =
     `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 }
