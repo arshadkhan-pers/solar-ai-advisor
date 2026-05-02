@@ -98,7 +98,7 @@ async function submitLeadAndContinue() {
 
       // 🔥 Dedupe tracking
       duplicateOf: duplicateLeadId || null,
-
+      isDuplicate: duplicateLeadId ? true : false,
       createdAt: new Date()
     });
 
