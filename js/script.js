@@ -11,8 +11,9 @@ function calculate() {
   localStorage.setItem("bill", bill);
   document.getElementById("leadPopup").classList.remove("hidden");
 }
-
+/*
 function submitLeadAndContinue() {
+
   const name = document.getElementById("leadName").value;
   const phone = document.getElementById("leadPhone").value;
   const city = document.getElementById("leadCity").value;
@@ -56,6 +57,71 @@ Bill: ₹${bill}
   // ✅ Redirect (UNCHANGED)
   const redirectURL = `results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
   window.location.href = redirectURL;
+}
+*/
+async function submitLeadAndContinue() {
+  console.log("🚀 Submit button clicked");
+
+  const name = document.getElementById("leadName").value;
+  const phone = document.getElementById("leadPhone").value;
+  const city = document.getElementById("leadCity").value;
+  const bill = localStorage.getItem("bill") || window.currentBill;
+
+  console.log("📊 Input values:", { name, phone, city, bill });
+
+  if (!name || !phone) {
+    alert("Please enter name and phone");
+    return;
+  }
+
+  // 🔍 Check Firebase loaded
+  if (typeof firebase === "undefined") {
+    console.error("❌ Firebase NOT loaded");
+    alert("Firebase not loaded");
+    return;
+  }
+
+  // 🔍 Check DB initialized
+  if (typeof db === "undefined") {
+    console.error("❌ Firestore DB not initialized");
+    alert("DB not initialized");
+    return;
+  }
+
+  try {
+    console.log("🔥 Attempting Firestore write...");
+
+    const docRef = await db.collection("leads").add({
+      name,
+      phone,
+      city,
+      bill: parseFloat(bill),
+      createdAt: new Date()
+    });
+
+    console.log("✅ Firestore SUCCESS:", docRef.id);
+
+    localStorage.setItem("leadId", docRef.id);
+
+  } catch (error) {
+    console.error("❌ Firestore ERROR:", error);
+    alert("Error saving data. Check console.");
+    return;
+  }
+
+  // ✅ WhatsApp (unchanged)
+  const message = `New Solar Lead:
+Name: ${name}
+Phone: ${phone}
+City: ${city}
+Bill: ₹${bill}`;
+
+  const encodedMessage = encodeURIComponent(message);
+  window.open(`https://wa.me/61404166347?text=${encodedMessage}`, "_blank");
+
+  // ✅ Redirect
+  window.location.href =
+    `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
