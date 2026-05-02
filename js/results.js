@@ -56,6 +56,24 @@ function showForm() {
   document.getElementById("leadForm").classList.remove("hidden");
 }
 
+// 🔥 FINAL LEAD SCORING (MORE ACCURATE)
+function getLeadType(bill, propertyType, rooftopOwnership) {
+  let score = 0;
+
+  if (bill >= 3000) score += 2;
+  else if (bill >= 1500) score += 1;
+
+  if (propertyType === "Independent House") score += 2;
+  else score += 1;
+
+  if (rooftopOwnership === "Yes") score += 2;
+
+  if (score >= 5) return "Premium";
+  if (score >= 3) return "Hot";
+  return "Basic";
+}
+
+// ✅ WhatsApp stays here (correct place)
 function openWhatsApp() {
   const bill = getBillFromURL();
   const result = calculateSolar(bill);
@@ -71,11 +89,11 @@ Payback Period: ${result.payback} years`;
   const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
 
-  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_self");
+  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
 }
 
-// 🔥 UPDATE SAME LEAD IN FIRESTORE
-function submitLead() {
+// 🔥 UPDATE SAME LEAD (FINAL STEP)
+async function submitLead() {
   const propertyType = document.getElementById("propertyType").value;
   const roofType = document.getElementById("roofType").value;
   const rooftopOwnership = document.getElementById("rooftopOwnership").value;
@@ -89,14 +107,31 @@ function submitLead() {
     return;
   }
 
-  db.collection("leads").doc(leadId).update({
-    propertyType: propertyType,
-    roofType: roofType,
-    rooftopOwnership: rooftopOwnership,
-    connectionType: connectionType,
-    billUploaded: billFile ? "Yes" : "No",
-    updatedAt: new Date()
-  });
+  const bill = getBillFromURL();
+  const leadType = getLeadType(bill, propertyType, rooftopOwnership);
+
+  try {
+    await db.collection("leads").doc(leadId).update({
+      propertyType: propertyType,
+      roofType: roofType,
+      rooftopOwnership: rooftopOwnership,
+      connectionType: connectionType,
+      billUploaded: billFile ? "Yes" : "No",
+
+      // 🔥 Business updates
+      leadType: leadType,
+      stage: "qualified",
+
+      updatedAt: new Date()
+    });
+
+    console.log("✅ Lead updated successfully");
+
+  } catch (error) {
+    console.error("❌ Update failed:", error);
+    alert("Error updating lead");
+    return;
+  }
 
   document.getElementById("leadForm").classList.add("hidden");
   document.getElementById("submitSuccess").classList.remove("hidden");

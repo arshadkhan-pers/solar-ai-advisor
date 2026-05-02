@@ -11,54 +11,14 @@ function calculate() {
   localStorage.setItem("bill", bill);
   document.getElementById("leadPopup").classList.remove("hidden");
 }
-/*
-function submitLeadAndContinue() {
 
-  const name = document.getElementById("leadName").value;
-  const phone = document.getElementById("leadPhone").value;
-  const city = document.getElementById("leadCity").value;
-
-  const bill = localStorage.getItem("bill") || window.currentBill;
-
-  if (!name || !phone) {
-    alert("Please enter name and phone");
-    return;
-  }
-
-  // 🔥 GENERATE LEAD ID
-  const leadId = Date.now().toString();
-  localStorage.setItem("leadId", leadId);
-
-  // 🔥 SAVE TO FIRESTORE
-  db.collection("leads").doc(leadId).set({
-    name: name,
-    phone: phone,
-    city: city,
-    bill: parseFloat(bill),
-    leadType: "New",
-    createdAt: new Date()
-  });
-
-  // ✅ WhatsApp Notification (UNCHANGED)
-  const message = `
-New Solar Lead:
-
-Name: ${name}
-Phone: ${phone}
-City: ${city}
-Bill: ₹${bill}
-`;
-
-  const encodedMessage = encodeURIComponent(message);
-  const number = "61404166347";
-
-  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_self");
-
-  // ✅ Redirect (UNCHANGED)
-  const redirectURL = `results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
-  window.location.href = redirectURL;
+// 🔥 Lead Scoring Logic
+function getLeadType(bill) {
+  if (bill >= 3000) return "Premium";
+  if (bill >= 1500) return "Hot";
+  return "Basic";
 }
-*/
+
 async function submitLeadAndContinue() {
   console.log("🚀 Submit button clicked");
 
@@ -67,41 +27,55 @@ async function submitLeadAndContinue() {
   const city = document.getElementById("leadCity").value;
   const bill = localStorage.getItem("bill") || window.currentBill;
 
-  console.log("📊 Input values:", { name, phone, city, bill });
-
   if (!name || !phone) {
     alert("Please enter name and phone");
     return;
   }
 
-  // 🔍 Check Firebase loaded
+  // 🔒 Prevent duplicate submission
+  if (localStorage.getItem("leadSaved")) {
+    console.log("⚠️ Lead already saved, skipping...");
+    window.location.href =
+      `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+    return;
+  }
+
+  // 🔍 Safety checks
   if (typeof firebase === "undefined") {
-    console.error("❌ Firebase NOT loaded");
     alert("Firebase not loaded");
     return;
   }
 
-  // 🔍 Check DB initialized
   if (typeof db === "undefined") {
-    console.error("❌ Firestore DB not initialized");
-    alert("DB not initialized");
+    alert("Database not initialized");
     return;
   }
 
   try {
-    console.log("🔥 Attempting Firestore write...");
-    debugger;
+    console.log("🔥 Saving lead to Firestore...");
+
+    const leadType = getLeadType(parseFloat(bill));
+
     const docRef = await db.collection("leads").add({
-      name,
-      phone,
-      city,
+      name: name,
+      phone: phone,
+      city: city,
       bill: parseFloat(bill),
+
+      // 🔥 Business fields
+      leadType: leadType,
+      status: "New",
+      stage: "initial",
+      leadSource: "Website",
+
       createdAt: new Date()
     });
 
-    console.log("✅ Firestore SUCCESS:", docRef.id);
+    console.log("✅ Lead saved:", docRef.id);
 
+    // Save leadId for step 2
     localStorage.setItem("leadId", docRef.id);
+    localStorage.setItem("leadSaved", "true");
 
   } catch (error) {
     console.error("❌ Firestore ERROR:", error);
@@ -109,21 +83,12 @@ async function submitLeadAndContinue() {
     return;
   }
 
-  // ✅ WhatsApp (unchanged)
-  //const message = `New Solar Lead:
-//Name: ${name}
-//Phone: ${phone}
-//City: ${city}
-//Bill: ₹${bill}`;
-
- // const encodedMessage = encodeURIComponent(message);
- // window.open(`https://wa.me/61404166347?text=${encodedMessage}`, "_self");
-
-  // ✅ Redirect
+  // ✅ Redirect to results (NO WhatsApp here)
   window.location.href =
     `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 }
 
+// 🔁 Bind button
 document.addEventListener("DOMContentLoaded", function () {
   const calculateBtn = document.getElementById("calculateBtn");
   if (calculateBtn) {
@@ -131,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+// 🔝 Scroll helper
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
