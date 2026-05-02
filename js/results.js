@@ -10,11 +10,28 @@ function calculateSolar(bill) {
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
 
-  let subsidy = systemSize <= 3 
-    ? systemSize * 18000 
-    : 54000;
+  // 🔵 CENTRAL SUBSIDY (PM Surya Ghar)
+  let centralSubsidy = 0;
 
-  const finalCost = totalCost - subsidy;
+  if (systemSize <= 2) {
+    centralSubsidy = systemSize * 30000;
+  } else if (systemSize <= 3) {
+    centralSubsidy = (2 * 30000) + ((systemSize - 2) * 18000);
+  } else {
+    centralSubsidy = 78000; // capped
+  }
+
+  // 🟢 STATE SUBSIDY (UPNEDA)
+  let stateSubsidy = systemSize * 15000;
+  if (stateSubsidy > 30000) {
+    stateSubsidy = 30000; // cap
+  }
+
+  const totalSubsidy = centralSubsidy + stateSubsidy;
+
+  // 💰 FINAL COST
+  const finalCost = totalCost - totalSubsidy;
+
   const monthlySavings = units * 7;
   const payback = finalCost / (monthlySavings * 12);
 
@@ -25,7 +42,12 @@ function calculateSolar(bill) {
   return {
     systemSize: systemSize.toFixed(1),
     totalCost: Math.round(totalCost),
-    subsidy: Math.round(subsidy),
+
+    // 🔥 updated outputs
+    subsidy: Math.round(totalSubsidy),
+    centralSubsidy: Math.round(centralSubsidy),
+    stateSubsidy: Math.round(stateSubsidy),
+
     finalCost: Math.round(finalCost),
     monthlySavings: Math.round(monthlySavings),
     payback: payback.toFixed(1),
@@ -50,6 +72,8 @@ function renderResults(data, bill) {
   document.getElementById("panels").innerText = data.panels;
   document.getElementById("area").innerText = data.area;
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings;
+  document.getElementById("centralSubsidy").innerText = data.centralSubsidy || 0;
+  document.getElementById("stateSubsidy").innerText = data.stateSubsidy || 0;
 }
 
 function showForm() {

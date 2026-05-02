@@ -15,11 +15,23 @@
 
   <!-- COST -->
   <div class="card">
-    <h3>Cost Breakdown</h3>
-    <p>Total Cost: ₹<span id="totalCost"></span></p>
-    <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
-    <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
-  </div>
+  <h3>Cost Breakdown</h3>
+
+  <p>Total Cost: ₹<span id="totalCost"></span></p>
+
+  <!-- 🔥 NEW: Subsidy breakdown (non-breaking addition) -->
+  <p style="font-size:13px; color:#555;">
+    Central Subsidy: ₹<span id="centralSubsidy">0</span>
+  </p>
+  <p style="font-size:13px; color:#555;">
+    State Subsidy: ₹<span id="stateSubsidy">0</span>
+  </p>
+
+  <!-- Existing field (kept for compatibility) -->
+  <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
+
+  <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
+</div>
 
   <!-- SAVINGS -->
   <div class="card">
@@ -38,7 +50,7 @@
   </div>
 
   <!-- URGENCY -->
-  <p class="urgent">⚡ Limited subsidy available under Govt scheme</p>
+  <p class="urgent">⚡ Subsidy benefits up to ₹1,08,000 available</p>
 
   <!-- CTA -->
   <button class="cta" onclick="showForm()">Get Exact Price for Your Home</button>
