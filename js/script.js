@@ -14,8 +14,8 @@ function calculate() {
 
 // 🔥 Lead Scoring Logic
 function getLeadType(bill) {
-  if (bill >= 3000) return "Premium";
-  if (bill >= 1500) return "Hot";
+  if (bill >= 3000) return "Hot";   // not Premium yet
+  if (bill >= 1500) return "Warm";  // rename from Hot for clarity
   return "Basic";
 }
 
