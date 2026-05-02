@@ -52,7 +52,7 @@ Bill: ₹${bill}
   const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
 
-  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
+  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_self");
 
   // ✅ Redirect (UNCHANGED)
   const redirectURL = `results.html?bill=${encodeURIComponent(bill)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
@@ -90,7 +90,7 @@ async function submitLeadAndContinue() {
 
   try {
     console.log("🔥 Attempting Firestore write...");
-
+    debugger;
     const docRef = await db.collection("leads").add({
       name,
       phone,
@@ -116,8 +116,8 @@ Phone: ${phone}
 City: ${city}
 Bill: ₹${bill}`;
 
-  const encodedMessage = encodeURIComponent(message);
-  window.open(`https://wa.me/61404166347?text=${encodedMessage}`, "_blank");
+ // const encodedMessage = encodeURIComponent(message);
+ // window.open(`https://wa.me/61404166347?text=${encodedMessage}`, "_self");
 
   // ✅ Redirect
   window.location.href =
