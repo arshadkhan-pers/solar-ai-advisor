@@ -71,7 +71,7 @@ Payback Period: ${result.payback} years`;
   const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
 
-  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
+  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_self");
 }
 
 // 🔥 UPDATE SAME LEAD IN FIRESTORE

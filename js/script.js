@@ -110,11 +110,11 @@ async function submitLeadAndContinue() {
   }
 
   // ✅ WhatsApp (unchanged)
-  const message = `New Solar Lead:
-Name: ${name}
-Phone: ${phone}
-City: ${city}
-Bill: ₹${bill}`;
+  //const message = `New Solar Lead:
+//Name: ${name}
+//Phone: ${phone}
+//City: ${city}
+//Bill: ₹${bill}`;
 
  // const encodedMessage = encodeURIComponent(message);
  // window.open(`https://wa.me/61404166347?text=${encodedMessage}`, "_self");
