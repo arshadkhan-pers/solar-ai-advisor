@@ -142,7 +142,7 @@ async function submitLead() {
   document.getElementById("leadForm").classList.add("hidden");
   document.getElementById("submitSuccess").classList.remove("hidden");
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 20, behavior: "smooth" });
 }
 
 // 🔧 File upload UI (unchanged)
