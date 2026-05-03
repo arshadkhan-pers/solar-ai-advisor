@@ -233,8 +233,25 @@ function loadCities(state) {
 
 // 🔁 Bind button
 document.addEventListener("DOMContentLoaded", function () {
+  sortStates();
   const calculateBtn = document.getElementById("calculateBtn");
   if (calculateBtn) {
     calculateBtn.addEventListener("click", calculate);
   }
 });
+
+function sortStates() {
+  const select = document.getElementById("state");
+  if (!select) return;
+
+  const options = Array.from(select.options);
+
+  const first = options.shift(); // keep "Select State"
+
+  options.sort((a, b) => a.text.localeCompare(b.text));
+
+  select.innerHTML = "";
+  select.appendChild(first);
+
+  options.forEach(opt => select.appendChild(opt));
+}

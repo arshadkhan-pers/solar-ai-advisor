@@ -10,7 +10,7 @@ function getBillFromURL() {
 
 function calculateSolar(bill) {
   const units = bill / 7;
-  const systemSize = Math.round(units / 120);
+  const systemSize = Math.max(1, Math.round(units / 120));
 
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
