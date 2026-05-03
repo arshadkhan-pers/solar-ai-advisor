@@ -1,3 +1,8 @@
+function getStateFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("state") || "UP"; // default fallback
+}
+
 function getBillFromURL() {
   const params = new URLSearchParams(window.location.search);
   return parseFloat(params.get("bill"));
@@ -21,11 +26,15 @@ function calculateSolar(bill) {
     centralSubsidy = 78000; // capped
   }
 
-  // 🟢 STATE SUBSIDY (UPNEDA)
-  let stateSubsidy = systemSize * 15000;
-  if (stateSubsidy > 30000) {
-    stateSubsidy = 30000; // cap
-  }
+  // 🟢 STATE SUBSIDY (Dynamic)
+  const state = getStateFromURL();
+
+  const config = stateSubsidyConfig[state] || { perKW: 10000, max: 20000 };
+
+  let stateSubsidy = systemSize * config.perKW;
+  if (stateSubsidy > config.max) {
+    stateSubsidy = config.max;
+}
 
   const totalSubsidy = centralSubsidy + stateSubsidy;
 
@@ -58,6 +67,13 @@ function calculateSolar(bill) {
 }
 
 function renderResults(data, bill) {
+
+  const state = getStateFromURL();
+
+    if (document.getElementById("stateInfo")) {
+      document.getElementById("stateInfo").innerText = `Includes ${state} state subsidy`;
+  }
+  
   document.getElementById("systemSize").innerText =
     `${data.systemSize} kW Solar System Recommended`;
 
@@ -102,16 +118,17 @@ function openWhatsApp() {
   const bill = getBillFromURL();
   const result = calculateSolar(bill);
 
-  const message = `Hi, I’m interested in installing rooftop solar.
+  const state = getStateFromURL();
 
+const message = `Hi, I’m interested in installing rooftop solar.
+
+Location: ${state}
 Monthly Bill: ₹${bill}
 Recommended System: ${result.systemSize} kW
 Estimated Cost: ₹${result.finalCost}
 Monthly Savings: ₹${result.monthlySavings}
 Payback Period: ${result.payback} years`;
 
-  const encodedMessage = encodeURIComponent(message);
-  const number = "61404166347";
 
   window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
 }
@@ -223,3 +240,14 @@ if (bill) {
 } else {
   document.body.innerHTML = "Invalid Input";
 }
+
+const stateSubsidyConfig = {
+  "UP": { perKW: 15000, max: 30000 },
+  "GJ": { perKW: 15000, max: 40000 },
+  "DL": { perKW: 10000, max: 30000 },
+  "RJ": { perKW: 8000, max: 24000 },
+  "UK": { perKW: 15000, max: 15000 },
+  "MH": { perKW: 10000, max: 30000 },
+  "AS": { perKW: 10000, max: 20000 },
+  "GA": { perKW: 10000, max: 20000 }
+};

@@ -1,15 +1,26 @@
 function calculate() {
   const billInput = document.getElementById("billInput").value;
   const bill = parseFloat(billInput);
+  const state = document.getElementById("state")?.value;
 
   if (!bill || bill < 500) {
     alert("Enter valid bill");
     return;
   }
 
+  if (!state) {
+    alert("Please select your state");
+    return;
+  }
+
+  localStorage.setItem("state", state);
   window.currentBill = bill;
   localStorage.setItem("bill", bill);
+
   document.getElementById("leadPopup").classList.remove("hidden");
+
+  const selectedState = localStorage.getItem("state");
+  loadCities(selectedState);
 }
 
 // 🔥 Lead Scoring Logic
@@ -94,10 +105,10 @@ function validateLeadForm(name, phone, city) {
   }
 
   // City validation
-  if (!cityRegex.test(city)) {
-    showError("leadCity", "cityError", "Enter valid city");
-    isValid = false;
-  }
+  if (!city || city.length < 2) {
+  showError("leadCity", "cityError", "Please select or enter city");
+  isValid = false;
+}
 
   return { isValid, phone: normalizedPhone };
 }
@@ -163,6 +174,7 @@ async function submitLeadAndContinue() {
       name: name,
       phone: phone,
       city: city,
+      state: localStorage.getItem("state"), // ✅ NEW
       bill: parseFloat(bill),
 
       // 🔥 Business fields
@@ -190,8 +202,33 @@ async function submitLeadAndContinue() {
   }
 
   // ✅ Redirect (unchanged, but uses normalized phone)
-  window.location.href =
-    `results.html?bill=${bill}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+  const state = localStorage.getItem("state");
+window.location.href =
+  `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+
+}
+
+// 🔝 Scroll helper
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// load cities based on state selection
+function loadCities(state) {
+  const datalist = document.getElementById("cityList");
+  if (!datalist) return;
+
+  datalist.innerHTML = "";
+
+  const cities = (typeof citiesByState !== "undefined" && citiesByState[state]) 
+    ? citiesByState[state] 
+    : [];
+
+  cities.forEach(city => {
+    const option = document.createElement("option");
+    option.value = city;
+    datalist.appendChild(option);
+  });
 }
 
 // 🔁 Bind button
@@ -201,8 +238,3 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateBtn.addEventListener("click", calculate);
   }
 });
-
-// 🔝 Scroll helper
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}

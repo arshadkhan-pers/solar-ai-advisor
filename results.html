@@ -12,24 +12,31 @@
   <!-- HERO -->
   <h1 id="systemSize"></h1>
   <p id="billInfo"></p>
+  <p id="stateInfo" style="font-size:13px; color:#555;"></p>
 
   <!-- COST -->
   <div class="card">
   <h3>Cost Breakdown</h3>
-
   <p>Total Cost: ₹<span id="totalCost"></span></p>
+  
+  <div class="card" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+  <p style="color:#166534; font-weight:500;">
+    ✔ Personalized estimate based on your location
+  </p>
+  </div>
+
 
   <!-- 🔥 NEW: Subsidy breakdown (non-breaking addition) -->
-  <p style="font-size:13px; color:#555;">
-    Central Subsidy: ₹<span id="centralSubsidy">0</span>
-  </p>
-  <p style="font-size:13px; color:#555;">
-    State Subsidy: ₹<span id="stateSubsidy">0</span>
-  </p>
+  <div style="font-size:13px; color:#555; margin-top:8px;">
+  <p>Central Subsidy: ₹<span id="centralSubsidy">0</span></p>
+  <p>State Subsidy: ₹<span id="stateSubsidy">0</span></p>
+</div>
 
   <!-- Existing field (kept for compatibility) -->
-  <p>Govt Subsidy: ₹<span id="subsidy"></span></p>
-
+  <p>Total Subsidy: ₹<span id="subsidy"></span></p>
+  <p style="font-size:12px; color:#888; margin-top:5px;">
+    *Subsidy values are estimated based on current government schemes
+  </p>
   <p class="highlight">You Pay: ₹<span id="finalCost"></span></p>
 </div>
 
@@ -49,7 +56,9 @@
   </div>
 
   <!-- URGENCY -->
-  <p class="urgent">⚡ Subsidy benefits up to ₹1,08,000 available</p>
+  <p class="urgent">
+    ⚡ Subsidy benefits available based on your state
+  </p>
 
   <!-- CTA -->
   <button class="cta" onclick="showForm()">Get Exact Price for Your Home</button>

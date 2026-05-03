@@ -16,9 +16,35 @@
     <p>Get instant cost, savings, and payback. No sales calls. No confusion.</p>
 
     <div class="input-group">
-      <input type="number" id="billInput" placeholder="Enter your monthly electricity bill (₹)" />
-      <button id="calculateBtn" type="button">Calculate Now</button>
-    </div>
+  <input type="number" id="billInput" placeholder="Enter your monthly electricity bill (₹)" />
+
+  <select id="state">
+    <option value="">Select State</option>
+    <option value="UP">Uttar Pradesh</option>
+    <option value="MH">Maharashtra</option>
+    <option value="DL">Delhi</option>
+    <option value="GJ">Gujarat</option>
+    <option value="RJ">Rajasthan</option>
+    <option value="MP">Madhya Pradesh</option>
+    <option value="KA">Karnataka</option>
+    <option value="TN">Tamil Nadu</option>
+    <option value="WB">West Bengal</option>
+    <option value="TS">Telangana</option>
+    <option value="AP">Andhra Pradesh</option>
+    <option value="KL">Kerala</option>
+    <option value="PB">Punjab</option>
+    <option value="HR">Haryana</option>
+    <option value="BR">Bihar</option>
+    <option value="JH">Jharkhand</option>
+    <option value="UK">Uttarakhand</option>
+    <option value="HP">Himachal Pradesh</option>
+    <option value="OR">Odisha</option>
+    <option value="AS">Assam</option>
+    <option value="GA">Goa</option>
+  </select>
+
+  <button id="calculateBtn" type="button">Calculate Now</button>
+</div>
 
     <p class="trust">
       ✔ Verified installers &nbsp;&nbsp; ✔ Transparent pricing &nbsp;&nbsp; ✔ Govt subsidy support
@@ -88,7 +114,8 @@
       <input type="text" id="leadPhone" placeholder="Phone">
       <small id="phoneError" class="error"></small>
 
-      <input type="text" id="leadCity" placeholder="City">
+      <input list="cityList" id="leadCity" placeholder="Search your city">
+      <datalist id="cityList"></datalist>
       <small id="cityError" class="error"></small>
 
       <button type="button" onclick="submitLeadAndContinue(event)">Continue</button>
@@ -96,6 +123,7 @@
   </div>
 
   <!-- YOUR SCRIPT -->
+  <script src="data/cities.js"></script>
   <script src="js/script.js"></script>
 
   <!-- 🔥 FIREBASE (ADD THIS BLOCK) -->
