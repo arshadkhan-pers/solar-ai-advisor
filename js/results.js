@@ -1,79 +1,212 @@
+// ===============================
+// ✅ CONFIGURATION
+// ===============================
+
+// Special category states (10% higher central subsidy)
+const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
+
+// Zero top-up states
+const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
+
+// State top-up configuration (UPDATED ACCURATE)
+const stateSubsidyConfig = {
+  "UP": { type: "perKW", value: 15000, cap: 30000 },
+  "GJ": { type: "perKW", value: 10000, cap: 30000 },
+  "DL": { type: "perKW", value: 10000, cap: 30000 },
+  "RJ": { type: "perKW", value: 8000, cap: 24000 },
+  "MH": { type: "perKW", value: 22000, cap: 60000 },
+  "AS": { type: "perKW", value: 15000, cap: 45000 },
+  "OR": { type: "perKW", value: 10000, cap: 30000 },
+  "BR": { type: "perKW", value: 10000, cap: 30000 },
+  "MP": { type: "perKW", value: 5000, cap: 15000 },
+  "UK": { type: "flat", value: 15000 },
+
+  // 🔥 GOA SPECIAL MODEL
+  "GA": { type: "goa_model" }
+};
+
+// State names
+const stateNames = {
+  "UP": "Uttar Pradesh",
+  "MH": "Maharashtra",
+  "GJ": "Gujarat",
+  "DL": "Delhi",
+  "RJ": "Rajasthan",
+  "UK": "Uttarakhand",
+  "AS": "Assam",
+  "GOA": "Goa",
+  "AP": "Andhra Pradesh",
+  "TS": "Telangana",
+  "TN": "Tamil Nadu",
+  "KA": "Karnataka",
+  "WB": "West Bengal",
+  "KL": "Kerala",
+  "PB": "Punjab",
+  "HR": "Haryana",
+  "CG": "Chhattisgarh",
+  "OR": "Odisha",
+  "BR": "Bihar",
+  "MP": "Madhya Pradesh"
+};
+
+// ===============================
+// 🔹 HELPERS
+// ===============================
 function getStateFromURL() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("state") || "UP"; // default fallback
+  return params.get("state") || "UP";
 }
 
 function getBillFromURL() {
   const params = new URLSearchParams(window.location.search);
-  return parseFloat(params.get("bill"));
+  return parseFloat(params.get("bill")) || 0;
 }
 
+// ===============================
+// 🔵 CENTRAL SUBSIDY (2026)
+// ===============================
+function calculateCentralSubsidy(systemSize, state) {
+  let subsidy = 0;
+
+  if (systemSize <= 2) {
+    subsidy = systemSize * 30000;
+  } else if (systemSize <= 3) {
+    subsidy = (2 * 30000) + ((systemSize - 2) * 18000);
+  } else {
+    subsidy = 78000;
+  }
+
+  // Special state boost (+10%)
+  if (specialStates.includes(state)) {
+    subsidy = subsidy * 1.1;
+  }
+
+  return Math.round(subsidy);
+}
+
+// ===============================
+// 🟢 STATE SUBSIDY ENGINE
+// ===============================
+function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
+
+  // ZERO states
+  if (zeroTopUpStates.includes(state)) return 0;
+
+  const config = stateSubsidyConfig[state];
+  if (!config) return 0;
+
+  // 🔥 GOA SPECIAL LOGIC
+  if (config.type === "goa_model") {
+
+  const units = bill / 7;
+
+  // Low consumption (<400 units)
+  if (units <= 400) {
+
+    // near zero cost up to 5kW
+    if (systemSize <= 5) {
+      const required = totalCost - centralSubsidy;
+      return Math.min(required, 250000);
+    }
+  }
+
+  // High consumption
+  let subsidy = systemSize * 23000;
+  subsidy = Math.min(subsidy, 250000);
+
+  return Math.round(subsidy);
+}
+
+  // STANDARD STATES
+  let subsidy = 0;
+
+  if (config.type === "flat") {
+    subsidy = config.value;
+  }
+
+  if (config.type === "perKW") {
+    subsidy = systemSize * config.value;
+    subsidy = Math.min(subsidy, config.cap);
+  }
+
+  return Math.round(subsidy);
+}
+
+// ===============================
+// 🔹 CORE CALCULATION
+// ===============================
 function calculateSolar(bill) {
+
+  const state = getStateFromURL();
+
   const units = bill / 7;
   const systemSize = Math.max(1, Math.round(units / 120));
 
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
 
-  // 🔵 CENTRAL SUBSIDY (PM Surya Ghar)
-  let centralSubsidy = 0;
+  const centralSubsidy = calculateCentralSubsidy(systemSize, state);
 
-  if (systemSize <= 2) {
-    centralSubsidy = systemSize * 30000;
-  } else if (systemSize <= 3) {
-    centralSubsidy = (2 * 30000) + ((systemSize - 2) * 18000);
-  } else {
-    centralSubsidy = 78000; // capped
-  }
-
-  // 🟢 STATE SUBSIDY (Dynamic)
-  const state = getStateFromURL();
-
-  const config = stateSubsidyConfig[state] || { perKW: 10000, max: 20000 };
-
-  let stateSubsidy = systemSize * config.perKW;
-  if (stateSubsidy > config.max) {
-    stateSubsidy = config.max;
-}
+  const stateSubsidy = calculateStateSubsidy(
+    systemSize,
+    state,
+    bill,
+    totalCost,
+    centralSubsidy
+  );
 
   const totalSubsidy = centralSubsidy + stateSubsidy;
-
-  // 💰 FINAL COST
   const finalCost = totalCost - totalSubsidy;
 
   const monthlySavings = units * 7;
   const payback = finalCost / (monthlySavings * 12);
 
-  const panels = Math.ceil((systemSize * 1000)/550);
+  const panels = Math.ceil((systemSize * 1000) / 550);
   const area = Math.round(systemSize * 80);
   const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
   return {
     systemSize: systemSize.toFixed(1),
     totalCost: Math.round(totalCost),
-
-    // 🔥 updated outputs
     subsidy: Math.round(totalSubsidy),
     centralSubsidy: Math.round(centralSubsidy),
     stateSubsidy: Math.round(stateSubsidy),
-
     finalCost: Math.round(finalCost),
     monthlySavings: Math.round(monthlySavings),
     payback: payback.toFixed(1),
     panels,
     area,
-    lifetimeSavings
+    lifetimeSavings,
+    state
   };
 }
 
+// ===============================
+// 🔹 RENDER
+// ===============================
 function renderResults(data, bill) {
 
-  const state = getStateFromURL();
+  const stateFullName = stateNames[data.state] || data.state;
 
-    if (document.getElementById("stateInfo")) {
-      document.getElementById("stateInfo").innerText = `Includes ${state} state subsidy`;
+  const el = document.getElementById("stateInfo");
+
+  if (el) {
+    if (data.stateSubsidy > 0) {
+
+      if (data.state === "GA") {
+        el.innerText =
+          `Includes Goa special subsidy (may be credited after installation)`;
+      } else {
+        el.innerText =
+          `Includes central + ${stateFullName} state subsidy`;
+      }
+
+    } else {
+      el.innerText =
+        `Only central subsidy applicable in ${stateFullName}`;
+    }
   }
-  
+
   document.getElementById("systemSize").innerText =
     `${data.systemSize} kW Solar System Recommended`;
 
@@ -88,15 +221,48 @@ function renderResults(data, bill) {
   document.getElementById("panels").innerText = data.panels;
   document.getElementById("area").innerText = data.area;
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings;
-  document.getElementById("centralSubsidy").innerText = data.centralSubsidy || 0;
-  document.getElementById("stateSubsidy").innerText = data.stateSubsidy || 0;
+  document.getElementById("centralSubsidy").innerText = data.centralSubsidy;
+  document.getElementById("stateSubsidy").innerText = data.stateSubsidy;
 }
 
+// ===============================
+// 🔹 WHATSAPP
+// ===============================
+function openWhatsApp() {
+  const bill = getBillFromURL();
+  const result = calculateSolar(bill);
+  const stateFullName = stateNames[result.state] || result.state;
+
+  const message = `Hi, I’m interested in installing rooftop solar.
+
+Location: ${stateFullName}
+Monthly Bill: ₹${bill}
+Recommended System: ${result.systemSize} kW
+Estimated Cost: ₹${result.finalCost}
+Monthly Savings: ₹${result.monthlySavings}
+Payback Period: ${result.payback} years`;
+
+  const encodedMessage = encodeURIComponent(message);
+  const number = "61404166347";
+
+  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
+}
+
+// ===============================
+// 🔹 RESTORED FUNCTIONS (DO NOT REMOVE)
+// ===============================
+
+// ✅ Show lead form
 function showForm() {
-  document.getElementById("leadForm").classList.remove("hidden");
+  const form = document.getElementById("leadForm");
+  if (form) {
+    form.classList.remove("hidden");
+  } else {
+    console.warn("leadForm not found");
+  }
 }
 
-// 🔥 FINAL LEAD SCORING
+// 🔥 Lead scoring
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
 
@@ -113,33 +279,13 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
   return "Basic";
 }
 
-// ✅ WhatsApp (unchanged)
-function openWhatsApp() {
-  const bill = getBillFromURL();
-  const result = calculateSolar(bill);
-
-  const state = getStateFromURL();
-
-const message = `Hi, I’m interested in installing rooftop solar.
-
-Location: ${state}
-Monthly Bill: ₹${bill}
-Recommended System: ${result.systemSize} kW
-Estimated Cost: ₹${result.finalCost}
-Monthly Savings: ₹${result.monthlySavings}
-Payback Period: ${result.payback} years`;
-
-
-  window.open(`https://wa.me/${number}?text=${encodedMessage}`, "_blank");
-}
-
-// 🔥 UPDATE SAME LEAD (FINAL STEP)
+// ✅ Submit lead (Firestore update)
 async function submitLead() {
-  const propertyType = document.getElementById("propertyType").value;
-  const roofType = document.getElementById("roofType").value;
-  const rooftopOwnership = document.getElementById("rooftopOwnership").value;
-  const connectionType = document.getElementById("connectionType").value;
-  const billFile = document.getElementById("billUpload").files[0];
+  const propertyType = document.getElementById("propertyType")?.value;
+  const roofType = document.getElementById("roofType")?.value;
+  const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
+  const connectionType = document.getElementById("connectionType")?.value;
+  const billFile = document.getElementById("billUpload")?.files?.[0];
 
   const leadId = localStorage.getItem("leadId");
 
@@ -148,7 +294,6 @@ async function submitLead() {
     return;
   }
 
-  // 🔍 Safety checks (NEW - minimal but important)
   if (typeof firebase === "undefined" || typeof db === "undefined") {
     alert("Database not initialized");
     return;
@@ -159,16 +304,13 @@ async function submitLead() {
 
   try {
     await db.collection("leads").doc(leadId).update({
-      propertyType: propertyType,
-      roofType: roofType,
-      rooftopOwnership: rooftopOwnership,
-      connectionType: connectionType,
+      propertyType,
+      roofType,
+      rooftopOwnership,
+      connectionType,
       billUploaded: billFile ? "Yes" : "No",
-
-      // 🔥 Business updates
-      leadType: leadType,
+      leadType,
       stage: "qualified",
-
       updatedAt: new Date()
     });
 
@@ -180,17 +322,19 @@ async function submitLead() {
     return;
   }
 
-  document.getElementById("leadForm").classList.add("hidden");
-  document.getElementById("submitSuccess").classList.remove("hidden");
+  document.getElementById("leadForm")?.classList.add("hidden");
+  document.getElementById("submitSuccess")?.classList.remove("hidden");
 
   window.scrollTo({ top: 20, behavior: "smooth" });
 }
 
-// 🔧 File upload UI (unchanged)
+// ✅ Upload handling
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
   const fileInput = document.getElementById("billUpload");
   const fileNameDisplay = document.getElementById("billFileName");
+
+  if (!uploadArea || !fileInput || !fileNameDisplay) return;
 
   uploadArea.addEventListener("click", () => fileInput.click());
 
@@ -219,20 +363,27 @@ function setupBillUpload() {
   });
 }
 
-// 🔧 Populate captured data (unchanged)
+// ✅ Populate captured data
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
-  document.getElementById("capturedName").value = params.get("name") || "";
-  document.getElementById("capturedPhone").value = params.get("phone") || "";
-  document.getElementById("capturedCity").value = params.get("city") || "";
-  document.getElementById("capturedBill").value = "₹" + (params.get("bill") || "");
+  const name = document.getElementById("capturedName");
+  const phone = document.getElementById("capturedPhone");
+  const city = document.getElementById("capturedCity");
+  const bill = document.getElementById("capturedBill");
+
+  if (name) name.value = params.get("name") || "";
+  if (phone) phone.value = params.get("phone") || "";
+  if (city) city.value = params.get("city") || "";
+  if (bill) bill.value = "₹" + (params.get("bill") || "");
 }
 
-// 🔥 INIT (unchanged)
+// ===============================
+// 🔹 INIT
+// ===============================
 const bill = getBillFromURL();
 
-if (bill) {
+if (bill > 0) {
   const result = calculateSolar(bill);
   renderResults(result, bill);
   setupBillUpload();
@@ -240,14 +391,3 @@ if (bill) {
 } else {
   document.body.innerHTML = "Invalid Input";
 }
-
-const stateSubsidyConfig = {
-  "UP": { perKW: 15000, max: 30000 },
-  "GJ": { perKW: 15000, max: 40000 },
-  "DL": { perKW: 10000, max: 30000 },
-  "RJ": { perKW: 8000, max: 24000 },
-  "UK": { perKW: 15000, max: 15000 },
-  "MH": { perKW: 10000, max: 30000 },
-  "AS": { perKW: 10000, max: 20000 },
-  "GA": { perKW: 10000, max: 20000 }
-};
