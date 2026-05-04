@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solar AI Advisor</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+<!-- HERO -->
+<section class="relative h-[90vh] flex items-center justify-center text-center text-white overflow-hidden">
+
+  <!-- VIDEO -->
+  <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
+    <source src="images/hero.mp4" type="video/mp4">
+  </video>
+
+  <!-- GRADIENT OVERLAY -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/70"></div>
+
+  <!-- CONTENT -->
+  <div class="relative z-10 max-w-2xl px-4">
+
+    <h1 class="text-3xl md:text-5xl font-semibold mb-4">
+      Cut Your Electricity Bill by 70% with Solar
+    </h1>
+
+    <p class="text-gray-200 mb-6">
+      Get exact system size, subsidy, and savings — instantly.
+    </p>
+
+    <!-- INPUT GROUP -->
+    <div class="flex flex-col md:flex-row gap-3 justify-center items-center">
+
+      <input id="billInput"
+        type="number"
+        placeholder="Monthly electricity bill (₹)"
+        class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md outline-none"
+      />
+
+      <select id="state"
+        class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md">
+        <option value="">Select State</option>
+        <option value="UP">Uttar Pradesh</option>
+        <option value="MH">Maharashtra</option>
+        <option value="DL">Delhi</option>
+        <option value="GJ">Gujarat</option>
+        <option value="RJ">Rajasthan</option>
+        <option value="MP">Madhya Pradesh</option>
+        <option value="KA">Karnataka</option>
+        <option value="TN">Tamil Nadu</option>
+        <option value="WB">West Bengal</option>
+        <option value="TS">Telangana</option>
+        <option value="AP">Andhra Pradesh</option>
+        <option value="KL">Kerala</option>
+        <option value="PB">Punjab</option>
+        <option value="HR">Haryana</option>
+        <option value="BR">Bihar</option>
+        <option value="JH">Jharkhand</option>
+        <option value="UK">Uttarakhand</option>
+        <option value="HP">Himachal Pradesh</option>
+        <option value="OR">Odisha</option>
+        <option value="AS">Assam</option>
+        <option value="GA">Goa</option>
+      </select>
+
+      <!-- IMPORTANT: ID NOT CHANGED -->
+      <button id="calculateBtn"
+        class="bg-[#22c55e] hover:bg-green-600 px-6 py-3 rounded-xl font-semibold shadow-lg">
+        ⚡ See My Savings
+      </button>
+    </div>
+
+    <!-- TRUST -->
+    <div class="mt-5 flex flex-wrap justify-center gap-4 text-sm text-green-200">
+      <span>✔ Govt subsidy eligible</span>
+      <span>✔ 25-year warranty</span>
+      <span>✔ Trusted installers</span>
+    </div>
+
+    <button onclick="window.location.href='installers.html'"
+      class="mt-5 border border-white px-4 py-2 rounded-lg">
+      Installer Signup
+    </button>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="py-16 bg-slate-50 text-center">
+  <h2 class="text-3xl font-semibold mb-10">How It Works</h2>
+
+  <div class="flex flex-wrap justify-center gap-6">
+
+    <!-- GLASS CARD -->
+    <div class="w-64 p-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/30 shadow-lg">
+      <h3 class="text-green-600 text-xl font-bold">01</h3>
+      <p>Enter your electricity bill</p>
+    </div>
+
+    <div class="w-64 p-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/30 shadow-lg">
+      <h3 class="text-green-600 text-xl font-bold">02</h3>
+      <p>Get instant solar recommendation</p>
+    </div>
+
+    <div class="w-64 p-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/30 shadow-lg">
+      <h3 class="text-green-600 text-xl font-bold">03</h3>
+      <p>Compare quotes from installers</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- BENTO GRID -->
+<section class="py-20 px-6 bg-white">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+
+    <div class="md:col-span-2 bg-slate-100 rounded-2xl p-6">
+      <img src="images/sustainable.webp" class="rounded-xl mb-4">
+      <h2 class="text-xl font-semibold">Sustainable Energy</h2>
+      <p class="text-gray-600">Clean solar power for your home.</p>
+    </div>
+
+    <div class="bg-slate-100 rounded-2xl p-6">
+      <img src="images/incentives.webp" class="rounded-xl mb-4">
+      <h2 class="text-xl font-semibold">Government Incentives</h2>
+      <p class="text-gray-600">Reduce installation cost with subsidy.</p>
+    </div>
+
+    <div class="bg-slate-100 rounded-2xl p-6 md:col-span-3">
+      <img src="images/savings.webp" class="rounded-xl mb-4">
+      <h2 class="text-xl font-semibold">Massive Bill Savings</h2>
+      <p class="text-gray-600">Save up to 70% annually.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- BIG IMPACT -->
+<section class="bg-slate-900 text-white text-center py-16">
+  <h2 class="text-3xl font-semibold mb-2">Save ₹50,000+ Every Year</h2>
+  <p class="text-gray-300">Join thousands switching to solar</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-16 text-center">
+  <h2 class="text-3xl font-semibold mb-10">What Users Say</h2>
+
+  <div class="flex flex-wrap justify-center gap-6">
+
+    <div class="bg-white shadow-xl p-6 rounded-2xl max-w-sm">
+      <p>"Reduced my bill from ₹4000 to ₹500."</p>
+      <span>- Amit, Lucknow</span>
+    </div>
+
+    <div class="bg-white shadow-xl p-6 rounded-2xl max-w-sm">
+      <p>"Clear pricing and no surprises."</p>
+      <span>- Residential User</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="text-center py-12">
+  <h2 class="text-2xl mb-4">Ready to see your solar savings?</h2>
+  <button onclick="scrollToTop()"
+    class="bg-green-600 text-white px-6 py-3 rounded-xl">
+    Calculate Now
+  </button>
+</section>
+
+<!-- POPUP (UNCHANGED LOGIC) -->
+<div id="leadPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-2xl w-[90%] max-w-md text-center shadow-xl">
+
+    <h3 class="text-xl font-semibold">Get Your Personalized Solar Plan</h3>
+    <p class="text-gray-500 text-sm mb-4">Takes less than 10 seconds</p>
+
+    <input id="leadName" placeholder="Full Name"
+      class="w-full p-3 mb-2 border rounded-xl"/>
+
+    <input id="leadPhone" placeholder="Phone Number"
+      class="w-full p-3 mb-2 border rounded-xl"/>
+
+    <input id="leadCity" placeholder="City"
+      class="w-full p-3 mb-2 border rounded-xl"/>
+
+    <button onclick="submitLeadAndContinue(event)"
+      class="w-full bg-green-600 text-white py-3 rounded-xl mt-2">
+      Get My Free Plan
+    </button>
+
+  </div>
+</div>
+
+<!-- SCRIPTS (UNCHANGED) -->
+<script src="data/cities.js"></script>
+<script src="js/script.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
+    authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
+    projectId: "solar-ai-advisor-6e70c",
+    storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
+    messagingSenderId: "414713467470",
+    appId: "1:414713467470:web:437d1cf23454d472c7e91f"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+</body>
+</html>
