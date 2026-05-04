@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solar Recommendation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+    }
+  </style>
+</head>
+
+<body class="px-4 py-6">
+
+<div class="max-w-3xl mx-auto space-y-8">
+
+  <!-- HEADER -->
+  <div class="text-center">
+    <h1 class="text-3xl font-semibold">Your Solar Savings Report</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      Personalized estimate based on your usage and location
+    </p>
+  </div>
+
+  <!-- SLIDER -->
+  <div class="bg-white p-6 rounded-2xl shadow">
+    <p class="text-sm text-gray-500 mb-2">Adjust your monthly bill</p>
+
+    <input id="billSlider" type="range" min="500" max="20000" step="100"
+      class="w-full">
+
+    <p class="mt-2 text-lg font-semibold text-center">
+      ₹<span id="sliderValue"></span> / month
+    </p>
+  </div>
+
+  <!-- BAR CHART -->
+  <div class="bg-white p-6 rounded-2xl shadow space-y-4">
+
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span>Without Solar</span>
+        <span>₹<span id="withoutSolar"></span></span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-3">
+        <div id="barWithout"
+          class="bg-slate-400 h-3 rounded-full transition-all duration-500"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span>With Solar</span>
+        <span>₹<span id="withSolar"></span></span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-3">
+        <div id="barWith"
+          class="bg-green-500 h-3 rounded-full transition-all duration-500"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SYSTEM INFO -->
+  <div class="bg-white p-6 rounded-2xl shadow">
+    <h2 id="systemSize" class="text-xl font-semibold"></h2>
+    <p id="billInfo" class="text-gray-600 mt-1"></p>
+    <p id="stateInfo" class="text-xs text-gray-400 mt-1"></p>
+  </div>
+
+  <!-- COST -->
+  <div class="bg-white p-6 rounded-2xl shadow space-y-3">
+    <h3 class="font-semibold text-lg">Cost Breakdown</h3>
+
+    <p>Total Cost: ₹<span id="totalCost"></span></p>
+
+    <!-- subsidy badge -->
+    <div class="bg-green-50 border border-green-200 p-3 rounded-xl text-green-700 text-sm">
+      🛡 Govt subsidy applied
+    </div>
+
+    <div class="text-sm text-gray-600">
+      <p>Central Subsidy: ₹<span id="centralSubsidy">0</span></p>
+      <p>State Subsidy: ₹<span id="stateSubsidy">0</span></p>
+    </div>
+
+    <p>Total Subsidy: ₹<span id="subsidy"></span></p>
+
+    <p class="text-xs text-gray-400">
+      *Subsidy values are estimated
+    </p>
+
+    <p class="text-green-600 font-semibold text-lg">
+      You Pay: ₹<span id="finalCost"></span>
+    </p>
+  </div>
+
+  <!-- SAVINGS -->
+  <div class="bg-white p-6 rounded-2xl shadow space-y-2">
+    <h3 class="font-semibold text-lg">Your Savings</h3>
+
+    <p>Monthly Savings: ₹<span id="monthlySavings"></span></p>
+    <p>Payback Period: <span id="payback"></span> years</p>
+
+    <p class="text-green-600 font-semibold text-lg">
+      Lifetime Savings: ₹<span id="lifetimeSavings"></span>
+    </p>
+  </div>
+
+  <!-- SYSTEM DETAILS -->
+  <div class="bg-white p-6 rounded-2xl shadow space-y-2">
+    <h3 class="font-semibold text-lg">System Details</h3>
+    <p>Panels Required: <span id="panels"></span></p>
+    <p>Roof Area Needed: <span id="area"></span> sq ft</p>
+  </div>
+
+  <!-- CTA -->
+  <div class="space-y-3">
+    <button onclick="showForm()"
+      class="w-full bg-green-500 hover:scale-105 transition transform text-white py-3 rounded-xl font-semibold shadow">
+      Get Exact Price for Your Home
+    </button>
+
+    <button onclick="openWhatsApp()"
+      class="w-full bg-green-600 hover:scale-105 transition transform text-white py-3 rounded-xl font-semibold">
+      Get Details on WhatsApp
+    </button>
+  </div>
+
+  <!-- FORM (UNCHANGED) -->
+  <div id="leadForm" class="hidden bg-white p-6 rounded-2xl shadow space-y-4">
+    <h3 class="font-semibold text-lg text-center">Complete Your Profile</h3>
+
+    <input id="capturedName" readonly class="w-full p-3 border rounded-xl bg-gray-100">
+    <input id="capturedPhone" readonly class="w-full p-3 border rounded-xl bg-gray-100">
+    <input id="capturedCity" readonly class="w-full p-3 border rounded-xl bg-gray-100">
+    <input id="capturedBill" readonly class="w-full p-3 border rounded-xl bg-gray-100">
+
+    <select id="rooftopOwnership" class="w-full p-3 border rounded-xl">
+      <option>Yes</option>
+      <option>No</option>
+    </select>
+
+    <select id="connectionType" class="w-full p-3 border rounded-xl">
+      <option>Residential</option>
+      <option>Commercial</option>
+    </select>
+
+    <select id="propertyType" class="w-full p-3 border rounded-xl">
+      <option>Independent House</option>
+      <option>Apartment</option>
+    </select>
+
+    <select id="roofType" class="w-full p-3 border rounded-xl">
+      <option>Concrete</option>
+      <option>Tin/Metal</option>
+    </select>
+
+    <button onclick="submitLead()"
+      class="w-full bg-green-500 text-white py-3 rounded-xl font-semibold">
+      Submit
+    </button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="submitSuccess" class="hidden bg-green-50 p-6 rounded-2xl text-center">
+    <h3 class="font-semibold text-lg">Lead Saved</h3>
+    <p class="text-sm text-gray-600 mt-2">
+      We will contact you shortly.
+    </p>
+  </div>
+
+</div>
+
+<!-- EXISTING ENGINE (UNCHANGED) -->
+<script src="js/results.js"></script>
+
+<!-- SAFE DYNAMIC LAYER -->
+<script>
+const baseBill = new URLSearchParams(window.location.search).get("bill");
+const slider = document.getElementById("billSlider");
+const sliderValue = document.getElementById("sliderValue");
+
+const originalSavings = parseInt(document.getElementById("monthlySavings").innerText || 0);
+
+slider.value = baseBill;
+sliderValue.innerText = baseBill;
+
+function updateUI() {
+  const currentBill = parseInt(slider.value);
+  sliderValue.innerText = currentBill;
+
+  const solarBill = Math.max(currentBill - originalSavings, 0);
+
+  document.getElementById("withoutSolar").innerText = currentBill;
+  document.getElementById("withSolar").innerText = solarBill;
+
+  const max = Math.max(currentBill, solarBill);
+
+  document.getElementById("barWithout").style.width =
+    (currentBill / max * 100) + "%";
+
+  document.getElementById("barWith").style.width =
+    (solarBill / max * 100) + "%";
+}
+
+slider.addEventListener("input", updateUI);
+
+window.onload = updateUI;
+</script>
+
+<!-- FIREBASE (UNCHANGED) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
+  authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
+  projectId: "solar-ai-advisor-6e70c",
+  storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
+  messagingSenderId: "414713467470",
+  appId: "1:414713467470:web:437d1cf23454d472c7e91f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+</body>
+</html>
