@@ -20,35 +20,32 @@
 
 <!-- FIXED TOP NAVIGATION -->
 
-<!-- TESLA-STYLE TOP STRIP -->
-<div class="fixed top-0 left-0 w-full z-[110]">
-  <!-- Announcement Bar (Tesla Gold) -->
-  <div class="bg-[#f4e0b0] py-2 text-center border-b border-[#e5d09f]">
-    <p class="text-[11px] md:text-xs font-bold tracking-widest text-slate-800 uppercase">
-      Lower your electricity bill by 70% with solar. <a href="#" onclick="openConsultation()" class="underline decoration-slate-400 underline-offset-2">Learn More</a>
-    </p>
-  </div>
+<!-- CLEAN TESLA-STYLE NAVIGATION -->
+<nav class="fixed top-0 left-0 w-full z-[110] bg-white border-b border-slate-100 px-4 md:px-8 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    
+    <!-- LOGO -->
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-9 w-auto">
+      <span class="text-slate-900 font-bold text-lg tracking-tight hidden xs:block">Solar AI Advisor</span>
+    </a>
 
-  <!-- Main Nav Strip (Clean White) -->
-  <nav class="bg-white/90 backdrop-blur-md border-b border-slate-200/50 px-4 md:px-8 py-3">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2">
-        <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-9 w-auto">
-        <span class="text-slate-900 font-bold text-lg tracking-tight hidden xs:block">Solar AI Advisor</span>
-      </a>
-      <div class="flex items-center gap-6">
-        <a href="#how-it-works" class="text-slate-600 hover:text-slate-900 text-sm font-medium">How it Works</a>
-        <button onclick="openConsultation()" class="bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold tracking-wide hover:bg-slate-800 transition-all uppercase">
-          Free Consultation
-        </button>
-      </div>
+    <!-- LINKS -->
+    <div class="flex items-center gap-6">
+      <a href="#how-it-works" class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">How it Works</a>
+      <button onclick="openConsultation()" 
+        class="bg-[#171a20] text-white px-6 py-2 rounded-md text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all">
+        Free Consultation
+      </button>
     </div>
-  </nav>
-</div>
+
+  </div>
+</nav>
+
  
 <!-- HERO -->
 <!-- Note: Added min-h-screen for better mobile filling and adjusted padding-top -->
-<section class="relative min-h-screen flex items-center justify-center text-center text-white overflow-hidden pt-32 md:pt-40">
+<section class="relative min-h-[90vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
 
   <!-- VIDEO (Unchanged) -->
   <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
@@ -126,41 +123,36 @@
   </div>
 </section>
 
-<!-- HOW IT WORKS (FIXED ALIGNMENT) -->
-<section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-28">
-  <div class="max-w-6xl mx-auto px-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-12">How It Works</h2>
+<!-- HOW IT WORKS (MATCHING ORIGINAL ALIGNMENT) -->
+<section id="how-it-works" class="py-20 bg-white text-center scroll-mt-20">
+  <div class="max-w-4xl mx-auto px-6">
+    <h2 class="text-3xl md:text-4xl font-bold text-[#171a20] mb-12">How It Works</h2>
 
-    <!-- This container ensures cards stay centered and responsive -->
-    <div class="flex flex-wrap justify-center items-stretch gap-6 w-full">
+    <!-- Single centered column for the "Sticker" look -->
+    <div class="flex flex-col items-center gap-6">
 
       <!-- Step 01 -->
-      <div class="w-full sm:w-72 p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow text-left flex flex-col justify-between">
-        <div>
-          <h3 class="text-green-600 text-2xl font-bold mb-4">01</h3>
-          <p class="text-slate-700 font-medium leading-relaxed">Enter your monthly electricity bill amount</p>
-        </div>
+      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
+        <h3 class="text-green-600 text-2xl font-bold mb-2">01</h3>
+        <p class="text-slate-700 font-medium">Enter your electricity bill</p>
       </div>
 
       <!-- Step 02 -->
-      <div class="w-full sm:w-72 p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow text-left flex flex-col justify-between">
-        <div>
-          <h3 class="text-green-600 text-2xl font-bold mb-4">02</h3>
-          <p class="text-slate-700 font-medium leading-relaxed">Get an instant personalized solar recommendation</p>
-        </div>
+      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
+        <h3 class="text-green-600 text-2xl font-bold mb-2">02</h3>
+        <p class="text-slate-700 font-medium">Get instant solar recommendation</p>
       </div>
 
       <!-- Step 03 -->
-      <div class="w-full sm:w-72 p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow text-left flex flex-col justify-between">
-        <div>
-          <h3 class="text-green-600 text-2xl font-bold mb-4">03</h3>
-          <p class="text-slate-700 font-medium leading-relaxed">Compare quotes and connect with trusted installers</p>
-        </div>
+      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
+        <h3 class="text-green-600 text-2xl font-bold mb-2">03</h3>
+        <p class="text-slate-700 font-medium">Compare quotes from installers</p>
       </div>
 
     </div>
   </div>
 </section>
+
 
 
     <!-- GLASS CARD -->
