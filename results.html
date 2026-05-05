@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solar Recommendation</title>
 
-  <!-- Google Fonts: Inter -->
+  <!-- Google Fonts: Inter with light/thin weights -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Premium Design System Config -->
   <script>
     tailwind.config = {
       theme: {
@@ -23,35 +22,12 @@
           },
           colors: {
             slate: {
-              50: '#f8fafc',
-              100: '#f1f5f9',
-              200: '#e2e8f0',
-              600: '#475569',
-              800: '#1e293b',
-              900: '#0f172a',
+              50: '#fcfcfd',
+              900: '#0a0a0b',
             },
             indigo: {
+              50: '#f5f7ff',
               600: '#4f46e5',
-              700: '#4338ca',
-            },
-            emerald: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              600: '#059669',
-              700: '#047857',
-            }
-          },
-          boxShadow: {
-            'premium': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 12px 24px -4px rgba(0, 0, 0, 0.05)',
-          },
-          animation: {
-            blob: "blob 10s infinite",
-          },
-          keyframes: {
-            blob: {
-              "0%, 100%": { transform: "translate(0px, 0px) scale(1)" },
-              "33%": { transform: "translate(30px, -50px) scale(1.1)" },
-              "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
             }
           }
         }
@@ -61,234 +37,214 @@
 
   <style>
     body {
-      /* Smooth rendering for premium feel */
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+    /* Soft, static editorial gradients */
+    .bg-gradient-soft {
+      background: radial-gradient(circle at top right, #eef2ff 0%, transparent 40%),
+                  radial-gradient(circle at bottom left, #f0fdf4 0%, transparent 40%);
+    }
+    .card-border {
+      border: 1px solid rgba(0, 0, 0, 0.05);
     }
   </style>
 </head>
 
-<body class="text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
+<body class="text-slate-900 font-sans bg-slate-50 bg-gradient-soft min-h-screen">
 
-<!-- FINTECH BACKGROUND SYSTEM -->
-<!-- 1. Base Layer -->
-<div class="fixed inset-0 z-[-3] bg-slate-50"></div>
+<div class="max-w-2xl mx-auto px-6 py-16 space-y-20 relative z-10">
 
-<!-- 2. Subtle Grid Pattern -->
-<div class="fixed inset-0 z-[-2] opacity-[0.3] pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px]"></div>
+  <!-- EDITORIAL HERO -->
+  <header class="text-center space-y-6">
+    <div class="inline-block px-4 py-1.5 rounded-full bg-white card-border text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+      Analysis Complete
+    </div>
+    <div class="space-y-2">
+      <h1 class="text-4xl md:text-5xl font-extralight tracking-tight text-slate-900">Your Solar Report</h1>
+      <p class="text-slate-500 font-light text-lg italic">Prepared for your specific energy needs</p>
+    </div>
+  </header>
 
-<!-- 3. Animated Glowing Orbs (Mesh Gradient Effect) -->
-<div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[120px] animate-blob"></div>
-  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 2s"></div>
-  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 4s"></div>
-</div>
+  <!-- CENTRAL RECOMMENDATION -->
+  <section class="text-center space-y-8 py-12 border-y border-slate-200/60">
+    <div class="space-y-1">
+      <p class="text-sm font-medium text-indigo-600 uppercase tracking-widest">Recommended Capacity</p>
+      <h2 id="systemSize" class="text-6xl md:text-7xl font-light tracking-tighter text-slate-900"></h2>
+    </div>
+    
+    <div class="max-w-xs mx-auto space-y-1">
+      <p id="billInfo" class="text-slate-600 font-medium"></p>
+      <p id="stateInfo" class="text-xs text-slate-400 uppercase tracking-widest font-bold"></p>
+    </div>
+  </section>
 
-<!-- MAIN CONTENT -->
-<div class="max-w-xl mx-auto space-y-8 px-4 py-8 relative z-10">
+  <!-- KEY FINANCIALS (Grid Layout) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div class="space-y-2">
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monthly Savings</p>
+      <p class="text-3xl font-light tracking-tight">₹<span id="monthlySavings"></span></p>
+      <p class="text-xs text-slate-400 leading-relaxed">Estimated reduction in your electricity bill based on current rates.</p>
+    </div>
+    <div class="space-y-2 text-left md:text-right">
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Payback Period</p>
+      <p class="text-3xl font-light tracking-tight"><span id="payback"></span> Years</p>
+      <p class="text-xs text-slate-400 leading-relaxed">The time required to recover your initial investment.</p>
+    </div>
+  </div>
 
-  <!-- HEADER -->
-  <div class="text-center space-y-2">
-    <h1 class="text-3xl font-bold tracking-tight text-slate-900">Your Solar Savings Report</h1>
-    <p class="text-slate-500 text-base leading-relaxed">
-      Personalized estimate based on your usage and location
+  <!-- THE INVESTMENT (Clean Table Style) -->
+  <div class="bg-white p-8 md:p-12 rounded-[2.5rem] card-border space-y-10">
+    <h3 class="text-xl font-light tracking-tight text-slate-900 border-b border-slate-50 pb-6">Financial Overview</h3>
+    
+    <div class="space-y-6">
+      <div class="flex justify-between items-baseline">
+        <span class="text-sm text-slate-500 font-light">Gross Project Cost</span>
+        <span class="text-lg font-medium text-slate-700 tracking-tight">₹<span id="totalCost"></span></span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex justify-between items-baseline text-emerald-600">
+          <span class="text-sm font-light">Central Government Subsidy</span>
+          <span class="text-lg font-medium tracking-tight">- ₹<span id="centralSubsidy">0</span></span>
+        </div>
+        <div class="flex justify-between items-baseline text-emerald-600">
+          <span class="text-sm font-light">State Government Subsidy</span>
+          <span class="text-lg font-medium tracking-tight">- ₹<span id="stateSubsidy">0</span></span>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-slate-100 flex justify-between items-end">
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Net Investment</p>
+          <p class="text-4xl font-light tracking-tighter text-slate-900">₹<span id="finalCost"></span></p>
+        </div>
+        <div class="text-right hidden sm:block">
+           <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Lifetime Savings</p>
+           <p class="text-xl font-medium text-indigo-600 tracking-tight">₹<span id="lifetimeSavings"></span></p>
+        </div>
+      </div>
+      <!-- Mobile Only Lifetime Savings -->
+      <div class="sm:hidden pt-4 text-left border-t border-slate-50">
+        <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Lifetime Savings</p>
+        <p class="text-2xl font-medium text-indigo-600 tracking-tight">₹<span id="lifetimeSavings"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECHNICAL DETAILS (Minimal Badges) -->
+  <div class="flex flex-col md:flex-row justify-center gap-8 md:gap-20 text-center py-6">
+    <div>
+        <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-2">Panel Count</p>
+        <p class="text-2xl font-light tracking-tight"><span id="panels"></span> <span class="text-sm text-slate-400">Units</span></p>
+    </div>
+    <div class="hidden md:block w-px bg-slate-200"></div>
+    <div>
+        <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-2">Required Area</p>
+        <p class="text-2xl font-light tracking-tight"><span id="area"></span> <span class="text-sm text-slate-400">sq ft</span></p>
+    </div>
+  </div>
+
+  <!-- CALL TO ACTION SECTION -->
+  <div class="space-y-6 max-w-md mx-auto pt-10">
+    <button onclick="showForm()" 
+      class="w-full bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-medium text-lg transition-all duration-300 shadow-xl shadow-slate-200">
+      Get Final Quotation
+    </button>
+    <button onclick="openWhatsApp()" 
+      class="w-full bg-white hover:bg-slate-50 text-slate-900 py-5 rounded-2xl font-medium text-lg card-border transition-all duration-300 flex items-center justify-center gap-3">
+      Chat with Advisor
+    </button>
+    <p class="text-center text-[11px] text-slate-400 font-medium tracking-wide italic">
+      ⚡ Limited period subsidies are currently active in your region.
     </p>
   </div>
 
-  <!-- SYSTEM INFO -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-center transition-all hover:shadow-lg">
-    <h2 id="systemSize" class="text-2xl font-bold tracking-tight text-indigo-600"></h2>
-    <p id="billInfo" class="text-slate-600 mt-2 font-medium"></p>
-    <p id="stateInfo" class="text-sm text-slate-400 mt-1"></p>
-  </div>
-
-  <!-- COST BREAKDOWN -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
-    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Cost Breakdown</h3>
-
-    <div class="space-y-4 text-base leading-relaxed">
-      <div class="flex justify-between items-center">
-        <span class="text-slate-600">Total Cost</span>
-        <span class="font-medium">₹<span id="totalCost"></span></span>
-      </div>
-
-      <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl text-emerald-700 text-sm flex items-start gap-2">
-        <span class="mt-0.5">✔</span>
-        <span>Personalized estimate based on your location</span>
-      </div>
-
-      <div class="pl-4 border-l-2 border-slate-100 space-y-3 text-sm text-slate-600">
-        <div class="flex justify-between items-center">
-          <span>Central Subsidy</span>
-          <span class="font-medium text-slate-900">₹<span id="centralSubsidy">0</span></span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span>State Subsidy</span>
-          <span class="font-medium text-slate-900">₹<span id="stateSubsidy">0</span></span>
-        </div>
-      </div>
-
-      <div class="flex justify-between items-center text-emerald-600 font-medium">
-        <span>Total Subsidy</span>
-        <span>- ₹<span id="subsidy"></span></span>
-      </div>
-
-      <p class="text-xs text-slate-400 leading-relaxed">
-        *Subsidy values are estimated based on current government schemes
-      </p>
-
-      <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-        <span class="text-lg font-semibold tracking-tight">You Pay</span>
-        <span class="text-2xl font-bold text-slate-900 tracking-tight">₹<span id="finalCost"></span></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SAVINGS -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
-    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Your Returns</h3>
-    
-    <div class="flex justify-between items-center">
-      <span class="text-slate-600">Monthly Savings</span>
-      <span class="font-medium">₹<span id="monthlySavings"></span></span>
-    </div>
-    
-    <div class="flex justify-between items-center">
-      <span class="text-slate-600">Payback Period</span>
-      <span class="font-medium"><span id="payback"></span> years</span>
+  <!-- LEAD FORM (Drop-in Ready) -->
+  <div id="leadForm" class="hidden bg-white p-8 md:p-12 rounded-[2.5rem] card-border space-y-12">
+    <div class="text-center space-y-2">
+      <h3 class="text-2xl font-light tracking-tight">Personalize Your Installation</h3>
+      <p class="text-slate-400 text-sm italic">Verification & customization</p>
     </div>
 
-    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex justify-between items-center mt-2">
-      <span class="font-semibold text-indigo-700">Lifetime Savings</span>
-      <span class="text-xl font-bold text-indigo-700">₹<span id="lifetimeSavings"></span></span>
-    </div>
-  </div>
-
-  <!-- SYSTEM DETAILS -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
-    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">System Details</h3>
-    
-    <div class="flex justify-between items-center">
-      <span class="text-slate-600">Panels Required</span>
-      <span class="font-medium"><span id="panels"></span></span>
-    </div>
-    
-    <div class="flex justify-between items-center">
-      <span class="text-slate-600">Roof Area Needed</span>
-      <span class="font-medium"><span id="area"></span> sq ft</span>
-    </div>
-  </div>
-
-  <!-- URGENCY -->
-  <p class="text-amber-600 text-sm font-medium text-center bg-amber-50/90 backdrop-blur-sm py-2 rounded-lg border border-amber-100 shadow-sm">
-    ⚡ Subsidy benefits available based on your state
-  </p>
-
-  <!-- CTA -->
-  <div class="space-y-4 pt-2">
-    <button onclick="showForm()" 
-      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
-      Get Exact Price for Your Home
-    </button>
-
-    <button onclick="openWhatsApp()" 
-      class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
-      Get Details on WhatsApp
-    </button>
-  </div>
-
-  <!-- FORM (Hidden by default) -->
-  <div id="leadForm" class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6">
-    <h3 class="font-bold text-xl text-center tracking-tight text-slate-900">Complete Your Profile</h3>
-
-    <div class="space-y-3">
-      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Verified Details</p>
-      <input id="capturedName" readonly class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:outline-none">
-      <input id="capturedPhone" readonly class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:outline-none">
-      <input id="capturedCity" readonly class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:outline-none">
-      <input id="capturedBill" readonly class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:outline-none">
+    <div class="grid grid-cols-1 gap-4">
+      <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Contact Details</label>
+      <input id="capturedName" readonly class="w-full p-4 bg-slate-50/50 border-none rounded-2xl text-slate-500 font-light outline-none">
+      <input id="capturedPhone" readonly class="w-full p-4 bg-slate-50/50 border-none rounded-2xl text-slate-500 font-light outline-none">
+      <input id="capturedCity" readonly class="w-full p-4 bg-slate-50/50 border-none rounded-2xl text-slate-500 font-light outline-none">
+      <input id="capturedBill" readonly class="w-full p-4 bg-slate-50/50 border-none rounded-2xl text-slate-500 font-light outline-none">
     </div>
 
-    <div class="space-y-4 pt-4 border-t border-slate-100">
-      <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Additional Details</p>
+    <div class="space-y-6 pt-6 border-t border-slate-50">
+      <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest px-2">Site Specifications</label>
 
-      <!-- FILE UPLOAD -->
-      <div id="billUploadArea" 
-        class="border-2 border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50 hover:bg-indigo-50 transition-colors p-6 rounded-xl text-center cursor-pointer">
-        <span class="text-slate-600 font-medium">📄 Upload last month's bill</span>
+      <!-- UPLOAD -->
+      <div id="billUploadArea" class="border border-dashed border-slate-200 bg-slate-50/30 hover:bg-indigo-50/30 transition-all p-10 rounded-[2rem] text-center cursor-pointer group">
+        <span class="text-slate-500 font-light group-hover:text-indigo-600 transition-colors">📄 Click to upload electricity bill</span>
         <input type="file" id="billUpload" class="hidden">
       </div>
-      <p id="billFileName" class="text-xs text-slate-500 text-center font-medium"></p>
+      <p id="billFileName" class="text-xs text-slate-400 text-center italic"></p>
 
-      <!-- SELECTS -->
-      <select id="rooftopOwnership" class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        <option>Do you own the rooftop? - Yes</option>
-        <option>No</option>
-      </select>
-
-      <select id="connectionType" class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        <option>Residential</option>
-        <option>Commercial</option>
-      </select>
-
-      <select id="propertyType" class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        <option>Independent House</option>
-        <option>Apartment</option>
-      </select>
-
-      <select id="roofType" class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        <option>Concrete</option>
-        <option>Tin/Metal</option>
-      </select>
+      <!-- DROPDOWNS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <select id="rooftopOwnership" class="w-full p-4 bg-white border border-slate-100 rounded-2xl text-slate-600 font-light focus:ring-1 focus:ring-indigo-100 outline-none appearance-none">
+            <option>Own Rooftop - Yes</option>
+            <option>No</option>
+          </select>
+          <select id="connectionType" class="w-full p-4 bg-white border border-slate-100 rounded-2xl text-slate-600 font-light focus:ring-1 focus:ring-indigo-100 outline-none appearance-none">
+            <option>Residential</option>
+            <option>Commercial</option>
+          </select>
+          <select id="propertyType" class="w-full p-4 bg-white border border-slate-100 rounded-2xl text-slate-600 font-light focus:ring-1 focus:ring-indigo-100 outline-none appearance-none">
+            <option>Independent House</option>
+            <option>Apartment</option>
+          </select>
+          <select id="roofType" class="w-full p-4 bg-white border border-slate-100 rounded-2xl text-slate-600 font-light focus:ring-1 focus:ring-indigo-100 outline-none appearance-none">
+            <option>Concrete</option>
+            <option>Tin/Metal</option>
+          </select>
+      </div>
 
       <button onclick="submitLead()" 
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200">
-        Submit Request
+        class="w-full bg-slate-900 text-white py-5 rounded-2xl font-medium text-lg hover:bg-black transition-all">
+        Confirm & Submit
       </button>
     </div>
   </div>
 
-  <!-- SUCCESS -->
-  <div id="submitSuccess" class="hidden bg-emerald-50/90 backdrop-blur-sm border border-emerald-200 p-6 rounded-2xl text-center space-y-2 shadow-premium">
-    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-      <span class="text-emerald-600 text-xl">✓</span>
+  <!-- SUCCESS STATE -->
+  <div id="submitSuccess" class="hidden bg-white p-12 rounded-[2.5rem] card-border text-center space-y-4">
+    <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      <span class="text-emerald-500 text-lg">✓</span>
     </div>
-    <h3 class="font-bold text-lg text-emerald-800">Request Submitted</h3>
-    <p class="text-sm text-emerald-600">
-      Your details have been saved successfully. Our solar expert will connect with you shortly.
-    </p>
+    <h3 class="text-2xl font-light tracking-tight text-slate-900">Request Received</h3>
+    <p class="text-slate-500 font-light italic">Our local expert will reach out to you within 24 hours.</p>
   </div>
 
-  <!-- TRUST BADGES -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
-    <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Govt subsidy</div>
-    <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> 25-year warranty</div>
-    <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Verified installers</div>
-  </div>
+  <!-- FOOTER TRUST -->
+  <footer class="pt-10 space-y-12">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-8 text-[10px] font-bold text-slate-300 uppercase tracking-[0.25em]">
+        <span class="flex items-center gap-2 tracking-tighter sm:tracking-[0.25em]"><span class="text-emerald-400">●</span> Govt Subsidy Ready</span>
+        <span class="flex items-center gap-2 tracking-tighter sm:tracking-[0.25em]"><span class="text-emerald-400">●</span> 25Y Performance Warranty</span>
+        <span class="flex items-center gap-2 tracking-tighter sm:tracking-[0.25em]"><span class="text-emerald-400">●</span> Certified Installers</span>
+    </div>
 
-  <!-- FAQ -->
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
-    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Frequently Asked Questions</h3>
-    
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Will solar work in cloudy weather?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Yes, modern panels generate power even on cloudy days, though output reduces slightly.</p>
+    <!-- FAQ -->
+    <div class="max-w-md mx-auto space-y-8 pt-10 border-t border-slate-100">
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Efficiency in clouds?</h4>
+        <p class="text-sm text-slate-400 font-light leading-relaxed">Modern photovoltaic systems maintain significant output during overcast conditions by utilizing diffuse light.</p>
       </div>
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Do I need batteries?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Not required for grid-tied systems. You can use the grid as your battery through net metering.</p>
-      </div>
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Is the subsidy guaranteed?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Subsidies are available as per current government norms and subject to approval processes.</p>
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Battery Requirements?</h4>
+        <p class="text-sm text-slate-400 font-light leading-relaxed">Most urban systems are grid-tied, utilizing net-metering to credit your energy back to the grid, eliminating the immediate need for expensive battery storage.</p>
       </div>
     </div>
-  </div>
+  </footer>
 
 </div>
 
-<!-- SCRIPTS (UNCHANGED) -->
+<!-- INTEGRATION SCRIPTS (UNMODIFIED) -->
 <script src="js/results.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
