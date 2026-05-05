@@ -18,47 +18,53 @@
 
 <body class="bg-white text-slate-900">
 
-<!-- logo -->
-<!-- NAVIGATION / LOGO -->
-<nav class="absolute top-0 left-0 w-full z-50 px-6 py-6 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <!-- LOGO IMAGE -->
-    <img src="images/logo.webp" alt="Solar AI Advisor" class="h-10 w-auto drop-shadow-md">
+<!-- FIXED TOP NAVIGATION -->
+<nav class="fixed top-0 left-0 w-full z-[100] bg-white/80 backdrop-blur-md border-b border-slate-200/50 px-4 md:px-8 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
     
-    <!-- BRAND NAME (Optional, can remove if logo contains text) -->
-    <span class="text-white font-bold text-xl tracking-tight hidden sm:block">
-      Solar AI <span class="text-green-400">Advisor</span>
-    </span>
-  </div>
+    <!-- LOGO (Links to Home) -->
+    <a href="index.html" class="flex items-center gap-2 hover:opacity-90 transition-opacity">
+      <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-10 w-auto">
+      <span class="text-slate-900 font-bold text-lg md:text-xl tracking-tight hidden xs:block">
+        Solar AI <span class="text-green-600">Advisor</span>
+      </span>
+    </a>
 
-  <!-- SECONDARY ACTION (Optional) -->
-  <div class="hidden md:block">
-    <button onclick="scrollToTop()" class="text-white/80 hover:text-white text-sm font-medium transition-colors">
-      How it Works
-    </button>
+    <!-- LINKS -->
+    <div class="flex items-center gap-4 md:gap-8">
+      <button onclick="document.getElementById('how-it-works').scrollIntoView({behavior: 'smooth'})" 
+        class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">
+        How it Works
+      </button>
+      <a href="installers.html" 
+        class="hidden sm:block bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all">
+        Installer Signup
+      </a>
+    </div>
+
   </div>
 </nav>
-
-  
+ 
 <!-- HERO -->
-<section class="relative h-[90vh] flex items-center justify-center text-center text-white overflow-hidden">
+<!-- Note: Added min-h-screen for better mobile filling and adjusted padding-top -->
+<section class="relative min-h-[90vh] flex items-center justify-center text-center text-white overflow-hidden pt-20">
 
-  <!-- VIDEO -->
+  <!-- VIDEO (Unchanged) -->
   <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
     <source src="images/hero.mp4" type="video/mp4">
   </video>
 
-  <!-- GRADIENT OVERLAY -->
-  <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/70"></div>
+  <!-- GRADIENT OVERLAY (Darkened slightly for better text visibility on iPhone) -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
 
-  <!-- CONTENT -->
-  <div class="relative z-10 max-w-2xl px-4">
+  <!-- CONTENT (Added responsive margins) -->
+  <div class="relative z-10 max-w-2xl px-6 py-10">
 
-    <h1 class="text-3xl md:text-5xl font-semibold mb-4">
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
       Cut Your Electricity Bill by 70% with Solar
     </h1>
 
-    <p class="text-gray-200 mb-6">
+    <p class="text-gray-200 text-base md:text-lg mb-8 max-w-md mx-auto">
       Get exact system size, subsidy, and savings — instantly.
     </p>
 
