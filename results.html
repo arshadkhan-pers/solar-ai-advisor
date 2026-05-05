@@ -42,8 +42,17 @@
             }
           },
           boxShadow: {
-            // Soft, multi-layered shadow inspired by premium financial apps
             'premium': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 12px 24px -4px rgba(0, 0, 0, 0.05)',
+          },
+          animation: {
+            blob: "blob 10s infinite",
+          },
+          keyframes: {
+            blob: {
+              "0%, 100%": { transform: "translate(0px, 0px) scale(1)" },
+              "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+              "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+            }
           }
         }
       }
@@ -59,9 +68,24 @@
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900 font-sans px-4 py-8">
+<body class="text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
 
-<div class="max-w-xl mx-auto space-y-8">
+<!-- FINTECH BACKGROUND SYSTEM -->
+<!-- 1. Base Layer -->
+<div class="fixed inset-0 z-[-3] bg-slate-50"></div>
+
+<!-- 2. Subtle Grid Pattern -->
+<div class="fixed inset-0 z-[-2] opacity-[0.3] pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px]"></div>
+
+<!-- 3. Animated Glowing Orbs (Mesh Gradient Effect) -->
+<div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[120px] animate-blob"></div>
+  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 2s"></div>
+  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 4s"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="max-w-xl mx-auto space-y-8 px-4 py-8 relative z-10">
 
   <!-- HEADER -->
   <div class="text-center space-y-2">
@@ -72,14 +96,14 @@
   </div>
 
   <!-- SYSTEM INFO -->
-  <div class="bg-white p-6 rounded-2xl shadow-premium border border-slate-200 text-center">
+  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-center transition-all hover:shadow-lg">
     <h2 id="systemSize" class="text-2xl font-bold tracking-tight text-indigo-600"></h2>
     <p id="billInfo" class="text-slate-600 mt-2 font-medium"></p>
     <p id="stateInfo" class="text-sm text-slate-400 mt-1"></p>
   </div>
 
   <!-- COST BREAKDOWN -->
-  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200 space-y-6">
+  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Cost Breakdown</h3>
 
     <div class="space-y-4 text-base leading-relaxed">
@@ -121,7 +145,7 @@
   </div>
 
   <!-- SAVINGS -->
-  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200 space-y-5">
+  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Your Returns</h3>
     
     <div class="flex justify-between items-center">
@@ -141,7 +165,7 @@
   </div>
 
   <!-- SYSTEM DETAILS -->
-  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200 space-y-5">
+  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">System Details</h3>
     
     <div class="flex justify-between items-center">
@@ -156,25 +180,25 @@
   </div>
 
   <!-- URGENCY -->
-  <p class="text-amber-600 text-sm font-medium text-center bg-amber-50 py-2 rounded-lg border border-amber-100">
+  <p class="text-amber-600 text-sm font-medium text-center bg-amber-50/90 backdrop-blur-sm py-2 rounded-lg border border-amber-100 shadow-sm">
     ⚡ Subsidy benefits available based on your state
   </p>
 
   <!-- CTA -->
   <div class="space-y-4 pt-2">
     <button onclick="showForm()" 
-      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-sm transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
+      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
       Get Exact Price for Your Home
     </button>
 
     <button onclick="openWhatsApp()" 
-      class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-semibold shadow-sm transition-all duration-200 ease-in-out">
+      class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
       Get Details on WhatsApp
     </button>
   </div>
 
   <!-- FORM (Hidden by default) -->
-  <div id="leadForm" class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200 space-y-6">
+  <div id="leadForm" class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6">
     <h3 class="font-bold text-xl text-center tracking-tight text-slate-900">Complete Your Profile</h3>
 
     <div class="space-y-3">
@@ -218,14 +242,14 @@
       </select>
 
       <button onclick="submitLead()" 
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-sm transition-all duration-200">
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200">
         Submit Request
       </button>
     </div>
   </div>
 
   <!-- SUCCESS -->
-  <div id="submitSuccess" class="hidden bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-2">
+  <div id="submitSuccess" class="hidden bg-emerald-50/90 backdrop-blur-sm border border-emerald-200 p-6 rounded-2xl text-center space-y-2 shadow-premium">
     <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
       <span class="text-emerald-600 text-xl">✓</span>
     </div>
@@ -236,14 +260,14 @@
   </div>
 
   <!-- TRUST BADGES -->
-  <div class="bg-white p-6 rounded-2xl shadow-premium border border-slate-200 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Govt subsidy</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> 25-year warranty</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Verified installers</div>
   </div>
 
   <!-- FAQ -->
-  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200 space-y-6">
+  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Frequently Asked Questions</h3>
     
     <div class="space-y-4">
