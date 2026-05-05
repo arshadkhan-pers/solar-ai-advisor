@@ -1,106 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Installer Signup | Solar AI Advisor</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Premium Design System Config (Matched to Results) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              600: '#475569',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
+            indigo: {
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              600: '#059669',
+              700: '#047857',
+            }
+          },
+          boxShadow: {
+            'premium': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 12px 24px -4px rgba(0, 0, 0, 0.05)',
+          },
+          animation: {
+            blob: "blob 10s infinite",
+          },
+          keyframes: {
+            blob: {
+              "0%, 100%": { transform: "translate(0px, 0px) scale(1)" },
+              "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+              "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
 </head>
-<body>
-  <section class="hero">
-    <div class="container">
-      <p class="eyebrow">For Solar Installers</p>
-      <h1>Get High-Quality Solar Leads in Your City</h1>
-      <p>Verified homeowners. Ready-to-buy customers. No cold calling.</p>
-      <button onclick="document.getElementById('signupForm').scrollIntoView({ behavior: 'smooth' })">Start Getting Leads</button>
-    </div>
-  </section>
 
-  <section class="section light">
-    <div class="container card">
-      <h2>Why Partner With Us?</h2>
-      <ul class="feature-list">
-        <li>✔ Verified homeowners</li>
-        <li>✔ High-intent solar leads</li>
-        <li>✔ Local city matching</li>
-        <li>✔ Free first leads available</li>
-      </ul>
-    </div>
-  </section>
+<body class="text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
 
-  <section class="section">
-    <div class="container card" id="signupForm">
-      <h2>Installer Signup</h2>
-      <form id="installerForm" class="form">
-        <input type="text" id="business" placeholder="Business Name" required />
-        <input type="text" id="name" placeholder="Contact Person" required />
-        <input type="tel" id="phone" placeholder="Phone" required />
-        <input type="text" id="city" placeholder="City" required />
-        <input type="text" id="areas" placeholder="Service Areas (comma separated)" required />
-        <select id="experience" required>
-          <option value="">Experience (Years)</option>
-          <option value="1-2">1-2</option>
-          <option value="3-5">3-5</option>
-          <option value="6+">6+</option>
-        </select>
-        <button type="submit">Register</button>
-      </form>
-      <p class="small-note">After you register, your details are saved locally and a registration email is prepared so we can follow up manually.</p>
-      <div id="successMsg" class="success-message hidden">
-        <h3>Thank you!</h3>
-        <p>Your installer profile was prepared successfully. Check your email client to send the registration details.</p>
+<!-- FINTECH BACKGROUND SYSTEM -->
+<div class="fixed inset-0 z-[-3] bg-slate-50"></div>
+<div class="fixed inset-0 z-[-2] opacity-[0.3] pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px]"></div>
+<div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[120px] animate-blob"></div>
+  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 2s"></div>
+  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 4s"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="max-w-xl mx-auto space-y-8 px-4 py-12 relative z-10">
+
+  <!-- HEADER / HERO -->
+  <div class="text-center space-y-3">
+    <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest">Partner Program</p>
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900">Get High-Quality Solar Leads in Your City</h1>
+    <p class="text-slate-500 text-base leading-relaxed">
+      Verified homeowners. Ready-to-buy customers. No cold calling.
+    </p>
+  </div>
+
+  <!-- BENEFITS CARD -->
+  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
+    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Why Partner With Us?</h3>
+    <div class="grid grid-cols-1 gap-4">
+      <div class="flex items-center gap-3 text-slate-700">
+        <span class="text-emerald-500 font-bold">✔</span>
+        <span class="font-medium">Verified homeowners</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-700">
+        <span class="text-emerald-500 font-bold">✔</span>
+        <span class="font-medium">High-intent solar leads</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-700">
+        <span class="text-emerald-500 font-bold">✔</span>
+        <span class="font-medium">Local city matching</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-700">
+        <span class="text-emerald-500 font-bold">✔</span>
+        <span class="font-medium">Free first leads available</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="section light">
-    <div class="container card">
-      <h2>How We Match Leads</h2>
-      <p>We route leads by city and share each lead with a small group of installers to keep quality high.</p>
-      <pre class="data-model">{
-  "name": "ABC Solar",
-  "phone": "919xxxxxxx",
-  "city": "Lucknow",
-  "areas": ["Lucknow", "Kanpur"],
-  "priority": 1,
-  "active": true
-}</pre>
+  <!-- SIGNUP FORM -->
+  <div id="signupForm" class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6">
+    <h3 class="font-bold text-xl text-center tracking-tight text-slate-900">Installer Signup</h3>
+
+    <form id="installerForm" class="space-y-4">
+      <div class="space-y-3">
+        <input type="text" id="business" placeholder="Business Name" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        
+        <input type="text" id="name" placeholder="Contact Person" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        
+        <input type="tel" id="phone" placeholder="Phone Number" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        
+        <input type="text" id="city" placeholder="Base City" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        
+        <input type="text" id="areas" placeholder="Service Areas (comma separated)" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        
+        <select id="experience" required 
+          class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+          <option value="">Experience (Years)</option>
+          <option value="1-2">1-2 Years</option>
+          <option value="3-5">3-5 Years</option>
+          <option value="6+">6+ Years</option>
+        </select>
+      </div>
+
+      <button type="submit" 
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
+        Register as Installer
+      </button>
+    </form>
+    
+    <p class="text-[10px] text-slate-400 text-center leading-relaxed font-medium uppercase tracking-wider">
+      Our team will manually review your profile for activation.
+    </p>
+
+    <!-- SUCCESS MESSAGE -->
+    <div id="successMsg" class="hidden bg-emerald-50 border border-emerald-100 p-6 rounded-2xl text-center space-y-2">
+      <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+        <span class="text-emerald-600 text-xl">✓</span>
+      </div>
+      <h3 class="font-bold text-lg text-emerald-800">Profile Prepared!</h3>
+      <p class="text-sm text-emerald-600">
+        Your registration details have been captured. We will connect with you shortly to verify your business.
+      </p>
     </div>
-  </section>
+  </div>
 
-  <script>
-    function submitInstaller() {
-      const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfDZPbv-Q4QFGoD2--UMn2TqOz0Ns377o2edzCE3cGD59PUvQ/formResponse";
-      const business = document.getElementById("business").value;
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const city = document.getElementById("city").value;
-      const areas = document.getElementById("areas").value;
-      const experience = document.getElementById("experience").value;
-      if (!business || !phone || !city) {
-        alert("Please fill required fields");
-        return;
-      }
-      const params = new URLSearchParams();
-      params.append("entry.2005620554", business);
-      params.append("entry.1045781291", name);
-      params.append("entry.1166974658", phone);
-      params.append("entry.1065046570", city);
-      params.append("entry.839337160", areas);
-      params.append("entry.2037869120", experience);
-      fetch(formURL, {
-        method: "POST",
-        mode: "no-cors",
-        body: params
-      });
-      document.getElementById("successMsg").classList.remove("hidden");
+  <!-- TRUST BAR (Matched to Results) -->
+  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
+    <div class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✔</span> Local Leads</div>
+    <div class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✔</span> Verified Intent</div>
+    <div class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✔</span> Direct Access</div>
+  </div>
+
+</div>
+
+<!-- INTEGRATION SCRIPT -->
+<script>
+  function submitInstaller() {
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfDZPbv-Q4QFGoD2--UMn2TqOz0Ns377o2edzCE3cGD59PUvQ/formResponse";
+    const business = document.getElementById("business").value;
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const city = document.getElementById("city").value;
+    const areas = document.getElementById("areas").value;
+    const experience = document.getElementById("experience").value;
+
+    if (!business || !phone || !city) {
+      alert("Please fill required fields");
+      return;
     }
 
-    document.getElementById('installerForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      submitInstaller();
+    const params = new URLSearchParams();
+    params.append("entry.2005620554", business);
+    params.append("entry.1045781291", name);
+    params.append("entry.1166974658", phone);
+    params.append("entry.1065046570", city);
+    params.append("entry.839337160", areas);
+    params.append("entry.2037869120", experience);
+
+    fetch(formURL, {
+      method: "POST",
+      mode: "no-cors",
+      body: params
     });
-  </script>
+
+    // Show success UI
+    document.getElementById("installerForm").classList.add("hidden");
+    document.getElementById("successMsg").classList.remove("hidden");
+  }
+
+  document.getElementById('installerForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    submitInstaller();
+  });
+</script>
+
 </body>
 </html>
