@@ -19,11 +19,11 @@
 <body class="bg-white text-slate-900">
 
 <!-- FIXED TOP NAVIGATION -->
-<nav class="fixed top-0 left-0 w-full z-[100] bg-white/80 backdrop-blur-md border-b border-slate-200/50 px-4 md:px-8 py-3">
+<nav class="fixed top-0 left-0 w-full z-[100] bg-white/90 backdrop-blur-md border-b border-slate-200/50 px-4 md:px-8 py-3">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
     
     <!-- LOGO (Links to Home) -->
-    <a href="index.html" class="flex items-center gap-2 hover:opacity-90 transition-opacity">
+    <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-all">
       <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-10 w-auto">
       <span class="text-slate-900 font-bold text-lg md:text-xl tracking-tight hidden xs:block">
         Solar AI <span class="text-green-600">Advisor</span>
@@ -32,14 +32,16 @@
 
     <!-- LINKS -->
     <div class="flex items-center gap-4 md:gap-8">
-      <button onclick="document.getElementById('how-it-works').scrollIntoView({behavior: 'smooth'})" 
+      <!-- Fixed Scroll Link -->
+      <a href="#how-it-works" 
         class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">
         How it Works
-      </button>
-      <a href="installers.html" 
-        class="hidden sm:block bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all">
-        Installer Signup
       </a>
+      <!-- New Consultation Trigger -->
+      <button onclick="openConsultation()" 
+        class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm transition-all">
+        Free Consultation
+      </button>
     </div>
 
   </div>
@@ -126,10 +128,10 @@
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="py-16 bg-slate-50 text-center">
+<section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-20">
   <h2 class="text-3xl font-semibold mb-10">How It Works</h2>
-
-  <div class="flex flex-wrap justify-center gap-6">
+  <!-- ... rest of section ... -->
+</section>
 
     <!-- GLASS CARD -->
     <div class="w-64 p-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/30 shadow-lg">
@@ -252,6 +254,52 @@
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+</script>
+<!-- CONSULTATION POPUP -->
+<div id="consultationPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[110] backdrop-blur-sm p-4">
+  <div class="bg-white p-8 rounded-2xl w-full max-w-md text-center shadow-2xl relative">
+    <!-- Close Button -->
+    <button onclick="closeConsultation()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+
+    <h3 class="text-2xl font-bold text-slate-900">Free Consultation</h3>
+    <p class="text-slate-500 text-sm mb-6">Expert advice to maximize your solar savings.</p>
+
+    <div class="space-y-3">
+      <input id="consName" placeholder="Full Name" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+      <input id="consPhone" placeholder="Phone Number" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+      <input id="consCity" placeholder="City" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+      
+      <button onclick="handleConsultationSubmit()"
+        class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition-all mt-2">
+        Request Call Back
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openConsultation() {
+    document.getElementById('consultationPopup').classList.remove('hidden');
+  }
+  
+  function closeConsultation() {
+    document.getElementById('consultationPopup').classList.add('hidden');
+  }
+
+  function handleConsultationSubmit() {
+    const name = document.getElementById('consName').value;
+    const phone = document.getElementById('consPhone').value;
+    const city = document.getElementById('consCity').value;
+
+    if(!name || !phone) {
+      alert("Please enter your name and phone number.");
+      return;
+    }
+
+    // You can add Firebase logic here later
+    alert("Thank you " + name + "! Our expert will call you shortly.");
+    closeConsultation();
+  }
 </script>
 
 </body>
