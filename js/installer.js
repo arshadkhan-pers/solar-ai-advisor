@@ -14,6 +14,7 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 
 async function submitInstaller() {
+    const form = document.getElementById("installerForm");
     const formSection = document.getElementById("formSection");
     const successMsg = document.getElementById("successMsg");
     const submitBtn = document.getElementById("submitBtn");
@@ -26,19 +27,33 @@ async function submitInstaller() {
     const areasRaw = document.getElementById("areas").value.trim();
     const experience = document.getElementById("experience").value;
 
-    if (!business || !phone || !city) {
-        alert("Please fill in Business Name, Phone, and Base City.");
+    // ✅ UI VALIDATION GATES
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
+    const phoneRegex = /^[0-9]{10}$/;
+
+    if (!nameRegex.test(contactName)) {
+        alert("Contact Person must contain only letters and be at least 2 characters long.");
+        return;
+    }
+
+    if (!phoneRegex.test(phone)) {
+        alert("Please enter a valid 10-digit phone number.");
+        return;
+    }
+
+    if (!business || !city || !experience) {
+        alert("Please complete all required fields.");
         return;
     }
 
     const serviceAreasArray = areasRaw.split(',').map(a => a.trim().toLowerCase()).filter(a => a.length > 0);
 
-    // Start UI Loading state
+    // Set UI to loading
     submitBtn.disabled = true;
-    submitBtn.innerText = "Processing...";
+    submitBtn.innerText = "Registering...";
 
     try {
-        // 1. Save to Firestore
+        // 1. Save to Firestore[span_2](start_span)[span_2](end_span)
         await db.collection("installers").add({
             businessName: business,
             contactPerson: contactName,
@@ -47,17 +62,22 @@ async function submitInstaller() {
             serviceAreas: serviceAreasArray,
             experience: experience,
             installerType: "Standard",
-            status: "pending_review",
+            status: "pending_review", // Required for manual activation[span_3](start_span)[span_3](end_span)
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         // 2. Google Forms Backup
         await backupToGoogleForms(business, contactName, phone, city, areasRaw, experience);
 
-        // 3. Smooth UI Transition
+        // ✅ 3. FORM CLEANUP (Prevent multiple submissions)
+        form.reset();
+
+        // ✅ 4. SMART UI TRANSITION
         formSection.classList.add("hidden");
         successMsg.classList.remove("hidden");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Target the success message directly instead of the top of the page
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     } catch (error) {
         console.error("Submission Error:", error);
