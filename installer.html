@@ -121,26 +121,81 @@
       <div class="space-y-3">
         <!-- Inside your <form id="installerForm"> -->
 
-<input type="text" id="business" placeholder="Business Name" required 
-  pattern="[A-Za-z0-9\s.&-]{3,}" title="Minimum 3 characters. Letters, numbers, and symbols like & . - allowed."
-  class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+<!-- ... inside your form ... -->
+<div class="space-y-4">
+  
+  <!-- Business Name -->
+  <div>
+    <input type="text" id="business" placeholder="Business Name" required 
+      class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+    <p id="businessError" class="text-red-500 text-xs mt-1 ml-1"></p>
+  </div>
+  
+  <!-- Contact Person -->
+  <div>
+    <input type="text" id="name" placeholder="Contact Person" required 
+      class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+    <p id="nameError" class="text-red-500 text-xs mt-1 ml-1"></p>
+  </div>
+  
+  <!-- Phone Number -->
+  <div>
+    <input type="tel" id="phone" placeholder="Phone Number (10 digits)" required 
+      class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+    <p id="phoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
+  </div>
 
-<input type="text" id="name" placeholder="Contact Person (Letters only)" required 
-  pattern="[A-Za-z\s]{2,}" title="Please enter a valid name using only letters."
-  class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+  <!-- State Dropdown (Loaded exactly like index.html) -->
+  <div>
+    <select id="state" required class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+      <option value="">Select State</option>
+      <option value="AP">Andhra Pradesh</option>
+      <option value="AS">Assam</option>
+      <option value="BR">Bihar</option>
+      <option value="DL">Delhi</option>
+      <option value="GA">Goa</option>
+      <option value="GJ">Gujarat</option>
+      <option value="HR">Haryana</option>
+      <option value="HP">Himachal Pradesh</option>
+      <option value="JH">Jharkhand</option>
+      <option value="KA">Karnataka</option>
+      <option value="KL">Kerala</option>
+      <option value="MP">Madhya Pradesh</option>
+      <option value="MH">Maharashtra</option>
+      <option value="OR">Odisha</option>
+      <option value="PB">Punjab</option>
+      <option value="RJ">Rajasthan</option>
+      <option value="TN">Tamil Nadu</option>
+      <option value="TS">Telangana</option>
+      <option value="UP">Uttar Pradesh</option>
+      <option value="UK">Uttarakhand</option>
+      <option value="WB">West Bengal</option>
+    </select>
+    <p id="stateError" class="text-red-500 text-xs mt-1 ml-1"></p>
+  </div>
+  
+  <!-- City & Areas -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <input type="text" id="city" placeholder="Base City" required 
+        class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+      <p id="cityError" class="text-red-500 text-xs mt-1 ml-1"></p>
+    </div>
+    <div>
+      <select id="experience" required class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="">Experience (Years)</option>
+        <option value="1-2">1-2 Years</option>
+        <option value="3-5">3-5 Years</option>
+        <option value="6+">6+ Years</option>
+      </select>
+    </div>
+  </div>
 
-<input type="tel" id="phone" placeholder="Phone Number (10 digits)" required 
-  pattern="[0-9]{10}" title="Please enter a 10-digit phone number without spaces or symbols."
-  class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+  <input type="text" id="areas" placeholder="Service Areas (comma separated)" required 
+    class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+</div>
+<!-- ... -->
 
-<!-- Keep other fields (city, areas, experience) as they were -->
-
-        <input type="text" id="city" placeholder="Base City" required 
-          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        
-        <input type="text" id="areas" placeholder="Service Areas (comma separated)" required 
-          class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-        
         <select id="experience" required 
           class="w-full p-3.5 border border-slate-200 rounded-xl text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
           <option value="">Experience (Years)</option>
