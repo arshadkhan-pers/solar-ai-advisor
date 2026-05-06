@@ -124,29 +124,34 @@
 </section>
 
 <!-- HOW IT WORKS (MATCHING ORIGINAL ALIGNMENT) -->
-<section id="how-it-works" class="py-20 bg-white text-center scroll-mt-20">
+<!-- HOW IT WORKS (BEAUTIFIED WITH SLATE BACKGROUND) -->
+<section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-20">
   <div class="max-w-4xl mx-auto px-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-[#171a20] mb-12">How It Works</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-[#171a20] mb-4">How It Works</h2>
+    <p class="text-slate-500 mb-16 max-w-md mx-auto">Three simple steps to transition your home to clean, renewable energy.</p>
 
-    <!-- Single centered column for the "Sticker" look -->
-    <div class="flex flex-col items-center gap-6">
-
+    <!-- Step Container -->
+    <div class="flex flex-col items-center gap-8 relative">
+      
       <!-- Step 01 -->
-      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
-        <h3 class="text-green-600 text-2xl font-bold mb-2">01</h3>
-        <p class="text-slate-700 font-medium">Enter your electricity bill</p>
+      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">01</div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Enter Bill Details</h3>
+        <p class="text-slate-600 leading-relaxed">Simply input your monthly electricity spend to begin.</p>
       </div>
 
       <!-- Step 02 -->
-      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
-        <h3 class="text-green-600 text-2xl font-bold mb-2">02</h3>
-        <p class="text-slate-700 font-medium">Get instant solar recommendation</p>
+      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">02</div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Instant Analysis</h3>
+        <p class="text-slate-600 leading-relaxed">Our AI calculates your ideal system size and available subsidies.</p>
       </div>
 
       <!-- Step 03 -->
-      <div class="w-full max-w-[340px] p-8 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-50">
-        <h3 class="text-green-600 text-2xl font-bold mb-2">03</h3>
-        <p class="text-slate-700 font-medium">Compare quotes from installers</p>
+      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">03</div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Compare & Install</h3>
+        <p class="text-slate-600 leading-relaxed">Receive vetted quotes and schedule your installation with ease.</p>
       </div>
 
     </div>
@@ -160,7 +165,7 @@
   <div class="max-w-6xl mx-auto space-y-12"> <!-- Container controls overall width -->
 
     <!-- FEATURE 1: Sustainable Energy (Image Left, Text Right) -->
-    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-sm flex flex-col md:flex-row gap-8 md:gap-12 items-center">
       <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
         <img src="images/sustainable.webp" alt="Sustainable Energy" 
           class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
@@ -172,7 +177,7 @@
     </div>
 
     <!-- FEATURE 2: Govt Incentives (Text Left, Image Right - ALTERNATING) -->
-    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col-reverse md:flex-row gap-8 md:gap-12 items-center">
+    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-sm flex flex-col-reverse md:flex-row gap-8 md:gap-12 items-center">
       <div class="w-full md:w-1/2 space-y-4 text-left md:text-right">
         <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Government Incentives</h2>
         <p class="text-slate-600 text-lg leading-relaxed">Maximize your return on investment with up-to-date state and federal solar subsidies. We help you navigate the savings.</p>
@@ -184,7 +189,7 @@
     </div>
 
     <!-- FEATURE 3: Massive Bill Savings (Image Left, Text Right - LIKE ORIGINAL) -->
-    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-sm flex flex-col md:flex-row gap-8 md:gap-12 items-center">
       <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
         <img src="images/savings.webp" alt="Savings" 
           class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
