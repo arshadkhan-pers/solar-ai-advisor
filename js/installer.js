@@ -1,6 +1,8 @@
 // ==========================================
-// ✅ 1. FIREBASE CONFIGURATION & INIT
+// ✅ 1. CONFIGURATION & DATA INIT
 // ==========================================
+let citiesByState = {}; // Global storage for fetched JSON data
+
 const firebaseConfig = {
     apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
     authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
@@ -10,7 +12,6 @@ const firebaseConfig = {
     appId: "1:414713467470:web:437d1cf23454d472c7e91f"
 };
 
-// Initialize Firebase if not already initialized[span_1](start_span)[span_1](end_span)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -20,31 +21,54 @@ const db = firebase.firestore();
 // ✅ 2. VALIDATION & UTILITY HELPERS
 // ==========================================
 
-// Normalize phone to 10 digits (removes +91 or leading 0)[span_2](start_span)[span_2](end_span)
 function normalizePhone(phone) {
     phone = phone.replace(/\D/g, "");
-    if (phone.startsWith("91") && phone.length === 12) {
-        phone = phone.slice(2);
-    }
-    if (phone.startsWith("0") && phone.length === 11) {
-        phone = phone.slice(1);
-    }
+    if (phone.startsWith("91") && phone.length === 12) phone = phone.slice(2);
+    if (phone.startsWith("0") && phone.length === 11) phone = phone.slice(1);
     return phone;
 }
 
-// Inline error UI helpers[span_3](start_span)[span_3](end_span)
 function showError(inputId, errorId, message) {
     const errorEl = document.getElementById(errorId);
     const inputEl = document.getElementById(inputId);
     if (errorEl) errorEl.innerText = message;
-    if (inputEl) inputEl.style.borderColor = "#ef4444"; // Red border
+    if (inputEl) inputEl.style.borderColor = "#ef4444";
 }
 
 function clearError(inputId, errorId) {
     const errorEl = document.getElementById(errorId);
     const inputEl = document.getElementById(inputId);
     if (errorEl) errorEl.innerText = "";
-    if (inputEl) inputEl.style.borderColor = ""; // Reset border
+    if (inputEl) inputEl.style.borderColor = "";
+}
+
+// 🔥 Helper to load external JSON
+async function fetchCityData() {
+    try {
+        const response = await fetch('data/cities.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        citiesByState = await response.json();
+    } catch (error) {
+        console.error("Failed to load cities.json:", error);
+    }
+}
+
+// 🔥 Helper to populate the City dropdown
+function updateCityDropdown(stateCode) {
+    const citySelect = document.getElementById("city");
+    if (!citySelect) return;
+
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    
+    if (stateCode && citiesByState[stateCode]) {
+        // Sort cities alphabetically for better UX
+        [...citiesByState[stateCode]].sort().forEach(city => {
+            const opt = document.createElement("option");
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+        });
+    }
 }
 
 // ==========================================
@@ -57,12 +81,12 @@ async function submitInstaller() {
     const successMsg = document.getElementById("successMsg");
     const submitBtn = document.getElementById("submitBtn");
 
-    // Capture Values[span_4](start_span)[span_4](end_span)
+    // Capture Values
     const business = document.getElementById("business").value.trim();
     const contactName = document.getElementById("name").value.trim();
     const phoneInput = document.getElementById("phone").value.trim();
     const state = document.getElementById("state").value;
-    const city = document.getElementById("city").value.trim();
+    const city = document.getElementById("city").value; // Now a selection
     const areasRaw = document.getElementById("areas").value.trim();
     const experience = document.getElementById("experience").value;
 
@@ -72,20 +96,17 @@ async function submitInstaller() {
 
     let isValid = true;
 
-    // 🛡️ Business Validation
     if (business.length < 3) {
         showError("business", "businessError", "Enter a valid business name");
         isValid = false;
     }
 
-    // 🛡️ Name Validation (Letters only)[span_5](start_span)[span_5](end_span)
     const nameRegex = /^[A-Za-z\s]{2,}$/;
     if (!nameRegex.test(contactName)) {
         showError("name", "nameError", "Enter valid name (letters only)");
         isValid = false;
     }
 
-    // 🛡️ Phone Validation (Normalization + Fake Block)[span_6](start_span)[span_6](end_span)
     const normalizedPhone = normalizePhone(phoneInput);
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
@@ -93,9 +114,8 @@ async function submitInstaller() {
         isValid = false;
     }
 
-    // 🛡️ Dropdown/City Validation
     if (!state) { showError("state", "stateError", "Please select a state"); isValid = false; }
-    if (city.length < 2) { showError("city", "cityError", "Enter valid city"); isValid = false; }
+    if (!city) { showError("city", "cityError", "Please select a city"); isValid = false; }
 
     if (!isValid) {
         const firstError = document.querySelector('[id$="Error"]:not(:empty)');
@@ -103,9 +123,7 @@ async function submitInstaller() {
         return;
     }
 
-    // Prepare Data for Firestore
     const serviceAreasArray = areasRaw.split(',').map(a => a.trim().toLowerCase()).filter(a => a.length > 0);
-
     submitBtn.disabled = true;
     submitBtn.innerText = "Registering...";
 
@@ -119,22 +137,17 @@ async function submitInstaller() {
             baseCity: city,
             serviceAreas: serviceAreasArray,
             experience: experience,
-            installerType: "Standard", // Priority Field
+            installerType: "Standard",
             status: "pending_review",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 2. Google Forms Backup[span_7](start_span)[span_7](end_span)
+        // 2. Google Forms Backup
         await backupToGoogleForms(business, contactName, normalizedPhone, city, areasRaw, experience);
 
-        // ✅ 3. FORM CLEANUP (Prevent multiple submissions)
         form.reset();
-
-        // ✅ 4. SMART UI TRANSITION
         formSection.classList.add("hidden");
         successMsg.classList.remove("hidden");
-        
-        // Target success message specifically[span_8](start_span)[span_8](end_span)
         successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     } catch (error) {
@@ -172,15 +185,27 @@ function sortStates() {
     const select = document.getElementById("state");
     if (!select) return;
     const options = Array.from(select.options);
-    const first = options.shift(); // Keep "Select State" at top
+    const first = options.shift();
     options.sort((a, b) => a.text.localeCompare(b.text));
     select.innerHTML = "";
     select.appendChild(first);
     options.forEach(opt => select.appendChild(opt));
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    sortStates(); // Sort state dropdown on load[span_9](start_span)[span_9](end_span)
+document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Fetch the data from external JSON
+    await fetchCityData();
+    
+    // 2. Sort states in dropdown
+    sortStates(); 
+
+    // 3. Setup State-to-City listener
+    const stateSelect = document.getElementById("state");
+    if (stateSelect) {
+        stateSelect.addEventListener("change", (e) => updateCityDropdown(e.target.value));
+    }
+
+    // 4. Setup Form submission
     const installerForm = document.getElementById('installerForm');
     if (installerForm) {
         installerForm.addEventListener('submit', (e) => {
