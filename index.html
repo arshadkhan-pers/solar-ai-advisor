@@ -155,54 +155,48 @@
 
   
 <!-- BENTO GRID -->
-<!-- BENTO GRID (STRICT ALIGNMENT & SYMMETRY) -->
-<section class="py-20 px-6 bg-white">
-  <div class="max-w-6xl mx-auto">
-    
-    <!-- Using a 3-column grid for precise width control -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- FEATURES SECTION (ALTERNATING LIST LAYOUT - FIXED ALIGNMENT) -->
+<section class="py-24 px-6 bg-white">
+  <div class="max-w-6xl mx-auto space-y-12"> <!-- Container controls overall width -->
 
-      <!-- Card 1: Spans 2 columns -->
-      <div class="md:col-span-2 bg-slate-50 rounded-3xl p-8 border border-slate-100 flex flex-col h-full">
-        <div class="aspect-video overflow-hidden rounded-2xl mb-6">
-          <img src="images/sustainable.webp" alt="Sustainable Energy" 
-            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-        </div>
-        <div class="mt-auto">
-          <h2 class="text-2xl font-bold text-[#171a20]">Sustainable Energy</h2>
-          <p class="text-slate-600 mt-2">Clean, renewable solar power tailored for your home's needs.</p>
-        </div>
+    <!-- FEATURE 1: Sustainable Energy (Image Left, Text Right) -->
+    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
+        <img src="images/sustainable.webp" alt="Sustainable Energy" 
+          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
       </div>
-
-      <!-- Card 2: Spans 1 column -->
-      div class="md:col-span-3 bg-slate-50 rounded-3xl p-8 border border-slate-100 flex flex-col md:flex-row gap-8 items-center min-h-[300px]">
-        <div class="w-full md:w-1/2 overflow-hidden rounded-2xl h-full min-h-[250px]">
-          <img src="images/incentives.webp" alt="Incentives" 
-            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-        </div>
-        <div class="w-full md:w-1/2">
-          <h2 class="text-2xl md:text-3xl font-bold text-[#171a20]">Massive Bill Savings</h2>
-          <p class="text-slate-600 mt-4 text-lg">Switching to solar can reduce your annual electricity costs by up to 70%. Start saving from day one.</p>
-        </div>
+      <div class="w-full md:w-1/2 space-y-4">
+        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Sustainable Energy</h2>
+        <p class="text-slate-600 text-lg leading-relaxed">Clean, renewable solar power tailored for your home's unique energy footprint. Reduce carbon and future-proof your home.</p>
       </div>
-
-      <!-- Card 3: Spans all 3 columns -->
-      <div class="md:col-span-3 bg-slate-50 rounded-3xl p-8 border border-slate-100 flex flex-col md:flex-row gap-8 items-center min-h-[300px]">
-        <div class="w-full md:w-1/2 overflow-hidden rounded-2xl h-full min-h-[250px]">
-          <img src="images/savings.webp" alt="Savings" 
-            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-        </div>
-        <div class="w-full md:w-1/2">
-          <h2 class="text-2xl md:text-3xl font-bold text-[#171a20]">Massive Bill Savings</h2>
-          <p class="text-slate-600 mt-4 text-lg">Switching to solar can reduce your annual electricity costs by up to 70%. Start saving from day one.</p>
-        </div>
-      </div>
-
     </div>
+
+    <!-- FEATURE 2: Govt Incentives (Text Left, Image Right - ALTERNATING) -->
+    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col-reverse md:flex-row gap-8 md:gap-12 items-center">
+      <div class="w-full md:w-1/2 space-y-4 text-left md:text-right">
+        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Government Incentives</h2>
+        <p class="text-slate-600 text-lg leading-relaxed">Maximize your return on investment with up-to-date state and federal solar subsidies. We help you navigate the savings.</p>
+      </div>
+      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
+        <img src="images/incentives.webp" alt="Incentives" 
+          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+      </div>
+    </div>
+
+    <!-- FEATURE 3: Massive Bill Savings (Image Left, Text Right - LIKE ORIGINAL) -->
+    <div class="bg-slate-50 rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-premium flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
+        <img src="images/savings.webp" alt="Savings" 
+          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+      </div>
+      <div class="w-full md:w-1/2 space-y-4">
+        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Massive Bill Savings</h2>
+        <p class="text-slate-600 text-lg leading-relaxed">Switching to solar can reduce your annual electricity costs by up to 70%. Start saving from day one.</p>
+      </div>
+    </div>
+
   </div>
 </section>
-
-
 
 <!-- BIG IMPACT -->
 <section class="bg-slate-900 text-white text-center py-16">
