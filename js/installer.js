@@ -53,7 +53,48 @@ async function fetchCityData() {
     }
 }
 
-// 🔥 Helper to populate the City dropdown
+// 🔥 State name mapping dictionary
+const stateNames = {
+    "UP": "Uttar Pradesh",
+    "MH": "Maharashtra",
+    "DL": "Delhi",
+    "GJ": "Gujarat",
+    "RJ": "Rajasthan",
+    "MP": "Madhya Pradesh",
+    "KA": "Karnataka",
+    "TN": "Tamil Nadu",
+    "WB": "West Bengal",
+    "TS": "Telangana",
+    "AP": "Andhra Pradesh",
+    "KL": "Kerala",
+    "PB": "Punjab",
+    "HR": "Haryana",
+    "BR": "Bihar",
+    "JH": "Jharkhand",
+    "UK": "Uttarakhand",
+    "HP": "Himachal Pradesh",
+    "OR": "Odisha",
+    "AS": "Assam",
+    "CH": "Chandigarh",
+    "GA": "Goa"
+};
+
+function populateStateDropdown() {
+    const stateSelect = document.getElementById("state");
+    if (!stateSelect) return;
+
+    const firstOption = stateSelect.querySelector('option[value=""]');
+    stateSelect.innerHTML = ''; // Clear previous elements
+    if (firstOption) stateSelect.appendChild(firstOption);
+
+    Object.keys(citiesByState).forEach(code => {
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = stateNames[code] || code;
+        stateSelect.appendChild(opt);
+    });
+}
+
 function updateCityDropdown(stateCode) {
     const citySelect = document.getElementById("city");
     if (!citySelect) return;
@@ -193,22 +234,20 @@ function sortStates() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Fetch the data from external JSON
+    // 1. Fetch data & dynamically build states
     await fetchCityData();
-    
-    // 2. Sort states in dropdown
-    sortStates(); 
+    populateStateDropdown();
+    sortStates();
 
-    // 🔥 FIX: Update dropdown with currently selected state (if any pre-selected)
     const stateSelect = document.getElementById("state");
     if (stateSelect) {
+        // Initialize city dropdown based on the first selected state
         updateCityDropdown(stateSelect.value);
 
-        // 3. Setup State-to-City listener on change
+        // 2. Setup State-to-City listener
         stateSelect.addEventListener("change", (e) => updateCityDropdown(e.target.value));
     }
 
-    // 4. Setup Form submission
     const installerForm = document.getElementById('installerForm');
     if (installerForm) {
         installerForm.addEventListener('submit', (e) => {
