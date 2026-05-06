@@ -175,45 +175,7 @@
 </div>
 
 <!-- INTEGRATION SCRIPT -->
-<script>
-  function submitInstaller() {
-    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfDZPbv-Q4QFGoD2--UMn2TqOz0Ns377o2edzCE3cGD59PUvQ/formResponse";
-    const business = document.getElementById("business").value;
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const city = document.getElementById("city").value;
-    const areas = document.getElementById("areas").value;
-    const experience = document.getElementById("experience").value;
-
-    if (!business || !phone || !city) {
-      alert("Please fill required fields");
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.append("entry.2005620554", business);
-    params.append("entry.1045781291", name);
-    params.append("entry.1166974658", phone);
-    params.append("entry.1065046570", city);
-    params.append("entry.839337160", areas);
-    params.append("entry.2037869120", experience);
-
-    fetch(formURL, {
-      method: "POST",
-      mode: "no-cors",
-      body: params
-    });
-
-    // Show success UI
-    document.getElementById("installerForm").classList.add("hidden");
-    document.getElementById("successMsg").classList.remove("hidden");
-  }
-
-  document.getElementById('installerForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    submitInstaller();
-  });
-</script>
+<script src="js/installer.js"></script>
 
 </body>
 </html>
