@@ -199,9 +199,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 2. Sort states in dropdown
     sortStates(); 
 
-    // 3. Setup State-to-City listener
+    // 🔥 FIX: Update dropdown with currently selected state (if any pre-selected)
     const stateSelect = document.getElementById("state");
     if (stateSelect) {
+        updateCityDropdown(stateSelect.value);
+
+        // 3. Setup State-to-City listener on change
         stateSelect.addEventListener("change", (e) => updateCityDropdown(e.target.value));
     }
 
