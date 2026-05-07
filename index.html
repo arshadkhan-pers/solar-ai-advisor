@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Solar AI Advisor</title>
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
@@ -16,32 +14,16 @@
   </style>
 </head>
 
-<body class="bg-[#E3A857] text-slate-900"><!-- <!-- bg-white -->
+<body class="bg-[#E3A857] text-slate-900">
 
-<!-- FIXED TOP NAVIGATION -->
-
-<!-- CLEAN TESLA-STYLE NAVIGATION -->
 <nav class="fixed top-0 left-0 w-full z-[110] bg-white border-b border-slate-100 px-4 md:px-8 py-3">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
     
-    <!-- LOGO -->
     <a href="index.html" class="flex items-center gap-2">
       <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-9 w-auto">
       <span class="text-slate-900 font-bold text-lg tracking-tight hidden xs:block">Solar AI Advisor</span>
     </a>
-<!--
-<header class="bg-[#E3A857] shadow-lg py-4"> <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-    
-    <a href="index.html" class="flex items-center">
-      <img src="logo.png" 
-           alt="Solar AI Advisor" 
-           class="h-12 w-auto md:h-16 transition-all" /> 
-           </a>
-    </div>
-</header>
--->
 
-    <!-- LINKS -->
     <div class="flex items-center gap-6">
       <a href="#how-it-works" class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">How it Works</a>
       <button onclick="openConsultation()" 
@@ -53,41 +35,22 @@
   </div>
 </nav>
 
- 
-<!-- HERO -->
-<!-- Note: Added min-h-screen for better mobile filling and adjusted padding-top -->
 <section class="relative min-h-[90vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
-
-  <!-- VIDEO (Unchanged) -->
   <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
     <source src="images/hero.mp4" type="video/mp4">
   </video>
-
-  <!-- GRADIENT OVERLAY (Darkened slightly for better text visibility on iPhone) -->
   <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
-
-  <!-- CONTENT (Added responsive margins) -->
   <div class="relative z-10 max-w-2xl px-6 py-10">
-
     <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
       Cut Your Electricity Bill by 70% with Solar
     </h1>
-
     <p class="text-gray-200 text-base md:text-lg mb-8 max-w-md mx-auto">
       Get exact system size, subsidy, and savings — instantly.
     </p>
 
-    <!-- INPUT GROUP -->
     <div class="flex flex-col md:flex-row gap-3 justify-center items-center">
-
-      <input id="billInput"
-        type="number"
-        placeholder="Monthly electricity bill (₹)"
-        class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md outline-none"
-      />
-
-      <select id="state"
-        class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md">
+      <input id="billInput" type="number" placeholder="Monthly electricity bill (₹)" class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md outline-none" />
+      <select id="state" class="w-full md:w-56 px-4 py-3 rounded-xl text-black shadow-md">
         <option value="">Select State</option>
         <option value="UP">Uttar Pradesh</option>
         <option value="MH">Maharashtra</option>
@@ -111,180 +74,133 @@
         <option value="AS">Assam</option>
         <option value="GA">Goa</option>
       </select>
-
-      <!-- IMPORTANT: ID NOT CHANGED -->
-      <button id="calculateBtn"
-        class="bg-[#22c55e] hover:bg-green-600 px-6 py-3 rounded-xl font-semibold shadow-lg">
+      <button id="calculateBtn" class="bg-[#22c55e] hover:bg-green-600 px-6 py-3 rounded-xl font-semibold shadow-lg">
         ⚡ See My Savings
       </button>
     </div>
 
-    <!-- TRUST -->
     <div class="mt-5 flex flex-wrap justify-center gap-4 text-sm text-green-200">
       <span>✔ Govt subsidy eligible</span>
       <span>✔ 25-year warranty</span>
       <span>✔ Trusted installers</span>
     </div>
 
-    <button onclick="window.location.href='installer.html'"
-      class="mt-5 border border-white px-4 py-2 rounded-lg">
+    <button onclick="window.location.href='installer.html'" class="mt-5 border border-white px-4 py-2 rounded-lg">
       Installer Signup
     </button>
-
   </div>
 </section>
 
-<!-- HOW IT WORKS (MATCHING ORIGINAL ALIGNMENT) -->
-<!-- HOW IT WORKS (BEAUTIFIED WITH SLATE BACKGROUND) -->
 <section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-20">
   <div class="max-w-4xl mx-auto px-6">
     <h2 class="text-3xl md:text-4xl font-bold text-[#171a20] mb-4">How It Works</h2>
     <p class="text-slate-500 mb-16 max-w-md mx-auto">Three simple steps to transition your home to clean, renewable energy.</p>
-
-    <!-- Step Container -->
     <div class="flex flex-col items-center gap-8 relative">
-      
-      <!-- Step 01 -->
       <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">01</div>
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">01</div>
         <h3 class="text-xl font-bold text-slate-900 mb-2">Enter Bill Details</h3>
         <p class="text-slate-600 leading-relaxed">Simply input your monthly electricity spend to begin.</p>
       </div>
-
-      <!-- Step 02 -->
       <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">02</div>
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">02</div>
         <h3 class="text-xl font-bold text-slate-900 mb-2">Instant Analysis</h3>
         <p class="text-slate-600 leading-relaxed">Our AI calculates your ideal system size and available subsidies.</p>
       </div>
-
-      <!-- Step 03 -->
       <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">03</div>
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">03</div>
         <h3 class="text-xl font-bold text-slate-900 mb-2">Compare & Install</h3>
         <p class="text-slate-600 leading-relaxed">Receive vetted quotes and schedule your installation with ease.</p>
       </div>
-
     </div>
   </div>
 </section>
 
-  
-<!-- BENTO GRID -->
-<!-- FEATURES SECTION (ALTERNATING LIST LAYOUT - FIXED ALIGNMENT) -->
 <section class="py-24 px-6 bg-white">
-  <div class="max-w-6xl mx-auto space-y-12"> <!-- Container controls overall width -->
-
-    <!-- FEATURE 1: Sustainable Energy (Image Left, Text Right) -->
+  <div class="max-w-6xl mx-auto space-y-12">
     <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
-        <img src="images/sustainable.webp" alt="Sustainable Energy" 
-          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
+        <img src="images/sustainable.webp" alt="Sustainable Energy" class="w-full h-full object-cover">
       </div>
       <div class="w-full md:w-1/2 space-y-4">
-        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Sustainable Energy</h2>
-        <p class="text-slate-600 text-lg leading-relaxed">Clean, renewable solar power tailored for your home's unique energy footprint. Reduce carbon and future-proof your home.</p>
+        <h2 class="text-3xl font-bold text-[#171a20]">Sustainable Energy</h2>
+        <p class="text-slate-600 text-lg">Clean, renewable solar power tailored for your home's unique energy footprint.</p>
       </div>
     </div>
-
-    <!-- FEATURE 2: Govt Incentives (Text Left, Image Right - ALTERNATING) -->
     <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col-reverse md:flex-row gap-8 md:gap-12 items-center">
       <div class="w-full md:w-1/2 space-y-4 text-left md:text-right">
-        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Government Incentives</h2>
-        <p class="text-slate-600 text-lg leading-relaxed">Maximize your return on investment with up-to-date state and federal solar subsidies. We help you navigate the savings.</p>
+        <h2 class="text-3xl font-bold text-[#171a20]">Government Incentives</h2>
+        <p class="text-slate-600 text-lg">Maximize your return on investment with up-to-date subsidies.</p>
       </div>
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
-        <img src="images/incentives.webp" alt="Incentives" 
-          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-      </div>
-    </div>
-
-    <!-- FEATURE 3: Massive Bill Savings (Image Left, Text Right - LIKE ORIGINAL) -->
-    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72"> <!-- Strict height matching -->
-        <img src="images/savings.webp" alt="Savings" 
-          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-      </div>
-      <div class="w-full md:w-1/2 space-y-4">
-        <h2 class="text-3xl font-bold text-[#171a20] tracking-tight">Massive Bill Savings</h2>
-        <p class="text-slate-600 text-lg leading-relaxed">Switching to solar can reduce your annual electricity costs by up to 70%. Start saving from day one.</p>
+      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
+        <img src="images/incentives.webp" alt="Incentives" class="w-full h-full object-cover">
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- BIG IMPACT -->
 <section class="bg-slate-900 text-white text-center py-16">
   <h2 class="text-3xl font-semibold mb-2">Save ₹50,000+ Every Year</h2>
   <p class="text-gray-300">Join thousands switching to solar</p>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="py-16 text-center">
-  <h2 class="text-3xl font-semibold mb-10">What Users Say</h2>
-
-  <div class="flex flex-wrap justify-center gap-6">
-
-    <div class="bg-white shadow-xl p-6 rounded-2xl max-w-sm">
-      <p>"Reduced my bill from ₹4000 to ₹500."</p>
-      <span>- Amit, Lucknow</span>
-    </div>
-
-    <div class="bg-white shadow-xl p-6 rounded-2xl max-w-sm">
-      <p>"Clear pricing and no surprises."</p>
-      <span>- Residential User</span>
-    </div>
-
-  </div>
-</section>
-
-<!-- CTA -->
 <section class="text-center py-12">
   <h2 class="text-2xl mb-4">Ready to see your solar savings?</h2>
-  <button onclick="scrollToTop()"
-    class="bg-green-600 text-white px-6 py-3 rounded-xl">
+  <button onclick="scrollToTop()" class="bg-green-600 text-white px-6 py-3 rounded-xl">
     Calculate Now
   </button>
 </section>
 
-<!-- POPUP (UNCHANGED LOGIC) -->
 <div id="leadPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
   <div class="bg-white p-6 rounded-2xl w-[90%] max-w-md text-center shadow-xl">
-
     <h3 class="text-xl font-semibold">Get Your Personalized Solar Plan</h3>
     <p class="text-gray-500 text-sm mb-4">Takes less than 10 seconds</p>
-
     <div class="text-left mb-2">
-      <input id="leadName" placeholder="Full Name"
-        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <input id="leadName" placeholder="Full Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
       <p id="nameError" class="text-red-500 text-xs mt-1 ml-1"></p>
     </div>
-
     <div class="text-left mb-2">
-      <input id="leadPhone" placeholder="Phone Number"
-        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <input id="leadPhone" placeholder="Phone Number" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
       <p id="phoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
     </div>
-
     <div class="text-left mb-2">
-      <input id="leadCity" placeholder="City"
-        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <input id="leadCity" placeholder="City" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
       <p id="cityError" class="text-red-500 text-xs mt-1 ml-1"></p>
     </div>
-
-    <button onclick="submitLeadAndContinue(event)"
-      class="w-full bg-green-600 text-white py-3 rounded-xl mt-2 font-bold hover:bg-green-700 transition-all">
+    <button onclick="submitLeadAndContinue(event)" class="w-full bg-green-600 text-white py-3 rounded-xl mt-2 font-bold hover:bg-green-700 transition-all">
       Get My Free Plan
     </button>
-
   </div>
 </div>
 
-<!-- SCRIPTS (UNCHANGED) -->
-<script src="data/cities.js"></script>
-<script src="js/script.js"></script>
+<div id="consultationPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[110] backdrop-blur-sm p-4">
+  <div class="bg-white p-8 rounded-2xl w-full max-w-md text-center shadow-2xl relative">
+    <button onclick="closeConsultation()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+    <h3 class="text-2xl font-bold text-slate-900">Free Consultation</h3>
+    <p class="text-slate-500 text-sm mb-6">Expert advice to maximize your solar savings.</p>
 
+    <div class="space-y-4 text-left">
+      <div>
+        <input id="consName" placeholder="Full Name" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consNameError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
+      <div>
+        <input id="consPhone" placeholder="Phone Number" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consPhoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
+      <div>
+        <input id="consCity" placeholder="City" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consCityError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
+      
+      <button onclick="handleConsultationSubmit()" id="consSubmitBtn"
+        class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition-all mt-2">
+        Request Call Back
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -298,61 +214,11 @@
     appId: "1:414713467470:web:437d1cf23454d472c7e91f"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.firestore();
-</script>
 
-<!-- CONSULTATION POPUP -->
-<div id="consultationPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[110] backdrop-blur-sm p-4">
-  <div class="bg-white p-8 rounded-2xl w-full max-w-md text-center shadow-2xl relative">
-    <button onclick="closeConsultation()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl">&times;</button>
-
-    <h3 class="text-2xl font-bold text-slate-900">Free Consultation</h3>
-    <p class="text-slate-500 text-sm mb-6">Expert advice to maximize your solar savings.</p>
-
-    <div class="space-y-4 text-left">
-      <div>
-        <input id="consName" placeholder="Full Name" 
-          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
-        <p id="consNameError" class="text-red-500 text-xs mt-1 ml-1"></p>
-      </div>
-
-      <div>
-        <input id="consPhone" placeholder="Phone Number" 
-          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
-        <p id="consPhoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
-      </div>
-
-      <div>
-        <input id="consCity" placeholder="City" 
-          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
-        <p id="consCityError" class="text-red-500 text-xs mt-1 ml-1"></p>
-      </div>
-      
-      <button onclick="handleConsultationSubmit()"
-        id="consSubmitBtn"
-        class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition-all mt-2">
-        Request Call Back
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- CONSULTATION POPUP Validations
-<div class="space-y-3 text-left">
-  <div>
-    <input id="consName" placeholder="Full Name" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
-    <p id="consNameError" class="text-red-500 text-xs mt-1"></p>
-  </div>
-  <div>
-    <input id="consPhone" placeholder="Phone Number" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
-    <p id="consPhoneError" class="text-red-500 text-xs mt-1"></p>
-  </div>
-  </div>
--->
-
-<script>
   function openConsultation() {
     document.getElementById('consultationPopup').classList.remove('hidden');
   }
@@ -361,76 +227,70 @@
     document.getElementById('consultationPopup').classList.add('hidden');
   }
 
-  function handleConsultationSubmit() {
-  const name = document.getElementById('consName').value.trim();
-  const phoneInput = document.getElementById('consPhone').value.trim();
-  const city = document.getElementById('consCity').value.trim();
-  const submitBtn = document.getElementById('consSubmitBtn');
+  async function handleConsultationSubmit() {
+    const name = document.getElementById('consName').value.trim();
+    const phoneInput = document.getElementById('consPhone').value.trim();
+    const city = document.getElementById('consCity').value.trim();
+    const submitBtn = document.getElementById("consSubmitBtn");
 
-  // 1. Reset Errors (Reusing helpers from script.js)
-  clearError('consName', 'consNameError');
-  clearError('consPhone', 'consPhoneError');
-  clearError('consCity', 'consCityError');
+    // Clear previous errors using script.js helpers
+    clearError("consName", "consNameError");
+    clearError("consPhone", "consPhoneError");
+    clearError("consCity", "consCityError");
 
-  let isValid = true;
+    let isValid = true;
 
-  // 2. Name Validation
-  const nameRegex = /^[A-Za-z\s]{2,}$/;
-  if (!nameRegex.test(name)) {
-    showError('consName', 'consNameError', 'Enter a valid name (letters only)');
-    isValid = false;
-  }
+    // Name validation
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
+    if (!nameRegex.test(name)) {
+      showError("consName", "consNameError", "Enter valid name (letters only)");
+      isValid = false;
+    }
 
-  // 3. Phone Validation (Normalizing first)
-  const normalizedPhone = normalizePhone(phoneInput);
-  const phoneRegex = /^[6-9]\d{9}$/;
-  if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
-    showError('consPhone', 'consPhoneError', 'Enter valid 10-digit mobile');
-    isValid = false;
-  }
+    // Phone validation & normalization
+    const normalizedPhone = normalizePhone(phoneInput);
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
+      showError("consPhone", "consPhoneError", "Enter valid 10-digit mobile");
+      isValid = false;
+    }
 
-  // 4. City Validation
-  if (city.length < 3) {
-    showError('consCity', 'consCityError', 'Enter your city name');
-    isValid = false;
-  }
+    // City validation
+    if (city.length < 2) {
+      showError("consCity", "consCityError", "Enter your city");
+      isValid = false;
+    }
 
-  if (!isValid) return;
+    if (!isValid) return;
 
-  // 5. If Valid, Proceed with Firestore
-  submitBtn.disabled = true;
-  submitBtn.innerText = "Sending...";
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Processing...";
 
-  db.collection("consultations").add({
-    name: name,
-    phone: normalizedPhone,
-    city: city,
-    source: "Free Consultation Popup",
-    status: "New",
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  })
-  .then(() => {
-    alert("Thank you " + name + "! Our solar expert will call you shortly.");
-    closeConsultation();
-    // Optional: Reset form fields
-    document.getElementById('consName').value = "";
-    document.getElementById('consPhone').value = "";
-    document.getElementById('consCity').value = "";
-  })
-  .catch((error) => {
-    console.error("Error saving consultation:", error);
-    alert("Something went wrong. Please try again.");
-  })
-  .finally(() => {
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Request Call Back";
-  });
-}
+    try {
+      await db.collection("consultations").add({
+        name: name,
+        phone: normalizedPhone,
+        city: city,
+        source: "Free Consultation Popup",
+        status: "New",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
 
+      alert("Thank you " + name + "! Our solar expert will call you shortly.");
+      closeConsultation();
+      
+      // Reset form
+      document.getElementById('consName').value = "";
+      document.getElementById('consPhone').value = "";
+      document.getElementById('consCity').value = "";
 
-    // You can add Firebase logic here later
-    alert("Thank you " + name + "! Our expert will call you shortly.");
-    closeConsultation();
+    } catch (error) {
+      console.error("Submission Error:", error);
+      alert("Submission failed. Please check your connection.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Request Call Back";
+    }
   }
 </script>
 
