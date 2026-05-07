@@ -301,27 +301,43 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 </script>
+
 <!-- CONSULTATION POPUP -->
 <div id="consultationPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[110] backdrop-blur-sm p-4">
   <div class="bg-white p-8 rounded-2xl w-full max-w-md text-center shadow-2xl relative">
-    <!-- Close Button -->
     <button onclick="closeConsultation()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl">&times;</button>
 
     <h3 class="text-2xl font-bold text-slate-900">Free Consultation</h3>
     <p class="text-slate-500 text-sm mb-6">Expert advice to maximize your solar savings.</p>
 
-    <div class="space-y-3">
-      <input id="consName" placeholder="Full Name" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
-      <input id="consPhone" placeholder="Phone Number" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
-      <input id="consCity" placeholder="City" class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+    <div class="space-y-4 text-left">
+      <div>
+        <input id="consName" placeholder="Full Name" 
+          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
+        <p id="consNameError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
+
+      <div>
+        <input id="consPhone" placeholder="Phone Number" 
+          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
+        <p id="consPhoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
+
+      <div>
+        <input id="consCity" placeholder="City" 
+          class="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"/>
+        <p id="consCityError" class="text-red-500 text-xs mt-1 ml-1"></p>
+      </div>
       
       <button onclick="handleConsultationSubmit()"
+        id="consSubmitBtn"
         class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition-all mt-2">
         Request Call Back
       </button>
     </div>
   </div>
 </div>
+
 
 <!-- CONSULTATION POPUP Validations
 <div class="space-y-3 text-left">
