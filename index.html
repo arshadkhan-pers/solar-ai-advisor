@@ -333,14 +333,50 @@
         <p id="phoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
 
-      <div>
-        <input
-          id="leadCity"
-          placeholder="City"
-          class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+     <div>
+  <select
+    id="leadState"
+    onchange="syncLeadState(this.value)"
+    class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 bg-white">
 
-        <p id="cityError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
-      </div>
+    <option value="">Select State</option>
+    <option value="AP">Andhra Pradesh</option>
+    <option value="AS">Assam</option>
+    <option value="BR">Bihar</option>
+    <option value="DL">Delhi</option>
+    <option value="GA">Goa</option>
+    <option value="GJ">Gujarat</option>
+    <option value="HR">Haryana</option>
+    <option value="HP">Himachal Pradesh</option>
+    <option value="JH">Jharkhand</option>
+    <option value="KA">Karnataka</option>
+    <option value="KL">Kerala</option>
+    <option value="MP">Madhya Pradesh</option>
+    <option value="MH">Maharashtra</option>
+    <option value="OR">Odisha</option>
+    <option value="PB">Punjab</option>
+    <option value="RJ">Rajasthan</option>
+    <option value="TN">Tamil Nadu</option>
+    <option value="TS">Telangana</option>
+    <option value="UP">Uttar Pradesh</option>
+    <option value="UK">Uttarakhand</option>
+    <option value="WB">West Bengal</option>
+  </select>
+
+  <p id="leadStateError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+</div>
+
+<div>
+  <input
+    id="leadCity"
+    list="cityList"
+    placeholder="City"
+    class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+
+  <datalist id="cityList"></datalist>
+
+  <p id="cityError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+</div>
 
       <button
         onclick="submitLeadAndContinue(event)"
@@ -390,6 +426,38 @@
 
         <p id="consPhoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
+      
+      <div>
+  <select
+    id="consState"
+    class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+
+    <option value="">Select State</option>
+    <option value="AP">Andhra Pradesh</option>
+    <option value="AS">Assam</option>
+    <option value="BR">Bihar</option>
+    <option value="DL">Delhi</option>
+    <option value="GA">Goa</option>
+    <option value="GJ">Gujarat</option>
+    <option value="HR">Haryana</option>
+    <option value="HP">Himachal Pradesh</option>
+    <option value="JH">Jharkhand</option>
+    <option value="KA">Karnataka</option>
+    <option value="KL">Kerala</option>
+    <option value="MP">Madhya Pradesh</option>
+    <option value="MH">Maharashtra</option>
+    <option value="OR">Odisha</option>
+    <option value="PB">Punjab</option>
+    <option value="RJ">Rajasthan</option>
+    <option value="TN">Tamil Nadu</option>
+    <option value="TS">Telangana</option>
+    <option value="UP">Uttar Pradesh</option>
+    <option value="UK">Uttarakhand</option>
+    <option value="WB">West Bengal</option>
+  </select>
+
+  <p id="consStateError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+</div>
 
       <div>
         <input
