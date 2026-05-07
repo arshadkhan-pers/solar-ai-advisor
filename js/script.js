@@ -54,13 +54,16 @@ function normalizePhone(phone) {
   return phone;
 }
 
-// 🔥 Inline error helpers (NEW)
+// 🔥 Updated Inline error helpers to work with Tailwind
 function showError(inputId, errorId, message) {
   const errorEl = document.getElementById(errorId);
   const inputEl = document.getElementById(inputId);
 
   if (errorEl) errorEl.innerText = message;
-  if (inputEl) inputEl.classList.add("invalid");
+  if (inputEl) {
+    inputEl.style.borderColor = "#ef4444"; // Tailwind red-500
+    inputEl.classList.add("bg-red-50");
+  }
 }
 
 function clearError(inputId, errorId) {
@@ -68,7 +71,10 @@ function clearError(inputId, errorId) {
   const inputEl = document.getElementById(inputId);
 
   if (errorEl) errorEl.innerText = "";
-  if (inputEl) inputEl.classList.remove("invalid");
+  if (inputEl) {
+    inputEl.style.borderColor = ""; 
+    inputEl.classList.remove("bg-red-50");
+  }
 }
 
 // 🔥 Updated validation (inline + safe fallback)
