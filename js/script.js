@@ -88,8 +88,8 @@ function validateLeadForm(name, phone, city) {
   // Clear previous errors (safe if elements not present)
   clearError("leadName", "nameError");
   clearError("leadPhone", "phoneError");
+  clearError("leadState", "leadStateError");
   clearError("leadCity", "cityError");
-
   // Name validation
   if (!nameRegex.test(name)) {
     showError("leadName", "nameError", "Enter valid name");
@@ -109,6 +109,13 @@ function validateLeadForm(name, phone, city) {
     showError("leadPhone", "phoneError", "Invalid mobile number");
     isValid = false;
   }
+
+const leadState = document.getElementById("leadState")?.value;
+
+if (!leadState) {
+  showError("leadState", "leadStateError", "Please select state");
+  isValid = false;
+}
 
   // City validation
   if (!city || city.length < 2) {
@@ -240,6 +247,10 @@ function loadCities(state) {
 // 🔁 Bind button
 document.addEventListener("DOMContentLoaded", function () {
   sortStates();
+  
+  
+  sortStateDropdown("leadState");
+  sortStateDropdown("consState");
   const calculateBtn = document.getElementById("calculateBtn");
   if (calculateBtn) {
     calculateBtn.addEventListener("click", calculate);
@@ -257,6 +268,25 @@ function sortStates() {
   options.sort((a, b) => a.text.localeCompare(b.text));
 
   select.innerHTML = "";
+  select.appendChild(first);
+
+  options.forEach(opt => select.appendChild(opt));
+}
+
+function sortStateDropdown(id) {
+
+  const select = document.getElementById(id);
+
+  if (!select) return;
+
+  const options = Array.from(select.options);
+
+  const first = options.shift();
+
+  options.sort((a, b) => a.text.localeCompare(b.text));
+
+  select.innerHTML = "";
+
   select.appendChild(first);
 
   options.forEach(opt => select.appendChild(opt));
