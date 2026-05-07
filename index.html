@@ -531,11 +531,22 @@
 
     if (isValid) {
 
-      localStorage.setItem("state", state);
-      localStorage.setItem("bill", bill);
+  localStorage.setItem("state", state);
+  localStorage.setItem("bill", bill);
 
-      document.getElementById("leadPopup").classList.remove("hidden");
-    }
+  const leadStateDropdown = document.getElementById("leadState");
+
+  if (leadStateDropdown) {
+    leadStateDropdown.value = state;
+  }
+
+  if (typeof loadCities === "function") {
+    loadCities(state);
+  }
+
+  document.getElementById("leadPopup").classList.remove("hidden");
+}
+
   }
 
   // CONSULTATION
@@ -546,6 +557,15 @@
   function closeConsultation() {
     document.getElementById('consultationPopup').classList.add('hidden');
   }
+
+  function syncLeadState(state) {
+
+  localStorage.setItem("state", state);
+
+  if (typeof loadCities === "function") {
+    loadCities(state);
+  }
+}
 
   async function handleConsultationSubmit() {
 
