@@ -362,14 +362,71 @@
   }
 
   function handleConsultationSubmit() {
-    const name = document.getElementById('consName').value;
-    const phone = document.getElementById('consPhone').value;
-    const city = document.getElementById('consCity').value;
+  const name = document.getElementById('consName').value.trim();
+  const phoneInput = document.getElementById('consPhone').value.trim();
+  const city = document.getElementById('consCity').value.trim();
+  const submitBtn = document.getElementById('consSubmitBtn');
 
-    if(!name || !phone) {
-      alert("Please enter your name and phone number.");
-      return;
-    }
+  // 1. Reset Errors (Reusing helpers from script.js)
+  clearError('consName', 'consNameError');
+  clearError('consPhone', 'consPhoneError');
+  clearError('consCity', 'consCityError');
+
+  let isValid = true;
+
+  // 2. Name Validation
+  const nameRegex = /^[A-Za-z\s]{2,}$/;
+  if (!nameRegex.test(name)) {
+    showError('consName', 'consNameError', 'Enter a valid name (letters only)');
+    isValid = false;
+  }
+
+  // 3. Phone Validation (Normalizing first)
+  const normalizedPhone = normalizePhone(phoneInput);
+  const phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
+    showError('consPhone', 'consPhoneError', 'Enter valid 10-digit mobile');
+    isValid = false;
+  }
+
+  // 4. City Validation
+  if (city.length < 3) {
+    showError('consCity', 'consCityError', 'Enter your city name');
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  // 5. If Valid, Proceed with Firestore
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Sending...";
+
+  db.collection("consultations").add({
+    name: name,
+    phone: normalizedPhone,
+    city: city,
+    source: "Free Consultation Popup",
+    status: "New",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    alert("Thank you " + name + "! Our solar expert will call you shortly.");
+    closeConsultation();
+    // Optional: Reset form fields
+    document.getElementById('consName').value = "";
+    document.getElementById('consPhone').value = "";
+    document.getElementById('consCity').value = "";
+  })
+  .catch((error) => {
+    console.error("Error saving consultation:", error);
+    alert("Something went wrong. Please try again.");
+  })
+  .finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Request Call Back";
+  });
+}
+
 
     // You can add Firebase logic here later
     alert("Thank you " + name + "! Our expert will call you shortly.");
