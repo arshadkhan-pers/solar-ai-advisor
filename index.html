@@ -6,11 +6,11 @@
   <title>Solar AI Advisor</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .error-msg { min-height: 1.25rem; }
   </style>
 </head>
 
@@ -18,88 +18,110 @@
 
 <nav class="fixed top-0 left-0 w-full z-[110] bg-white border-b border-slate-100 px-4 md:px-8 py-3">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
+    
     <a href="index.html" class="flex items-center gap-2">
-      <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-9 w-auto">
+      <img src="images/logo.webp" alt="Solar AI Advisor" class="h-8 md:h-10 w-auto">
       <span class="text-slate-900 font-bold text-lg tracking-tight hidden xs:block">Solar AI Advisor</span>
     </a>
+
     <div class="flex items-center gap-6">
       <a href="#how-it-works" class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">How it Works</a>
       <button onclick="openConsultation()" 
-        class="bg-[#171a20] text-white px-6 py-2 rounded-md text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all">
+        class="bg-[#171a20] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all shadow-md">
         Free Consultation
       </button>
     </div>
+
   </div>
 </nav>
 
-<section class="relative min-h-[90vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
+<section class="relative min-h-[95vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
   <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
     <source src="images/hero.mp4" type="video/mp4">
   </video>
-  <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
-  <div class="relative z-10 max-w-2xl px-6 py-10">
-    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">Cut Your Electricity Bill by 70% with Solar</h1>
-    <p class="text-gray-200 text-base md:text-lg mb-8 max-w-md mx-auto">Get exact system size, subsidy, and savings — instantly.</p>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80"></div>
+  
+  <div class="relative z-10 max-w-4xl px-6 py-10">
+    <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight tracking-tight">
+      Cut Your Electricity Bill by 70%
+    </h1>
+    <p class="text-gray-200 text-lg md:text-xl mb-10 max-w-xl mx-auto">
+      Get your exact system size, government subsidy, and monthly savings — instantly.
+    </p>
 
-    <div class="flex flex-col md:flex-row gap-3 justify-center items-start">
+    <div class="flex flex-col md:flex-row gap-4 justify-center items-start bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 shadow-2xl">
+      
       <div class="w-full md:w-64 text-left">
         <input id="billInput" type="number" placeholder="Monthly bill (₹)" 
-          class="w-full px-4 py-3 rounded-xl text-black shadow-md outline-none focus:ring-2 focus:ring-green-500" />
-        <p id="billError" class="text-red-400 text-xs mt-1 ml-1 error-msg"></p>
+          class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all" />
+        <p id="billError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
       </div>
 
       <div class="w-full md:w-64 text-left">
-        <select id="state" class="w-full px-4 py-3 rounded-xl text-black shadow-md outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white">
+        <select id="state" class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all appearance-none bg-white">
           <option value="">Select State</option>
-          <option value="UP">Uttar Pradesh</option>
-          <option value="MH">Maharashtra</option>
-          <option value="DL">Delhi</option>
-          <option value="GJ">Gujarat</option>
-          <option value="RJ">Rajasthan</option>
-          <option value="MP">Madhya Pradesh</option>
-          <option value="KA">Karnataka</option>
-          <option value="TN">Tamil Nadu</option>
-          <option value="WB">West Bengal</option>
-          <option value="TS">Telangana</option>
           <option value="AP">Andhra Pradesh</option>
-          <option value="KL">Kerala</option>
-          <option value="PB">Punjab</option>
-          <option value="HR">Haryana</option>
-          <option value="BR">Bihar</option>
-          <option value="JH">Jharkhand</option>
-          <option value="OR">Odisha</option>
           <option value="AS">Assam</option>
+          <option value="BR">Bihar</option>
+          <option value="DL">Delhi</option>
           <option value="GA">Goa</option>
+          <option value="GJ">Gujarat</option>
+          <option value="HR">Haryana</option>
+          <option value="HP">Himachal Pradesh</option>
+          <option value="JH">Jharkhand</option>
+          <option value="KA">Karnataka</option>
+          <option value="KL">Kerala</option>
+          <option value="MP">Madhya Pradesh</option>
+          <option value="MH">Maharashtra</option>
+          <option value="OR">Odisha</option>
+          <option value="PB">Punjab</option>
+          <option value="RJ">Rajasthan</option>
+          <option value="TN">Tamil Nadu</option>
+          <option value="TS">Telangana</option>
+          <option value="UP">Uttar Pradesh</option>
+          <option value="UK">Uttarakhand</option>
+          <option value="WB">West Bengal</option>
         </select>
-        <p id="stateHeroError" class="text-red-400 text-xs mt-1 ml-1 error-msg"></p>
+        <p id="stateHeroError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
       </div>
 
-      <button onclick="handleHeroCalculate()" class="w-full md:w-auto bg-[#22c55e] hover:bg-green-600 px-8 py-3 rounded-xl font-semibold shadow-lg transition-transform active:scale-95">
+      <button onclick="handleHeroCalculate()" class="w-full md:w-auto bg-[#22c55e] hover:bg-green-600 px-8 py-4 rounded-2xl font-bold shadow-lg transition-all hover:-translate-y-0.5 active:scale-95 text-white whitespace-nowrap">
         ⚡ See My Savings
       </button>
     </div>
+
+    <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-green-300 font-medium">
+      <span class="flex items-center gap-1.5">✓ Govt subsidy eligible</span>
+      <span class="flex items-center gap-1.5">✓ 25-year warranty</span>
+      <span class="flex items-center gap-1.5">✓ Trusted installers</span>
+    </div>
+
+    <button onclick="window.location.href='installer.html'" class="mt-10 text-white/60 hover:text-white transition-colors text-sm border-b border-white/20 pb-1">
+      Are you a Solar Installer? Partner with us
+    </button>
   </div>
 </section>
 
 <section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-20">
-  <div class="max-w-4xl mx-auto px-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-[#171a20] mb-4">How It Works</h2>
-    <p class="text-slate-500 mb-16 max-w-md mx-auto">Three simple steps to transition your home to clean energy.</p>
-    <div class="flex flex-col items-center gap-8">
-      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-sm border border-slate-100">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">01</div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">Enter Bill Details</h3>
-        <p class="text-slate-600">Simply input your monthly electricity spend to begin.</p>
+  <div class="max-w-5xl mx-auto px-6">
+    <h2 class="text-3xl md:text-5xl font-bold text-[#171a20] mb-4">Transition in 3 Steps</h2>
+    <p class="text-slate-500 mb-16 max-w-md mx-auto">The smartest way to go solar in India.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-10 rounded-[2.5rem] bg-white shadow-sm border border-slate-100">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold mb-6 mx-auto">01</div>
+        <h3 class="text-xl font-bold mb-3">Instant Quote</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Enter your bill and get an AI-powered savings report instantly.</p>
       </div>
-      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-sm border border-slate-100">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">02</div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">Instant Analysis</h3>
-        <p class="text-slate-600">Our AI calculates your ideal system size and subsidies.</p>
+      <div class="p-10 rounded-[2.5rem] bg-white shadow-sm border border-slate-100">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold mb-6 mx-auto">02</div>
+        <h3 class="text-xl font-bold mb-3">Verified Experts</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Connect with top-rated local installers vetted by our team.</p>
       </div>
-      <div class="group w-full max-w-[400px] p-10 rounded-[2rem] bg-white shadow-sm border border-slate-100">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 font-bold mb-4">03</div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">Compare & Install</h3>
-        <p class="text-slate-600">Receive vetted quotes and schedule your installation.</p>
+      <div class="p-10 rounded-[2.5rem] bg-white shadow-sm border border-slate-100">
+        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold mb-6 mx-auto">03</div>
+        <h3 class="text-xl font-bold mb-3">Start Saving</h3>
+        <p class="text-slate-500 text-sm leading-relaxed">Monitor your installation and watch your energy bills drop.</p>
       </div>
     </div>
   </div>
@@ -107,91 +129,67 @@
 
 <section class="py-24 px-6 bg-white">
   <div class="max-w-6xl mx-auto space-y-12">
-    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col md:flex-row gap-8 items-center">
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
-        <img src="images/sustainable.webp" alt="Sustainable Energy" class="w-full h-full object-cover">
+    <div class="bg-slate-50 rounded-[3rem] p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 items-center overflow-hidden">
+      <div class="w-full md:w-1/2 rounded-3xl h-80 overflow-hidden shadow-2xl">
+        <img src="images/sustainable.webp" alt="Solar Panels" class="w-full h-full object-cover">
       </div>
-      <div class="w-full md:w-1/2 space-y-4">
-        <h2 class="text-3xl font-bold text-[#171a20]">Sustainable Energy</h2>
-        <p class="text-slate-600 text-lg">Clean, renewable solar power tailored for your home's unique energy footprint.</p>
-      </div>
-    </div>
-    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col-reverse md:flex-row gap-8 items-center">
-      <div class="w-full md:w-1/2 space-y-4 text-left md:text-right">
-        <h2 class="text-3xl font-bold text-[#171a20]">Government Incentives</h2>
-        <p class="text-slate-600 text-lg">Maximize your return on investment with up-to-date subsidies like PM Surya Ghar.</p>
-      </div>
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
-        <img src="images/incentives.webp" alt="Incentives" class="w-full h-full object-cover">
-      </div>
-    </div>
-    <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col md:flex-row gap-8 items-center">
-      <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
-        <img src="images/installation.webp" alt="Professional Installation" class="w-full h-full object-cover">
-      </div>
-      <div class="w-full md:w-1/2 space-y-4">
-        <h2 class="text-3xl font-bold text-[#171a20]">Professional Installation</h2>
-        <p class="text-slate-600 text-lg">Verified experts ensuring your system is built to last for 25+ years.</p>
+      <div class="w-full md:w-1/2 space-y-5">
+        <span class="text-indigo-600 font-bold text-xs uppercase tracking-widest">Sustainability</span>
+        <h2 class="text-4xl font-bold text-[#171a20]">Clean Energy, Custom Fit</h2>
+        <p class="text-slate-600 text-lg">We use local weather data and your bill history to design a system that works perfectly for your rooftop.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="py-20 bg-slate-50 overflow-hidden">
-  <div class="max-w-6xl mx-auto px-6 text-center">
-    <h2 class="text-3xl font-bold text-slate-900 mb-12">What Homeowners Say</h2>
-    <div class="flex flex-wrap justify-center gap-8">
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-sm text-left">
-        <div class="text-yellow-400 mb-4 text-xl">★★★★★</div>
-        <p class="text-slate-600 italic mb-6">"Reduced my monthly bill from ₹4,500 to just ₹600. The AI analysis was spot on!"</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">A</div>
-          <div><p class="font-bold text-slate-900 text-sm">Amit S.</p><p class="text-slate-400 text-xs">Lucknow, UP</p></div>
-        </div>
+<div id="leadPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
+  <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl relative">
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Almost There!</h3>
+    <p class="text-slate-500 text-sm mb-8">We need a few details to generate your personalized report.</p>
+    
+    <div class="space-y-4 text-left">
+      <div>
+        <input id="leadName" placeholder="Full Name" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+        <p id="nameError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-sm text-left">
-        <div class="text-yellow-400 mb-4 text-xl">★★★★★</div>
-        <p class="text-slate-600 italic mb-6">"Finally a transparent way to understand solar subsidies. Extremely helpful service."</p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">R</div>
-          <div><p class="font-bold text-slate-900 text-sm">Rahul K.</p><p class="text-slate-400 text-xs">Pune, MH</p></div>
-        </div>
+      <div>
+        <input id="leadPhone" placeholder="Phone Number" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+        <p id="phoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="bg-slate-900 text-white text-center py-16">
-  <h2 class="text-3xl font-semibold mb-2">Save ₹50,000+ Every Year</h2>
-  <p class="text-gray-300">Join thousands switching to solar</p>
-  <button onclick="scrollToTop()" class="mt-8 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold transition-all">
-    Calculate My Savings Now
-  </button>
-</section>
-
-<div id="leadPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded-2xl w-[90%] max-w-md text-center shadow-xl">
-    <h3 class="text-xl font-semibold">Get Your Personalized Solar Plan</h3>
-    <p class="text-gray-500 text-sm mb-4">Takes less than 10 seconds</p>
-    <div class="space-y-3">
-      <input id="leadName" placeholder="Full Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
-      <input id="leadPhone" placeholder="Phone Number" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
-      <input id="leadCity" placeholder="City" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
-      <button onclick="submitLeadAndContinue(event)" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Get My Free Plan</button>
+      <div>
+        <input id="leadCity" placeholder="City" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+        <p id="cityError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+      </div>
+      <button onclick="submitLeadAndContinue(event)" class="w-full bg-green-600 text-white py-4 rounded-2xl mt-2 font-bold shadow-lg hover:bg-green-700 transition-all">
+        Show My Savings Report
+      </button>
     </div>
   </div>
 </div>
 
-<div id="consultationPopup" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[110] backdrop-blur-sm p-4">
-  <div class="bg-white p-8 rounded-2xl w-full max-w-md text-center shadow-2xl relative">
-    <button onclick="closeConsultation()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl">&times;</button>
-    <h3 class="text-2xl font-bold text-slate-900">Free Consultation</h3>
-    <p class="text-slate-500 text-sm mb-6">Expert advice to maximize your solar savings.</p>
+<div id="consultationPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
+  <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl relative">
+    <button onclick="closeConsultation()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Free Consultation</h3>
+    <p class="text-slate-500 text-sm mb-8">Expert advice for your solar journey.</p>
+
     <div class="space-y-4 text-left">
-      <input id="consName" placeholder="Full Name" class="w-full p-3.5 border rounded-xl focus:ring-2 focus:ring-indigo-500"/>
-      <input id="consPhone" placeholder="Phone Number" class="w-full p-3.5 border rounded-xl focus:ring-2 focus:ring-indigo-500"/>
-      <input id="consCity" placeholder="City" class="w-full p-3.5 border rounded-xl focus:ring-2 focus:ring-indigo-500"/>
-      <button onclick="handleConsultationSubmit()" id="consSubmitBtn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold">Request Call Back</button>
+      <div>
+        <input id="consName" placeholder="Full Name" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consNameError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+      </div>
+      <div>
+        <input id="consPhone" placeholder="Phone Number" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consPhoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+      </div>
+      <div>
+        <input id="consCity" placeholder="City" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <p id="consCityError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
+      </div>
+      <button onclick="handleConsultationSubmit()" id="consSubmitBtn"
+        class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all mt-2">
+        Request Call Back
+      </button>
     </div>
   </div>
 </div>
@@ -201,7 +199,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-  // Firebase Config & Init
+  // Firebase Init
   const firebaseConfig = {
     apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
     authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
@@ -210,34 +208,88 @@
     messagingSenderId: "414713467470",
     appId: "1:414713467470:web:437d1cf23454d472c7e91f"
   };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.firestore();
 
+  // 1. Hero Calculation with Inline Errors
   function handleHeroCalculate() {
-    const billVal = document.getElementById("billInput").value;
-    const state = document.getElementById("state").value;
+    const billInput = document.getElementById("billInput");
+    const stateInput = document.getElementById("state");
+    const billValue = billInput.value;
+    const bill = parseFloat(billValue);
+    const state = stateInput.value;
+
+    // Clear previous errors
+    clearError("billInput", "billError");
+    clearError("state", "stateHeroError");
+
     let isValid = true;
 
-    if (!billVal || billVal < 500) {
-      document.getElementById("billError").innerText = "Min ₹500 required";
+    if (!billValue || isNaN(bill) || bill < 500) {
+      showError("billInput", "billError", "Min. bill ₹500 required");
       isValid = false;
-    } else { document.getElementById("billError").innerText = ""; }
+    }
 
     if (!state) {
-      document.getElementById("stateHeroError").innerText = "Select State";
+      showError("state", "stateHeroError", "Please select your state");
       isValid = false;
-    } else { document.getElementById("stateHeroError").innerText = ""; }
+    }
 
     if (isValid) {
+      // Set to localStorage as expected by results.js
       localStorage.setItem("state", state);
-      localStorage.setItem("bill", billVal);
+      localStorage.setItem("bill", bill);
+      
+      // Open the lead capture popup
       document.getElementById("leadPopup").classList.remove("hidden");
     }
   }
 
-  function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+  // 2. Consultation Logic
   function openConsultation() { document.getElementById('consultationPopup').classList.remove('hidden'); }
   function closeConsultation() { document.getElementById('consultationPopup').classList.add('hidden'); }
+
+  async function handleConsultationSubmit() {
+    const name = document.getElementById('consName').value.trim();
+    const phoneInput = document.getElementById('consPhone').value.trim();
+    const city = document.getElementById('consCity').value.trim();
+    const submitBtn = document.getElementById("consSubmitBtn");
+
+    clearError("consName", "consNameError");
+    clearError("consPhone", "consPhoneError");
+    clearError("consCity", "consCityError");
+
+    let isValid = true;
+    if (name.length < 2) { showError("consName", "consNameError", "Enter your name"); isValid = false; }
+    const normalizedPhone = normalizePhone(phoneInput);
+    if (!/^[6-9]\d{9}$/.test(normalizedPhone)) { showError("consPhone", "consPhoneError", "Enter valid 10-digit mobile"); isValid = false; }
+    if (city.length < 2) { showError("consCity", "consCityError", "Enter your city"); isValid = false; }
+
+    if (!isValid) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Processing...";
+
+    try {
+      await db.collection("consultations").add({
+        name, phone: normalizedPhone, city,
+        source: "Free Consultation Popup",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert("Success! We will call you back shortly.");
+      closeConsultation();
+    } catch (e) {
+      alert("Error saving. Try again.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Request Call Back";
+    }
+  }
+
+  function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 </script>
 
 </body>
