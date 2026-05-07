@@ -244,17 +244,26 @@
     <h3 class="text-xl font-semibold">Get Your Personalized Solar Plan</h3>
     <p class="text-gray-500 text-sm mb-4">Takes less than 10 seconds</p>
 
-    <input id="leadName" placeholder="Full Name"
-      class="w-full p-3 mb-2 border rounded-xl"/>
+    <div class="text-left mb-2">
+      <input id="leadName" placeholder="Full Name"
+        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <p id="nameError" class="text-red-500 text-xs mt-1 ml-1"></p>
+    </div>
 
-    <input id="leadPhone" placeholder="Phone Number"
-      class="w-full p-3 mb-2 border rounded-xl"/>
+    <div class="text-left mb-2">
+      <input id="leadPhone" placeholder="Phone Number"
+        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <p id="phoneError" class="text-red-500 text-xs mt-1 ml-1"></p>
+    </div>
 
-    <input id="leadCity" placeholder="City"
-      class="w-full p-3 mb-2 border rounded-xl"/>
+    <div class="text-left mb-2">
+      <input id="leadCity" placeholder="City"
+        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500"/>
+      <p id="cityError" class="text-red-500 text-xs mt-1 ml-1"></p>
+    </div>
 
     <button onclick="submitLeadAndContinue(event)"
-      class="w-full bg-green-600 text-white py-3 rounded-xl mt-2">
+      class="w-full bg-green-600 text-white py-3 rounded-xl mt-2 font-bold hover:bg-green-700 transition-all">
       Get My Free Plan
     </button>
 
