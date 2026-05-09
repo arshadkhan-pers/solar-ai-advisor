@@ -2,9 +2,10 @@ name: Deploy to Firebase
 on:
   push:
     branches:
-      - main  # or your default branch name
-      paths:
-      - 'functions/**' # Only run when files in the functions folder change
+      - main
+    paths:
+      - 'functions/**' # 👈 This is the "Filter"
+      - '.github/workflows/deploy.yml' # Also trigger if the workflow itself changes
 jobs:
   deploy:
     runs-on: ubuntu-latest
