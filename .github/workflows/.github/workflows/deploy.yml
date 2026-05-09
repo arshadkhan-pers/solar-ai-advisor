@@ -1,0 +1,23 @@
+name: Deploy to Firebase
+on:
+  push:
+    branches:
+      - main  # or your default branch name
+      paths:
+      - 'functions/**' # Only run when files in the functions folder change
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install Dependencies
+        run: cd functions && npm install
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
