@@ -130,33 +130,33 @@ async function handleConsultationSubmit() {
   const email = document.getElementById('consEmail').value.trim();
   const phoneInput = document.getElementById('consPhone').value.trim();
   const city = document.getElementById('consCity').value.trim();
-  const submitBtn = document.getElementById("consSubmitBtn");
 
+  // 🔥 THIS WAS LIKELY MISSING OR BROKEN
   const validation = validateForm("cons", name, email, phoneInput, city);
-  if (!validation.isValid) return;
+  if (!validation.isValid) return; 
 
+  const submitBtn = document.getElementById("consSubmitBtn");
   submitBtn.disabled = true;
   submitBtn.innerText = "Processing...";
 
   try {
     await db.collection("consultations").add({
-      name,
-      email,
+      name: name,
+      email: email, // Now guaranteed to be valid
       phone: validation.normalizedPhone,
-      city,
+      city: city,
       source: "Free Consultation Popup",
+      status: "New",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // Inline Success UI
     document.getElementById("consFormContainer").classList.add("hidden");
     document.getElementById("consSuccessMsg").classList.remove("hidden");
-
-    // Close and reset after 3 seconds
     setTimeout(closeConsultation, 3000);
 
   } catch (e) {
-    alert("Error saving. Try again.");
+    console.error("Error:", e);
+    alert("Submission failed. Please try again.");
   } finally {
     submitBtn.disabled = false;
     submitBtn.innerText = "Request Call Back";
