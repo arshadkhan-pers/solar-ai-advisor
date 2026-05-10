@@ -38,11 +38,13 @@ exports.triggerHotLeadEmail = onDocumentCreated("leads/{leadId}", async (event) 
 // ==========================================
 // TRIGGER: NEW CONSULTATION
 // ==========================================
-exports.triggerConsultationEmail = functions.firestore
-  .document("consultations/{docId}")
-  .onCreate(async (snap, context) => {
-    const data = snap.data();
+exports.triggerConsultationEmail = onDocumentCreated("consultations/{docId}", async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) return null;
 
+  const data = snapshot.data();
+
+  try {
     await admin.firestore().collection("mail").add({
       to: "arshad.khan8912@gmail.com",
       template: {
@@ -56,16 +58,22 @@ exports.triggerConsultationEmail = functions.firestore
       }
     });
     console.log("Consultation email queued for:", data.name);
-  });
+  } catch (err) {
+    console.error("Consultation Mail queue error:", err);
+  }
+  return null;
+});
 
 // ==========================================
 // TRIGGER: NEW INSTALLER SIGNUP
 // ==========================================
-exports.triggerInstallerEmail = functions.firestore
-  .document("installers/{docId}")
-  .onCreate(async (snap, context) => {
-    const data = snap.data();
+exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) return null;
 
+  const data = snapshot.data();
+
+  try {
     await admin.firestore().collection("mail").add({
       to: "arshad.khan8912@gmail.com",
       template: {
@@ -80,5 +88,9 @@ exports.triggerInstallerEmail = functions.firestore
       }
     });
     console.log("Installer email queued for:", data.businessName);
-  });
+  } catch (err) {
+    console.error("Installer Mail queue error:", err);
+  }
+  return null;
+});
 
