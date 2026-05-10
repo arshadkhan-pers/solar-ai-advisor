@@ -1,36 +1,14 @@
-function calculate() {
-  const billInput = document.getElementById("billInput").value;
-  const bill = parseFloat(billInput);
-  const state = document.getElementById("state")?.value;
+<!-- New script.js -->
+// ==========================================
+// 1. HELPERS & UTILITIES (Preserved)
+// ==========================================
 
-  if (!bill || bill < 500) {
-    alert("Enter valid bill");
-    return;
-  }
-
-  if (!state) {
-    alert("Please select your state");
-    return;
-  }
-
-  localStorage.setItem("state", state);
-  window.currentBill = bill;
-  localStorage.setItem("bill", bill);
-
-  document.getElementById("leadPopup").classList.remove("hidden");
-
-  const selectedState = localStorage.getItem("state");
-  loadCities(selectedState);
-}
-
-// 🔥 Lead Scoring Logic
 function getLeadType(bill) {
   if (bill >= 3000) return "Hot";
   if (bill >= 1500) return "Warm";
   return "Basic";
 }
 
-// 🔥 Generate human-readable lead code (safe)
 function generateLeadCode(phone) {
   const d = new Date();
   const date = d.toISOString().slice(0, 10).replace(/-/g, "");
@@ -39,29 +17,19 @@ function generateLeadCode(phone) {
   return `SOL-${date}-${last4}-${rand}`;
 }
 
-// 🔥 Normalize phone (NEW)
 function normalizePhone(phone) {
   phone = phone.replace(/\D/g, "");
-
-  if (phone.startsWith("91") && phone.length === 12) {
-    phone = phone.slice(2);
-  }
-
-  if (phone.startsWith("0") && phone.length === 11) {
-    phone = phone.slice(1);
-  }
-
+  if (phone.startsWith("91") && phone.length === 12) phone = phone.slice(2);
+  if (phone.startsWith("0") && phone.length === 11) phone = phone.slice(1);
   return phone;
 }
 
-// 🔥 Updated Inline error helpers to work with Tailwind
 function showError(inputId, errorId, message) {
   const errorEl = document.getElementById(errorId);
   const inputEl = document.getElementById(inputId);
-
   if (errorEl) errorEl.innerText = message;
   if (inputEl) {
-    inputEl.style.borderColor = "#ef4444"; // Tailwind red-500
+    inputEl.style.borderColor = "#ef4444"; 
     inputEl.classList.add("bg-red-50");
   }
 }
@@ -69,7 +37,6 @@ function showError(inputId, errorId, message) {
 function clearError(inputId, errorId) {
   const errorEl = document.getElementById(errorId);
   const inputEl = document.getElementById(inputId);
-
   if (errorEl) errorEl.innerText = "";
   if (inputEl) {
     inputEl.style.borderColor = ""; 
@@ -77,81 +44,133 @@ function clearError(inputId, errorId) {
   }
 }
 
-// 🔥 Updated validation (inline + safe fallback)
-function validateLeadForm(name, phone, city) {
-  let isValid = true;
+// ==========================================
+// 2. UNIFIED VALIDATION (Updated for Email)
+// ==========================================
 
+function validateForm(prefix, name, email, phone, city) {
+  let isValid = true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const nameRegex = /^[A-Za-z ]{2,}$/;
   const phoneRegex = /^[6-9]\d{9}$/;
-  const cityRegex = /^[A-Za-z ]{3,}$/;
 
-  // Clear previous errors (safe if elements not present)
-  clearError("leadName", "nameError");
-  clearError("leadPhone", "phoneError");
-  clearError("leadCity", "cityError");
+  // Map prefixes to your HTML error IDs
+  const fields = {
+    name: { input: prefix + 'Name', error: prefix === 'cons' ? 'consNameError' : 'nameError' },
+    email: { input: prefix + 'Email', error: prefix === 'cons' ? 'consEmailError' : 'emailError' },
+    phone: { input: prefix + 'Phone', error: prefix === 'cons' ? 'consPhoneError' : 'phoneError' },
+    city: { input: prefix + 'City', error: prefix === 'cons' ? 'consCityError' : 'cityError' }
+  };
 
-  // Name validation
+  // Clear previous
+  Object.values(fields).forEach(f => clearError(f.input, f.error));
+
   if (!nameRegex.test(name)) {
-    showError("leadName", "nameError", "Enter valid name");
+    showError(fields.name.input, fields.name.error, "Enter valid name");
     isValid = false;
   }
 
-  // Normalize phone before validation
+  if (!emailRegex.test(email)) {
+    showError(fields.email.input, fields.email.error, "Enter valid email");
+    isValid = false;
+  }
+
   const normalizedPhone = normalizePhone(phone);
-
-  if (!phoneRegex.test(normalizedPhone)) {
-    showError("leadPhone", "phoneError", "Enter valid 10-digit mobile");
+  if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
+    showError(fields.phone.input, fields.phone.error, "Enter valid 10-digit mobile");
     isValid = false;
   }
 
-  // Block fake numbers like 9999999999
-  if (/^(\d)\1{9}$/.test(normalizedPhone)) {
-    showError("leadPhone", "phoneError", "Invalid mobile number");
-    isValid = false;
-  }
-
-  // City validation
   if (!city || city.length < 2) {
-  showError("leadCity", "cityError", "Please select or enter city");
-  isValid = false;
+    showError(fields.city.input, fields.city.error, "Enter your city");
+    isValid = false;
+  }
+
+  return { isValid, normalizedPhone };
 }
 
-  return { isValid, phone: normalizedPhone };
+// ==========================================
+// 3. CORE FUNCTIONALITY
+// ==========================================
+
+function calculate() {
+  const billInput = document.getElementById("billInput").value;
+  const bill = parseFloat(billInput);
+  const state = document.getElementById("state")?.value;
+
+  if (!bill || bill < 500) {
+    showError("billInput", "billError", "Min. bill ₹500 required");
+    return;
+  }
+
+  if (!state) {
+    showError("state", "stateHeroError", "Please select your state");
+    return;
+  }
+
+  localStorage.setItem("state", state);
+  window.currentBill = bill;
+  localStorage.setItem("bill", bill);
+
+  document.getElementById("leadPopup").classList.remove("hidden");
+  loadCities(state);
 }
 
+// 🔥 CONSULTATION SUBMIT (With Inline Success)
+async function handleConsultationSubmit() {
+  const name = document.getElementById('consName').value.trim();
+  const email = document.getElementById('consEmail').value.trim();
+  const phoneInput = document.getElementById('consPhone').value.trim();
+  const city = document.getElementById('consCity').value.trim();
+  const submitBtn = document.getElementById("consSubmitBtn");
+
+  const validation = validateForm("cons", name, email, phoneInput, city);
+  if (!validation.isValid) return;
+
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Processing...";
+
+  try {
+    await db.collection("consultations").add({
+      name,
+      email,
+      phone: validation.normalizedPhone,
+      city,
+      source: "Free Consultation Popup",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Inline Success UI
+    document.getElementById("consFormContainer").classList.add("hidden");
+    document.getElementById("consSuccessMsg").classList.remove("hidden");
+
+    // Close and reset after 3 seconds
+    setTimeout(closeConsultation, 3000);
+
+  } catch (e) {
+    alert("Error saving. Try again.");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Request Call Back";
+  }
+}
+
+// 🔥 LEAD SUBMIT (With original Deduplication)
 async function submitLeadAndContinue() {
-  console.log("🚀 Submit button clicked");
-
   const name = document.getElementById("leadName").value.trim();
-  let phone = document.getElementById("leadPhone").value.trim();
+  const email = document.getElementById("leadEmail").value.trim();
+  const phoneRaw = document.getElementById("leadPhone").value.trim();
   const city = document.getElementById("leadCity").value.trim();
   const bill = localStorage.getItem("bill") || window.currentBill;
 
-  const validation = validateLeadForm(name, phone, city);
+  const validation = validateForm("lead", name, email, phoneRaw, city);
+  if (!validation.isValid) return;
 
-  if (!validation.isValid) {
-    return;
-  }
-
-  // 🔥 Use normalized phone everywhere
-  phone = validation.phone;
-
-  // 🔍 Safety checks
-  if (typeof firebase === "undefined") {
-    alert("Firebase not loaded");
-    return;
-  }
-
-  if (typeof db === "undefined") {
-    alert("Database not initialized");
-    return;
-  }
+  const phone = validation.normalizedPhone;
 
   try {
-    console.log("🔥 Checking for recent duplicate...");
-
+    // Original Deduplication Logic
     let duplicateLeadId = null;
-
     const snapshot = await db.collection("leads")
       .where("phone", "==", phone)
       .orderBy("createdAt", "desc")
@@ -160,76 +179,72 @@ async function submitLeadAndContinue() {
 
     if (!snapshot.empty) {
       const lastDoc = snapshot.docs[0];
-      const lastData = lastDoc.data();
-      const lastTime = lastData.createdAt?.toDate?.() || new Date(0);
-
+      const lastTime = lastDoc.data().createdAt?.toDate?.() || new Date(0);
       const minutesDiff = (Date.now() - lastTime.getTime()) / 60000;
-
-      if (minutesDiff < 30) {
-        console.log("⚠️ Duplicate detected within 30 mins");
-        duplicateLeadId = lastDoc.id;
-      }
+      if (minutesDiff < 30) duplicateLeadId = lastDoc.id;
     }
 
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
 
-    console.log("🔥 Saving lead to Firestore...");
-
     const docRef = await db.collection("leads").add({
-      name: name,
-      phone: phone,
-      city: city,
-      state: localStorage.getItem("state"), // ✅ NEW
+      name,
+      email,
+      phone,
+      city,
+      state: localStorage.getItem("state"),
       bill: parseFloat(bill),
-
-      // 🔥 Business fields
-      leadCode: leadCode,
+      leadCode,
       customerId: phone,
-      leadType: leadType,
+      leadType,
       status: "New",
       stage: "initial",
       leadSource: "Website",
-
-      // 🔥 Dedupe tracking
       duplicateOf: duplicateLeadId || null,
-      isDuplicate: duplicateLeadId ? true : false,
+      isDuplicate: !!duplicateLeadId,
       createdAt: new Date()
     });
 
-    console.log("✅ Lead saved:", docRef.id);
-
     localStorage.setItem("leadId", docRef.id);
+    const state = localStorage.getItem("state");
+
+    window.location.href = `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 
   } catch (error) {
-    console.error("❌ Firestore ERROR:", error);
-    alert("Error saving data. Check console.");
-    return;
+    console.error("Firestore Error:", error);
+    alert("Error saving data.");
   }
-
-  // ✅ Redirect (unchanged, but uses normalized phone)
-  const state = localStorage.getItem("state");
-window.location.href =
-  `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
-
 }
 
-// 🔝 Scroll helper
+// ==========================================
+// 4. UI HANDLERS (Preserved)
+// ==========================================
+
+function openConsultation() {
+  document.getElementById('consultationPopup').classList.remove('hidden');
+}
+
+function closeConsultation() {
+  document.getElementById('consultationPopup').classList.add('hidden');
+  // Reset UI for next open
+  setTimeout(() => {
+    document.getElementById("consFormContainer").classList.remove("hidden");
+    document.getElementById("consSuccessMsg").classList.add("hidden");
+    ['consName', 'consEmail', 'consPhone', 'consCity'].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+  }, 500);
+}
+
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// load cities based on state selection
 function loadCities(state) {
   const datalist = document.getElementById("cityList");
   if (!datalist) return;
-
   datalist.innerHTML = "";
-
-  const cities = (typeof citiesByState !== "undefined" && citiesByState[state]) 
-    ? citiesByState[state] 
-    : [];
-
+  const cities = (typeof citiesByState !== "undefined" && citiesByState[state]) ? citiesByState[state] : [];
   cities.forEach(city => {
     const option = document.createElement("option");
     option.value = city;
@@ -237,27 +252,31 @@ function loadCities(state) {
   });
 }
 
-// 🔁 Bind button
-document.addEventListener("DOMContentLoaded", function () {
-  sortStates();
-  const calculateBtn = document.getElementById("calculateBtn");
-  if (calculateBtn) {
-    calculateBtn.addEventListener("click", calculate);
-  }
-});
-
 function sortStates() {
   const select = document.getElementById("state");
   if (!select) return;
-
   const options = Array.from(select.options);
-
-  const first = options.shift(); // keep "Select State"
-
+  const first = options.shift();
   options.sort((a, b) => a.text.localeCompare(b.text));
-
   select.innerHTML = "";
   select.appendChild(first);
-
   options.forEach(opt => select.appendChild(opt));
 }
+
+// ==========================================
+// 5. LIFECYCLE (Preserved & Fixed)
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Ensure popups are hidden on fresh reload
+  document.getElementById("leadPopup")?.classList.add("hidden");
+  document.getElementById("consultationPopup")?.classList.add("hidden");
+
+  sortStates();
+  
+  const calculateBtn = document.getElementById("calculateBtn");
+  if (calculateBtn) calculateBtn.addEventListener("click", calculate);
+  
+  const selectedState = localStorage.getItem("state");
+  if (selectedState) loadCities(selectedState);
+});
