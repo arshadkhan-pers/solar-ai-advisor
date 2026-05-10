@@ -1,8 +1,25 @@
 <!-- New script.js -->
 // ==========================================
-// 1. HELPERS & UTILITIES (Preserved)
+// 1. FIREBASE INITIALIZATION (Must be first!)
 // ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
+  authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
+  projectId: "solar-ai-advisor-6e70c",
+  storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
+  messagingSenderId: "414713467470",
+  appId: "1:414713467470:web:437d1cf23454d472c7e91f"
+};
 
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+
+// ==========================================
+// 2. HELPERS & UTILITIES
+// ==========================================
 function getLeadType(bill) {
   if (bill >= 3000) return "Hot";
   if (bill >= 1500) return "Warm";
@@ -44,13 +61,13 @@ function clearError(inputId, errorId) {
   }
 }
 
+
 // ==========================================
-// 2. UNIFIED VALIDATION (Updated for Email)
+// 3. UNIFIED VALIDATION 
 // ==========================================
 function validateForm(prefix, name, email, phone, city) {
   let isValid = true;
   
-  // Strict regex: Letters only for name, proper format for email
   const nameRegex = /^[A-Za-z\s]+$/; 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[6-9]\d{9}$/;
@@ -90,40 +107,46 @@ function validateForm(prefix, name, email, phone, city) {
 
 
 // ==========================================
-// 3. CORE FUNCTIONALITY
+// 4. CORE FUNCTIONALITY & SUBMISSIONS
 // ==========================================
+function handleHeroCalculate() {
+  const billInput = document.getElementById("billInput");
+  const stateInput = document.getElementById("state");
+  const billValue = billInput?.value;
+  const bill = parseFloat(billValue);
+  const state = stateInput?.value;
 
-function calculate() {
-  const billInput = document.getElementById("billInput").value;
-  const bill = parseFloat(billInput);
-  const state = document.getElementById("state")?.value;
+  clearError("billInput", "billError");
+  clearError("state", "stateHeroError");
 
-  if (!bill || bill < 500) {
+  let isValid = true;
+
+  if (!billValue || isNaN(bill) || bill < 500) {
     showError("billInput", "billError", "Min. bill ₹500 required");
-    return;
+    isValid = false;
   }
 
   if (!state) {
     showError("state", "stateHeroError", "Please select your state");
-    return;
+    isValid = false;
   }
 
-  localStorage.setItem("state", state);
-  window.currentBill = bill;
-  localStorage.setItem("bill", bill);
+  if (isValid) {
+    localStorage.setItem("state", state);
+    window.currentBill = bill;
+    localStorage.setItem("bill", bill);
 
-  document.getElementById("leadPopup").classList.remove("hidden");
-  loadCities(state);
+    document.getElementById("leadPopup").classList.remove("hidden");
+    loadCities(state);
+  }
 }
 
-// 🔥 CONSULTATION SUBMIT (With Inline Success)
 async function handleConsultationSubmit() {
   const name = document.getElementById('consName').value.trim();
   const email = document.getElementById('consEmail').value.trim();
   const phoneInput = document.getElementById('consPhone').value.trim();
   const city = document.getElementById('consCity').value.trim();
 
-  // 🔥 THIS WAS LIKELY MISSING OR BROKEN
   const validation = validateForm("cons", name, email, phoneInput, city);
   if (!validation.isValid) return; 
 
@@ -134,7 +157,7 @@ async function handleConsultationSubmit() {
   try {
     await db.collection("consultations").add({
       name: name,
-      email: email, // Now guaranteed to be valid
+      email: email, 
       phone: validation.normalizedPhone,
       city: city,
       source: "Free Consultation Popup",
@@ -155,7 +178,6 @@ async function handleConsultationSubmit() {
   }
 }
 
-// 🔥 LEAD SUBMIT (With original Deduplication)
 async function submitLeadAndContinue() {
   const name = document.getElementById("leadName").value.trim();
   const email = document.getElementById("leadEmail").value.trim();
@@ -169,7 +191,6 @@ async function submitLeadAndContinue() {
   const phone = validation.normalizedPhone;
 
   try {
-    // Original Deduplication Logic
     let duplicateLeadId = null;
     const snapshot = await db.collection("leads")
       .where("phone", "==", phone)
@@ -216,17 +237,16 @@ async function submitLeadAndContinue() {
   }
 }
 
-// ==========================================
-// 4. UI HANDLERS (Preserved)
-// ==========================================
 
+// ==========================================
+// 5. UI HANDLERS
+// ==========================================
 function openConsultation() {
   document.getElementById('consultationPopup').classList.remove('hidden');
 }
 
 function closeConsultation() {
   document.getElementById('consultationPopup').classList.add('hidden');
-  // Reset UI for next open
   setTimeout(() => {
     document.getElementById("consFormContainer").classList.remove("hidden");
     document.getElementById("consSuccessMsg").classList.add("hidden");
@@ -263,19 +283,18 @@ function sortStates() {
   options.forEach(opt => select.appendChild(opt));
 }
 
-// ==========================================
-// 5. LIFECYCLE (Preserved & Fixed)
-// ==========================================
 
+// ==========================================
+// 6. LIFECYCLE
+// ==========================================
 document.addEventListener("DOMContentLoaded", function () {
-  // Ensure popups are hidden on fresh reload
   document.getElementById("leadPopup")?.classList.add("hidden");
   document.getElementById("consultationPopup")?.classList.add("hidden");
 
   sortStates();
   
   const calculateBtn = document.getElementById("calculateBtn");
-  if (calculateBtn) calculateBtn.addEventListener("click", calculate);
+  if (calculateBtn) calculateBtn.addEventListener("click", handleHeroCalculate);
   
   const selectedState = localStorage.getItem("state");
   if (selectedState) loadCities(selectedState);
