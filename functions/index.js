@@ -34,3 +34,51 @@ exports.triggerHotLeadEmail = onDocumentCreated("leads/{leadId}", async (event) 
   }
   return null;
 });
+
+// ==========================================
+// TRIGGER: NEW CONSULTATION
+// ==========================================
+exports.triggerConsultationEmail = functions.firestore
+  .document("consultations/{docId}")
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+
+    await admin.firestore().collection("mail").add({
+      to: "arshad.khan8912@gmail.com",
+      template: {
+        name: "new_consultation_alert",
+        data: {
+          name: data.name || "N/A",
+          phone: data.phone || "N/A",
+          city: data.city || "N/A",
+          source: data.source || "N/A"
+        }
+      }
+    });
+    console.log("Consultation email queued for:", data.name);
+  });
+
+// ==========================================
+// TRIGGER: NEW INSTALLER SIGNUP
+// ==========================================
+exports.triggerInstallerEmail = functions.firestore
+  .document("installers/{docId}")
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+
+    await admin.firestore().collection("mail").add({
+      to: "arshad.khan8912@gmail.com",
+      template: {
+        name: "new_installer_alert",
+        data: {
+          businessName: data.businessName || "N/A",
+          contactPerson: data.contactPerson || "N/A",
+          phone: data.phone || "N/A",
+          baseCity: data.baseCity || "N/A",
+          experience: data.experience || "N/A"
+        }
+      }
+    });
+    console.log("Installer email queued for:", data.businessName);
+  });
+
