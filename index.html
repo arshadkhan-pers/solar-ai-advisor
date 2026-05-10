@@ -475,32 +475,45 @@
     document.getElementById('consultationPopup').classList.add('hidden');
   }
 
+  // UPDATED CONSULTATION SUBMIT (Inside index.html)
   async function handleConsultationSubmit() {
-
     const name = document.getElementById('consName').value.trim();
+    const email = document.getElementById('consEmail').value.trim(); // Added this
     const phoneInput = document.getElementById('consPhone').value.trim();
     const city = document.getElementById('consCity').value.trim();
 
     const submitBtn = document.getElementById("consSubmitBtn");
 
+    // Clear previous errors
     clearError("consName", "consNameError");
+    clearError("consEmail", "consEmailError"); // Added this
     clearError("consPhone", "consPhoneError");
     clearError("consCity", "consCityError");
 
     let isValid = true;
 
-    if (name.length < 2) {
-      showError("consName", "consNameError", "Enter your name");
+    // 1. Strict Name Validation (Matches Leads)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(name) || name.length < 2) {
+      showError("consName", "consNameError", "Enter valid name (letters only)");
       isValid = false;
     }
 
-    const normalizedPhone = normalizePhone(phoneInput);
+    // 2. Strict Email Validation (Matches Leads)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showError("consEmail", "consEmailError", "Enter valid email (e.g. name@gmail.com)");
+      isValid = false;
+    }
 
+    // 3. Phone Validation
+    const normalizedPhone = normalizePhone(phoneInput);
     if (!/^[6-9]\d{9}$/.test(normalizedPhone)) {
       showError("consPhone", "consPhoneError", "Enter valid 10-digit mobile");
       isValid = false;
     }
 
+    // 4. City Validation
     if (city.length < 2) {
       showError("consCity", "consCityError", "Enter your city");
       isValid = false;
@@ -512,30 +525,31 @@
     submitBtn.innerText = "Processing...";
 
     try {
-
       await db.collection("consultations").add({
-        name,
+        name: name,
+        email: email, // Now saving the email!
         phone: normalizedPhone,
-        city,
+        city: city,
         source: "Free Consultation Popup",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      alert("Success! We will call you back shortly.");
-
-      closeConsultation();
+      // Show success state
+      document.getElementById("consFormContainer").classList.add("hidden");
+      document.getElementById("consSuccessMsg").classList.remove("hidden");
+      
+      // Auto-close after 3 seconds
+      setTimeout(closeConsultation, 3000);
 
     } catch (e) {
-
+      console.error("Firebase Error:", e);
       alert("Error saving. Try again.");
-
     } finally {
-
       submitBtn.disabled = false;
       submitBtn.innerText = "Request Call Back";
     }
   }
-
+  
   function scrollToTop() {
     window.scrollTo({
       top: 0,
