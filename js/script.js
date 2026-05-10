@@ -50,11 +50,15 @@ function clearError(inputId, errorId) {
 
 function validateForm(prefix, name, email, phone, city) {
   let isValid = true;
+  
+  // 🔥 FIXED REGEX: 
+  // Name: Only letters and spaces allowed (no numbers like 'Khan2')
+  const nameRegex = /^[A-Za-z\s]+$/; 
+  // Email: Must have @ and a domain (fixes the 'asmamoinlko' issue)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const nameRegex = /^[A-Za-z ]{2,}$/;
+  // Phone: Standard 10-digit check
   const phoneRegex = /^[6-9]\d{9}$/;
 
-  // Map prefixes to your HTML error IDs
   const fields = {
     name: { input: prefix + 'Name', error: prefix === 'cons' ? 'consNameError' : 'nameError' },
     email: { input: prefix + 'Email', error: prefix === 'cons' ? 'consEmailError' : 'emailError' },
@@ -62,25 +66,29 @@ function validateForm(prefix, name, email, phone, city) {
     city: { input: prefix + 'City', error: prefix === 'cons' ? 'consCityError' : 'cityError' }
   };
 
-  // Clear previous
+  // Clear previous errors
   Object.values(fields).forEach(f => clearError(f.input, f.error));
 
-  if (!nameRegex.test(name)) {
-    showError(fields.name.input, fields.name.error, "Enter valid name");
+  // 1. Strict Name Check
+  if (!name || name.length < 2 || !nameRegex.test(name)) {
+    showError(fields.name.input, fields.name.error, "Enter valid name (letters only)");
     isValid = false;
   }
 
-  if (!emailRegex.test(email)) {
-    showError(fields.email.input, fields.email.error, "Enter valid email");
+  // 2. Strict Email Check
+  if (!email || !emailRegex.test(email)) {
+    showError(fields.email.input, fields.email.error, "Enter valid email (e.g. name@gmail.com)");
     isValid = false;
   }
 
+  // 3. Phone Check
   const normalizedPhone = normalizePhone(phone);
   if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
     showError(fields.phone.input, fields.phone.error, "Enter valid 10-digit mobile");
     isValid = false;
   }
 
+  // 4. City Check
   if (!city || city.length < 2) {
     showError(fields.city.input, fields.city.error, "Enter your city");
     isValid = false;
