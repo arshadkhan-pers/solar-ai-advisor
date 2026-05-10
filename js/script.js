@@ -86,11 +86,11 @@ function validateForm(prefix, name, email, phone, city) {
     isValid = false;
   }
 
-  if (!emailRegex.test(email)) {
-    showError(fields.email.input, fields.email.error, "Enter valid email (e.g. name@gmail.com)");
+  if (email.length > 0 && !emailRegex.test(email)) {
+    showError(fields.email.input, fields.email.error, "Please enter a valid email format");
     isValid = false;
   }
-
+  
   const normalizedPhone = normalizePhone(phone);
   if (!phoneRegex.test(normalizedPhone)) {
     showError(fields.phone.input, fields.phone.error, "Enter valid 10-digit mobile");
