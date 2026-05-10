@@ -47,16 +47,12 @@ function clearError(inputId, errorId) {
 // ==========================================
 // 2. UNIFIED VALIDATION (Updated for Email)
 // ==========================================
-
 function validateForm(prefix, name, email, phone, city) {
   let isValid = true;
   
-  // 🔥 FIXED REGEX: 
-  // Name: Only letters and spaces allowed (no numbers like 'Khan2')
+  // Strict regex: Letters only for name, proper format for email
   const nameRegex = /^[A-Za-z\s]+$/; 
-  // Email: Must have @ and a domain (fixes the 'asmamoinlko' issue)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Phone: Standard 10-digit check
   const phoneRegex = /^[6-9]\d{9}$/;
 
   const fields = {
@@ -66,29 +62,24 @@ function validateForm(prefix, name, email, phone, city) {
     city: { input: prefix + 'City', error: prefix === 'cons' ? 'consCityError' : 'cityError' }
   };
 
-  // Clear previous errors
   Object.values(fields).forEach(f => clearError(f.input, f.error));
 
-  // 1. Strict Name Check
-  if (!name || name.length < 2 || !nameRegex.test(name)) {
+  if (!nameRegex.test(name) || name.trim().length < 2) {
     showError(fields.name.input, fields.name.error, "Enter valid name (letters only)");
     isValid = false;
   }
 
-  // 2. Strict Email Check
-  if (!email || !emailRegex.test(email)) {
+  if (!emailRegex.test(email)) {
     showError(fields.email.input, fields.email.error, "Enter valid email (e.g. name@gmail.com)");
     isValid = false;
   }
 
-  // 3. Phone Check
   const normalizedPhone = normalizePhone(phone);
-  if (!phoneRegex.test(normalizedPhone) || /^(\d)\1{9}$/.test(normalizedPhone)) {
+  if (!phoneRegex.test(normalizedPhone)) {
     showError(fields.phone.input, fields.phone.error, "Enter valid 10-digit mobile");
     isValid = false;
   }
 
-  // 4. City Check
   if (!city || city.length < 2) {
     showError(fields.city.input, fields.city.error, "Enter your city");
     isValid = false;
@@ -96,6 +87,7 @@ function validateForm(prefix, name, email, phone, city) {
 
   return { isValid, normalizedPhone };
 }
+
 
 // ==========================================
 // 3. CORE FUNCTIONALITY
