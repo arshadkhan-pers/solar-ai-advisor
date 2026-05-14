@@ -323,9 +323,24 @@ async function submitLead() {
   }
 
   document.getElementById("leadForm")?.classList.add("hidden");
-  document.getElementById("submitSuccess")?.classList.remove("hidden");
+document.getElementById("submitSuccess")?.classList.remove("hidden");
 
-  window.scrollTo({ top: 20, behavior: "smooth" });
+// 🤖 AI INSIGHTS
+const result = calculateSolar(bill);
+
+renderAIInsights({
+  bill,
+  result,
+  propertyType,
+  rooftopOwnership,
+  roofType
+});
+
+window.scrollTo({
+  top: document.body.scrollHeight,
+  behavior: "smooth"
+});
+
 }
 
 // ✅ Upload handling
@@ -376,6 +391,134 @@ function populateCapturedData() {
   if (phone) phone.value = params.get("phone") || "";
   if (city) city.value = params.get("city") || "";
   if (bill) bill.value = "₹" + (params.get("bill") || "");
+}
+
+// ===============================
+// 🤖 AI INSIGHTS ENGINE
+// ===============================
+
+function generateAIScore(
+  bill,
+  propertyType,
+  rooftopOwnership,
+  roofType,
+  payback
+) {
+
+  let score = 50;
+
+  if (bill >= 3000) score += 20;
+  else if (bill >= 1500) score += 10;
+
+  if (propertyType === "Independent House") score += 15;
+
+  if (rooftopOwnership === "Yes") score += 10;
+
+  if (roofType === "Concrete") score += 10;
+
+  if (payback <= 4) score += 10;
+  else if (payback <= 6) score += 5;
+
+  return Math.min(score, 99);
+}
+
+function renderAIInsights({
+  bill,
+  result,
+  propertyType,
+  rooftopOwnership,
+  roofType
+}) {
+
+  const aiSection =
+    document.getElementById("aiInsightsSection");
+
+  if (!aiSection) return;
+
+  const score = generateAIScore(
+    bill,
+    propertyType,
+    rooftopOwnership,
+    roofType,
+    parseFloat(result.payback)
+  );
+
+  // SCORE
+  document.getElementById("aiScore").innerText = score;
+
+  // BADGE
+  let badge = "Moderate Match";
+
+  if (score >= 85) badge = "Excellent Match";
+  else if (score >= 70) badge = "Strong Match";
+  else if (score >= 55) badge = "Good Match";
+
+  document.getElementById("aiBadge").innerText = badge;
+
+  // PROGRESS
+  document.getElementById("aiProgressBar").style.width =
+    score + "%";
+
+  // FINANCIAL INSIGHT
+  let financialText =
+    `Your estimated monthly savings of ₹${result.monthlySavings} and projected payback period of ${result.payback} years indicate favorable long-term solar economics.`;
+
+  if (parseFloat(result.payback) <= 4) {
+    financialText =
+      `Your projected payback period is considered excellent for residential rooftop solar adoption.`;
+  }
+
+  document.getElementById("financialInsight").innerText =
+    financialText;
+
+  // ROOF INSIGHT
+  let roofText =
+    `Your rooftop profile appears compatible with standard residential solar installation requirements.`;
+
+  if (
+    rooftopOwnership === "Yes" &&
+    roofType === "Concrete"
+  ) {
+    roofText =
+      `Concrete rooftop ownership significantly improves installation feasibility and installer readiness.`;
+  }
+
+  document.getElementById("roofInsight").innerText =
+    roofText;
+
+  // SUBSIDY INSIGHT
+  let subsidyText =
+    `Your location currently qualifies for central government rooftop solar subsidy support.`;
+
+  if (result.stateSubsidy > 0) {
+    subsidyText =
+      `Your state currently offers additional subsidy support beyond the central government scheme, improving overall ROI.`;
+  }
+
+  document.getElementById("subsidyInsight").innerText =
+    subsidyText;
+
+  // SAVINGS PROJECTION
+  document.getElementById("save5").innerText =
+    "₹" + Math.round(result.monthlySavings * 12 * 5).toLocaleString();
+
+  document.getElementById("save10").innerText =
+    "₹" + Math.round(result.monthlySavings * 12 * 10).toLocaleString();
+
+  document.getElementById("save25").innerText =
+    "₹" + Math.round(result.monthlySavings * 12 * 25).toLocaleString();
+
+  // SUMMARY
+  document.getElementById("aiSummary").innerText =
+    `Based on your monthly electricity bill of ₹${bill}, property profile, rooftop suitability, and subsidy eligibility, our AI engine estimates that a ${result.systemSize} kW rooftop solar system could deliver strong long-term financial benefits. Over the next 25 years, your projected savings potential may exceed ₹${result.lifetimeSavings.toLocaleString()}, while reducing dependency on rising electricity costs.`;
+
+  // SHOW
+  aiSection.classList.remove("hidden");
+
+  aiSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 // ===============================
