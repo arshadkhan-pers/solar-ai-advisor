@@ -188,7 +188,7 @@
   <div class="space-y-4 pt-2">
     <button onclick="showForm()" 
       class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
-      Get Exact Price for Your Home
+      Unlock My AI Solar Analysis
     </button>
 
     <button onclick="openWhatsApp()" 
@@ -258,6 +258,171 @@
       Your details have been saved successfully. Our solar expert will connect with you shortly.
     </p>
   </div>
+
+<!-- AI ANALYSIS -->
+<div id="aiInsightsSection"
+  class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
+
+  <!-- HEADER -->
+  <div class="flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl">
+      🤖
+    </div>
+
+    <div>
+      <h3 class="font-bold text-2xl tracking-tight text-slate-900">
+        AI Solar Insights
+      </h3>
+
+      <p class="text-slate-500 text-sm">
+        Personalized analysis based on your property profile
+      </p>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-lg">
+
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm opacity-80 uppercase tracking-wider">
+          AI Suitability Score
+        </p>
+
+        <div id="aiScore"
+          class="text-6xl font-bold mt-2 leading-none">
+          0
+        </div>
+      </div>
+
+      <div id="aiBadge"
+        class="bg-white/20 px-5 py-3 rounded-full text-lg font-semibold backdrop-blur-sm">
+        Strong Match
+      </div>
+    </div>
+
+    <div class="w-full h-4 bg-white/20 rounded-full mt-6 overflow-hidden">
+      <div id="aiProgressBar"
+        class="h-full bg-white rounded-full transition-all duration-700"
+        style="width:0%">
+      </div>
+    </div>
+
+    <p class="text-sm mt-5 text-white/90 leading-relaxed">
+      Calculated using electricity usage, rooftop suitability,
+      subsidy eligibility, ownership profile, and projected ROI.
+    </p>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="space-y-4">
+
+    <div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50">
+      <div class="text-2xl">⚡</div>
+      <div>
+        <h4 class="font-semibold text-slate-900">
+          Financial Viability
+        </h4>
+
+        <p id="financialInsight"
+          class="text-slate-600 text-sm mt-1 leading-relaxed">
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50">
+      <div class="text-2xl">🏠</div>
+
+      <div>
+        <h4 class="font-semibold text-slate-900">
+          Rooftop Suitability
+        </h4>
+
+        <p id="roofInsight"
+          class="text-slate-600 text-sm mt-1 leading-relaxed">
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50">
+      <div class="text-2xl">🏛️</div>
+
+      <div>
+        <h4 class="font-semibold text-slate-900">
+          Subsidy Opportunity
+        </h4>
+
+        <p id="subsidyInsight"
+          class="text-slate-600 text-sm mt-1 leading-relaxed">
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LONG TERM -->
+  <div>
+    <h4 class="font-bold text-xl text-slate-900 mb-5">
+      Long-Term Savings Projection
+    </h4>
+
+    <div class="grid grid-cols-3 gap-4">
+
+      <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 text-center">
+        <div class="text-slate-400 text-sm">5 YEARS</div>
+        <div id="save5"
+          class="font-bold text-2xl text-slate-900 mt-2">
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-4 text-center">
+        <div class="text-indigo-500 text-sm">10 YEARS</div>
+
+        <div id="save10"
+          class="font-bold text-3xl text-indigo-700 mt-2">
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
+        <div class="text-emerald-500 text-sm">25 YEARS</div>
+
+        <div id="save25"
+          class="font-bold text-3xl text-emerald-700 mt-2">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6">
+
+    <div class="flex items-start gap-4">
+
+      <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">
+        ⚡
+      </div>
+
+      <div>
+        <h4 class="font-bold text-2xl">
+          AI Recommendation Summary
+        </h4>
+
+        <p class="text-white/70 text-sm mt-1">
+          Generated using your solar profile
+        </p>
+      </div>
+
+    </div>
+
+    <p id="aiSummary"
+      class="mt-6 text-lg leading-relaxed text-white/90">
+    </p>
+
+  </div>
+
+</div>
+
 
   <!-- TRUST BADGES -->
   <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
