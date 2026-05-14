@@ -181,6 +181,64 @@ function calculateSolar(bill) {
   };
 }
 
+
+function calculateSolarScore(bill, payback, stateSubsidy) {
+
+  let score = 50;
+
+  if (bill >= 3000) score += 20;
+  else if (bill >= 1500) score += 10;
+
+  if (payback <= 4) score += 20;
+  else if (payback <= 6) score += 10;
+
+  if (stateSubsidy > 0) score += 10;
+
+  return Math.min(score, 100);
+}
+
+function generateAIInsights(data) {
+
+  const insights = [];
+
+  if (data.monthlySavings >= 3000) {
+    insights.push("💰 Your electricity bill is high enough to generate strong long-term solar savings.");
+  }
+
+  if (data.payback <= 5) {
+    insights.push("⚡ Your estimated payback period is considered excellent for residential solar.");
+  }
+
+  if (data.stateSubsidy > 0) {
+    insights.push(`🏛 Your state currently offers additional subsidy benefits beyond central support.`);
+  }
+
+  if (data.systemSize >= 5) {
+    insights.push("🔋 Your energy usage suggests a high solar utilization potential.");
+  }
+
+  insights.push("📈 Electricity prices generally rise over time, increasing your future savings potential.");
+
+  return insights;
+}
+
+function generateAISummary(data, bill) {
+
+  return `
+Based on your monthly electricity bill of ₹${bill}, 
+our AI engine estimates that a ${data.systemSize} kW rooftop solar system 
+would provide strong long-term financial benefits.
+
+With estimated monthly savings of ₹${data.monthlySavings} 
+and a projected payback period of ${data.payback} years, 
+your property appears highly suitable for subsidy-supported solar installation.
+
+Over the next 25 years, you could potentially save more than ₹${data.lifetimeSavings.toLocaleString()} 
+while reducing dependency on rising electricity costs.
+`;
+}
+
+
 // ===============================
 // 🔹 RENDER
 // ===============================
@@ -223,6 +281,53 @@ function renderResults(data, bill) {
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings;
   document.getElementById("centralSubsidy").innerText = data.centralSubsidy;
   document.getElementById("stateSubsidy").innerText = data.stateSubsidy;
+  
+  // 🔥 AI SCORE
+const solarScore = calculateSolarScore(
+  bill,
+  parseFloat(data.payback),
+  data.stateSubsidy
+);
+
+document.getElementById("solarScore").innerText = solarScore;
+document.getElementById("scoreBar").style.width = solarScore + "%";
+
+const badge = document.getElementById("scoreBadge");
+
+if (solarScore >= 85) {
+  badge.innerText = "Excellent Match";
+} else if (solarScore >= 70) {
+  badge.innerText = "Strong Match";
+} else {
+  badge.innerText = "Moderate Match";
+}
+
+// 🔥 SAVINGS TIMELINE
+document.getElementById("saving5Year").innerText =
+  "₹" + Math.round(data.monthlySavings * 12 * 5).toLocaleString();
+
+document.getElementById("saving10Year").innerText =
+  "₹" + Math.round(data.monthlySavings * 12 * 10).toLocaleString();
+
+document.getElementById("saving25Year").innerText =
+  "₹" + Math.round(data.monthlySavings * 12 * 25).toLocaleString();
+
+// 🔥 AI INSIGHTS
+const insights = generateAIInsights(data);
+
+const insightsContainer = document.getElementById("aiInsights");
+
+insightsContainer.innerHTML = insights.map(insight => `
+  <div class="flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-xl p-4">
+    <div class="mt-0.5 text-lg">•</div>
+    <p class="text-sm text-slate-700 leading-relaxed">${insight}</p>
+  </div>
+`).join("");
+
+// 🔥 AI SUMMARY
+document.getElementById("aiSummary").innerText =
+  generateAISummary(data, bill);
+  
 }
 
 // ===============================
