@@ -102,6 +102,40 @@
     <p id="stateInfo" class="text-sm text-slate-400 mt-1"></p>
   </div>
 
+<!-- AI SCORE -->
+<div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6 rounded-2xl shadow-premium relative overflow-hidden">
+
+  <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+
+  <div class="relative z-10">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-indigo-100 text-sm font-medium">AI Solar Suitability Score</p>
+        <h2 id="solarScore" class="text-5xl font-bold mt-2">92</h2>
+      </div>
+
+      <div class="text-right">
+        <div id="scoreBadge"
+          class="inline-flex px-4 py-2 rounded-full bg-white/20 text-sm font-semibold backdrop-blur-sm">
+          Excellent Match
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div class="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+        <div id="scoreBar"
+          class="bg-white h-3 rounded-full transition-all duration-700"
+          style="width:92%"></div>
+      </div>
+    </div>
+
+    <p class="mt-4 text-indigo-100 text-sm leading-relaxed">
+      Based on your electricity usage, roof suitability, subsidy eligibility, and estimated ROI.
+    </p>
+  </div>
+</div>
+
   <!-- COST BREAKDOWN -->
   <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Cost Breakdown</h3>
@@ -164,6 +198,27 @@
     </div>
   </div>
 
+
+<!-- AI INSIGHTS -->
+<div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5">
+
+  <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+    <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+      <span class="text-xl">🤖</span>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg tracking-tight">AI Solar Insights</h3>
+      <p class="text-sm text-slate-500">
+        Personalized recommendations based on your profile
+      </p>
+    </div>
+  </div>
+
+  <div id="aiInsights" class="space-y-4"></div>
+</div>
+
+
   <!-- SYSTEM DETAILS -->
   <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">System Details</h3>
@@ -178,6 +233,33 @@
       <span class="font-medium"><span id="area"></span> sq ft</span>
     </div>
   </div>
+
+<!-- SAVINGS TIMELINE -->
+<div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75">
+
+  <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">
+    Long-Term Savings Projection
+  </h3>
+
+  <div class="grid grid-cols-3 gap-4 mt-6">
+
+    <div class="bg-slate-50 rounded-xl p-4 text-center">
+      <p class="text-xs text-slate-500 uppercase tracking-wide">5 Years</p>
+      <h4 id="saving5Year" class="text-xl font-bold mt-2 text-slate-900"></h4>
+    </div>
+
+    <div class="bg-indigo-50 rounded-xl p-4 text-center border border-indigo-100">
+      <p class="text-xs text-indigo-500 uppercase tracking-wide">10 Years</p>
+      <h4 id="saving10Year" class="text-xl font-bold mt-2 text-indigo-700"></h4>
+    </div>
+
+    <div class="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-100">
+      <p class="text-xs text-emerald-600 uppercase tracking-wide">25 Years</p>
+      <h4 id="saving25Year" class="text-xl font-bold mt-2 text-emerald-700"></h4>
+    </div>
+
+  </div>
+</div>
 
   <!-- URGENCY -->
   <p class="text-amber-600 text-sm font-medium text-center bg-amber-50/90 backdrop-blur-sm py-2 rounded-lg border border-amber-100 shadow-sm">
@@ -196,6 +278,29 @@
       Get Details on WhatsApp
     </button>
   </div>
+
+<!-- AI SUMMARY -->
+<div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 md:p-8 rounded-2xl shadow-premium relative overflow-hidden">
+
+  <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,white,transparent_40%)]"></div>
+
+  <div class="relative z-10">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+        ⚡
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-lg">AI Recommendation Summary</h3>
+        <p class="text-slate-300 text-sm">Generated based on your solar profile</p>
+      </div>
+    </div>
+
+    <p id="aiSummary"
+      class="text-slate-100 leading-relaxed text-sm md:text-base">
+    </p>
+  </div>
+</div>
 
   <!-- FORM (Hidden by default) -->
   <div id="leadForm" class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6">
