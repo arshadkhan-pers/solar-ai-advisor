@@ -52,6 +52,24 @@ const stateNames = {
 // ===============================
 // 🔹 HELPERS
 // ===============================
+// ✅ Indian compact currency formatter
+function formatIndianCurrency(num) {
+
+  if (num >= 10000000) {
+    return "₹" + (num / 10000000).toFixed(1) + "Cr";
+  }
+
+  if (num >= 100000) {
+    return "₹" + (num / 100000).toFixed(1) + "L";
+  }
+
+  if (num >= 1000) {
+    return "₹" + (num / 1000).toFixed(1) + "K";
+  }
+
+  return "₹" + num;
+}
+
 function getStateFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get("state") || "UP";
@@ -432,7 +450,7 @@ function getDynamicAISummary(data) {
 
     `Your profile aligns well with subsidy-supported solar adoption, potentially improving long-term savings and installation ROI.`,
 
-    `With estimated lifetime savings exceeding ₹${data.lifetimeSavings.toLocaleString()}, rooftop solar may provide substantial financial benefits over time.`,
+    `With estimated lifetime savings exceeding ${formatIndianCurrency(data.lifetimeSavings)}, rooftop solar may provide substantial financial benefits over time.`,
 
     `Our AI analysis indicates that your rooftop and electricity usage profile are compatible with high-efficiency residential solar deployment.`
 
@@ -530,14 +548,20 @@ function renderAIInsights({
 
   // SAVINGS PROJECTION
   document.getElementById("save5").innerText =
-    "₹" + Math.round(result.monthlySavings * 12 * 5).toLocaleString();
+  formatIndianCurrency(
+    Math.round(result.monthlySavings * 12 * 5)
+  );
 
-  document.getElementById("save10").innerText =
-    "₹" + Math.round(result.monthlySavings * 12 * 10).toLocaleString();
+document.getElementById("save10").innerText =
+  formatIndianCurrency(
+    Math.round(result.monthlySavings * 12 * 10)
+  );
 
-  document.getElementById("save25").innerText =
-    "₹" + Math.round(result.monthlySavings * 12 * 25).toLocaleString();
-
+document.getElementById("save25").innerText =
+  formatIndianCurrency(
+    Math.round(result.monthlySavings * 12 * 25)
+  );
+  
   // SUMMARY
   
   document.getElementById("aiSummary").innerText =
