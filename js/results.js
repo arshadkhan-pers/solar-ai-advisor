@@ -422,6 +422,36 @@ function generateAIScore(
   return Math.min(score, 99);
 }
 
+function getDynamicAISummary(data) {
+
+  const summaries = [
+
+    `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
+
+    `Based on your projected payback period of ${data.payback} years, this solar investment appears financially attractive for residential installation.`,
+
+    `Your profile aligns well with subsidy-supported solar adoption, potentially improving long-term savings and installation ROI.`,
+
+    `With estimated lifetime savings exceeding ₹${data.lifetimeSavings.toLocaleString()}, rooftop solar may provide substantial financial benefits over time.`,
+
+    `Our AI analysis indicates that your rooftop and electricity usage profile are compatible with high-efficiency residential solar deployment.`
+
+  ];
+
+  // Bonus line for state subsidy
+  if (data.stateSubsidy > 0) {
+    summaries.push(
+      `Additional state-level subsidy support currently improves your estimated solar return on investment.`
+    );
+  }
+
+  // Random selection
+  const randomIndex =
+    Math.floor(Math.random() * summaries.length);
+
+  return summaries[randomIndex];
+}
+
 function renderAIInsights({
   bill,
   result,
@@ -509,8 +539,15 @@ function renderAIInsights({
     "₹" + Math.round(result.monthlySavings * 12 * 25).toLocaleString();
 
   // SUMMARY
+  
   document.getElementById("aiSummary").innerText =
-    `Based on your monthly electricity bill of ₹${bill}, property profile, rooftop suitability, and subsidy eligibility, our AI engine estimates that a ${result.systemSize} kW rooftop solar system could deliver strong long-term financial benefits. Over the next 25 years, your projected savings potential may exceed ₹${result.lifetimeSavings.toLocaleString()}, while reducing dependency on rising electricity costs.`;
+  getDynamicAISummary({
+    bill,
+    systemSize: result.systemSize,
+    payback: result.payback,
+    lifetimeSavings: result.lifetimeSavings,
+    stateSubsidy: result.stateSubsidy
+  });
 
   // SHOW
   aiSection.classList.remove("hidden");
