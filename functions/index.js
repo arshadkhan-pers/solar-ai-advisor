@@ -1,4 +1,7 @@
 // Final Deployment Test - 17th May 2026, Integrated Version
+
+/* eslint-disable max-len */
+
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
