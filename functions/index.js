@@ -111,7 +111,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "919838004479"; // 👈 Your support number
+  const supportNumber = "61404166347"; // 👈 Your support number
 
   // 1. INCREASED DELAY: Wait 5 seconds for sizing/subsidy math to commit to the leads doc
   await new Promise(resolve => setTimeout(resolve, 5000));
