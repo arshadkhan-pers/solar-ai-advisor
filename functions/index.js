@@ -105,7 +105,6 @@ exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (e
 // =====================================================================
 /* eslint-disable max-len */
 
-// Change from onDocumentCreated to onDocumentUpdated
 exports.triggerLeadConsultationEmail = onDocumentUpdated("leads/{leadId}", async (event) => {
   const change = event.data;
   if (!change) return null;
@@ -113,8 +112,12 @@ exports.triggerLeadConsultationEmail = onDocumentUpdated("leads/{leadId}", async
   const beforeData = change.before.data();
   const afterData = change.after.data();
 
-  // GUARD CLAUSE: Only trigger if systemSizeKw was 0/null before, and is now > 0
-  const isDataNowReady = (afterData.systemSizeKw > 0) && (!beforeData.systemSizeKw || beforeData.systemSizeKw === 0);
+  // ROBUST GUARD CLAUSE: Checks if the critical report data was just added to the document.
+  // This avoids all strict equality and string/number datatype issues.
+  const hasReportNow = !!(afterData.systemSizeKw && afterData.totalSubsidy && afterData.netCost);
+  const hadReportBefore = !!(beforeData.systemSizeKw && beforeData.totalSubsidy && beforeData.netCost);
+  
+  const isDataNowReady = hasReportNow && !hadReportBefore;
   
   if (isDataNowReady && afterData.email) {
     const { email, name, systemSizeKw, totalSubsidy, netCost, city } = afterData;
@@ -170,7 +173,6 @@ exports.triggerLeadConsultationEmail = onDocumentUpdated("leads/{leadId}", async
   }
   return null;
 });
-
 
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
 exports.generateAIReport =
