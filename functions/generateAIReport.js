@@ -5,7 +5,7 @@ const admin = require("firebase-admin");
 const db = admin.firestore();
 
 // ==========================================
-// 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION
+// 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION 
 // ==========================================
 const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
 const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
