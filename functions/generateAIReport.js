@@ -7,8 +7,8 @@ const db = admin.firestore();
 // ==========================================
 // 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION
 // ==========================================
-const specialStates =;
-const zeroTopUpStates =;
+const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
+const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
 
 const stateSubsidyConfig = {
   "UP": { type: "perKW", value: 15000, cap: 30000 },
@@ -190,7 +190,12 @@ exports.generateAIReport = functions.firestore
     // BUYER PROTECTION
     // =========================
 
-    const buyerProtectionChecklist =;
+    const buyerProtectionChecklist = [
+      "Verify panel brand and warranty documentation before installation.",
+      "Ensure installer provides net-metering assistance.",
+      "Request written system performance commitments.",
+      "Confirm post-installation support and maintenance coverage."
+    ];
 
     // =========================
     // PRICING CONFIDENCE
