@@ -111,10 +111,10 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "61404166347"; // 👈 REPLACE WITH YOUR ACTUAL WHATSAPP NUMBER (with 91 prefix)
+  const supportNumber = "919838004479"; // 👈 Your support number
 
-  // Wait 2 seconds to ensure all math (subsidies/costs) has finished writing to the lead doc
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // 1. INCREASED DELAY: Wait 5 seconds for sizing/subsidy math to commit to the leads doc
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
   try {
     const leadDoc = await admin.firestore().collection("leads").doc(leadId).get();
@@ -123,82 +123,87 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
     const leadData = leadDoc.data();
     if (!leadData.email) return null;
 
-    // Destructure merged data
-    const { email, name, systemSizeKw, totalSubsidy, netCost, city, phone } = leadData;
-    const { trustScore, aiInsights } = aiData;
+    // 2. Destructure Merged Data from BOTH collections
+    const { email, name, systemSizeKw, totalSubsidy, netCost, city } = leadData;
+    const { trustScore, persona, aiInsights, buyerProtectionChecklist } = aiData;
 
-    // Construct the Pre-populated WhatsApp Message
+    // 3. Format Data for WhatsApp and HTML
     const waMessage = encodeURIComponent(
-      `Hi Solar AI Advisor, I just received my report for ${city || "my property"}. ` +
-      `My recommended size is ${systemSizeKw || "TBD"}kWp. ` +
-      `I'd like to discuss the subsidy and next steps. (Lead ID: ${leadId})`
+      `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city}. ` +
+      `Recommended: ${systemSizeKw}kWp. Let's discuss next steps!`
     );
     const waLink = `https://wa.me/${supportNumber}?text=${waMessage}`;
 
-    const insightsHtml = (aiInsights && aiInsights.length > 0) 
-     ? aiInsights.map(i => `<li style="margin-bottom: 8px;">${i}</li>`).join('')
-      : `<li>Your property profile appears highly suitable for solar installation.</li>`;
+    const insightsHtml = aiInsights?.map(i => `<li style="margin-bottom: 5px;">${i}</li>`).join('') || "";
+    const checklistHtml = buyerProtectionChecklist?.map(c => `<li style="margin-bottom: 5px;">${c}</li>`).join('') || "";
 
-    // Send the Merged Omnichannel Email
+    // 4. Send the "Full Report" Transactional Email
     await admin.firestore().collection("mail").add({
       to: email,
-      replyTo: "arshad.khan8912@gmail.com", // 👈 Allows user to just hit 'Reply'
+      replyTo: "arshad.khan8912@gmail.com",
       message: {
-        subject: `☀️ Your AI Solar Report: ${systemSizeKw || ""}kWp for ${city || "UP"}`,
+        subject: `📋 Full AI Solar Report: ${systemSizeKw || ""}kWp for ${name}`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 20px;">
               <h2 style="color: #003366; margin: 0;">Solar AI Advisor</h2>
-              <p style="color: #666; margin: 5px 0 0 0;">Your Personal Clean Energy Companion</p>
+              <p style="color: #666; margin: 5px 0 0 0;">Expert Report for ${city || "Uttar Pradesh"}</p>
             </div>
             
-            <p>Dear ${name || "Homeowner"},</p>
-            <p>Our AI engine has finished calculating your solar potential for your property in <strong>${city || "Uttar Pradesh"}</strong>.</p>
-            
-            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <div style="background-color: #f0f7ff; border-radius: 6px; padding: 15px; margin-bottom: 20px; text-align: center;">
+              <span style="font-size: 12px; color: #003366; font-weight: bold; text-transform: uppercase;">User Profile:</span>
+              <h3 style="margin: 5px 0; color: #003366;">${persona?.type || "Valued Buyer"}</h3>
+              <p style="margin: 0; font-size: 13px; color: #555;">AI Confidence: ${persona?.confidence || 90}% | Trust Score: ${trustScore}/100</p>
+            </div>
+
+            <h4 style="color: #003366; border-bottom: 1px solid #eee; padding-bottom: 5px;">1. System & Financial Summary</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
               <tr style="background-color: #f9f9f9;">
-                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; width: 50%;">Recommended System Size</td>
-                <td style="padding: 12px; border: 1px solid #ddd; color: #003366; font-weight: bold; font-size: 16px;">${systemSizeKw || "TBD"} kWp</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">System Size</td>
+                <td style="padding: 10px; border: 1px solid #ddd; color: #003366; font-weight: bold;">${systemSizeKw || "N/A"} kWp</td>
               </tr>
               <tr>
-                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Total Combined Subsidy</td>
-                <td style="padding: 12px; border: 1px solid #ddd; color: #4CAF50; font-weight: bold; font-size: 16px;">₹${totalSubsidy || "Calculating..." }</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Estimated Subsidy</td>
+                <td style="padding: 10px; border: 1 solid #ddd; color: #4CAF50; font-weight: bold;">₹${totalSubsidy || "TBD"}</td>
               </tr>
               <tr style="background-color: #f9f9f9;">
-                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Approximate Net Cost</td>
-                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; font-size: 16px;">₹${netCost || "Calculating..." }</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Final Net Cost</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">₹${netCost || "TBD"}</td>
               </tr>
             </table>
 
-            <div style="background-color: #e6f7ff; border-left: 5px solid #0088cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
-              <strong style="color: #006699; display: block; margin-bottom: 8px;">🤖 AI Advisor Insights (Trust Score: ${trustScore}/100)</strong>
-              <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.5; color: #444;">
-                ${insightsHtml}
+            <h4 style="color: #003366; border-bottom: 1px solid #eee; padding-bottom: 5px;">2. AI Advisor Insights</h4>
+            <ul style="font-size: 13px; line-height: 1.6; color: #444; padding-left: 20px;">
+              ${insightsHtml}
+            </ul>
+
+            <div style="background-color: #fff9e6; border-left: 4px solid #ffcc00; padding: 12px; margin: 20px 0; border-radius: 4px;">
+              <strong style="color: #856404; font-size: 14px;">🛡️ Buyer Protection Checklist</strong>
+              <ul style="margin: 8px 0 0 0; padding-left: 18px; font-size: 12px; color: #665c33;">
+                ${checklistHtml}
               </ul>
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
+              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
                 💬 Chat with Advisor on WhatsApp
               </a>
-              <p style="margin-top: 15px; font-size: 13px; color: #666;">
-                Or Call us directly: <a href="tel:+919838004479" style="color: #003366; font-weight: bold; text-decoration: none;">+91 98380 04479</a>
-              </p>
+              <p style="margin-top: 12px; font-size: 13px;">Or Call Support: <a href="tel:+919838004479" style="color: #003366; font-weight: bold;">+91 98380 04479</a></p>
             </div>
 
-            <div style="background-color: #fff9e6; border-left: 5px solid #ffcc00; padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 12px; color: #555;">
-              <strong>Note:</strong> Final system size and pricing are subject to a physical site survey to verify the <strong>10/50 Shadow Rule</strong> (10% shadow can cause 50% power loss).
-            </div>
+            <hr style="border: 0; border-top: 1px solid #eee;" />
+            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey.</p>
           </div>
         `
       }
     });
-    console.log(`[triggerLeadConsultationEmail] Successfully sent Omnichannel WhatsApp-ready report for ${leadId}`);
+    console.log(`[triggerLeadConsultationEmail] Full AI report successfully sent for ${leadId}`);
   } catch (error) {
-    console.error("Error sending Omnichannel feasibility email:", error);
+    console.error("Error sending Full AI report email:", error);
   }
   return null;
 });
+
 
 
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
