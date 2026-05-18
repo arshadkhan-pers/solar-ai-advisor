@@ -111,7 +111,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "919838004479"; // 👈 Your WhatsApp support number
+  const supportNumber = "61404166347"; // 👈 Your support number
 
   // 1. INCREASED DELAY: Wait 5 seconds for sizing/subsidy math to commit to the leads doc
   await new Promise(resolve => setTimeout(resolve, 5000));
@@ -129,12 +129,10 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
     const leadIdentifier = leadCode || leadId;
 
-    // 3. WHATSAPP ADVISOR ENGINE (Pre-populate with explicit customer identification)
+    // 3. Format Data for WhatsApp and HTML
     const waMessage = encodeURIComponent(
-      `Hi Solar AI Advisor! My name is ${name}. I just received my ${persona?.type || "Solar"} Report for my property in ${city}, ${state}. ` +
-      `Recommended System Size: ${systemSizeKw || "TBD"} kWp. ` +
-      `Estimated Net Cost: ₹${totalSubsidy? Number(totalSubsidy).toLocaleString('en-IN') : "TBD"}. ` +
-      `My Lead Reference ID is ${leadIdentifier}. I have some questions, can we connect?`
+      `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}. ` +
+      `Recommended: ${systemSizeKw || "TBD"} kWp. Let's discuss next steps!`
     );
     const waLink = `https://wa.me/${supportNumber}?text=${waMessage}`;
 
@@ -220,6 +218,8 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
   }
   return null;
 });
+
+
 
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
 exports.generateAIReport =
