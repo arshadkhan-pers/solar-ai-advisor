@@ -124,36 +124,40 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
     if (!leadData.email) return null;
 
     // 2. Destructure Merged Data from BOTH collections
-    const { email, name, systemSizeKw, totalSubsidy, netCost, city } = leadData;
+    const { email, name, systemSizeKw, totalSubsidy, netCost, city, state } = leadData;
     const { trustScore, persona, aiInsights, buyerProtectionChecklist } = aiData;
 
     // 3. Format Data for WhatsApp and HTML
     const waMessage = encodeURIComponent(
-      `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city}. ` +
-      `Recommended: ${systemSizeKw}kWp. Let's discuss next steps!`
+      `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}. ` +
+      `Recommended: ${systemSizeKw || "TBD"} kWp. Let's discuss next steps!`
     );
     const waLink = `https://wa.me/${supportNumber}?text=${waMessage}`;
 
     const insightsHtml = aiInsights?.map(i => `<li style="margin-bottom: 5px;">${i}</li>`).join('') || "";
     const checklistHtml = buyerProtectionChecklist?.map(c => `<li style="margin-bottom: 5px;">${c}</li>`).join('') || "";
 
+    // Formatting numbers nicely for display
+    const formattedSubsidy = totalSubsidy? Number(totalSubsidy).toLocaleString('en-IN') : "TBD";
+    const formattedNetCost = netCost? Number(netCost).toLocaleString('en-IN') : "TBD";
+
     // 4. Send the "Full Report" Transactional Email
     await admin.firestore().collection("mail").add({
       to: email,
       replyTo: "arshad.khan8912@gmail.com",
       message: {
-        subject: `📋 Full AI Solar Report: ${systemSizeKw || ""}kWp for ${name}`,
+        subject: `☀️ Your AI Solar Report: ${systemSizeKw || ""} kWp for ${name}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 20px;">
               <h2 style="color: #003366; margin: 0;">Solar AI Advisor</h2>
-              <p style="color: #666; margin: 5px 0 0 0;">Expert Report for ${city || "Uttar Pradesh"}</p>
+              <p style="color: #666; margin: 5px 0 0 0;">Expert Report for ${city || "your city"}, ${state || "India"}</p>
             </div>
             
             <div style="background-color: #f0f7ff; border-radius: 6px; padding: 15px; margin-bottom: 20px; text-align: center;">
               <span style="font-size: 12px; color: #003366; font-weight: bold; text-transform: uppercase;">User Profile:</span>
               <h3 style="margin: 5px 0; color: #003366;">${persona?.type || "Valued Buyer"}</h3>
-              <p style="margin: 0; font-size: 13px; color: #555;">AI Confidence: ${persona?.confidence || 90}% | Trust Score: ${trustScore}/100</p>
+              <p style="margin: 0; font-size: 13px; color: #555;">AI Confidence: ${persona?.confidence || 90}% | Trust Score: ${trustScore || 50}/100</p>
             </div>
 
             <h4 style="color: #003366; border-bottom: 1px solid #eee; padding-bottom: 5px;">1. System & Financial Summary</h4>
@@ -164,11 +168,11 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
               </tr>
               <tr>
                 <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Estimated Subsidy</td>
-                <td style="padding: 10px; border: 1 solid #ddd; color: #4CAF50; font-weight: bold;">₹${totalSubsidy || "TBD"}</td>
+                <td style="padding: 10px; border: 1px solid #ddd; color: #4CAF50; font-weight: bold;">₹${formattedSubsidy}</td>
               </tr>
               <tr style="background-color: #f9f9f9;">
                 <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Final Net Cost</td>
-                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">₹${netCost || "TBD"}</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">₹${formattedNetCost}</td>
               </tr>
             </table>
 
