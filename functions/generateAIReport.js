@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -6,8 +7,8 @@ const db = admin.firestore();
 // ==========================================
 // 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION
 // ==========================================
-const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
-const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
+const specialStates =;
+const zeroTopUpStates =;
 
 const stateSubsidyConfig = {
   "UP": { type: "perKW", value: 15000, cap: 30000 },
@@ -23,24 +24,69 @@ const stateSubsidyConfig = {
   "GA": { type: "goa_model" }
 };
 
+// Helper function to calculate central subsidy (PMSGY 2026 Slabs)
+function calculateCentralSubsidy(systemSize, state) {
+  let subsidy = 0;
+  if (systemSize <= 2) {
+    subsidy = systemSize * 30000;
+  } else if (systemSize <= 3) {
+    subsidy = (2 * 30000) + ((systemSize - 2) * 18000);
+  } else {
+    subsidy = 78000;
+  }
+  if (specialStates.includes(state)) {
+    subsidy = subsidy * 1.1;
+  }
+  return Math.round(subsidy);
+}
+
+// Helper function to calculate state subsidy
+function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
+  if (zeroTopUpStates.includes(state)) return 0;
+  const config = stateSubsidyConfig[state];
+  if (!config) return 0;
+
+  if (config.type === "goa_model") {
+    const units = bill / 7;
+    if (units <= 400) {
+      if (systemSize <= 5) {
+        const required = totalCost - centralSubsidy;
+        return Math.min(required, 250000);
+      }
+    }
+    let subsidy = systemSize * 23000;
+    subsidy = Math.min(subsidy, 250000);
+    return Math.round(subsidy);
+  }
+
+  let subsidy = 0;
+  if (config.type === "flat") {
+    subsidy = config.value;
+  }
+  if (config.type === "perKW") {
+    subsidy = systemSize * config.value;
+    subsidy = Math.min(subsidy, config.cap);
+  }
+  return Math.round(subsidy);
+}
+
 exports.generateAIReport = functions.firestore
-  .document("leads/{leadId}")
-  .onUpdate(async (change, context) => {
+ .document("leads/{leadId}")
+ .onUpdate(async (change, context) => {
 
     const before = change.before.data();
     const after = change.after.data();
-
     const leadId = context.params.leadId;
 
     // ✅ Trigger ONLY when qualified
     if (before.stage === after.stage) return null;
-    if (after.stage !== "qualified") return null;
+    if (after.stage!== "qualified") return null;
 
-    console.log("🚀 Generating AI Report & Calculations:", leadId);
+    console.log("🚀 Generating AI Report & Sizing Math:", leadId);
 
-    // =========================
-    // 🧮 PAN-INDIA MATH ENGINE
-    // =========================
+    // ==========================================
+    // 🧮 PAN-INDIA CALCULATION ENGINE
+    // ==========================================
     const bill = parseFloat(after.bill || 0);
     const state = after.state || "UP";
     
@@ -49,50 +95,29 @@ exports.generateAIReport = functions.firestore
     const costPerKW = 55000;
     const totalCost = systemSize * costPerKW;
 
-    // 1. Central Subsidy
-    let centralSubsidy = 0;
-    if (systemSize <= 2) {
-      centralSubsidy = systemSize * 30000;
-    } else if (systemSize <= 3) {
-      centralSubsidy = (2 * 30000) + ((systemSize - 2) * 18000);
-    } else {
-      centralSubsidy = 78000;
-    }
-    
-    if (specialStates.includes(state)) {
-      centralSubsidy = centralSubsidy * 1.1;
-    }
-    centralSubsidy = Math.round(centralSubsidy);
-
-    // 2. State Subsidy
-    let stateSubsidy = 0;
-    const config = stateSubsidyConfig[state];
-    
-    if (!zeroTopUpStates.includes(state) && config) {
-      if (config.type === "goa_model") {
-        if (units <= 400 && systemSize <= 5) {
-          stateSubsidy = Math.min(totalCost - centralSubsidy, 250000);
-        } else {
-          stateSubsidy = Math.min(systemSize * 23000, 250000);
-        }
-      } else if (config.type === "flat") {
-        stateSubsidy = config.value;
-      } else if (config.type === "perKW") {
-        stateSubsidy = Math.min(systemSize * config.value, config.cap);
-      }
-    }
-    stateSubsidy = Math.round(stateSubsidy);
+    const centralSubsidy = calculateCentralSubsidy(systemSize, state);
+    const stateSubsidy = calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy);
 
     const totalSubsidy = centralSubsidy + stateSubsidy;
     const netCost = totalCost - totalSubsidy;
+    const monthlySavings = Math.round(units * 7);
+    const payback = (netCost / (monthlySavings * 12)).toFixed(1);
+    const panels = Math.ceil((systemSize * 1000) / 550);
+    const area = Math.round(systemSize * 80);
+    const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
-    // 💾 UPDATE LEADS DOC WITH MATH (For index.js emails)
+    // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
     await change.after.ref.update({
       systemSizeKw: systemSize.toFixed(1),
       totalSubsidy: totalSubsidy,
       netCost: netCost,
       centralSubsidy: centralSubsidy,
       stateSubsidy: stateSubsidy,
+      monthlySavings: monthlySavings,
+      paybackYears: payback,
+      panelsCount: panels,
+      areaRequired: area,
+      lifetimeSavings: lifetimeSavings,
       calculatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
@@ -145,7 +170,7 @@ exports.generateAIReport = functions.firestore
     // AI INSIGHTS
     // =========================
 
-    const aiInsights = [];
+    const aiInsights =;
 
     if (trustScore >= 80) {
       aiInsights.push(
@@ -173,12 +198,7 @@ exports.generateAIReport = functions.firestore
     // BUYER PROTECTION
     // =========================
 
-    const buyerProtectionChecklist = [
-      "Verify panel brand and warranty documentation before installation.",
-      "Ensure installer provides net-metering assistance.",
-      "Request written system performance commitments.",
-      "Confirm post-installation support and maintenance coverage."
-    ];
+    const buyerProtectionChecklist =;
 
     // =========================
     // PRICING CONFIDENCE
@@ -202,31 +222,47 @@ exports.generateAIReport = functions.firestore
     // =========================
 
     await db.collection("ai_reports")
-      .doc(leadId)
-      .set({
+     .doc(leadId)
+     .set({
+
         leadId: leadId,
+
         leadCode: after.leadCode || null,
+
         customerId: after.customerId || null,
+
         trustScore: trustScore,
+
         persona: {
           type: persona,
           confidence: Math.min(trustScore + 5, 99)
         },
+
         pricingConfidence: {
           level: pricingLevel,
           message:
             "Estimated pricing appears aligned with expected market ranges."
         },
+
         installerReadiness: {
-          level: trustScore >= 80 ? "Strong" : "Moderate",
+          level: trustScore >= 80? "Strong" : "Moderate",
           message:
             "Property profile appears suitable for subsidy-supported rooftop solar."
         },
+
         aiInsights: aiInsights,
-        buyerProtectionChecklist: buyerProtectionChecklist,
-        recommendationSummary: recommendationSummary,
-        generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        engineVersion: "trust-v1-with-math"
+
+        buyerProtectionChecklist:
+          buyerProtectionChecklist,
+
+        recommendationSummary:
+          recommendationSummary,
+
+        generatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+
+        engineVersion: "trust-v1"
+
       });
 
     console.log("✅ AI Report & Math generated:", leadId);
