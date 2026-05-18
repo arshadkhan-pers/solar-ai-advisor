@@ -76,6 +76,7 @@ exports.generateAIReport = functions.firestore
 
     const before = change.before.data();
     const after = change.after.data();
+
     const leadId = context.params.leadId;
 
     // ✅ Trigger ONLY when qualified
@@ -100,24 +101,15 @@ exports.generateAIReport = functions.firestore
 
     const totalSubsidy = centralSubsidy + stateSubsidy;
     const netCost = totalCost - totalSubsidy;
-    const monthlySavings = Math.round(units * 7);
-    const payback = (netCost / (monthlySavings * 12)).toFixed(1);
-    const panels = Math.ceil((systemSize * 1000) / 550);
-    const area = Math.round(systemSize * 80);
-    const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
     // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
+    // (This saves the values to the lead document so index.js can consume them)
     await change.after.ref.update({
       systemSizeKw: systemSize.toFixed(1),
       totalSubsidy: totalSubsidy,
       netCost: netCost,
       centralSubsidy: centralSubsidy,
       stateSubsidy: stateSubsidy,
-      monthlySavings: monthlySavings,
-      paybackYears: payback,
-      panelsCount: panels,
-      areaRequired: area,
-      lifetimeSavings: lifetimeSavings,
       calculatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
@@ -224,45 +216,29 @@ exports.generateAIReport = functions.firestore
     await db.collection("ai_reports")
      .doc(leadId)
      .set({
-
         leadId: leadId,
-
         leadCode: after.leadCode || null,
-
         customerId: after.customerId || null,
-
         trustScore: trustScore,
-
         persona: {
           type: persona,
           confidence: Math.min(trustScore + 5, 99)
         },
-
         pricingConfidence: {
           level: pricingLevel,
           message:
             "Estimated pricing appears aligned with expected market ranges."
         },
-
         installerReadiness: {
           level: trustScore >= 80? "Strong" : "Moderate",
           message:
             "Property profile appears suitable for subsidy-supported rooftop solar."
         },
-
         aiInsights: aiInsights,
-
-        buyerProtectionChecklist:
-          buyerProtectionChecklist,
-
-        recommendationSummary:
-          recommendationSummary,
-
-        generatedAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-
-        engineVersion: "trust-v1"
-
+        buyerProtectionChecklist: buyerProtectionChecklist,
+        recommendationSummary: recommendationSummary,
+        generatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        engineVersion: "trust-v1-with-math"
       });
 
     console.log("✅ AI Report & Math generated:", leadId);
