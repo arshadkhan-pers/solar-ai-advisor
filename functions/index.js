@@ -111,7 +111,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "61404166347"; // 👈 Your support number
+  const supportNumber = "919838004479"; // 👈 Your WhatsApp support number
 
   // 1. INCREASED DELAY: Wait 5 seconds for sizing/subsidy math to commit to the leads doc
   await new Promise(resolve => setTimeout(resolve, 5000));
@@ -124,13 +124,17 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
     if (!leadData.email) return null;
 
     // 2. Destructure Merged Data from BOTH collections
-    const { email, name, systemSizeKw, totalSubsidy, netCost, city, state } = leadData;
+    const { email, name, systemSizeKw, totalSubsidy, netCost, city, state, leadCode } = leadData;
     const { trustScore, persona, aiInsights, buyerProtectionChecklist } = aiData;
 
-    // 3. Format Data for WhatsApp and HTML
+    const leadIdentifier = leadCode || leadId;
+
+    // 3. WHATSAPP ADVISOR ENGINE (Pre-populate with explicit customer identification)
     const waMessage = encodeURIComponent(
-      `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}. ` +
-      `Recommended: ${systemSizeKw || "TBD"} kWp. Let's discuss next steps!`
+      `Hi Solar AI Advisor! My name is ${name}. I just received my ${persona?.type || "Solar"} Report for my property in ${city}, ${state}. ` +
+      `Recommended System Size: ${systemSizeKw || "TBD"} kWp. ` +
+      `Estimated Net Cost: ₹${totalSubsidy? Number(totalSubsidy).toLocaleString('en-IN') : "TBD"}. ` +
+      `My Lead Reference ID is ${leadIdentifier}. I have some questions, can we connect?`
     );
     const waLink = `https://wa.me/${supportNumber}?text=${waMessage}`;
 
@@ -149,6 +153,11 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
         subject: `☀️ Your AI Solar Report: ${systemSizeKw || ""} kWp for ${name}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333; background-color: #ffffff;">
+            
+            <div style="font-size: 11px; color: #777; text-align: right; margin-bottom: 10px;">
+              <strong>Lead Reference ID:</strong> ${leadIdentifier}
+            </div>
+
             <div style="text-align: center; margin-bottom: 20px;">
               <h2 style="color: #003366; margin: 0;">Solar AI Advisor</h2>
               <p style="color: #666; margin: 5px 0 0 0;">Expert Report for ${city || "your city"}, ${state || "India"}</p>
@@ -189,14 +198,18 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
+              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
                 💬 Chat with Advisor on WhatsApp
               </a>
-              <p style="margin-top: 12px; font-size: 13px;">Or Call Support: <a href="tel:+919838004479" style="color: #003366; font-weight: bold;">+91 98380 04479</a></p>
+              <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
+                Or Call Support directly: <br/>
+                <a href="tel:+919838004479" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 98380 04479</a> <br/>
+                <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
+              </p>
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee;" />
-            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey.</p>
+            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey `[1]`.</p>
           </div>
         `
       }
@@ -207,8 +220,6 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
   }
   return null;
 });
-
-
 
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
 exports.generateAIReport =
