@@ -228,10 +228,10 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 });
 
 
-//PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
-exports.generateAIReport =
-  require("./generateAIReport").generateAIReport;
-  
+  //PHASE 2 — LINK GENERATE AI REPORT TRIGGER
+const { generateAIReport } = require("./generateAIReport");
+exports.generateAIReport = generateAIReport;
+
   
 // =====================================================================
 // TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
