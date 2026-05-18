@@ -111,7 +111,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "919838004479"; // 👈 REPLACE WITH YOUR ACTUAL WHATSAPP NUMBER (with 91 prefix)
+  const supportNumber = "61404166347"; // 👈 REPLACE WITH YOUR ACTUAL WHATSAPP NUMBER (with 91 prefix)
 
   // Wait 2 seconds to ensure all math (subsidies/costs) has finished writing to the lead doc
   await new Promise(resolve => setTimeout(resolve, 2000));
