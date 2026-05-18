@@ -162,7 +162,7 @@ exports.generateAIReport = functions.firestore
     // AI INSIGHTS
     // =========================
 
-    const aiInsights =;
+const aiInsights =.filter(Boolean); //
 
     if (trustScore >= 80) {
       aiInsights.push(
