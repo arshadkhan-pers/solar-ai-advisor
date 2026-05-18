@@ -7,7 +7,7 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 // ==========================================
-// TRIGGER: HOT LEAD ALERT (Unchanged) 
+// TRIGGER: HOT LEAD ALERT (Unchanged)
 // ==========================================
 exports.triggerHotLeadEmail = onDocumentCreated("leads/{leadId}", async (event) => {
   const snapshot = event.data;
