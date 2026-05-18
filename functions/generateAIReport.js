@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const functions = require("firebase-functions");
+const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
 const db = admin.firestore();
@@ -24,7 +24,6 @@ const stateSubsidyConfig = {
   "GA": { type: "goa_model" }
 };
 
-// Helper function to calculate central subsidy (PMSGY 2026 Slabs)
 function calculateCentralSubsidy(systemSize, state) {
   let subsidy = 0;
   if (systemSize <= 2) {
@@ -40,7 +39,6 @@ function calculateCentralSubsidy(systemSize, state) {
   return Math.round(subsidy);
 }
 
-// Helper function to calculate state subsidy
 function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
   if (zeroTopUpStates.includes(state)) return 0;
   const config = stateSubsidyConfig[state];
@@ -70,26 +68,29 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
   return Math.round(subsidy);
 }
 
-exports.generateAIReport = functions.firestore
- .document("leads/{leadId}")
- .onUpdate(async (change, context) => {
+// 🌐 UPGRADED TO V2 TRIGGER Syntax for clean operational execution
+exports.generateAIReport = onDocumentUpdated("leads/{leadId}", async (event) => {
+    const change = event.data;
+    if (!change) return null;
 
     const before = change.before.data();
     const after = change.after.data();
+    const leadId = event.params.leadId;
 
-    const leadId = context.params.leadId;
+    if (!before || !after) return null;
 
     // ✅ Trigger ONLY when qualified
     if (before.stage === after.stage) return null;
-    if (after.stage!== "qualified") return null;
+    if (after.stage !== "qualified") return null;
 
-    console.log("🚀 Generating AI Report & Sizing Math:", leadId);
+    console.log("🚀 Generating AI Report & Sizing Math for:", leadId);
 
     // ==========================================
     // 🧮 PAN-INDIA CALCULATION ENGINE
     // ==========================================
     const bill = parseFloat(after.bill || 0);
     const state = after.state || "UP";
+    const city = after.city || "N/A"; // 🛠️ FIXED: Added missing declaration to avoid crash
     
     const units = bill / 7;
     const systemSize = Math.max(1, Math.round(units / 120));
@@ -103,7 +104,6 @@ exports.generateAIReport = functions.firestore
     const netCost = totalCost - totalSubsidy;
 
     // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
-    // (This saves the values to the lead document so index.js can consume them)
     await change.after.ref.update({
       systemSizeKw: systemSize.toFixed(1),
       totalSubsidy: totalSubsidy,
@@ -116,80 +116,36 @@ exports.generateAIReport = functions.firestore
     // =========================
     // TRUST SCORE ENGINE
     // =========================
-
     let trustScore = 50;
-
     if (after.bill >= 3000) trustScore += 10;
-
-    if (after.rooftopOwnership?.includes("Yes")) {
-      trustScore += 15;
-    }
-
-    if (after.propertyType === "Independent House") {
-      trustScore += 10;
-    }
-
-    if (after.billUploaded === "Yes") {
-      trustScore += 10;
-    }
-
-    if (after.connectionType === "Residential") {
-      trustScore += 5;
-    }
-
+    if (after.rooftopOwnership?.includes("Yes")) trustScore += 15;
+    if (after.propertyType === "Independent House") trustScore += 10;
+    if (after.billUploaded === "Yes") trustScore += 10;
+    if (after.connectionType === "Residential") trustScore += 5;
     trustScore = Math.min(trustScore, 98);
 
     // =========================
     // PERSONA ENGINE
     // =========================
-
     let persona = "Balanced Buyer";
-
-    if (after.bill >= 5000) {
-      persona = "ROI Focused";
-    }
-
-    if (after.billUploaded === "Yes") {
-      persona = "Research Driven";
-    }
-
-    if (after.propertyType === "Independent House"
-      && after.rooftopOwnership?.includes("Yes")) {
+    if (after.bill >= 5000) persona = "ROI Focused";
+    if (after.billUploaded === "Yes") persona = "Research Driven";
+    if (after.propertyType === "Independent House" && after.rooftopOwnership?.includes("Yes")) {
       persona = "Solar Ready";
     }
 
     // =========================
     // AI INSIGHTS
     // =========================
-
     const aiInsights = [];
-
-    if (trustScore >= 80) {
-      aiInsights.push(
-        "Your property profile appears highly suitable for rooftop solar installation."
-      );
-    }
-
-    if (after.bill >= 3000) {
-      aiInsights.push(
-        "Your current electricity consumption indicates strong long-term savings potential."
-      );
-    }
-
-    if (after.billUploaded === "Yes") {
-      aiInsights.push(
-        "Bill verification improves pricing accuracy and installer transparency."
-      );
-    }
-
-    aiInsights.push(
-      "Government subsidy benefits may significantly reduce your upfront investment."
-    );
+    if (trustScore >= 80) aiInsights.push("Your property profile appears highly suitable for rooftop solar installation.");
+    if (after.bill >= 3000) aiInsights.push("Your current electricity consumption indicates strong long-term savings potential.");
+    if (after.billUploaded === "Yes") aiInsights.push("Bill verification improves pricing accuracy and installer transparency.");
+    aiInsights.push("Government subsidy benefits may significantly reduce your upfront investment.");
 
     // =========================
     // BUYER PROTECTION
     // =========================
-
     const buyerProtectionChecklist = [
       "Verify panel brand and warranty documentation before installation.",
       "Ensure installer provides net-metering assistance.",
@@ -197,27 +153,14 @@ exports.generateAIReport = functions.firestore
       "Confirm post-installation support and maintenance coverage."
     ];
 
-    // =========================
-    // PRICING CONFIDENCE
-    // =========================
-
     let pricingLevel = "Moderate";
+    if (after.bill >= 3000) pricingLevel = "High";
 
-    if (after.bill >= 3000) {
-      pricingLevel = "High";
-    }
-
-    // =========================
-    // SUMMARY
-    // =========================
-
-    const recommendationSummary =
-      `Based on your electricity usage, rooftop profile, and subsidy eligibility, our AI engine estimates that your property has strong potential for long-term solar savings and investment returns.`;
+    const recommendationSummary = `Based on your electricity usage, rooftop profile, and subsidy eligibility, our AI engine estimates that your property has strong potential for long-term solar savings and investment returns.`;
 
     // =========================================
-    // SAVE AI REPORT (Includes duplicated fields to skip index.js read)
+    // SAVE AI REPORT
     // =========================================
-
     await db.collection("ai_reports")
      .doc(leadId)
      .set({
@@ -225,20 +168,17 @@ exports.generateAIReport = functions.firestore
         leadCode: after.leadCode || null,
         customerId: after.customerId || null,
         
-        // Duplicated User Meta for instant email access
         customerName: after.name || "N/A",
         customerEmail: after.email || null,
         city: city,
         state: state,
 
-        // Calculated Math
         systemSizeKw: systemSize.toFixed(1),
         totalSubsidy: totalSubsidy,
         netCost: netCost,
         centralSubsidy: centralSubsidy,
         stateSubsidy: stateSubsidy,
 
-        // AI Metadata
         trustScore: trustScore,
         persona: {
           type: persona,
@@ -246,23 +186,19 @@ exports.generateAIReport = functions.firestore
         },
         pricingConfidence: {
           level: pricingLevel,
-          message:
-            "Estimated pricing appears aligned with expected market ranges."
+          message: "Estimated pricing appears aligned with expected market ranges."
         },
         installerReadiness: {
           level: trustScore >= 80 ? "Strong" : "Moderate",
-          message:
-            "Property profile appears suitable for subsidy-supported rooftop solar."
+          message: "Property profile appears suitable for subsidy-supported rooftop solar."
         },
         aiInsights: aiInsights,
         buyerProtectionChecklist: buyerProtectionChecklist,
         recommendationSummary: recommendationSummary,
         generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        engineVersion: "trust-v1-with-math"
+        engineVersion: "trust-v2-with-math"
       });
 
     console.log("✅ AI Report & Math generated successfully:", leadId);
-
     return null;
-  });
-
+});
