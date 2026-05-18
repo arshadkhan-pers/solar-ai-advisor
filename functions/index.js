@@ -105,74 +105,98 @@ exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (e
 // =====================================================================
 /* eslint-disable max-len */
 
-exports.triggerLeadConsultationEmail = onDocumentUpdated("leads/{leadId}", async (event) => {
-  const change = event.data;
-  if (!change) return null;
+// FIX: Trigger off the 'ai_reports' creation to ensure ALL data is ready
+exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}", async (event) => {
+  const aiSnapshot = event.data;
+  if (!aiSnapshot) return null;
 
-  const beforeData = change.before.data();
-  const afterData = change.after.data();
+  const aiData = aiSnapshot.data();
+  const leadId = aiData.leadId || event.params.reportId;
 
-  // ROBUST GUARD CLAUSE: Checks if the critical report data was just added to the document.
-  // This avoids all strict equality and string/number datatype issues.
-  const hasReportNow = !!(afterData.systemSizeKw && afterData.totalSubsidy && afterData.netCost);
-  const hadReportBefore = !!(beforeData.systemSizeKw && beforeData.totalSubsidy && beforeData.netCost);
-  
-  const isDataNowReady = hasReportNow && !hadReportBefore;
-  
-  if (isDataNowReady && afterData.email) {
-    const { email, name, systemSizeKw, totalSubsidy, netCost, city } = afterData;
-
-    try {
-      await admin.firestore().collection("mail").add({
-        to: email,
-        message: {
-          subject: `Your Solar Feasibility Advisor Report is Ready! - ${city || "Uttar Pradesh"}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #003366; margin: 0;">Solar AI Advisor</h2>
-                <p style="color: #666; margin: 5px 0 0 0;">Your Personal Clean Energy Companion</p>
-              </div>
-              
-              <p>Dear ${name || "Homeowner"},</p>
-              <p>Thank you for choosing <strong>Solar AI Advisor</strong>. We have processed your energy profile for your property in <strong>${city || "UP"}</strong>. Here is your personalized on-grid solar savings estimate:</p>
-              
-              <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr style="background-color: #f9f9f9;">
-                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; width: 50%;">Recommended System Size</td>
-                  <td style="padding: 12px; border: 1px solid #ddd; color: #003366; font-weight: bold; font-size: 16px;">${systemSizeKw} kWp</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Combined Central & UP Subsidy</td>
-                  <td style="padding: 12px; border: 1px solid #ddd; color: #4CAF50; font-weight: bold; font-size: 16px;">₹${totalSubsidy}</td>
-                </tr>
-                <tr style="background-color: #f9f9f9;">
-                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Approximate Net Cost</td>
-                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; font-size: 16px;">₹${netCost}</td>
-                </tr>
-              </table>
-
-              <div style="background-color: #fff9e6; border-left: 5px solid #ffcc00; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                <strong style="color: #b38600; display: block; margin-bottom: 5px;">✨ Solar AI Advisor Trust Insight</strong>
-                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #555;">
-                  Did you know? Even a small 10% shadow on your solar panel array can result in up to a 50% drop in overall power generation. Our matched installer will perform a detailed layout analysis to ensure zero inter-row shading!
-                </p>
-              </div>
-
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="https://solaraiadvisor.in/reports/${event.params.leadId}" style="background-color: #003366; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Open Full Dynamic Advisor Report</a>
-              </div>
-            </div>
-          `
-        }
-      });
-      console.log(`[triggerLeadConsultationEmail] Successfully sent report for ${event.params.leadId}`);
-    } catch (error) {
-      console.error("Error sending feasibility email:", error);
+  try {
+    // 1. Fetch the original lead data to get the email, name, and sizing math
+    const leadDoc = await admin.firestore().collection("leads").doc(leadId).get();
+    
+    if (!leadDoc.exists) {
+      console.log(`[triggerLeadConsultationEmail] Lead ${leadId} not found. Aborting email.`);
+      return null;
     }
+
+    const leadData = leadDoc.data();
+    
+    // Check if email exists
+    if (!leadData.email) {
+       console.log(`[triggerLeadConsultationEmail] No email found for lead ${leadId}.`);
+       return null;
+    }
+
+    // 2. Destructure data from BOTH collections
+    const { email, name, systemSizeKw, totalSubsidy, netCost, city } = leadData;
+    const { trustScore, persona, aiInsights } = aiData;
+
+    // Format AI Insights into an HTML list
+    const insightsHtml = (aiInsights && aiInsights.length > 0) 
+      ? aiInsights.map(insight => `<li style="margin-bottom: 8px;">${insight}</li>`).join('')
+      : `<li>Your property profile appears highly suitable for rooftop solar installation.</li>`;
+
+    // 3. Send the Merged Email
+    await admin.firestore().collection("mail").add({
+      to: email,
+      message: {
+        subject: `Your AI Solar Feasibility Report is Ready! - ${city || "Uttar Pradesh"}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="color: #003366; margin: 0;">Solar AI Advisor</h2>
+              <p style="color: #666; margin: 5px 0 0 0;">Your Personal Clean Energy Companion</p>
+            </div>
+            
+            <p>Dear ${name || "Homeowner"},</p>
+            <p>Thank you for choosing <strong>Solar AI Advisor</strong>. Our AI engine has finished processing your energy profile for your property in <strong>${city || "UP"}</strong>.</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr style="background-color: #f9f9f9;">
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; width: 50%;">Recommended System Size</td>
+                <td style="padding: 12px; border: 1px solid #ddd; color: #003366; font-weight: bold; font-size: 16px;">${systemSizeKw || "Calculated on Dashboard"} kWp</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Combined Central & UP Subsidy</td>
+                <td style="padding: 12px; border: 1px solid #ddd; color: #4CAF50; font-weight: bold; font-size: 16px;">₹${totalSubsidy || "TBD"}</td>
+              </tr>
+              <tr style="background-color: #f9f9f9;">
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Approximate Net Cost</td>
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; font-size: 16px;">₹${netCost || "TBD"}</td>
+              </tr>
+            </table>
+
+            <div style="background-color: #e6f7ff; border-left: 5px solid #0088cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <strong style="color: #006699; display: block; margin-bottom: 8px;">🤖 AI Property Insights (Score: ${trustScore}/100)</strong>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.5; color: #444;">
+                ${insightsHtml}
+              </ul>
+            </div>
+
+            <div style="background-color: #fff9e6; border-left: 5px solid #ffcc00; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <strong style="color: #b38600; display: block; margin-bottom: 5px;">✨ Solar AI Advisor Trust Insight</strong>
+              <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #555;">
+                Did you know? Even a small 10% shadow on your solar panel array can result in up to a 50% drop in overall power generation. Our matched installer will perform a detailed layout analysis to ensure zero inter-row shading!
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://solaraiadvisor.in/reports/${leadId}" style="background-color: #003366; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Open Full Dynamic Advisor Report</a>
+            </div>
+          </div>
+        `
+      }
+    });
+    console.log(`[triggerLeadConsultationEmail] Successfully merged AI data and sent report for ${leadId}`);
+  } catch (error) {
+    console.error("Error sending feasibility email:", error);
   }
   return null;
 });
+
 
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
 exports.generateAIReport =
