@@ -99,7 +99,6 @@ exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (e
   return null;
 });
 
-
 // =====================================================================
 // NEW TRIGGER: LEAD CONSULTATION FEASIBILITY REPORT (To Homeowner)
 // =====================================================================
@@ -111,25 +110,34 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 
   const aiData = aiSnapshot.data();
   const leadId = aiData.leadId || event.params.reportId;
-  const supportNumber = "61404166347"; // 👈 Your support number
+  const supportNumber = "61404166347"; 
 
-  // 1. INCREASED DELAY: Wait 5 seconds for sizing/subsidy math to commit to the leads doc
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  // 🚫 REMOVED: 5-Second Sleep Hack & Secondary Lead Doc Fetch
+  // All fields are now provided natively by the updated ai_reports write payload!
+  if (!aiData.customerEmail) {
+    console.warn(`[triggerLeadConsultationEmail] Skipped email for report ${event.params.reportId}: No customerEmail found.`);
+    return null;
+  }
 
   try {
-    const leadDoc = await admin.firestore().collection("leads").doc(leadId).get();
-    if (!leadDoc.exists) return null;
-
-    const leadData = leadDoc.data();
-    if (!leadData.email) return null;
-
-    // 2. Destructure Merged Data from BOTH collections
-    const { email, name, systemSizeKw, totalSubsidy, netCost, city, state, leadCode } = leadData;
-    const { trustScore, persona, aiInsights, buyerProtectionChecklist } = aiData;
+    const { 
+      customerEmail, 
+      customerName, 
+      systemSizeKw, 
+      totalSubsidy, 
+      netCost, 
+      city, 
+      state, 
+      leadCode,
+      trustScore, 
+      persona, 
+      aiInsights, 
+      buyerProtectionChecklist 
+    } = aiData;
 
     const leadIdentifier = leadCode || leadId;
 
-    // 3. Format Data for WhatsApp and HTML
+    // Format Data for WhatsApp and HTML
     const waMessage = encodeURIComponent(
       `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}. ` +
       `Recommended: ${systemSizeKw || "TBD"} kWp. Let's discuss next steps!`
@@ -140,15 +148,15 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
     const checklistHtml = buyerProtectionChecklist?.map(c => `<li style="margin-bottom: 5px;">${c}</li>`).join('') || "";
 
     // Formatting numbers nicely for display
-    const formattedSubsidy = totalSubsidy? Number(totalSubsidy).toLocaleString('en-IN') : "TBD";
-    const formattedNetCost = netCost? Number(netCost).toLocaleString('en-IN') : "TBD";
+    const formattedSubsidy = totalSubsidy ? Number(totalSubsidy).toLocaleString('en-IN') : "TBD";
+    const formattedNetCost = netCost ? Number(netCost).toLocaleString('en-IN') : "TBD";
 
-    // 4. Send the "Full Report" Transactional Email
+    // Send the "Full Report" Transactional Email
     await admin.firestore().collection("mail").add({
-      to: email,
+      to: customerEmail,
       replyTo: "arshad.khan8912@gmail.com",
       message: {
-        subject: `☀️ Your AI Solar Report: ${systemSizeKw || ""} kWp for ${name}`,
+        subject: `☀️ Your AI Solar Report: ${systemSizeKw || ""} kWp for ${customerName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333; background-color: #ffffff;">
             
@@ -207,7 +215,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee;" />
-            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey `[1]`.</p>
+            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey.</p>
           </div>
         `
       }
@@ -220,14 +228,13 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 });
 
 
-
 //PHASE 2 — CREATE generateAIReport FUNCTION PURPOSE
 exports.generateAIReport =
   require("./generateAIReport").generateAIReport;
   
   
 // =====================================================================
-// NEW TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
+// TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
 // =====================================================================
 exports.triggerLeadAssignmentEmail = onDocumentUpdated("leads/{leadId}", async (event) => {
   const change = event.data;
@@ -236,19 +243,24 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated("leads/{leadId}", async (
   const beforeData = change.before.data();
   const afterData = change.after.data();
 
-  if (!beforeData ||!afterData) return null;
+  if (!beforeData || !afterData) return null;
 
-  // Trigger only if the status transitioned specifically to 'assigned' and has a target installer email
-  const isNewlyAssigned = afterData.status === "assigned" && beforeData.status!== "assigned";
-  const hasInstallerEmail =!!afterData.installerEmail;
+  const isNewlyAssigned = afterData.status === "assigned" && beforeData.status !== "assigned";
+  const hasInstallerEmail = !!afterData.installerEmail;
 
-  if (isNewlyAssigned && hasInstallerEmail) {
+  if (isNewlyAssigned) {
+    if (!hasInstallerEmail) {
+      // ⚠️ Missing email warning check added here
+      console.error(`[triggerLeadAssignmentEmail] CRITICAL ERROR: Lead ${event.params.leadId} switched status to 'assigned', but 'installerEmail' field is missing or empty!`);
+      return null;
+    }
+
     const { 
       name, 
       phone, 
       address, 
       city, 
-      monthlyBill, 
+      bill, // 🤝 Updated from 'monthlyBill' to correctly access the 'bill' field
       systemSizeKw, 
       netCost, 
       billUrl, 
@@ -287,7 +299,7 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated("leads/{leadId}", async (
                 </tr>
                 <tr style="background-color: #f9f9f9;">
                   <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Monthly Bill</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">₹${monthlyBill || 0}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">₹${bill || 0}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Sanctioned Load</td>
@@ -309,8 +321,8 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated("leads/{leadId}", async (
 
               <h3 style="color: #003366; border-bottom: 1px solid #eee; padding-bottom: 5px;">Uploaded Evidence</h3>
               <ul style="padding-left: 20px; line-height: 1.6;">
-                ${billUrl? `<li><a href="${billUrl}" target="_blank" style="color: #003366; font-weight: bold;">View Electricity Bill Image</a></li>` : "<li>No bill uploaded</li>"}
-                ${roofPhotoUrl? `<li><a href="${roofPhotoUrl}" target="_blank" style="color: #003366; font-weight: bold;">View Rooftop Photo</a></li>` : "<li>No rooftop photo uploaded</li>"}
+                ${billUrl ? `<li><a href="${billUrl}" target="_blank" style="color: #003366; font-weight: bold;">View Electricity Bill Image</a></li>` : "<li>No bill uploaded</li>"}
+                ${roofPhotoUrl ? `<li><a href="${roofPhotoUrl}" target="_blank" style="color: #003366; font-weight: bold;">View Rooftop Photo</a></li>` : "<li>No rooftop photo uploaded</li>"}
               </ul>
 
               <div style="background-color: #ffebe6; border-left: 5px solid #ff3300; padding: 15px; margin: 25px 0; border-radius: 4px; font-size: 13px;">
