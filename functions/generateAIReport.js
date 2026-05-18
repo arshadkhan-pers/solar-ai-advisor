@@ -1,11 +1,12 @@
 /* eslint-disable max-len */
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
+// 🛠️ Reverted to 1st Gen listener to bypass the Cloud block
+const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 const db = admin.firestore();
 
 // ==========================================
-// 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION 
+// 🇮🇳 PAN-INDIA SUBSIDY CONFIGURATION
 // ==========================================
 const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
 const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
@@ -68,14 +69,13 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
   return Math.round(subsidy);
 }
 
-// 🌐 UPGRADED TO V2 TRIGGER Syntax for clean operational execution
-exports.generateAIReport = onDocumentUpdated("leads/{leadId}", async (event) => {
-    const change = event.data;
-    if (!change) return null;
-
+// 🌐 1st Gen trigger architecture with v2 data payload logic preserved
+exports.generateAIReport = functions.firestore
+  .document("leads/{leadId}")
+  .onUpdate(async (change, context) => {
     const before = change.before.data();
     const after = change.after.data();
-    const leadId = event.params.leadId;
+    const leadId = context.params.leadId;
 
     if (!before || !after) return null;
 
@@ -90,7 +90,7 @@ exports.generateAIReport = onDocumentUpdated("leads/{leadId}", async (event) => 
     // ==========================================
     const bill = parseFloat(after.bill || 0);
     const state = after.state || "UP";
-    const city = after.city || "N/A"; // 🛠️ FIXED: Added missing declaration to avoid crash
+    const city = after.city || "N/A";
     
     const units = bill / 7;
     const systemSize = Math.max(1, Math.round(units / 120));
@@ -196,7 +196,7 @@ exports.generateAIReport = onDocumentUpdated("leads/{leadId}", async (event) => 
         buyerProtectionChecklist: buyerProtectionChecklist,
         recommendationSummary: recommendationSummary,
         generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        engineVersion: "trust-v2-with-math"
+        engineVersion: "trust-v1-with-math-v2-payload"
       });
 
     console.log("✅ AI Report & Math generated successfully:", leadId);
