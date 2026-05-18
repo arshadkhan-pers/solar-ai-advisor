@@ -214,9 +214,9 @@ exports.generateAIReport = functions.firestore
     const recommendationSummary =
       `Based on your electricity usage, rooftop profile, and subsidy eligibility, our AI engine estimates that your property has strong potential for long-term solar savings and investment returns.`;
 
-    // =========================
-    // SAVE AI REPORT
-    // =========================
+    // =========================================
+    // SAVE AI REPORT (Includes duplicated fields to skip index.js read)
+    // =========================================
 
     await db.collection("ai_reports")
      .doc(leadId)
@@ -224,6 +224,21 @@ exports.generateAIReport = functions.firestore
         leadId: leadId,
         leadCode: after.leadCode || null,
         customerId: after.customerId || null,
+        
+        // Duplicated User Meta for instant email access
+        customerName: after.name || "N/A",
+        customerEmail: after.email || null,
+        city: city,
+        state: state,
+
+        // Calculated Math
+        systemSizeKw: systemSize.toFixed(1),
+        totalSubsidy: totalSubsidy,
+        netCost: netCost,
+        centralSubsidy: centralSubsidy,
+        stateSubsidy: stateSubsidy,
+
+        // AI Metadata
         trustScore: trustScore,
         persona: {
           type: persona,
@@ -235,7 +250,7 @@ exports.generateAIReport = functions.firestore
             "Estimated pricing appears aligned with expected market ranges."
         },
         installerReadiness: {
-          level: trustScore >= 80? "Strong" : "Moderate",
+          level: trustScore >= 80 ? "Strong" : "Moderate",
           message:
             "Property profile appears suitable for subsidy-supported rooftop solar."
         },
@@ -246,7 +261,8 @@ exports.generateAIReport = functions.firestore
         engineVersion: "trust-v1-with-math"
       });
 
-    console.log("✅ AI Report & Math generated:", leadId);
+    console.log("✅ AI Report & Math generated successfully:", leadId);
 
     return null;
   });
+
