@@ -9,7 +9,7 @@ admin.initializeApp();
 // ==========================================
 // TRIGGER: HOT LEAD ALERT (Unchanged) 
 // ==========================================
-exports.triggerHotLeadEmail = onDocumentCreated("leads/{leadId}", async (event) => {
+exports.triggerHotLeadEmail = onDocumentCreated({ document: "leads/{leadId}", region: "asia-south2" }, async (event) => {
   const snapshot = event.data;
   if (!snapshot) return null;
 
@@ -43,7 +43,9 @@ exports.triggerHotLeadEmail = onDocumentCreated("leads/{leadId}", async (event) 
 // ==========================================
 // TRIGGER: NEW CONSULTATION (Unchanged)
 // ==========================================
-exports.triggerConsultationEmail = onDocumentCreated("consultations/{docId}", async (event) => {
+exports.triggerConsultationEmail = onDocumentCreated({ document: "consultations/{docId}", region: "asia-south2" }, async (event) => {
+  async (event) => {
+  
   const snapshot = event.data;
   if (!snapshot) return null;
 
@@ -72,7 +74,8 @@ exports.triggerConsultationEmail = onDocumentCreated("consultations/{docId}", as
 // ==========================================
 // TRIGGER: NEW INSTALLER SIGNUP (Unchanged)
 // ==========================================
-exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (event) => {
+exports.triggerInstallerEmail = onDocumentCreated({ document: "installers/{docId}", region: "asia-south2" }, async (event) => {
+  async (event) => {
   const snapshot = event.data;
   if (!snapshot) return null;
 
@@ -104,7 +107,7 @@ exports.triggerInstallerEmail = onDocumentCreated("installers/{docId}", async (e
 // =====================================================================
 /* eslint-disable max-len */
 
-exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}", async (event) => {
+exports.triggerLeadConsultationEmail = onDocumentCreated({ document: "ai_reports/{reportId}", region: "asia-south2" }, async (event) => {
   const aiSnapshot = event.data;
   if (!aiSnapshot) return null;
 
@@ -233,11 +236,11 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
 const { generateAIReport } = require("./generateAIReport");
 exports.generateAIReport = generateAIReport;
 
-  
 // =====================================================================
 // TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
 // =====================================================================
-exports.triggerLeadAssignmentEmail = onDocumentUpdated("leads/{leadId}", async (event) => {
+exports.triggerLeadAssignmentEmail = onDocumentUpdated({ document: "leads/{leadId}", region: "asia-south2" }, async (event) => {
+  
   const change = event.data;
   if (!change) return null;
 
