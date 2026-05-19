@@ -210,7 +210,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
               </a>
               <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
                 Or Call Support directly: <br/>
-                <a href="tel:+919838004479" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 98380 04479</a> <br/>
+                <a href="tel:+919235169031" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 92351 69031</a> <br/>
                 <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
               </p>
             </div>
