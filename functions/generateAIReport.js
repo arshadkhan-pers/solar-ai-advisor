@@ -129,7 +129,7 @@ if (after.stage !== "qualified") {
       netCost: netCost,
       centralSubsidy: centralSubsidy,
       stateSubsidy: stateSubsidy,
-      calculatedAt: admin.firestore.FieldValue.serverTimestamp()
+      calculatedAt: admin.firestore.FieldValue.serverTimestamp(),
       aiRegenerationRequired: false
     });
 
@@ -246,3 +246,4 @@ await db.collection("leads")
   });
 
 return null;
+});
