@@ -140,8 +140,9 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
     // Format Data for WhatsApp and HTML
     const waMessage = encodeURIComponent(
       `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}. ` +
-      `Recommended: ${systemSizeKw || "TBD"} kWp. Let's discuss next steps!`
+      `Recommended: ${systemSizeKw || "TBD"} kWp. (Ref: ${leadIdentifier || "New Enquiry"}). Let's discuss next steps!`
     );
+    
     const waLink = `https://wa.me/${supportNumber}?text=${waMessage}`;
 
     const insightsHtml = aiInsights?.map(i => `<li style="margin-bottom: 5px;">${i}</li>`).join('') || "";
@@ -161,7 +162,7 @@ exports.triggerLeadConsultationEmail = onDocumentCreated("ai_reports/{reportId}"
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #333; background-color: #ffffff;">
             
             <div style="font-size: 11px; color: #777; text-align: right; margin-bottom: 10px;">
-              <strong>Lead Reference ID:</strong> ${leadIdentifier}
+              <strong>Reference ID:</strong> ${leadIdentifier}
             </div>
 
             <div style="text-align: center; margin-bottom: 20px;">
