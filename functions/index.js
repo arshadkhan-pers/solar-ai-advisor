@@ -44,7 +44,6 @@ exports.triggerHotLeadEmail = onDocumentCreated({ document: "leads/{leadId}", re
 // TRIGGER: NEW CONSULTATION (Unchanged)
 // ==========================================
 exports.triggerConsultationEmail = onDocumentCreated({ document: "consultations/{docId}", region: "asia-south2" }, async (event) => {
-  async (event) => {
   
   const snapshot = event.data;
   if (!snapshot) return null;
@@ -75,7 +74,7 @@ exports.triggerConsultationEmail = onDocumentCreated({ document: "consultations/
 // TRIGGER: NEW INSTALLER SIGNUP (Unchanged)
 // ==========================================
 exports.triggerInstallerEmail = onDocumentCreated({ document: "installers/{docId}", region: "asia-south2" }, async (event) => {
-  async (event) => {
+
   const snapshot = event.data;
   if (!snapshot) return null;
 
