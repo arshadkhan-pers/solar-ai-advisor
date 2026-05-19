@@ -70,6 +70,7 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
   return Math.round(subsidy);
 }
 
+
 // 🌐 Modern Gen 2 trigger architecture targeting Mumbai (asia-south1)
 exports.generateAIReport = onDocumentUpdated(
   { 
@@ -85,6 +86,10 @@ exports.generateAIReport = onDocumentUpdated(
     const before = change.before.data();
     const after = change.after.data();
     
+    if (!after.aiRegenerationRequired) {
+  return null;
+}
+    
     // In Gen 2, wildcard parameters live inside event.params
     const leadId = event.params.leadId;
 
@@ -96,6 +101,7 @@ exports.generateAIReport = onDocumentUpdated(
 
     console.log("🚀 Generating AI Report & Sizing Math for:", leadId);
 
+  
     // ==========================================
     // 🧮 PAN-INDIA CALCULATION ENGINE
     // ==========================================
@@ -211,5 +217,12 @@ exports.generateAIReport = onDocumentUpdated(
       });
 
     console.log("✅ AI Report & Math generated successfully:", leadId);
+    
+    await db.collection("leads")
+  .doc(context.params.leadId)
+  .update({
+    aiRegenerationRequired: false
+  });
+  
     return null;
 });
