@@ -298,7 +298,13 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 }
 
 // ✅ Submit lead (Firestore update)
+
 async function submitLead() {
+  const submitBtn =
+  document.querySelector("#leadForm button");
+submitBtn.disabled = true;
+submitBtn.innerText = "Generating AI Analysis...";
+
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
@@ -339,10 +345,15 @@ if (!rooftopOwnership) {
     });
 
     console.log("✅ Lead updated successfully");
+    
+    submitBtn.disabled = false;
+submitBtn.innerText = "Submit Request";
 
   } catch (error) {
     console.error("❌ Update failed:", error);
     alert("Error updating lead");
+    submitBtn.disabled = false;
+submitBtn.innerText = "Submit Request";
     return;
   }
 
