@@ -34,7 +34,7 @@ const stateNames = {
   "RJ": "Rajasthan",
   "UK": "Uttarakhand",
   "AS": "Assam",
-  "GOA": "Goa",
+  "GA": "Goa",
   "AP": "Andhra Pradesh",
   "TS": "Telangana",
   "TN": "Tamil Nadu",
@@ -275,6 +275,11 @@ function showForm() {
   const form = document.getElementById("leadForm");
   if (form) {
     form.classList.remove("hidden");
+
+form.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
   } else {
     console.warn("leadForm not found");
   }
@@ -313,6 +318,8 @@ submitBtn.innerText = "Generating AI Analysis...";
 
 if (!rooftopOwnership) {
   alert("Please select rooftop ownership");
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Submit Request";
   return;
 }
 
@@ -332,7 +339,14 @@ if (!rooftopOwnership) {
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
 
   try {
+    const requestTime = Date.now();
+    const aiReport =
+  await waitForAIReport(
+    leadId,
+    requestTime
+  );
     await db.collection("leads").doc(leadId).update({
+      
       propertyType,
       roofType,
       rooftopOwnership,
@@ -341,7 +355,7 @@ if (!rooftopOwnership) {
       leadType,
       stage: "qualified",
       aiRegenerationRequired: true,
-      updatedAt: new Date()
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     console.log("✅ Lead updated successfully");
@@ -377,8 +391,10 @@ showAILoadingState();
 
 try {
 
+const requestTime = Date.now();
+
   const aiReport =
-    await waitForAIReport(leadId);
+    await waitForAIReport(leadId, requestTime);
 
   renderDynamicAIReport(
     aiReport,
@@ -635,13 +651,16 @@ function showAILoadingState() {
   document.getElementById("submitSuccess")
     ?.classList.add("hidden");
 
+  document.getElementById("aiInsightsSection")
+    ?.classList.add("hidden");
+
   document.getElementById("aiLoadingState")
     ?.classList.remove("hidden");
 }
 
-async function waitForAIReport(leadId) {
+async function waitForAIReport(leadId, requestTime) {
 
-  const maxAttempts = 10;
+  const maxAttempts = 12;
 
   for (let i = 0; i < maxAttempts; i++) {
 
@@ -653,7 +672,15 @@ async function waitForAIReport(leadId) {
         .get();
 
       if (doc.exists) {
-        return doc.data();
+
+        const data = doc.data();
+
+        const generatedAt =
+          data.generatedAt?.toMillis?.() || 0;
+
+        if (generatedAt >= requestTime) {
+          return data;
+        }
       }
 
     } catch (error) {
