@@ -305,6 +305,11 @@ async function submitLead() {
   const connectionType = document.getElementById("connectionType")?.value;
   const billFile = document.getElementById("billUpload")?.files?.[0];
 
+if (!rooftopOwnership) {
+  alert("Please select rooftop ownership");
+  return;
+}
+
   const leadId = localStorage.getItem("leadId");
 
   if (!leadId) {
@@ -329,6 +334,7 @@ async function submitLead() {
       billUploaded: billFile ? "Yes" : "No",
       leadType,
       stage: "qualified",
+      aiRegenerationRequired: true,
       updatedAt: new Date()
     });
 
