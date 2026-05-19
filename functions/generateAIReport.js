@@ -181,45 +181,68 @@ if (after.stage !== "qualified") {
     // =========================================
     // SAVE AI REPORT
     // =========================================
-    await db.collection("ai_reports")
-     .doc(leadId)
-     .set({
-        leadId: leadId,
-        leadCode: after.leadCode || null,
-        customerId: after.customerId || null,
-        
-        customerName: after.name || "N/A",
-        customerEmail: after.email || null,
-        city: city,
-        state: state,
 
-        systemSizeKw: systemSize.toFixed(1),
-        totalSubsidy: totalSubsidy,
-        netCost: netCost,
-        centralSubsidy: centralSubsidy,
-        stateSubsidy: stateSubsidy,
+await db.collection("ai_reports")
+  .doc(leadId)
+  .set({
+    leadId: leadId,
+    leadCode: after.leadCode || null,
+    customerId: after.customerId || null,
 
-        trustScore: trustScore,
-        persona: {
-          type: persona,
-          confidence: Math.min(trustScore + 5, 99)
-        },
-        pricingConfidence: {
-          level: pricingLevel,
-          message: "Estimated pricing appears aligned with expected market ranges."
-        },
-        installerReadiness: {
-          level: trustScore >= 80 ? "Strong" : "Moderate",
-          message: "Property profile appears suitable for subsidy-supported rooftop solar."
-        },
-        aiInsights: aiInsights,
-        buyerProtectionChecklist: buyerProtectionChecklist,
-        recommendationSummary: recommendationSummary,
-        generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        engineVersion: "trust-v1-with-math-v2-payload"
-      });
+    customerName: after.name || "N/A",
+    customerEmail: after.email || null,
+    city: city,
+    state: state,
 
-    console.log("✅ AI Report & Math generated successfully:", leadId);
-  
-    return null;
-});
+    systemSizeKw: systemSize.toFixed(1),
+    totalSubsidy: totalSubsidy,
+    netCost: netCost,
+    centralSubsidy: centralSubsidy,
+    stateSubsidy: stateSubsidy,
+
+    trustScore: trustScore,
+
+    persona: {
+      type: persona,
+      confidence: Math.min(trustScore + 5, 99)
+    },
+
+    pricingConfidence: {
+      level: pricingLevel,
+      message:
+        "Estimated pricing appears aligned with expected market ranges."
+    },
+
+    installerReadiness: {
+      level: trustScore >= 80 ? "Strong" : "Moderate",
+      message:
+        "Property profile appears suitable for subsidy-supported rooftop solar."
+    },
+
+    aiInsights: aiInsights,
+
+    buyerProtectionChecklist:
+      buyerProtectionChecklist,
+
+    recommendationSummary:
+      recommendationSummary,
+
+    generatedAt:
+      admin.firestore.FieldValue.serverTimestamp(),
+
+    engineVersion:
+      "trust-v1-with-math-v2-payload"
+  });
+
+console.log(
+  "✅ AI Report & Math generated successfully:",
+  leadId
+);
+
+await db.collection("leads")
+  .doc(leadId)
+  .update({
+    aiRegenerationRequired: false
+  });
+
+return null;
