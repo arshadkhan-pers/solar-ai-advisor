@@ -90,19 +90,6 @@ exports.generateAIReport = onDocumentUpdated(
 
     if (!before || !after) return null;
 
-    // ... your remaining business logic stays exactly the same ...
-
-
-// 🌐 1st Gen trigger architecture with v2 data payload logic preserved
-//exports.generateAIReport = functions.region("asia-south1").firestore
-//  .document("leads/{leadId}")
-//  .onUpdate(async (change, context) => {
-//    const before = change.before.data();
-//    const after = change.after.data();
-//    const leadId = context.params.leadId;
-
-    if (!before || !after) return null;
-
     // ✅ Trigger ONLY when qualified
     if (before.stage === after.stage) return null;
     if (after.stage !== "qualified") return null;
