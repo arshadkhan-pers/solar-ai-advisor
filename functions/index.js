@@ -41,8 +41,6 @@ exports.triggerHotLeadEmail = onDocumentCreated({ document: "leads/{leadId}", re
   return null;
 });
 
-*/
-
 // ==========================================
 // TRIGGER: NEW CONSULTATION (Unchanged)
 // ==========================================
@@ -103,6 +101,8 @@ exports.triggerInstallerEmail = onDocumentCreated({ document: "installers/{docId
   }
   return null;
 });
+
+*/
 
 // =====================================================================
 // NEW TRIGGER: LEAD CONSULTATION FEASIBILITY REPORT (To Homeowner)
@@ -241,6 +241,12 @@ exports.generateAIReport = generateAIReport;
 const { triggerHotLeadEmail} = require("./triggers/triggerHotLeadEmail");
 exports.triggerHotLeadEmail = triggerHotLeadEmail;
 
+const { triggerConsultationEmail} = require("./triggers/triggerConsultationEmail");
+exports.triggerConsultationEmail = triggerConsultationEmail;
+
+const { triggerInstallerEmail} = require("./triggers/triggerInstallerEmail");
+exports.triggerInstallerEmail = triggerInstallerEmail;
+  
 // =====================================================================
 // TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
 // =====================================================================
