@@ -238,6 +238,9 @@ exports.triggerLeadConsultationEmail = onDocumentCreated({ document: "ai_reports
 const { generateAIReport } = require("./generateAIReport");
 exports.generateAIReport = generateAIReport;
 
+const { triggerHotLeadEmail} = require("./triggers/triggerHotLeadEmail");
+exports.triggerHotLeadEmail = triggerHotLeadEmail;
+
 // =====================================================================
 // TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
 // =====================================================================
