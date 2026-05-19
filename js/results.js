@@ -346,6 +346,7 @@ document.getElementById("submitSuccess")?.classList.remove("hidden");
 // 🤖 AI INSIGHTS
 const result = calculateSolar(bill);
 
+/*
 renderAIInsights({
   bill,
   result,
@@ -353,6 +354,34 @@ renderAIInsights({
   rooftopOwnership,
   roofType
 });
+*/
+// new call///
+showAILoadingState();
+
+try {
+
+  const aiReport =
+    await waitForAIReport(leadId);
+
+  renderDynamicAIReport(
+    aiReport,
+    result
+  );
+
+} catch (error) {
+
+  console.error(error);
+
+  // fallback
+  renderAIInsights({
+    bill,
+    result,
+    propertyType,
+    rooftopOwnership,
+    roofType
+  });
+}
+// new call end////
 
 window.scrollTo({
   top: document.body.scrollHeight,
@@ -581,6 +610,113 @@ document.getElementById("save25").innerText =
     block: "start"
   });
 }
+
+// new start//////
+
+function showAILoadingState() {
+
+  document.getElementById("submitSuccess")
+    ?.classList.add("hidden");
+
+  document.getElementById("aiLoadingState")
+    ?.classList.remove("hidden");
+}
+
+async function waitForAIReport(leadId) {
+
+  const maxAttempts = 10;
+
+  for (let i = 0; i < maxAttempts; i++) {
+
+    try {
+
+      const doc = await db
+        .collection("ai_reports")
+        .doc(leadId)
+        .get();
+
+      if (doc.exists) {
+        return doc.data();
+      }
+
+    } catch (error) {
+      console.error("AI report fetch error:", error);
+    }
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 2000)
+    );
+  }
+
+  throw new Error("AI report generation timeout");
+}
+
+function renderDynamicAIReport(report, result) {
+
+  // Hide loading
+  document.getElementById("aiLoadingState")
+    ?.classList.add("hidden");
+
+  // SHOW SECTION
+  const aiSection =
+    document.getElementById("aiInsightsSection");
+
+  aiSection.classList.remove("hidden");
+
+  // SCORE
+  document.getElementById("aiScore").innerText =
+    report.persona?.confidence || 85;
+
+  // BADGE
+  document.getElementById("aiBadge").innerText =
+    report.installerReadiness?.level || "Strong Match";
+
+  // PROGRESS
+  document.getElementById("aiProgressBar").style.width =
+    `${report.persona?.confidence || 85}%`;
+
+  // FINANCIAL
+  document.getElementById("financialInsight").innerText =
+    `Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`;
+
+  // ROOF
+  document.getElementById("roofInsight").innerText =
+    report.installerReadiness?.message ||
+    "Your rooftop profile appears compatible with residential solar installation.";
+
+  // SUBSIDY
+  document.getElementById("subsidyInsight").innerText =
+    report.stateSubsidy > 0
+      ? "Your state currently offers additional subsidy support beyond central schemes."
+      : "Your location qualifies for central rooftop solar subsidy support.";
+
+  // SAVINGS
+  document.getElementById("save5").innerText =
+    formatIndianCurrency(
+      Math.round(result.monthlySavings * 12 * 5)
+    );
+
+  document.getElementById("save10").innerText =
+    formatIndianCurrency(
+      Math.round(result.monthlySavings * 12 * 10)
+    );
+
+  document.getElementById("save25").innerText =
+    formatIndianCurrency(
+      Math.round(result.monthlySavings * 12 * 25)
+    );
+
+  // SUMMARY
+  document.getElementById("aiSummary").innerText =
+    report.recommendationSummary || "";
+
+  aiSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+// new end////
 
 // ===============================
 // 🔹 INIT
