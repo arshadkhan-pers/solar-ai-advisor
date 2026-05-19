@@ -1,4 +1,4 @@
-//Module 
+//Module
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
