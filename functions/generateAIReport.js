@@ -95,9 +95,11 @@ exports.generateAIReport = onDocumentUpdated(
 
     if (!before || !after) return null;
 
-    // ✅ Trigger ONLY when qualified
-    if (before.stage === after.stage) return null;
-    if (after.stage !== "qualified") return null;
+// ✅ Only process qualified leads
+if (after.stage !== "qualified") {
+  return null;
+}
+
 
     console.log("🚀 Generating AI Report & Sizing Math for:", leadId);
 
@@ -128,6 +130,7 @@ exports.generateAIReport = onDocumentUpdated(
       centralSubsidy: centralSubsidy,
       stateSubsidy: stateSubsidy,
       calculatedAt: admin.firestore.FieldValue.serverTimestamp()
+      aiRegenerationRequired: false
     });
 
     // =========================
@@ -217,12 +220,6 @@ exports.generateAIReport = onDocumentUpdated(
       });
 
     console.log("✅ AI Report & Math generated successfully:", leadId);
-    
-    await db.collection("leads")
-  .doc(context.params.leadId)
-  .update({
-    aiRegenerationRequired: false
-  });
   
     return null;
 });
