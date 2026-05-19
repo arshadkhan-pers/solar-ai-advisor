@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 // 🛠️ Reverted to 1st Gen listener to bypass the Cloud block
-const functions = require("firebase-functions");
+//const functions = require("firebase-functions");
+const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
 const db = admin.firestore();
@@ -69,14 +70,36 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
   return Math.round(subsidy);
 }
 
+// 🌐 Modern Gen 2 trigger architecture targeting Mumbai (asia-south1)
+exports.generateAIReport = onDocumentUpdated(
+  { 
+    document: "leads/{leadId}", 
+    region: "asia-south2" 
+  }, 
+  async (event) => {
+    
+    // In Gen 2, before and after snapshots live inside event.data
+    const change = event.data;
+    if (!change) return null;
 
-// 🌐 1st Gen trigger architecture with v2 data payload logic preserved
-exports.generateAIReport = functions.region("asia-south1").firestore
-  .document("leads/{leadId}")
-  .onUpdate(async (change, context) => {
     const before = change.before.data();
     const after = change.after.data();
-    const leadId = context.params.leadId;
+    
+    // In Gen 2, wildcard parameters live inside event.params
+    const leadId = event.params.leadId;
+
+    if (!before || !after) return null;
+
+    // ... your remaining business logic stays exactly the same ...
+
+
+// 🌐 1st Gen trigger architecture with v2 data payload logic preserved
+//exports.generateAIReport = functions.region("asia-south1").firestore
+//  .document("leads/{leadId}")
+//  .onUpdate(async (change, context) => {
+//    const before = change.before.data();
+//    const after = change.after.data();
+//    const leadId = context.params.leadId;
 
     if (!before || !after) return null;
 
