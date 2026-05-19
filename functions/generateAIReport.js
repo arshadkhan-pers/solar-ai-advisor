@@ -71,7 +71,7 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 
 
 // 🌐 1st Gen trigger architecture with v2 data payload logic preserved
-exports.generateAIReport = functions.region("asia-south2").firestore
+exports.generateAIReport = functions.region("asia-south1").firestore
   .document("leads/{leadId}")
   .onUpdate(async (change, context) => {
     const before = change.before.data();
