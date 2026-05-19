@@ -6,6 +6,7 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
+/*
 // ==========================================
 // TRIGGER: HOT LEAD ALERT (Unchanged) 
 // ==========================================
@@ -39,6 +40,8 @@ exports.triggerHotLeadEmail = onDocumentCreated({ document: "leads/{leadId}", re
   }
   return null;
 });
+
+*/
 
 // ==========================================
 // TRIGGER: NEW CONSULTATION (Unchanged)
