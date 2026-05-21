@@ -307,6 +307,8 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 async function submitLead() {
   const submitBtn =
   document.querySelector("#leadForm button");
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Generating AI Analysis...";
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
@@ -336,7 +338,7 @@ if (!rooftopOwnership) {
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
 
   try {
-    
+    const requestTime = Date.now();
     await db.collection("leads").doc(leadId).update({
       
       propertyType,
@@ -380,8 +382,6 @@ showAILoadingState();
 
 try {
 
-const requestTime = Date.now();
-
   const aiReport =
     await waitForAIReport(leadId, requestTime);
 
@@ -389,11 +389,14 @@ const requestTime = Date.now();
     aiReport,
     result
   );
-    
+   submitBtn.disabled = false;
+   submitBtn.innerText = "Submit Request"; 
 } catch (error) {
 
   console.error(error);
-
+  document.getElementById("aiLoadingState")
+  ?.classList.add("hidden");
+  
   // fallback
   renderAIInsights({
     bill,
