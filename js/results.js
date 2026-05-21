@@ -752,10 +752,21 @@ function renderDynamicAIReport(report, result) {
   document.getElementById("aiSummary").innerText =
     report.recommendationSummary || "";
 
-  aiSection.scrollIntoView({
+  document.getElementById("aiInsightsSection")
+  ?.scrollIntoView({
     behavior: "smooth",
     block: "start"
   });
+
+setTimeout(() => {
+
+  window.scrollBy({
+    top: -40,
+    behavior: "smooth"
+  });
+
+}, 300);
+
 }
 
 // new end////
