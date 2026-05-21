@@ -307,9 +307,6 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 async function submitLead() {
   const submitBtn =
   document.querySelector("#leadForm button");
-submitBtn.disabled = true;
-submitBtn.innerText = "Generating AI Analysis...";
-
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
@@ -392,8 +389,7 @@ const requestTime = Date.now();
     aiReport,
     result
   );
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    
 } catch (error) {
 
   console.error(error);
@@ -406,6 +402,8 @@ const requestTime = Date.now();
     rooftopOwnership,
     roofType
   });
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
 }
 // new call end////
 
