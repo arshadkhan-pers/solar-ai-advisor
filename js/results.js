@@ -339,12 +339,7 @@ if (!rooftopOwnership) {
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
 
   try {
-    const requestTime = Date.now();
-    const aiReport =
-  await waitForAIReport(
-    leadId,
-    requestTime
-  );
+    
     await db.collection("leads").doc(leadId).update({
       
       propertyType,
@@ -359,9 +354,6 @@ if (!rooftopOwnership) {
     });
 
     console.log("✅ Lead updated successfully");
-    
-    submitBtn.disabled = false;
-submitBtn.innerText = "Submit Request";
 
   } catch (error) {
     console.error("❌ Update failed:", error);
@@ -400,7 +392,8 @@ const requestTime = Date.now();
     aiReport,
     result
   );
-
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
 } catch (error) {
 
   console.error(error);
