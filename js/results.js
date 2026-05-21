@@ -409,11 +409,6 @@ try {
 }
 // new call end////
 
-window.scrollTo({
-  top: document.body.scrollHeight,
-  behavior: "smooth"
-});
-
 }
 
 // ✅ Upload handling
@@ -702,8 +697,7 @@ function renderDynamicAIReport(report, result) {
   // SHOW SECTION
   const aiSection =
     document.getElementById("aiInsightsSection");
-
-  aiSection.classList.remove("hidden");
+    aiSection.classList.remove("hidden");
 
   // SCORE
   document.getElementById("aiScore").innerText =
@@ -767,6 +761,12 @@ setTimeout(() => {
 
 }, 300);
 
+document.getElementById("aiInsightsSection")
+  ?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+  
 }
 
 // new end////
