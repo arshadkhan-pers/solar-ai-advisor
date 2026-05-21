@@ -336,9 +336,9 @@ if (!rooftopOwnership) {
 
   const bill = parseFloat(getBillFromURL());
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
-
+  const requestTime = Date.now();
+  
   try {
-    const requestTime = Date.now();
     await db.collection("leads").doc(leadId).update({
       
       propertyType,
@@ -358,13 +358,12 @@ if (!rooftopOwnership) {
     console.error("❌ Update failed:", error);
     alert("Error updating lead");
     submitBtn.disabled = false;
-submitBtn.innerText = "Submit Request";
+    submitBtn.innerText = "Submit Request";
     return;
   }
-
-  document.getElementById("leadForm")?.classList.add("hidden");
-document.getElementById("submitSuccess")?.classList.remove("hidden");
-
+  document.getElementById("leadForm")
+  ?.classList.add("hidden");
+  
 // 🤖 AI INSIGHTS
 const result = calculateSolar(bill);
 
@@ -638,8 +637,6 @@ document.getElementById("save25").innerText =
   });
 }
 
-// new start//////
-
 function showAILoadingState() {
 
   document.getElementById("submitSuccess")
@@ -648,8 +645,15 @@ function showAILoadingState() {
   document.getElementById("aiInsightsSection")
     ?.classList.add("hidden");
 
-  document.getElementById("aiLoadingState")
-    ?.classList.remove("hidden");
+  const loadingEl =
+    document.getElementById("aiLoadingState");
+
+  loadingEl?.classList.remove("hidden");
+
+  loadingEl?.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 }
 
 async function waitForAIReport(leadId, requestTime) {
