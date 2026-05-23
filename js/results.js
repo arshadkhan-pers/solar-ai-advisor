@@ -745,7 +745,7 @@ function renderDynamicAIReport(report, result) {
   // SUMMARY
   document.getElementById("aiSummary").innerText =
     report.recommendationSummary || "";
-
+/*
   document.getElementById("aiInsightsSection")
   ?.scrollIntoView({
     behavior: "smooth",
@@ -766,7 +766,24 @@ document.getElementById("aiInsightsSection")
     behavior: "smooth",
     block: "start"
   });
-  
+  */
+requestAnimationFrame(() => {
+
+  const aiSection =
+    document.getElementById("aiInsightsSection");
+
+  if (!aiSection) return;
+
+  const y =
+    aiSection.getBoundingClientRect().top +
+    window.pageYOffset - 24;
+
+  window.scrollTo({
+    top: y,
+    behavior: "smooth"
+  });
+
+});
 }
 
 // new end////
