@@ -447,7 +447,7 @@ function setupBillUpload() {
 }
 
 // ✅ Populate captured data
-/*
+
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
@@ -459,9 +459,9 @@ function populateCapturedData() {
   if (name) name.value = params.get("name") || "";
   if (phone) phone.value = params.get("phone") || "";
   if (city) city.value = params.get("city") || "";
-  if (bill) bill.value = "₹" + (params.get("bill") || "");
+  if (bill) bill.value = params.get("bill") || "";
 }
-*/
+
 function setupEditableInputs() {
 
   const billInput =
@@ -843,7 +843,7 @@ if (bill > 0) {
   const result = calculateSolar(bill);
   renderResults(result, bill);
   setupBillUpload();
-//  populateCapturedData();
+  populateCapturedData();
   setupEditableInputs();
 } else {
   document.body.innerHTML = "Invalid Input";
