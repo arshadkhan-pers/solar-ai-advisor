@@ -766,6 +766,9 @@ function showAILoadingState() {
 
   document.getElementById("aiInsightsSection")
     ?.classList.add("hidden");
+    
+    document.getElementById("personaSection")
+  ?.classList.add("hidden");
 
   document.getElementById("pricingConfidenceSection")
     ?.classList.add("hidden");
@@ -879,6 +882,112 @@ function renderDynamicAIReport(report, result) {
   document.getElementById("aiSummary").innerText =
     report.recommendationSummary || "";
 
+// ===============================
+// 🧠 PERSONA ENGINE V2 RENDER
+// ===============================
+
+const personaPrimary =
+  report.personaV2?.primary || "Balanced Buyer";
+
+const personaSecondary =
+  report.personaV2?.secondary || "";
+
+const personaConfidence =
+  report.personaV2?.confidence || 85;
+
+const personaUrgency =
+  report.personaV2?.urgency || "Normal";
+
+const financingLikelihood =
+  report.personaV2?.financingLikelihood || "Low";
+
+const installerFit =
+  report.personaV2?.installerFit || "Moderate";
+
+const personaCharacteristics =
+  report.personaV2?.characteristics || [];
+
+const personaSummary =
+  report.personaV2?.summary || "";
+
+// Primary persona
+const primaryEl =
+  document.getElementById("personaPrimary");
+
+if (primaryEl) {
+  primaryEl.innerText = personaPrimary;
+}
+
+// Secondary persona
+const secondaryEl =
+  document.getElementById("personaSecondary");
+
+if (secondaryEl) {
+  secondaryEl.innerText = personaSecondary;
+}
+
+// Confidence
+const confidenceEl =
+  document.getElementById("personaConfidence");
+
+if (confidenceEl) {
+  confidenceEl.innerText =
+    `${personaConfidence}%`;
+}
+
+// Urgency
+const urgencyEl =
+  document.getElementById("personaUrgency");
+
+if (urgencyEl) {
+  urgencyEl.innerText = personaUrgency;
+}
+
+// Financing
+const financingEl =
+  document.getElementById("personaFinancing");
+
+if (financingEl) {
+  financingEl.innerText =
+    financingLikelihood;
+}
+
+// Installer fit
+const installerFitEl =
+  document.getElementById("personaInstallerFit");
+
+if (installerFitEl) {
+  installerFitEl.innerText =
+    installerFit;
+}
+
+// Summary
+const summaryEl =
+  document.getElementById("personaSummary");
+
+if (summaryEl) {
+  summaryEl.innerText =
+    personaSummary;
+}
+
+// Characteristics
+const traitsEl =
+  document.getElementById("personaTraits");
+
+if (traitsEl) {
+
+  traitsEl.innerHTML =
+    personaCharacteristics
+      .map(trait =>
+        `<li>${trait}</li>`
+      )
+      .join("");
+}
+
+// SHOW SECTION
+document.getElementById("personaSection")
+  ?.classList.remove("hidden");
+  
 // =========================
 // 💰 PRICING CONFIDENCE
 // =========================
