@@ -10,6 +10,100 @@ admin.initializeApp();
 // NEW TRIGGER: LEAD CONSULTATION FEASIBILITY REPORT (To Homeowner)
 // =====================================================================
 /* eslint-disable max-len */
+// =====================================================================
+// TRIGGER: INITIAL AI REPORT EMAIL
+// =====================================================================
+
+exports.triggerInitialLeadConsultationEmail =
+onDocumentCreated(
+{
+  document: "ai_reports/{reportId}",
+  region: "asia-south2"
+},
+async (event) => {
+
+  const aiSnapshot = event.data;
+
+  if (!aiSnapshot) return null;
+
+  const aiData = aiSnapshot.data();
+
+  if (!aiData.customerEmail) {
+    return null;
+  }
+
+  console.log(
+    "📧 Initial AI report email:",
+    event.params.reportId
+  );
+
+  try {
+
+    await admin.firestore()
+      .collection("mail")
+      .add({
+
+        to: aiData.customerEmail,
+
+        replyTo:
+          "arshad.khan8912@gmail.com",
+
+        message: {
+
+          subject:
+            `☀️ Your AI Solar Report: ${aiData.systemSizeKw || ""} kWp`,
+
+          html: `
+          <div style="font-family:Arial,sans-serif;padding:20px;">
+
+            <h2 style="color:#003366;">
+              Your AI Solar Report
+            </h2>
+
+            <p>
+              Your personalized solar feasibility report is now ready.
+            </p>
+
+            <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+
+              <tr>
+                <td style="padding:10px;border:1px solid #ddd;">
+                  Recommended System
+                </td>
+
+                <td style="padding:10px;border:1px solid #ddd;">
+                  <strong>${aiData.systemSizeKw} kWp</strong>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:10px;border:1px solid #ddd;">
+                  Estimated Subsidy
+                </td>
+
+                <td style="padding:10px;border:1px solid #ddd;">
+                  ₹${Number(aiData.totalSubsidy || 0).toLocaleString("en-IN")}
+                </td>
+              </tr>
+
+            </table>
+
+          </div>
+          `
+        }
+      });
+
+  } catch (error) {
+
+    console.error(
+      "Initial AI report email failed:",
+      error
+    );
+  }
+
+  return null;
+});
+
 exports.triggerLeadConsultationEmail = onDocumentUpdated(
 {
   document: "ai_reports/{reportId}",
@@ -25,6 +119,12 @@ async (event) => {
   const after = change.after.data();
 
   if (!before || !after) return null;
+  
+  // Ignore first creation event shadow updates
+
+if (!before.generatedAt) {
+  return null;
+}
 
   // Only trigger when generatedAt changes
 
