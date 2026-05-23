@@ -447,6 +447,7 @@ function setupBillUpload() {
 }
 
 // ✅ Populate captured data
+/*
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
@@ -459,6 +460,51 @@ function populateCapturedData() {
   if (phone) phone.value = params.get("phone") || "";
   if (city) city.value = params.get("city") || "";
   if (bill) bill.value = "₹" + (params.get("bill") || "");
+}
+*/
+function setupEditableInputs() {
+
+  const billInput =
+    document.getElementById("capturedBill");
+
+  const cityInput =
+    document.getElementById("capturedCity");
+
+  if (!billInput) return;
+
+  billInput.addEventListener("change", () => {
+
+    const newBill =
+      parseFloat(billInput.value);
+
+    if (!newBill || newBill < 500) {
+      return;
+    }
+
+    // Update URL
+    const params =
+      new URLSearchParams(window.location.search);
+
+    params.set("bill", newBill);
+
+    if (cityInput?.value) {
+      params.set("city", cityInput.value);
+    }
+
+    history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${params.toString()}`
+    );
+
+    // Recalculate
+    const result =
+      calculateSolar(newBill);
+
+    renderResults(result, newBill);
+
+  });
+
 }
 
 // ===============================
@@ -797,7 +843,8 @@ if (bill > 0) {
   const result = calculateSolar(bill);
   renderResults(result, bill);
   setupBillUpload();
-  populateCapturedData();
+//  populateCapturedData();
+  setupEditableInputs();
 } else {
   document.body.innerHTML = "Invalid Input";
 }
