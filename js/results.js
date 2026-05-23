@@ -767,6 +767,12 @@ function showAILoadingState() {
   document.getElementById("aiInsightsSection")
     ?.classList.add("hidden");
 
+  document.getElementById("pricingConfidenceSection")
+    ?.classList.add("hidden");
+
+  document.getElementById("buyerProtectionSection")
+    ?.classList.add("hidden");
+  
   const loadingEl =
     document.getElementById("aiLoadingState");
 
