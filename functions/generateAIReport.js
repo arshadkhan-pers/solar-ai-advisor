@@ -144,15 +144,125 @@ if (after.stage !== "qualified") {
     if (after.connectionType === "Residential") trustScore += 5;
     trustScore = Math.min(trustScore, 98);
 
+    
     // =========================
-    // PERSONA ENGINE
+    // PERSONA ENGINE V2
     // =========================
-    let persona = "Balanced Buyer";
-    if (after.bill >= 5000) persona = "ROI Focused";
-    if (after.billUploaded === "Yes") persona = "Research Driven";
-    if (after.propertyType === "Independent House" && after.rooftopOwnership?.includes("Yes")) {
-      persona = "Solar Ready";
-    }
+
+// Legacy persona (DO NOT REMOVE)
+let persona = "Balanced Buyer";
+
+if (after.bill >= 5000) {
+  persona = "ROI Focused";
+}
+
+if (after.billUploaded === "Yes") {
+  persona = "Research Driven";
+}
+
+if (
+  after.propertyType === "Independent House" &&
+  after.rooftopOwnership?.includes("Yes")
+) {
+  persona = "Solar Ready";
+}
+
+// ====================================
+// NEW ADVANCED PERSONA ENGINE
+// ====================================
+
+let primaryPersona = "Balanced Buyer";
+let secondaryPersona = "Savings Focused";
+
+const characteristics = [];
+
+// HIGH BILL USERS
+if (after.bill >= 6000) {
+  primaryPersona = "ROI Maximizer";
+  secondaryPersona = "Premium Energy Consumer";
+
+  characteristics.push(
+    "High electricity consumption"
+  );
+
+  characteristics.push(
+    "Strong long-term savings potential"
+  );
+}
+
+// ROOFTOP READY
+if (
+  after.propertyType === "Independent House" &&
+  after.rooftopOwnership?.includes("Yes")
+) {
+
+  secondaryPersona = "Installation Ready";
+
+  characteristics.push(
+    "Independent rooftop ownership"
+  );
+}
+
+// RESEARCH-ORIENTED USERS
+if (after.billUploaded === "Yes") {
+
+  characteristics.push(
+    "Research-oriented decision maker"
+  );
+}
+
+// LOW RISK USER
+if (
+  after.connectionType === "Residential"
+) {
+
+  characteristics.push(
+    "Stable residential usage profile"
+  );
+}
+
+// TRUST-BASED INSTALLER FIT
+let installerFit = "Moderate";
+
+if (trustScore >= 80) {
+  installerFit = "Excellent";
+}
+else if (trustScore >= 65) {
+  installerFit = "Strong";
+}
+
+// FINANCING LIKELIHOOD
+let financingLikelihood = "Low";
+
+if (after.bill >= 4000) {
+  financingLikelihood = "Medium";
+}
+
+if (after.bill >= 7000) {
+  financingLikelihood = "High";
+}
+
+// URGENCY
+let urgency = "Normal";
+
+if (after.bill >= 5000) {
+  urgency = "High";
+}
+
+// PERSONA SUMMARY
+const personaSummary =
+  `${primaryPersona} profile with ${installerFit.toLowerCase()} installer compatibility and ${financingLikelihood.toLowerCase()} financing suitability.`;
+
+const personaV2 = {
+  primary: primaryPersona,
+  secondary: secondaryPersona,
+  confidence: Math.min(trustScore + 8, 99),
+  urgency: urgency,
+  financingLikelihood: financingLikelihood,
+  installerFit: installerFit,
+  characteristics: characteristics,
+  summary: personaSummary
+};
 
     // =========================
     // AI INSIGHTS
@@ -206,6 +316,8 @@ await db.collection("ai_reports")
       type: persona,
       confidence: Math.min(trustScore + 5, 99)
     },
+
+    personaV2: personaV2,
 
     pricingConfidence: {
       level: pricingLevel,
