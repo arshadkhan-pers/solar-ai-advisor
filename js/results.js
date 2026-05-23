@@ -872,28 +872,87 @@ function renderDynamicAIReport(report, result) {
   // SUMMARY
   document.getElementById("aiSummary").innerText =
     report.recommendationSummary || "";
-/*
-  document.getElementById("aiInsightsSection")
-  ?.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
 
-setTimeout(() => {
+// =========================
+// 💰 PRICING CONFIDENCE
+// =========================
 
-  window.scrollBy({
-    top: -40,
-    behavior: "smooth"
-  });
+const pricingSection =
+  document.getElementById(
+    "pricingConfidenceSection"
+  );
 
-}, 300);
+pricingSection?.classList.remove("hidden");
 
-document.getElementById("aiInsightsSection")
-  ?.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-  */
+const pricingLevel =
+  report.pricingConfidence?.level || "Moderate";
+
+document.getElementById(
+  "pricingConfidenceLevel"
+).innerText = pricingLevel;
+
+document.getElementById(
+  "pricingConfidenceMessage"
+).innerText =
+  report.pricingConfidence?.message ||
+  "Estimated pricing appears aligned with expected market ranges.";
+
+let pricingWidth = 65;
+
+if (pricingLevel === "High") {
+  pricingWidth = 90;
+}
+
+if (pricingLevel === "Moderate") {
+  pricingWidth = 70;
+}
+
+document.getElementById(
+  "pricingConfidenceBar"
+).style.width = `${pricingWidth}%`;
+
+
+// =========================
+// 🛡️ BUYER PROTECTION
+// =========================
+
+const buyerSection =
+  document.getElementById(
+    "buyerProtectionSection"
+  );
+
+buyerSection?.classList.remove("hidden");
+
+const protectionList =
+  document.getElementById(
+    "buyerProtectionList"
+  );
+
+const checklist =
+  report.buyerProtectionChecklist || [];
+
+protectionList.innerHTML = "";
+
+checklist.forEach((item) => {
+
+  protectionList.innerHTML += `
+
+    <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
+
+      <div class="text-emerald-600 text-lg mt-0.5">
+        ✔
+      </div>
+
+      <p class="text-sm text-slate-700 leading-relaxed">
+        ${item}
+      </p>
+
+    </div>
+
+  `;
+
+});
+
 requestAnimationFrame(() => {
 
   const aiSection =
