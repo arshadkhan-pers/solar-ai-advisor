@@ -190,30 +190,29 @@ text-align:center;
 
             </div>
 
-            <div style="margin-top:30px; text-align:center;">
 
-              <a href="${waLink}"
-                 style="background:#25D366; color:white; padding:14px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">
 
-                Chat on WhatsApp
-
+<div style="text-align: center; margin: 30px 0;">
+              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
+                💬 Chat with Advisor on WhatsApp
               </a>
-
+              <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
+                Or Call Support directly: <br/>
+                <a href="tel:+919235169031" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 92351 69031</a> <br/>
+                <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
+              </p>
             </div>
 
+            <hr style="border: 0; border-top: 1px solid #eee;" />
+            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey.</p>
           </div>
-          `
-        }
-      });
-
+        `
+      }
+    });
+    console.log(`[triggerLeadConsultationEmail] Full AI report successfully sent for ${leadId}`);
   } catch (error) {
-
-    console.error(
-      "Initial AI report email failed:",
-      error
-    );
+    console.error("Error sending Full AI report email:", error);
   }
-
   return null;
 });
 
@@ -424,34 +423,27 @@ text-align:center;
 
             </div>
 
-            <div style="margin-top:30px; text-align:center;">
-
-              <a href="${waLink}"
-                 style="background:#25D366; color:white; padding:14px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">
-
-                Chat on WhatsApp
-
+<div style="text-align: center; margin: 30px 0;">
+              <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
+                💬 Chat with Advisor on WhatsApp
               </a>
-
+              <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
+                Or Call Support directly: <br/>
+                <a href="tel:+919235169031" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 92351 69031</a> <br/>
+                <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
+              </p>
             </div>
 
+            <hr style="border: 0; border-top: 1px solid #eee;" />
+            <p style="font-size: 11px; color: #999; text-align: center;">Final feasibility subject to <strong>10/50 Shadow Rule</strong> verification during physical site survey.</p>
           </div>
-          `
-        }
-      });
-
-    console.log(
-      "✅ Updated AI report email queued"
-    );
-
+        `
+      }
+    });
+    console.log(`[triggerLeadConsultationEmail] Full AI report successfully sent for ${leadId}`);
   } catch (error) {
-
-    console.error(
-      "Updated AI report email failed:",
-      error
-    );
+    console.error("Error sending Full AI report email:", error);
   }
-
   return null;
 });
 
