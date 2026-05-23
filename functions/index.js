@@ -233,6 +233,203 @@ exports.triggerLeadConsultationEmail = onDocumentCreated({ document: "ai_reports
   return null;
 });
 
+// =====================================================================
+// TRIGGER: REGENERATED AI REPORT EMAIL
+// =====================================================================
+
+exports.triggerUpdatedLeadConsultationEmail =
+onDocumentUpdated(
+{
+  document: "ai_reports/{reportId}",
+  region: "asia-south2"
+},
+async (event) => {
+
+  const change = event.data;
+
+  if (!change) return null;
+
+  const before = change.before.data();
+  const after = change.after.data();
+
+  if (!before || !after) return null;
+
+  // Only resend if report regenerated
+  const beforeTime =
+    before.generatedAt?.toMillis?.() || 0;
+
+  const afterTime =
+    after.generatedAt?.toMillis?.() || 0;
+
+  if (afterTime <= beforeTime) {
+    return null;
+  }
+
+  console.log(
+    "📧 Regenerated AI report detected:",
+    event.params.reportId
+  );
+
+  // Prevent duplicate logic:
+  // reuse existing mail payload generator
+
+  const supportNumber = "61404166347";
+
+  if (!after.customerEmail) {
+    console.warn(
+      "No customer email found"
+    );
+
+    return null;
+  }
+
+  try {
+
+    const {
+      customerEmail,
+      customerName,
+      systemSizeKw,
+      totalSubsidy,
+      netCost,
+      city,
+      state,
+      leadCode,
+      trustScore,
+      persona,
+      aiInsights,
+      buyerProtectionChecklist
+    } = after;
+
+    const leadIdentifier =
+      leadCode || event.params.reportId;
+
+    const waMessage =
+      encodeURIComponent(
+        `Hi Solar AI Advisor, I received my updated ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}.`
+      );
+
+    const waLink =
+      `https://wa.me/${supportNumber}?text=${waMessage}`;
+
+    const insightsHtml =
+      aiInsights?.map(
+        i => `<li style="margin-bottom: 5px;">${i}</li>`
+      ).join('') || "";
+
+    const checklistHtml =
+      buyerProtectionChecklist?.map(
+        c => `<li style="margin-bottom: 5px;">${c}</li>`
+      ).join('') || "";
+
+    await admin.firestore()
+      .collection("mail")
+      .add({
+
+        to: customerEmail,
+
+        replyTo:
+          "arshad.khan8912@gmail.com",
+
+        message: {
+
+          subject:
+            `🔄 Updated AI Solar Report for ${customerName}`,
+
+          html: `
+          <div style="font-family: Arial, sans-serif; padding:20px;">
+
+            <h2 style="color:#003366;">
+              Your Updated AI Solar Report
+            </h2>
+
+            <p>
+              We detected updated information in your profile and regenerated your personalized solar analysis.
+            </p>
+
+            <table style="width:100%; border-collapse:collapse; margin-top:20px;">
+
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">
+                  Recommended System
+                </td>
+
+                <td style="padding:10px; border:1px solid #ddd;">
+                  <strong>${systemSizeKw} kWp</strong>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">
+                  Estimated Subsidy
+                </td>
+
+                <td style="padding:10px; border:1px solid #ddd;">
+                  ₹${Number(totalSubsidy || 0).toLocaleString("en-IN")}
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">
+                  Estimated Net Cost
+                </td>
+
+                <td style="padding:10px; border:1px solid #ddd;">
+                  ₹${Number(netCost || 0).toLocaleString("en-IN")}
+                </td>
+              </tr>
+
+            </table>
+
+            <h3 style="margin-top:30px;">
+              AI Insights
+            </h3>
+
+            <ul>
+              ${insightsHtml}
+            </ul>
+
+            <div style="background:#fff9e6; padding:15px; margin-top:25px; border-left:4px solid #ffcc00;">
+
+              <strong>
+                Buyer Protection Checklist
+              </strong>
+
+              <ul style="margin-top:10px;">
+                ${checklistHtml}
+              </ul>
+
+            </div>
+
+            <div style="margin-top:30px; text-align:center;">
+
+              <a href="${waLink}"
+                 style="background:#25D366; color:white; padding:14px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">
+
+                Chat on WhatsApp
+
+              </a>
+
+            </div>
+
+          </div>
+          `
+        }
+      });
+
+    console.log(
+      "✅ Updated AI report email queued"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Updated AI report email failed:",
+      error
+    );
+  }
+
+  return null;
+});
 
   //PHASE 2 — LINK GENERATE AI REPORT TRIGGER
 const { generateAIReport } = require("./generateAIReport");
