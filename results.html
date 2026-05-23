@@ -59,21 +59,45 @@
     }
   </script>
 
-  <style>
-    body {
-      /* Smooth rendering for premium feel */
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      
-      html {
-            scroll-behavior: smooth;
-           }
-           .animate-blob {
-            will-change: transform;
-            transform: translateZ(0);
-                         }
-          }
-  </style>
+ <style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .animate-blob {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  .metricCard {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.metricLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+</style>
+
 </head>
 
 <body class="text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
@@ -542,12 +566,7 @@
   </div>
 
   <div
-    style="
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-      margin-top:24px;
-    "
+    class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6"
   >
 
     <div class="metricCard">
@@ -588,6 +607,20 @@
         Medium
       </div>
     </div>
+
+<div class="metricCard">
+  <div class="metricLabel">
+    Urgency
+  </div>
+
+  <div
+    id="personaUrgency"
+    class="metricValue"
+  >
+    Normal
+  </div>
+</div>
+
 
   </div>
 
