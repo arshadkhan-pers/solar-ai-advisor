@@ -325,10 +325,50 @@ if (!before.generatedAt) {
             <h2 style="color:#003366;">
               Your Updated AI Solar Report
             </h2>
-
+           <div style="font-size:12px;color:#777;margin-bottom:15px;">
+                Reference ID: ${leadIdentifier}
+          </div>
             <p>
               We detected updated information in your profile and regenerated your personalized solar analysis.
             </p>
+<div style="
+background:#f0f7ff;
+padding:15px;
+border-radius:8px;
+margin-top:20px;
+margin-bottom:20px;
+text-align:center;
+">
+
+  <div style="
+  font-size:12px;
+  color:#003366;
+  font-weight:bold;
+  text-transform:uppercase;
+  ">
+    User Profile
+  </div>
+
+  <h3 style="
+  margin:6px 0;
+  color:#003366;
+  ">
+    ${persona?.type || "Balanced Buyer"}
+  </h3>
+
+  <p style="
+  margin:0;
+  color:#555;
+  font-size:13px;
+  ">
+    AI Confidence:
+    ${persona?.confidence || 90}%
+    |
+    Trust Score:
+    ${trustScore || 50}/100
+  </p>
+
+</div>
 
             <table style="width:100%; border-collapse:collapse; margin-top:20px;">
 
