@@ -64,7 +64,15 @@
       /* Smooth rendering for premium feel */
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-    }
+      
+      html {
+            scroll-behavior: smooth;
+           }
+           .animate-blob {
+            will-change: transform;
+            transform: translateZ(0);
+                         }
+          }
   </style>
 </head>
 
@@ -79,9 +87,9 @@
 
 <!-- 3. Animated Glowing Orbs (Mesh Gradient Effect) -->
 <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[120px] animate-blob"></div>
-  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 2s"></div>
-  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[120px] animate-blob" style="animation-delay: 4s"></div>
+  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[80px] animate-blob"></div>
+  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[80px] animate-blob" style="animation-delay: 2s"></div>
+  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[80px] animate-blob" style="animation-delay: 4s"></div>
 </div>
 
 <!-- MAIN CONTENT -->
