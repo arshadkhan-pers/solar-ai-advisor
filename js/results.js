@@ -470,9 +470,15 @@ function setupEditableInputs() {
   const cityInput =
     document.getElementById("capturedCity");
 
-  if (!billInput) return;
+  const nameInput =
+    document.getElementById("capturedName");
 
-  billInput.addEventListener("change", () => {
+  const leadId =
+    localStorage.getItem("leadId");
+
+  if (!billInput || !leadId) return;
+
+  async function syncLeadChanges() {
 
     const newBill =
       parseFloat(billInput.value);
@@ -481,14 +487,26 @@ function setupEditableInputs() {
       return;
     }
 
-    // Update URL
+    const newCity =
+      cityInput?.value?.trim() || "";
+
+    const newName =
+      nameInput?.value?.trim() || "";
+
+    // =========================
+    // UPDATE URL
+    // =========================
     const params =
       new URLSearchParams(window.location.search);
 
     params.set("bill", newBill);
 
-    if (cityInput?.value) {
-      params.set("city", cityInput.value);
+    if (newCity) {
+      params.set("city", newCity);
+    }
+
+    if (newName) {
+      params.set("name", newName);
     }
 
     history.replaceState(
@@ -497,13 +515,76 @@ function setupEditableInputs() {
       `${window.location.pathname}?${params.toString()}`
     );
 
-    // Recalculate
+    // =========================
+    // INSTANT UI RECALCULATION
+    // =========================
     const result =
       calculateSolar(newBill);
 
     renderResults(result, newBill);
 
-  });
+    // =========================
+    // FIRESTORE UPDATE
+    // =========================
+    try {
+
+      showAILoadingState();
+
+      const requestTime = Date.now();
+
+      await db.collection("leads")
+        .doc(leadId)
+        .update({
+
+          bill: newBill,
+          city: newCity,
+          name: newName,
+
+          aiRegenerationRequired: true,
+
+          updatedAt:
+            firebase.firestore.FieldValue.serverTimestamp()
+
+        });
+
+      // Wait for regenerated AI report
+      const aiReport =
+        await waitForAIReport(
+          leadId,
+          requestTime
+        );
+
+      renderDynamicAIReport(
+        aiReport,
+        result
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Editable sync failed:",
+        error
+      );
+
+    }
+
+  }
+
+  // Trigger only after user finishes editing
+  billInput.addEventListener(
+    "change",
+    syncLeadChanges
+  );
+
+  cityInput?.addEventListener(
+    "change",
+    syncLeadChanges
+  );
+
+  nameInput?.addEventListener(
+    "change",
+    syncLeadChanges
+  );
 
 }
 
