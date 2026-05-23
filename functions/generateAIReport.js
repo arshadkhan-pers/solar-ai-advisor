@@ -232,20 +232,41 @@ else if (trustScore >= 65) {
 }
 
 // FINANCING LIKELIHOOD
-let financingLikelihood = "Low";
+// =========================
+// FINANCING LIKELIHOOD
+// =========================
 
-if (after.bill >= 4000) {
-  financingLikelihood = "Medium";
-}
+let financingLikelihood = "Medium";
 
-if (after.bill >= 7000) {
+// Higher bills → stronger EMI suitability
+if (after.bill >= 6000) {
   financingLikelihood = "High";
 }
 
-// URGENCY
-let urgency = "Normal";
+// Lower bills but subsidy-sensitive
+if (
+  after.bill < 3000 &&
+  after.propertyType === "Independent House"
+) {
+  financingLikelihood = "Subsidy Optimized";
+}
 
+// =========================
+// URGENCY ENGINE
+// =========================
+
+let urgency = "Moderate";
+
+// High electricity burden
 if (after.bill >= 5000) {
+  urgency = "High";
+}
+
+// Strong rooftop ownership increases conversion intent
+if (
+  after.rooftopOwnership?.includes("Yes") &&
+  after.bill >= 2500
+) {
   urgency = "High";
 }
 
