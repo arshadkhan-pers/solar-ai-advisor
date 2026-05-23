@@ -38,55 +38,168 @@ async (event) => {
   );
 
   try {
+    const {
+  customerEmail,
+  customerName,
+  systemSizeKw,
+  totalSubsidy,
+  netCost,
+  city,
+  state,
+  leadCode,
+  trustScore,
+  persona,
+  aiInsights,
+  buyerProtectionChecklist
+} = aiData;
+
+const supportNumber = "61404166347";
+const leadIdentifier = leadCode || event.params.reportId;
+const waMessage =
+  encodeURIComponent(
+    `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}.`
+  );
+
+const waLink =
+  `https://wa.me/${supportNumber}?text=${waMessage}`;
+  
+  const insightsHtml =
+  aiInsights?.map(
+    i => `<li style="margin-bottom: 5px;">${i}</li>`
+  ).join('') || "";
+
+const checklistHtml =
+  buyerProtectionChecklist?.map(
+    c => `<li style="margin-bottom: 5px;">${c}</li>`
+  ).join('') || "";
 
     await admin.firestore()
       .collection("mail")
       .add({
 
-        to: aiData.customerEmail,
+        to: customerEmail,
 
         replyTo:
           "arshad.khan8912@gmail.com",
 
         message: {
-
           subject:
-            `☀️ Your AI Solar Report: ${aiData.systemSizeKw || ""} kWp`,
+            `☀️ Your AI Solar Report: ${systemSizeKw || ""} kWp`,
 
           html: `
-          <div style="font-family:Arial,sans-serif;padding:20px;">
+          <div style="font-family: Arial, sans-serif; padding:20px;">
 
             <h2 style="color:#003366;">
               Your AI Solar Report
             </h2>
-
+          <div style="font-size:12px;color:#777;margin-bottom:15px;">
+                Reference ID: ${leadIdentifier}
+          </div>
             <p>
               Your personalized solar feasibility report is now ready.
             </p>
+<div style="
+background:#f0f7ff;
+padding:15px;
+border-radius:8px;
+margin-top:20px;
+margin-bottom:20px;
+text-align:center;
+">
 
-            <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+  <div style="
+  font-size:12px;
+  color:#003366;
+  font-weight:bold;
+  text-transform:uppercase;
+  ">
+    User Profile
+  </div>
+
+  <h3 style="
+  margin:6px 0;
+  color:#003366;
+  ">
+    ${persona?.type || "Balanced Buyer"}
+  </h3>
+
+  <p style="
+  margin:0;
+  color:#555;
+  font-size:13px;
+  ">
+    AI Confidence:
+    ${persona?.confidence || 90}%
+    |
+    Trust Score:
+    ${trustScore || 50}/100
+  </p>
+
+</div>
+            <table style="width:100%; border-collapse:collapse; margin-top:20px;">
 
               <tr>
-                <td style="padding:10px;border:1px solid #ddd;">
+                <td style="padding:10px; border:1px solid #ddd;">
                   Recommended System
                 </td>
 
-                <td style="padding:10px;border:1px solid #ddd;">
-                  <strong>${aiData.systemSizeKw} kWp</strong>
+                <td style="padding:10px; border:1px solid #ddd;">
+                  <strong>${systemSizeKw} kWp</strong>
                 </td>
               </tr>
 
               <tr>
-                <td style="padding:10px;border:1px solid #ddd;">
+                <td style="padding:10px; border:1px solid #ddd;">
                   Estimated Subsidy
                 </td>
 
-                <td style="padding:10px;border:1px solid #ddd;">
-                  ₹${Number(aiData.totalSubsidy || 0).toLocaleString("en-IN")}
+                <td style="padding:10px; border:1px solid #ddd;">
+                  ₹${Number(totalSubsidy || 0).toLocaleString("en-IN")}
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">
+                  Estimated Net Cost
+                </td>
+
+                <td style="padding:10px; border:1px solid #ddd;">
+                  ₹${Number(netCost || 0).toLocaleString("en-IN")}
                 </td>
               </tr>
 
             </table>
+
+            <h3 style="margin-top:30px;">
+              AI Insights
+            </h3>
+
+            <ul>
+              ${insightsHtml}
+            </ul>
+
+            <div style="background:#fff9e6; padding:15px; margin-top:25px; border-left:4px solid #ffcc00;">
+
+              <strong>
+                Buyer Protection Checklist
+              </strong>
+
+              <ul style="margin-top:10px;">
+                ${checklistHtml}
+              </ul>
+
+            </div>
+
+            <div style="margin-top:30px; text-align:center;">
+
+              <a href="${waLink}"
+                 style="background:#25D366; color:white; padding:14px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">
+
+                Chat on WhatsApp
+
+              </a>
+
+            </div>
 
           </div>
           `
