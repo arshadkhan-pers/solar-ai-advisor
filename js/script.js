@@ -229,6 +229,10 @@ async function submitLeadAndContinue() {
     localStorage.setItem("leadId", docRef.id);
     const state = localStorage.getItem("state");
 
+    localStorage.setItem("leadName", name);
+    localStorage.setItem("leadPhone", phone);
+    localStorage.setItem("leadCity", city);
+    localStorage.setItem("leadBill", bill);
     window.location.href = `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 
   } catch (error) {
