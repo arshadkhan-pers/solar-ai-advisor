@@ -664,6 +664,162 @@ const personaV2 = {
     salesComplexity
 };
 
+// =========================
+// REAL INSTALLER MATCHING ENGINE
+// =========================
+
+let matchedInstallers = [];
+
+try {
+
+  const installersSnapshot =
+    await db.collection("installers")
+      .where("status", "==", "approved")
+      .get();
+
+  installersSnapshot.forEach((doc) => {
+
+    const installer = doc.data();
+
+    let installerScore = 50;
+
+    // =========================
+    // STATE MATCH
+    // =========================
+    if (
+      installer.state === state
+    ) {
+      installerScore += 20;
+    }
+
+    // =========================
+    // CITY / SERVICE AREA MATCH
+    // =========================
+    const serviceAreas =
+      installer.serviceAreas || [];
+
+    if (
+      serviceAreas.includes(city)
+    ) {
+      installerScore += 15;
+    }
+
+    // =========================
+    // FINANCING MATCH
+    // =========================
+    if (
+      financingLikelihood === "High" &&
+      installer.financingSupported === true
+    ) {
+      installerScore += 15;
+    }
+
+    // =========================
+    // PREMIUM LEAD MATCH
+    // =========================
+    if (
+      leadValueScore >= 85 &&
+      installer.premiumInstaller === true
+    ) {
+      installerScore += 15;
+    }
+
+    // =========================
+    // SUBSIDY MATCH
+    // =========================
+    if (
+      savingsPersonality === "Subsidy Optimized" &&
+      installer.subsidySupport === true
+    ) {
+      installerScore += 10;
+    }
+
+    // =========================
+    // SYSTEM SIZE MATCH
+    // =========================
+    const minSystemSize =
+      installer.minSystemSize || 1;
+
+    const maxSystemSize =
+      installer.maxSystemSize || 20;
+
+    if (
+      systemSize >= minSystemSize &&
+      systemSize <= maxSystemSize
+    ) {
+      installerScore += 10;
+    }
+
+    // =========================
+    // EXPERIENCE BONUS
+    // =========================
+    const ratingScore =
+      installer.ratingScore || 4;
+
+    installerScore +=
+      Math.round(ratingScore * 2);
+
+    // =========================
+    // RESPONSE PRIORITY
+    // =========================
+    installerScore +=
+      installer.responsePriority || 0;
+
+    // =========================
+    // FINAL CAP
+    // =========================
+    installerScore =
+      Math.min(installerScore, 99);
+
+    matchedInstallers.push({
+
+      installerId:
+        doc.id,
+
+      businessName:
+        installer.businessName || "Installer",
+
+      city:
+        installer.baseCity || "",
+
+      installerType:
+        installer.installerType || "Standard",
+
+      score:
+        installerScore,
+
+      reason:
+        financingLikelihood === "High"
+          ? "Financing-compatible installer"
+          : leadValueScore >= 85
+            ? "Premium lead compatibility"
+            : "Strong regional compatibility"
+
+    });
+
+  });
+
+  // =========================
+  // SORT BEST FIRST
+  // =========================
+  matchedInstallers.sort(
+    (a, b) => b.score - a.score
+  );
+
+  // Keep top 3
+  matchedInstallers =
+    matchedInstallers.slice(0, 3);
+
+}
+catch (error) {
+
+  console.error(
+    "Installer matching failed:",
+    error
+  );
+
+}
+
 
     // =========================
     // AI INSIGHTS
@@ -719,7 +875,9 @@ await db.collection("ai_reports")
     },
 
     personaV2: personaV2,
-
+    matchedInstallers:
+     matchedInstallers,
+  
     pricingConfidence: {
       level: pricingLevel,
       message:
