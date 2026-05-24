@@ -439,6 +439,27 @@ const installerPriority =
     after,
     trustScore
   );
+if (
+  financingLikelihood === "High"
+) {
+  matchedInstallerTier =
+    "Financing";
+}
+
+if (
+  savingsPersonality ===
+  "Subsidy Optimized"
+) {
+  matchedInstallerTier =
+    "Subsidy Specialist";
+}
+
+if (
+  leadValueScore >= 85
+) {
+  matchedInstallerTier =
+    "Premium";
+}
 
 /***
 // =========================
