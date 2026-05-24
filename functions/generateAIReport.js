@@ -132,8 +132,8 @@ if (after.stage !== "qualified") {
       netCost: netCost,
       centralSubsidy: centralSubsidy,
       stateSubsidy: stateSubsidy,
-      calculatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      aiRegenerationRequired: false
+      calculatedAt: admin.firestore.FieldValue.serverTimestamp()
+     // aiRegenerationRequired: false
     });
 
     // =========================
@@ -453,6 +453,52 @@ if (
 }
 
 // =========================
+// CONVERSION PROBABILITY ENGINE
+// =========================
+
+let conversionProbability = 45;
+
+// Strong bill economics
+if (after.bill >= 3000) {
+  conversionProbability += 15;
+}
+
+// Premium energy users
+if (after.bill >= 6000) {
+  conversionProbability += 10;
+}
+
+// Rooftop ownership
+if (
+  after.rooftopOwnership?.includes("Yes")
+) {
+  conversionProbability += 15;
+}
+
+// Independent house
+if (
+  after.propertyType === "Independent House"
+) {
+  conversionProbability += 10;
+}
+
+// Uploaded bill = serious buyer
+if (
+  after.billUploaded === "Yes"
+) {
+  conversionProbability += 10;
+}
+
+// Trust score boost
+if (trustScore >= 80) {
+  conversionProbability += 10;
+}
+
+// Cap at 98
+conversionProbability =
+  Math.min(conversionProbability, 98);
+  
+// =========================
 // LEAD QUALITY DASHBOARD
 // =========================
 
@@ -519,7 +565,7 @@ let salesComplexity =
 
 if (
   after.propertyType ===
-  "Apartment"
+  "Apartment / Independent House"
 ) {
 
   salesComplexity =
@@ -534,52 +580,6 @@ if (
   salesComplexity =
     "Low";
 }
-
-// =========================
-// CONVERSION PROBABILITY ENGINE
-// =========================
-
-let conversionProbability = 45;
-
-// Strong bill economics
-if (after.bill >= 3000) {
-  conversionProbability += 15;
-}
-
-// Premium energy users
-if (after.bill >= 6000) {
-  conversionProbability += 10;
-}
-
-// Rooftop ownership
-if (
-  after.rooftopOwnership?.includes("Yes")
-) {
-  conversionProbability += 15;
-}
-
-// Independent house
-if (
-  after.propertyType === "Independent House"
-) {
-  conversionProbability += 10;
-}
-
-// Uploaded bill = serious buyer
-if (
-  after.billUploaded === "Yes"
-) {
-  conversionProbability += 10;
-}
-
-// Trust score boost
-if (trustScore >= 80) {
-  conversionProbability += 10;
-}
-
-// Cap at 98
-conversionProbability =
-  Math.min(conversionProbability, 98);
 
 // =========================
 // CONVERSION LABEL
