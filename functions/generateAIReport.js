@@ -417,9 +417,9 @@ await db.collection("ai_reports")
     trustScore: trustScore,
 
     persona: {
-      type: persona,
-      confidence: Math.min(trustScore + 5, 99)
-    },
+  type: primaryPersona,
+  confidence: Math.min(trustScore + 8, 99)
+},
 
     personaV2: personaV2,
     matchedInstallers:
