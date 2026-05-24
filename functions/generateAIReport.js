@@ -3,6 +3,7 @@
 //const functions = require("firebase-functions");
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
+const {calculateCentralSubsidy,calculateStateSubsidy} = require("./engines/subsidyEngine");
 const {
   calculateInstallerIntelligence
 } = require("./engines/installerScoringEngine");
