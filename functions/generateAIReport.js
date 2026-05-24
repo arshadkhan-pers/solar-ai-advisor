@@ -36,6 +36,13 @@ const {
   calculateInstallerMatches
 } = require("./engines/installerMatchingEngine");
 
+const {
+  generateAIInsights,
+  generateBuyerProtectionChecklist,
+  generatePricingConfidence,
+  generateRecommendationSummary
+} = require("./templates/insightsTemplates");
+
 
 const db = admin.firestore();
 
@@ -356,182 +363,6 @@ const personaV2 = {
     salesComplexity
 };
 
-/***
-
-// =========================
-// REAL INSTALLER MATCHING ENGINE
-// =========================
-
-let matchedInstallers = [];
-
-try {
-
-  const installersSnapshot =
-    await db.collection("installers")
-      .where("status", "==", "approved")
-      .get();
-
-  installersSnapshot.forEach((doc) => {
-
-    const installer = doc.data();
-    const installerAI = calculateInstallerIntelligence(installer);
-
-    let installerScore = 20;
-
-    // =========================
-    // STATE MATCH
-    // =========================
-    if (
-      installer.state === state
-    ) {
-      installerScore += 15;
-    }
-
-    // =========================
-    // CITY / SERVICE AREA MATCH
-    // =========================
-    const serviceAreas =
-      installer.serviceAreas || [];
-
-    if (
-      serviceAreas.includes(city)
-    ) {
-      installerScore += 20;
-    }
-
-    // =========================
-    // FINANCING MATCH
-    // =========================
-    if (
-      financingLikelihood === "High" &&
-      installer.financingSupported === true
-    ) {
-      installerScore += 15;
-    }
-
-    // =========================
-    // PREMIUM LEAD MATCH
-    // =========================
-    if (
-      leadValueScore >= 85 &&
-      installer.premiumInstaller === true
-    ) {
-      installerScore += 15;
-    }
-
-// =========================
-// PREMIUM MISMATCH PENALTY
-// =========================
-
-if (
-  leadValueScore < 80 &&
-  installer.premiumInstaller === true
-) {
-  installerScore -= 15;
-}
-
-    // =========================
-    // SUBSIDY MATCH
-    // =========================
-    if (
-      savingsPersonality === "Subsidy Optimized" &&
-      installer.subsidySupport === true
-    ) {
-      installerScore += 10;
-    }
-
-    // =========================
-    // SYSTEM SIZE MATCH
-    // =========================
-    const minSystemSize =
-      installer.minSystemSize || 1;
-
-    const maxSystemSize =
-      installer.maxSystemSize || 20;
-
-    if (
-      systemSize >= minSystemSize &&
-      systemSize <= maxSystemSize
-    ) {
-      installerScore += 10;
-    }
-
-    // =========================
-    // EXPERIENCE BONUS
-    // =========================
-
-      installerScore +=
-  Math.round(
-    installerAI.overallScore / 10
-  );
-
-    
-
-    // =========================
-    // RESPONSE PRIORITY
-    // =========================
-  
-  installerScore += Math.min(
-  installer.responsePriority || 0,10);
-    // =========================
-    // FINAL CAP
-    // =========================
-    installerScore =
-      Math.min(installerScore, 99);
-
-    matchedInstallers.push({
-
-      installerId:
-        doc.id,
-
-      businessName:
-        installer.businessName || "Installer",
-
-      city:
-        installer.baseCity || "",
-
-      installerType:
-        installer.installerType || "Standard",
-
-      score:
-        installerScore,
-        
-      installerAI:
-        installerAI,
-
-      reason:
-        financingLikelihood === "High"
-          ? "Financing-compatible installer"
-          : leadValueScore >= 85
-            ? "Premium lead compatibility"
-            : "Strong regional compatibility"
-
-    });
-
-  });
-
-  // =========================
-  // SORT BEST FIRST
-  // =========================
-  matchedInstallers.sort(
-    (a, b) => b.score - a.score
-  );
-
-  // Keep top 3
-  matchedInstallers =
-    matchedInstallers.slice(0, 3);
-
-}
-catch (error) {
-
-  console.error(
-    "Installer matching failed:",
-    error
-  );
-
-}
-***/
-
 const matchedInstallers =
   await calculateInstallerMatches({
     db,
@@ -543,7 +374,7 @@ const matchedInstallers =
     savingsPersonality
   });
   
-
+/***
 
     // =========================
     // AI INSIGHTS
@@ -568,6 +399,26 @@ const matchedInstallers =
     if (after.bill >= 3000) pricingLevel = "High";
 
     const recommendationSummary = `Based on your electricity usage, rooftop profile, and subsidy eligibility, our AI engine estimates that your property has strong potential for long-term solar savings and investment returns.`;
+
+***/
+
+const aiInsights =
+  generateAIInsights(
+    after,
+    trustScore
+  );
+
+const buyerProtectionChecklist =
+  generateBuyerProtectionChecklist();
+
+const pricingConfidence =
+  generatePricingConfidence(
+    after
+  );
+
+const recommendationSummary =
+  generateRecommendationSummary();
+  
 
     // =========================================
     // SAVE AI REPORT
@@ -602,11 +453,8 @@ await db.collection("ai_reports")
     matchedInstallers:
      matchedInstallers,
   
-    pricingConfidence: {
-      level: pricingLevel,
-      message:
-        "Estimated pricing appears aligned with expected market ranges."
-    },
+    pricingConfidence:
+     pricingConfidence,
 
     installerReadiness: {
       level: trustScore >= 80 ? "Strong" : "Moderate",
