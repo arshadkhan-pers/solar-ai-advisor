@@ -90,18 +90,6 @@ if (after.stage !== "qualified") {
       calculatedAt: admin.firestore.FieldValue.serverTimestamp()
      // aiRegenerationRequired: false
     });
-/***
-    // =========================
-    // TRUST SCORE ENGINE
-    // =========================
-    let trustScore = 50;
-    if (after.bill >= 3000) trustScore += 10;
-    if (after.rooftopOwnership?.includes("Yes")) trustScore += 15;
-    if (after.propertyType === "Independent House") trustScore += 10;
-    if (after.billUploaded === "Yes") trustScore += 10;
-    if (after.connectionType === "Residential") trustScore += 5;
-    trustScore = Math.min(trustScore, 98);
-***/
     
     // =========================
     // PERSONA ENGINE V2
@@ -178,18 +166,6 @@ if (
     "Stable residential usage profile"
   );
 }
-
-/***
-// TRUST-BASED INSTALLER FIT
-let installerFit = "Moderate";
-
-if (trustScore >= 80) {
-  installerFit = "Excellent";
-}
-else if (trustScore >= 65) {
-  installerFit = "Strong";
-}
-***/
 
 const installerFit =
   calculateInstallerFit(
@@ -294,58 +270,6 @@ const leadValueScore =
     after,
     trustScore
   );
-  
-/***
-// =========================
-// LEAD TEMPERATURE
-// =========================
-
-let leadTemperature = "Cold";
-
-// Warm lead
-if (
-  after.bill >= 2000 ||
-  trustScore >= 60
-) {
-  leadTemperature = "Warm";
-}
-
-// Hot lead
-if (
-  after.bill >= 4000 &&
-  after.rooftopOwnership?.includes("Yes") &&
-  after.propertyType === "Independent House" &&
-  trustScore >= 75
-) {
-  leadTemperature = "Hot";
-}
-
-// =========================
-// LEAD VALUE SCORE
-// =========================
-
-let leadValueScore = trustScore;
-
-if (after.bill >= 5000) {
-  leadValueScore += 10;
-}
-
-if (after.billUploaded === "Yes") {
-  leadValueScore += 5;
-}
-
-if (
-  after.propertyType === "Independent House"
-) {
-  leadValueScore += 5;
-}
-
-leadValueScore = Math.min(
-  leadValueScore,
-  99
-);
-
-***/
 
 // =========================
 // RECOMMENDED INSTALLER TYPE
@@ -381,57 +305,6 @@ if (
 let matchedInstallerTier =
   "Standard";
 
-/***
-let installerPriority =
-  "Normal";
-
-// Premium high-value leads
-if (
-  after.bill >= 7000 &&
-  trustScore >= 80
-) {
-
-  matchedInstallerTier =
-    "Premium";
-
-  installerPriority =
-    "High";
-}
-
-// Financing-focused leads
-if (
-  financingLikelihood === "High"
-) {
-
-  matchedInstallerTier =
-    "Financing";
-
-  installerPriority =
-    "High";
-}
-
-// Subsidy-focused leads
-if (
-  savingsPersonality ===
-  "Subsidy Optimized"
-) {
-
-  matchedInstallerTier =
-    "Subsidy Specialist";
-}
-
-// Installer-ready users
-if (
-  decisionStage ===
-  "Installer Ready"
-) {
-
-  installerPriority =
-    "Urgent";
-}
-
-***/
-
 const installerPriority =
   calculateInstallerPriority(
     decisionStage,
@@ -461,55 +334,6 @@ if (
     "Premium";
 }
 
-/***
-// =========================
-// CONVERSION PROBABILITY ENGINE
-// =========================
-
-let conversionProbability = 45;
-
-// Strong bill economics
-if (after.bill >= 3000) {
-  conversionProbability += 15;
-}
-
-// Premium energy users
-if (after.bill >= 6000) {
-  conversionProbability += 10;
-}
-
-// Rooftop ownership
-if (
-  after.rooftopOwnership?.includes("Yes")
-) {
-  conversionProbability += 15;
-}
-
-// Independent house
-if (
-  after.propertyType === "Independent House"
-) {
-  conversionProbability += 10;
-}
-
-// Uploaded bill = serious buyer
-if (
-  after.billUploaded === "Yes"
-) {
-  conversionProbability += 10;
-}
-
-// Trust score boost
-if (trustScore >= 80) {
-  conversionProbability += 10;
-}
-
-// Cap at 98
-conversionProbability =
-  Math.min(conversionProbability, 98);
-  
-***/
-
 const conversionProbability =
   calculateConversionProbability(
     after,
@@ -519,26 +343,6 @@ const conversionProbability =
 // =========================
 // LEAD QUALITY DASHBOARD
 // =========================
-
-/***
-// LEAD QUALITY BAND
-let leadQualityBand = "Standard";
-
-if (
-  conversionProbability >= 80 &&
-  trustScore >= 80
-) {
-
-  leadQualityBand = "Premium";
-}
-else if (
-  conversionProbability >= 65
-) {
-
-  leadQualityBand = "High Potential";
-}
-
-***/
 
 const leadQualityBand =
   calculateLeadQualityBand(
@@ -587,55 +391,11 @@ if (
     "Low";
 }
 
-/***
-// SALES COMPLEXITY
-let salesComplexity =
-  "Moderate";
-
-if (
-  after.propertyType ===
-  "Apartment / Independent House"
-) {
-
-  salesComplexity =
-    "High";
-}
-
-if (
-  decisionStage ===
-  "Installer Ready"
-) {
-
-  salesComplexity =
-    "Low";
-}
-
-***/
-
 const salesComplexity =
   calculateSalesComplexity(
     after,
     decisionStage
   );
-  
-/***
-// =========================
-// CONVERSION LABEL
-// =========================
-
-let conversionLabel =
-  "Moderate Interest";
-
-if (conversionProbability >= 80) {
-  conversionLabel =
-    "Highly Likely";
-}
-else if (conversionProbability >= 65) {
-  conversionLabel =
-    "Strong Potential";
-}
-
-***/
 
 const conversionLabel =
   calculateConversionLabel(
