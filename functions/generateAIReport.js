@@ -150,7 +150,7 @@ if (after.stage !== "qualified") {
     // =========================
 
 // Legacy persona (DO NOT REMOVE)
-let persona = "Balanced Buyer";
+let persona = "Smart Saver";
 
 if (after.bill >= 5000) {
   persona = "ROI Focused";
@@ -171,14 +171,14 @@ if (
 // NEW ADVANCED PERSONA ENGINE
 // ====================================
 
-let primaryPersona = "Balanced Buyer";
-let secondaryPersona = "Savings Focused";
+let primaryPersona = "Smart Saver";
+let secondaryPersona = "Long-Term Savings Focused";
 
 const characteristics = [];
 
 // HIGH BILL USERS
 if (after.bill >= 6000) {
-  primaryPersona = "ROI Maximizer";
+  primaryPersona = "Investment Optimizer";
   secondaryPersona = "Premium Energy Consumer";
 
   characteristics.push(
@@ -281,7 +281,7 @@ const personaSummary =
 let savingsPersonality = "Balanced Saver";
 
 if (after.bill >= 6000) {
-  savingsPersonality = "ROI Maximizer";
+  savingsPersonality = "Investment Optimizer";
 }
 
 if (
