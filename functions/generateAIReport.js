@@ -8,6 +8,20 @@ const {
   calculateInstallerIntelligence
 } = require("./engines/installerScoringEngine");
 
+const {
+  calculateTrustScore,
+  calculateInstallerFit,
+  calculateLeadTemperature,
+  calculateLeadValueScore,
+  calculateConversionProbability,
+  calculateConversionLabel,
+  calculateLeadQualityBand,
+  calculateSalesComplexity,
+  calculateInstallerPriority
+} = require("./engines/trustEngine");
+
+
+
 const db = admin.firestore();
 
 // 🌐 Modern Gen 2 trigger architecture targeting Mumbai (asia-south1)
@@ -63,6 +77,8 @@ if (after.stage !== "qualified") {
     
     const monthlySavings = units * 7;
     const resultPaybackYears = netCost / (monthlySavings * 12);
+    const trustScore =
+  calculateTrustScore(after);
 
     // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
     await change.after.ref.update({
@@ -74,7 +90,7 @@ if (after.stage !== "qualified") {
       calculatedAt: admin.firestore.FieldValue.serverTimestamp()
      // aiRegenerationRequired: false
     });
-
+/***
     // =========================
     // TRUST SCORE ENGINE
     // =========================
@@ -85,7 +101,7 @@ if (after.stage !== "qualified") {
     if (after.billUploaded === "Yes") trustScore += 10;
     if (after.connectionType === "Residential") trustScore += 5;
     trustScore = Math.min(trustScore, 98);
-
+***/
     
     // =========================
     // PERSONA ENGINE V2
@@ -163,6 +179,7 @@ if (
   );
 }
 
+/***
 // TRUST-BASED INSTALLER FIT
 let installerFit = "Moderate";
 
@@ -172,8 +189,13 @@ if (trustScore >= 80) {
 else if (trustScore >= 65) {
   installerFit = "Strong";
 }
+***/
 
-// FINANCING LIKELIHOOD
+const installerFit =
+  calculateInstallerFit(
+    trustScore
+  );
+  
 // =========================
 // FINANCING LIKELIHOOD
 // =========================
@@ -261,6 +283,19 @@ if (
   decisionStage = "Installer Ready";
 }
 
+const leadTemperature =
+  calculateLeadTemperature(
+    after,
+    trustScore
+  );
+
+const leadValueScore =
+  calculateLeadValueScore(
+    after,
+    trustScore
+  );
+  
+/***
 // =========================
 // LEAD TEMPERATURE
 // =========================
@@ -310,6 +345,8 @@ leadValueScore = Math.min(
   99
 );
 
+***/
+
 // =========================
 // RECOMMENDED INSTALLER TYPE
 // =========================
@@ -336,6 +373,7 @@ if (
     "Subsidy Optimization Partner";
 }
 
+
 // =========================
 // INSTALLER MATCHING ENGINE
 // =========================
@@ -343,6 +381,7 @@ if (
 let matchedInstallerTier =
   "Standard";
 
+/***
 let installerPriority =
   "Normal";
 
@@ -391,6 +430,17 @@ if (
     "Urgent";
 }
 
+***/
+
+const installerPriority =
+  calculateInstallerPriority(
+    decisionStage,
+    financingLikelihood,
+    after,
+    trustScore
+  );
+
+/***
 // =========================
 // CONVERSION PROBABILITY ENGINE
 // =========================
@@ -437,10 +487,19 @@ if (trustScore >= 80) {
 conversionProbability =
   Math.min(conversionProbability, 98);
   
+***/
+
+const conversionProbability =
+  calculateConversionProbability(
+    after,
+    trustScore
+  );
+  
 // =========================
 // LEAD QUALITY DASHBOARD
 // =========================
 
+/***
 // LEAD QUALITY BAND
 let leadQualityBand = "Standard";
 
@@ -457,6 +516,15 @@ else if (
 
   leadQualityBand = "High Potential";
 }
+
+***/
+
+const leadQualityBand =
+  calculateLeadQualityBand(
+    conversionProbability,
+    trustScore
+  );
+  
 
 // ROI CATEGORY
 let roiCategory =
@@ -498,6 +566,7 @@ if (
     "Low";
 }
 
+/***
 // SALES COMPLEXITY
 let salesComplexity =
   "Moderate";
@@ -520,6 +589,15 @@ if (
     "Low";
 }
 
+***/
+
+const salesComplexity =
+  calculateSalesComplexity(
+    after,
+    decisionStage
+  );
+  
+/***
 // =========================
 // CONVERSION LABEL
 // =========================
@@ -536,6 +614,13 @@ else if (conversionProbability >= 65) {
     "Strong Potential";
 }
 
+***/
+
+const conversionLabel =
+  calculateConversionLabel(
+    conversionProbability
+  );
+  
 const personaV2 = {
 
   primary: primaryPersona,
