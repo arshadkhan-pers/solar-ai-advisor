@@ -681,7 +681,7 @@ try {
 
     const installer = doc.data();
 
-    let installerScore = 50;
+    let installerScore = 20;
 
     // =========================
     // STATE MATCH
@@ -689,7 +689,7 @@ try {
     if (
       installer.state === state
     ) {
-      installerScore += 20;
+      installerScore += 15;
     }
 
     // =========================
@@ -701,7 +701,7 @@ try {
     if (
       serviceAreas.includes(city)
     ) {
-      installerScore += 15;
+      installerScore += 20;
     }
 
     // =========================
@@ -723,6 +723,17 @@ try {
     ) {
       installerScore += 15;
     }
+
+// =========================
+// PREMIUM MISMATCH PENALTY
+// =========================
+
+if (
+  leadValueScore < 80 &&
+  installer.premiumInstaller === true
+) {
+  installerScore -= 15;
+}
 
     // =========================
     // SUBSIDY MATCH
@@ -762,9 +773,9 @@ try {
     // =========================
     // RESPONSE PRIORITY
     // =========================
-    installerScore +=
-      installer.responsePriority || 0;
-
+  
+  installerScore += Math.min(
+  installer.responsePriority || 0,10);
     // =========================
     // FINAL CAP
     // =========================
