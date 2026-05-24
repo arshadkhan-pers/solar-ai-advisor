@@ -325,9 +325,13 @@ if (!rooftopOwnership) {
   const leadId = localStorage.getItem("leadId");
 
   if (!leadId) {
-    alert("Lead ID not found");
-    return;
-  }
+  alert("Lead ID not found");
+
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Submit Request";
+
+  return;
+}
 
   if (typeof firebase === "undefined" || typeof db === "undefined") {
     alert("Database not initialized");
@@ -832,12 +836,20 @@ function renderDynamicAIReport(report, result) {
 
   // SHOW SECTION
   const aiSection =
-    document.getElementById("aiInsightsSection");
-    aiSection.classList.remove("hidden");
+  document.getElementById("aiInsightsSection");
+
+if (aiSection) {
+  aiSection.classList.remove("hidden");
+}
 
   // SCORE
-  document.getElementById("aiScore").innerText =
+  const aiScoreEl =
+  document.getElementById("aiScore");
+
+if (aiScoreEl) {
+  aiScoreEl.innerText =
     report.persona?.confidence || 85;
+}
 
   // BADGE
   document.getElementById("aiBadge").innerText =
@@ -1011,7 +1023,7 @@ document.getElementById(
 ).innerText =
   report.pricingConfidence?.message ||
   "Estimated pricing appears aligned with expected market ranges.";
-
+/*
 let pricingWidth = 65;
 
 if (pricingLevel === "High") {
@@ -1021,7 +1033,27 @@ if (pricingLevel === "High") {
 if (pricingLevel === "Moderate") {
   pricingWidth = 70;
 }
+*/
 
+const pricingBar = document.getElementById("pricingConfidenceBar");
+if (pricingBar) {
+  pricingBar.className =
+    "h-full transition-all duration-700";
+}
+if (pricingLevel === "High") {
+  pricingWidth = 90;
+  pricingBar.classList.add("bg-emerald-500");
+}
+else if (pricingLevel === "Moderate") {
+  pricingWidth = 70;
+  pricingBar.classList.add("bg-yellow-500");
+}
+else {
+  pricingWidth = 50;
+  pricingBar.classList.add("bg-red-500");
+}
+
+  
 document.getElementById(
   "pricingConfidenceBar"
 ).style.width = `${pricingWidth}%`;
