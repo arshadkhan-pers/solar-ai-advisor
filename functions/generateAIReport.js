@@ -395,6 +395,61 @@ if (
 }
 
 // =========================
+// INSTALLER MATCHING ENGINE
+// =========================
+
+let matchedInstallerTier =
+  "Standard";
+
+let installerPriority =
+  "Normal";
+
+// Premium high-value leads
+if (
+  after.bill >= 7000 &&
+  trustScore >= 80
+) {
+
+  matchedInstallerTier =
+    "Premium";
+
+  installerPriority =
+    "High";
+}
+
+// Financing-focused leads
+if (
+  financingLikelihood === "High"
+) {
+
+  matchedInstallerTier =
+    "Financing";
+
+  installerPriority =
+    "High";
+}
+
+// Subsidy-focused leads
+if (
+  savingsPersonality ===
+  "Subsidy Optimized"
+) {
+
+  matchedInstallerTier =
+    "Subsidy Specialist";
+}
+
+// Installer-ready users
+if (
+  decisionStage ===
+  "Installer Ready"
+) {
+
+  installerPriority =
+    "Urgent";
+}
+
+// =========================
 // CONVERSION PROBABILITY ENGINE
 // =========================
 
@@ -503,6 +558,12 @@ const personaV2 = {
 
   conversionLabel:
     conversionLabel
+    
+  matchedInstallerTier:
+    matchedInstallerTier,
+
+  installerPriority:
+    installerPriority
 };
 
 
