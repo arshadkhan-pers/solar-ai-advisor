@@ -299,14 +299,21 @@ if (after.billUploaded === "Yes") {
 // DECISION STAGE
 // =========================
 
-let decisionStage = "Exploring";
+let decisionStage = "Researching";
 
-if (after.billUploaded === "Yes") {
+// Comparing stage
+if (
+  after.bill >= 2500 ||
+  after.billUploaded === "Yes"
+) {
   decisionStage = "Comparing Options";
 }
 
+// Installer-ready stage
 if (
+  after.billUploaded === "Yes" &&
   after.rooftopOwnership?.includes("Yes") &&
+  after.propertyType === "Independent House" &&
   trustScore >= 75
 ) {
   decisionStage = "Installer Ready";
@@ -316,20 +323,24 @@ if (
 // LEAD TEMPERATURE
 // =========================
 
-let leadTemperature = "Warm";
+let leadTemperature = "Cold";
 
+// Warm lead
 if (
-  trustScore >= 80 &&
-  after.billUploaded === "Yes"
+  after.bill >= 2000 ||
+  trustScore >= 60
 ) {
-  leadTemperature = "Hot";
+  leadTemperature = "Warm";
 }
 
+// Hot lead
 if (
-  after.bill >= 6000 &&
-  after.rooftopOwnership?.includes("Yes")
+  after.bill >= 4000 &&
+  after.rooftopOwnership?.includes("Yes") &&
+  after.propertyType === "Independent House" &&
+  trustScore >= 75
 ) {
-  leadTemperature = "Installer Ready";
+  leadTemperature = "Hot";
 }
 
 // =========================
