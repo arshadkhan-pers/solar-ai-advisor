@@ -32,6 +32,11 @@ const {
   calculatePersonaSummary
 } = require("./engines/personaEngine");
 
+const {
+  calculateInstallerMatches
+} = require("./engines/installerMatchingEngine");
+
+
 const db = admin.firestore();
 
 // 🌐 Modern Gen 2 trigger architecture targeting Mumbai (asia-south1)
@@ -351,6 +356,8 @@ const personaV2 = {
     salesComplexity
 };
 
+/***
+
 // =========================
 // REAL INSTALLER MATCHING ENGINE
 // =========================
@@ -452,12 +459,6 @@ if (
     // =========================
     // EXPERIENCE BONUS
     // =========================
-    /*
-    const ratingScore =
-      installer.ratingScore || 4;
-      installerScore +=
-      Math.round(ratingScore * 2);
-      */
 
       installerScore +=
   Math.round(
@@ -529,6 +530,19 @@ catch (error) {
   );
 
 }
+***/
+
+const matchedInstallers =
+  await calculateInstallerMatches({
+    db,
+    state,
+    city,
+    systemSize,
+    financingLikelihood,
+    leadValueScore,
+    savingsPersonality
+  });
+  
 
 
     // =========================
