@@ -1036,6 +1036,7 @@ if (pricingLevel === "Moderate") {
 */
 
 const pricingBar = document.getElementById("pricingConfidenceBar");
+let pricingWidth = 65;
 if (pricingBar) {
   pricingBar.className =
     "h-full transition-all duration-700";
