@@ -20,7 +20,17 @@ const {
   calculateInstallerPriority
 } = require("./engines/trustEngine");
 
-
+const {
+  calculatePrimaryPersona,
+  calculateSecondaryPersona,
+  calculateCharacteristics,
+  calculateFinancingLikelihood,
+  calculateUrgency,
+  calculateSavingsPersonality,
+  calculateDecisionStage,
+  calculateRecommendedInstallerType,
+  calculatePersonaSummary
+} = require("./engines/personaEngine");
 
 const db = admin.firestore();
 
@@ -78,7 +88,8 @@ if (after.stage !== "qualified") {
     const monthlySavings = units * 7;
     const resultPaybackYears = netCost / (monthlySavings * 12);
     const trustScore =
-  calculateTrustScore(after);
+    
+    calculateTrustScore(after);
 
     // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
     await change.after.ref.update({
@@ -113,151 +124,48 @@ if (
   persona = "Solar Ready";
 }
 
-// ====================================
-// NEW ADVANCED PERSONA ENGINE
-// ====================================
-
-let primaryPersona = "Smart Saver";
-let secondaryPersona = "Long-Term Savings Focused";
-
-const characteristics = [];
-
-// HIGH BILL USERS
-if (after.bill >= 6000) {
-  primaryPersona = "Investment Optimizer";
-  secondaryPersona = "Premium Energy Consumer";
-
-  characteristics.push(
-    "High electricity consumption"
-  );
-
-  characteristics.push(
-    "Strong long-term savings potential"
-  );
-}
-
-// ROOFTOP READY
-if (
-  after.propertyType === "Independent House" &&
-  after.rooftopOwnership?.includes("Yes")
-) {
-
-  secondaryPersona = "Installation Ready";
-
-  characteristics.push(
-    "Independent rooftop ownership"
-  );
-}
-
-// RESEARCH-ORIENTED USERS
-if (after.billUploaded === "Yes") {
-
-  characteristics.push(
-    "Research-oriented decision maker"
-  );
-}
-
-// LOW RISK USER
-if (
-  after.connectionType === "Residential"
-) {
-
-  characteristics.push(
-    "Stable residential usage profile"
-  );
-}
-
 const installerFit =
   calculateInstallerFit(
     trustScore
   );
   
-// =========================
-// FINANCING LIKELIHOOD
-// =========================
+  const primaryPersona =
+  calculatePrimaryPersona(after);
 
-let financingLikelihood = "Medium";
+const secondaryPersona =
+  calculateSecondaryPersona(after);
 
-// Higher bills → stronger EMI suitability
-if (after.bill >= 6000) {
-  financingLikelihood = "High";
-}
+const characteristics =
+  calculateCharacteristics(after);
 
-// Lower bills but subsidy-sensitive
-if (
-  after.bill < 3000 &&
-  after.propertyType === "Independent House"
-) {
-  financingLikelihood = "Subsidy Optimized";
-}
+const financingLikelihood =
+  calculateFinancingLikelihood(after);
 
-// =========================
-// URGENCY ENGINE
-// =========================
+const urgency =
+  calculateUrgency(after);
 
-let urgency = "Moderate";
+const savingsPersonality =
+  calculateSavingsPersonality(after);
 
-// High electricity burden
-if (after.bill >= 5000) {
-  urgency = "High";
-}
+const decisionStage =
+  calculateDecisionStage(
+    after,
+    trustScore
+  );
 
-// Strong rooftop ownership increases conversion intent
-if (
-  after.rooftopOwnership?.includes("Yes") &&
-  after.bill >= 2500
-) {
-  urgency = "High";
-}
+const recommendedInstallerType =
+  calculateRecommendedInstallerType(
+    financingLikelihood,
+    savingsPersonality,
+    after
+  );
 
-// PERSONA SUMMARY
 const personaSummary =
-  `${primaryPersona} profile with ${installerFit.toLowerCase()} installer compatibility and ${financingLikelihood.toLowerCase()} financing suitability.`;
-
-// =========================
-// SAVINGS PERSONALITY
-// =========================
-
-let savingsPersonality = "Balanced Saver";
-
-if (after.bill >= 6000) {
-  savingsPersonality = "Investment Optimizer";
-}
-
-if (
-  after.bill < 3000 &&
-  after.rooftopOwnership?.includes("Yes")
-) {
-  savingsPersonality = "Subsidy Optimized";
-}
-
-if (after.billUploaded === "Yes") {
-  savingsPersonality = "Research Driven";
-}
-
-// =========================
-// DECISION STAGE
-// =========================
-
-let decisionStage = "Researching";
-
-// Comparing stage
-if (
-  after.bill >= 2500 ||
-  after.billUploaded === "Yes"
-) {
-  decisionStage = "Comparing Options";
-}
-
-// Installer-ready stage
-if (
-  after.billUploaded === "Yes" &&
-  after.rooftopOwnership?.includes("Yes") &&
-  after.propertyType === "Independent House" &&
-  trustScore >= 75
-) {
-  decisionStage = "Installer Ready";
-}
+  calculatePersonaSummary(
+    primaryPersona,
+    installerFit,
+    financingLikelihood
+  );
 
 const leadTemperature =
   calculateLeadTemperature(
@@ -270,32 +178,6 @@ const leadValueScore =
     after,
     trustScore
   );
-
-// =========================
-// RECOMMENDED INSTALLER TYPE
-// =========================
-
-let recommendedInstallerType =
-  "Standard Residential Installer";
-
-if (after.bill >= 7000) {
-  recommendedInstallerType =
-    "Premium EPC Partner";
-}
-
-if (
-  financingLikelihood === "High"
-) {
-  recommendedInstallerType =
-    "Financing Specialist";
-}
-
-if (
-  savingsPersonality === "Subsidy Optimized"
-) {
-  recommendedInstallerType =
-    "Subsidy Optimization Partner";
-}
 
 
 // =========================
