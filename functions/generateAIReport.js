@@ -557,7 +557,7 @@ const personaV2 = {
     conversionProbability,
 
   conversionLabel:
-    conversionLabel
+    conversionLabel,
     
   matchedInstallerTier:
     matchedInstallerTier,
