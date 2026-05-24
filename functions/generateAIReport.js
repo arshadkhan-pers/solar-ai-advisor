@@ -121,6 +121,9 @@ if (after.stage !== "qualified") {
 
     const totalSubsidy = centralSubsidy + stateSubsidy;
     const netCost = totalCost - totalSubsidy;
+    
+    const monthlySavings = units * 7;
+    const resultPaybackYears = netCost / (monthlySavings * 12);
 
     // 💾 UPDATE LEADS DOC WITH CALCULATED DETAILS
     await change.after.ref.update({
@@ -450,6 +453,89 @@ if (
 }
 
 // =========================
+// LEAD QUALITY DASHBOARD
+// =========================
+
+// LEAD QUALITY BAND
+let leadQualityBand = "Standard";
+
+if (
+  conversionProbability >= 80 &&
+  trustScore >= 80
+) {
+
+  leadQualityBand = "Premium";
+}
+else if (
+  conversionProbability >= 65
+) {
+
+  leadQualityBand = "High Potential";
+}
+
+// ROI CATEGORY
+let roiCategory =
+  "Moderate ROI";
+
+if (
+  resultPaybackYears <= 4
+) {
+
+  roiCategory =
+    "Excellent ROI";
+}
+else if (
+  resultPaybackYears <= 6
+) {
+
+  roiCategory =
+    "Strong ROI";
+}
+
+// SUBSIDY DEPENDENCY
+let subsidyDependency =
+  "Balanced";
+
+if (
+  savingsPersonality ===
+  "Subsidy Optimized"
+) {
+
+  subsidyDependency =
+    "High";
+}
+
+if (
+  after.bill >= 6000
+) {
+
+  subsidyDependency =
+    "Low";
+}
+
+// SALES COMPLEXITY
+let salesComplexity =
+  "Moderate";
+
+if (
+  after.propertyType ===
+  "Apartment"
+) {
+
+  salesComplexity =
+    "High";
+}
+
+if (
+  decisionStage ===
+  "Installer Ready"
+) {
+
+  salesComplexity =
+    "Low";
+}
+
+// =========================
 // CONVERSION PROBABILITY ENGINE
 // =========================
 
@@ -563,7 +649,19 @@ const personaV2 = {
     matchedInstallerTier,
 
   installerPriority:
-    installerPriority
+    installerPriority,
+
+  leadQualityBand:
+    leadQualityBand,
+
+  roiCategory:
+    roiCategory,
+
+  subsidyDependency:
+    subsidyDependency,
+
+  salesComplexity:
+    salesComplexity
 };
 
 
