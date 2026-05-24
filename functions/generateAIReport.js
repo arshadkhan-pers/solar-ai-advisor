@@ -274,16 +274,158 @@ if (
 const personaSummary =
   `${primaryPersona} profile with ${installerFit.toLowerCase()} installer compatibility and ${financingLikelihood.toLowerCase()} financing suitability.`;
 
+// =========================
+// SAVINGS PERSONALITY
+// =========================
+
+let savingsPersonality = "Balanced Saver";
+
+if (after.bill >= 6000) {
+  savingsPersonality = "ROI Maximizer";
+}
+
+if (
+  after.bill < 3000 &&
+  after.rooftopOwnership?.includes("Yes")
+) {
+  savingsPersonality = "Subsidy Optimized";
+}
+
+if (after.billUploaded === "Yes") {
+  savingsPersonality = "Research Driven";
+}
+
+// =========================
+// DECISION STAGE
+// =========================
+
+let decisionStage = "Exploring";
+
+if (after.billUploaded === "Yes") {
+  decisionStage = "Comparing Options";
+}
+
+if (
+  after.rooftopOwnership?.includes("Yes") &&
+  trustScore >= 75
+) {
+  decisionStage = "Installer Ready";
+}
+
+// =========================
+// LEAD TEMPERATURE
+// =========================
+
+let leadTemperature = "Warm";
+
+if (
+  trustScore >= 80 &&
+  after.billUploaded === "Yes"
+) {
+  leadTemperature = "Hot";
+}
+
+if (
+  after.bill >= 6000 &&
+  after.rooftopOwnership?.includes("Yes")
+) {
+  leadTemperature = "Installer Ready";
+}
+
+// =========================
+// LEAD VALUE SCORE
+// =========================
+
+let leadValueScore = trustScore;
+
+if (after.bill >= 5000) {
+  leadValueScore += 10;
+}
+
+if (after.billUploaded === "Yes") {
+  leadValueScore += 5;
+}
+
+if (
+  after.propertyType === "Independent House"
+) {
+  leadValueScore += 5;
+}
+
+leadValueScore = Math.min(
+  leadValueScore,
+  99
+);
+
+// =========================
+// RECOMMENDED INSTALLER TYPE
+// =========================
+
+let recommendedInstallerType =
+  "Standard Residential Installer";
+
+if (after.bill >= 7000) {
+  recommendedInstallerType =
+    "Premium EPC Partner";
+}
+
+if (
+  financingLikelihood === "High"
+) {
+  recommendedInstallerType =
+    "Financing Specialist";
+}
+
+if (
+  savingsPersonality === "Subsidy Optimized"
+) {
+  recommendedInstallerType =
+    "Subsidy Optimization Partner";
+}
+
 const personaV2 = {
+
   primary: primaryPersona,
+
   secondary: secondaryPersona,
-  confidence: Math.min(trustScore + 8, 99),
+
+  confidence:
+    Math.min(trustScore + 8, 99),
+
   urgency: urgency,
-  financingLikelihood: financingLikelihood,
-  installerFit: installerFit,
-  characteristics: characteristics,
-  summary: personaSummary
+
+  financingLikelihood:
+    financingLikelihood,
+
+  installerFit:
+    installerFit,
+
+  characteristics:
+    characteristics,
+
+  summary:
+    personaSummary,
+
+  // =========================
+  // PERSONA ENGINE V2.5
+  // =========================
+
+  savingsPersonality:
+    savingsPersonality,
+
+  decisionStage:
+    decisionStage,
+
+  leadTemperature:
+    leadTemperature,
+
+  leadValueScore:
+    leadValueScore,
+
+  recommendedInstallerType:
+    recommendedInstallerType
 };
+
 
     // =========================
     // AI INSIGHTS
