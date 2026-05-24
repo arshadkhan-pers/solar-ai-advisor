@@ -3,6 +3,9 @@
 //const functions = require("firebase-functions");
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
+const {
+  calculateInstallerIntelligence
+} = require("./engines/installerScoringEngine");
 
 const db = admin.firestore();
 
@@ -680,6 +683,7 @@ try {
   installersSnapshot.forEach((doc) => {
 
     const installer = doc.data();
+    const installerAI = calculateInstallerIntelligence(installer);
 
     let installerScore = 20;
 
@@ -764,11 +768,19 @@ if (
     // =========================
     // EXPERIENCE BONUS
     // =========================
+    /*
     const ratingScore =
       installer.ratingScore || 4;
-
-    installerScore +=
+      installerScore +=
       Math.round(ratingScore * 2);
+      */
+
+      installerScore +=
+  Math.round(
+    installerAI.overallScore / 10
+  );
+
+    
 
     // =========================
     // RESPONSE PRIORITY
@@ -798,6 +810,9 @@ if (
 
       score:
         installerScore,
+        
+      installerAI:
+        installerAI,
 
       reason:
         financingLikelihood === "High"
