@@ -33,6 +33,11 @@ const {
 } = require("./engines/personaEngine");
 
 const {
+  calculateROICategory,
+  calculateSubsidyDependency
+} = require("./engines/roiEngine");
+
+const {
   calculateInstallerMatches
 } = require("./engines/installerMatchingEngine");
 
@@ -243,48 +248,17 @@ const leadQualityBand =
     conversionProbability,
     trustScore
   );
-  
 
-// ROI CATEGORY
-let roiCategory =
-  "Moderate ROI";
+    const roiCategory =
+  calculateROICategory(
+    resultPaybackYears
+  );
 
-if (
-  resultPaybackYears <= 4
-) {
-
-  roiCategory =
-    "Excellent ROI";
-}
-else if (
-  resultPaybackYears <= 6
-) {
-
-  roiCategory =
-    "Strong ROI";
-}
-
-// SUBSIDY DEPENDENCY
-let subsidyDependency =
-  "Balanced";
-
-if (
-  savingsPersonality ===
-  "Subsidy Optimized"
-) {
-
-  subsidyDependency =
-    "High";
-}
-
-if (
-  after.bill >= 6000
-) {
-
-  subsidyDependency =
-    "Low";
-}
-
+const subsidyDependency =
+  calculateSubsidyDependency(
+    savingsPersonality,
+    after
+  );
 const salesComplexity =
   calculateSalesComplexity(
     after,
