@@ -9,7 +9,7 @@ const db = window.db;
 // =====================================
 // LOAD LEADS
 // =====================================
-/***
+
 async function loadLeads() {
 
   const snapshot = await db
@@ -32,55 +32,7 @@ async function loadLeads() {
 
   updateMetrics(allLeads);
 }
-***/
 
-async function loadLeads() {
-
-  try {
-
-    console.log("Loading leads...");
-
-    console.log("DB:", db);
-
-    const snapshot = await db
-      .collection("leads")
-      .orderBy("createdAt", "desc")
-      .get();
-
-    console.log("Snapshot:", snapshot);
-
-    allLeads = [];
-
-    snapshot.forEach((docItem) => {
-
-      console.log("Lead:", docItem.data());
-
-      allLeads.push({
-        id: docItem.id,
-        ...docItem.data()
-      });
-
-    });
-
-    console.log("Total Leads:", allLeads.length);
-
-    renderLeads(allLeads);
-
-    updateMetrics(allLeads);
-
-  }
-  catch (error) {
-
-    console.error(
-      "LOAD LEADS ERROR:",
-      error
-    );
-
-    alert(
-      "Failed loading leads. Check console."
-    );
-  }
-}
 
 // =====================================
 // METRICS
