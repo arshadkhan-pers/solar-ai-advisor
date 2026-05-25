@@ -44,10 +44,13 @@ const {
 const {
   generateAIInsights,
   generateBuyerProtectionChecklist,
-  generatePricingConfidence,
-  generateRecommendationSummary
+  generatePricingConfidence
 } = require("./templates/insightsTemplates");
 
+const {
+  calculateInstallerReadiness,
+  generateRecommendationSummary
+} = require("./engines/recommendationEngine");
 
 const db = admin.firestore();
 
@@ -122,24 +125,6 @@ if (after.stage !== "qualified") {
     // =========================
     // PERSONA ENGINE V2
     // =========================
-
-// Legacy persona (DO NOT REMOVE)
-let persona = "Smart Saver";
-
-if (after.bill >= 5000) {
-  persona = "ROI Focused";
-}
-
-if (after.billUploaded === "Yes") {
-  persona = "Research Driven";
-}
-
-if (
-  after.propertyType === "Independent House" &&
-  after.rooftopOwnership?.includes("Yes")
-) {
-  persona = "Solar Ready";
-}
 
 const installerFit =
   calculateInstallerFit(
@@ -365,6 +350,8 @@ const pricingConfidence =
 const recommendationSummary =
   generateRecommendationSummary();
   
+const installerReadiness =
+  calculateInstallerReadiness(trustScore);
 
     // =========================================
     // SAVE AI REPORT
@@ -400,13 +387,10 @@ await db.collection("ai_reports")
      matchedInstallers,
   
     pricingConfidence:
-     pricingConfidence,
+      pricingConfidence,
 
-    installerReadiness: {
-      level: trustScore >= 80 ? "Strong" : "Moderate",
-      message:
-        "Property profile appears suitable for subsidy-supported rooftop solar."
-    },
+    installerReadiness:
+      installerReadiness,
 
     aiInsights: aiInsights,
 
