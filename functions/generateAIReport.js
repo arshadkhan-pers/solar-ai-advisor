@@ -38,13 +38,16 @@ const {
 } = require("./engines/roiEngine");
 
 const {
+  calculatePricingConfidence
+} = require("./engines/pricingEngine");
+
+const {
   calculateInstallerMatches
 } = require("./engines/installerMatchingEngine");
 
 const {
   generateAIInsights,
-  generateBuyerProtectionChecklist,
-  generatePricingConfidence
+  generateBuyerProtectionChecklist
 } = require("./templates/insightsTemplates");
 
 const {
@@ -343,7 +346,7 @@ const buyerProtectionChecklist =
   generateBuyerProtectionChecklist();
 
 const pricingConfidence =
-  generatePricingConfidence(
+  calculatePricingConfidence(
     after
   );
 
