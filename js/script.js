@@ -223,9 +223,19 @@ async function submitLeadAndContinue() {
       leadSource: "Website",
       duplicateOf: duplicateLeadId || null,
       isDuplicate: !!duplicateLeadId,
+      assignedTo: "",
+      assignedInstallerId: "",
+      sharedWithInstaller: false,
+      paymentStatus: "PENDING",
+      lastContactedAt: null,
+      nextFollowupAt: null,
+      lastUpdatedBy: "",
+      notes: [],
+      isTestLead: false,
       createdAt: new Date()
     });
 
+    
     localStorage.setItem("leadId", docRef.id);
     const state = localStorage.getItem("state");
 
