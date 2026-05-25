@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+    </button>
+
+    <button onclick="filterLeads('NEW')"
+      class="bg-white border px-4 py-2 rounded-xl text-sm">
+      New
+    </button>
+
+    <button onclick="filterLeads('CONTACTED')"
+      class="bg-white border px-4 py-2 rounded-xl text-sm">
+      Contacted
+    </button>
+
+    <button onclick="filterLeads('SHARED')"
+      class="bg-white border px-4 py-2 rounded-xl text-sm">
+      Shared
+    </button>
+
+    <button onclick="filterLeads('Hot')"
+      class="bg-red-100 text-red-700 px-4 py-2 rounded-xl text-sm">
+      Hot Leads
+    </button>
+
+  </div>
+
+  <!-- LEADS TABLE -->
+  <div class="px-6 pb-10">
+
+    <div class="bg-white rounded-2xl shadow overflow-hidden">
+
+      <div class="overflow-x-auto">
+
+        <table class="w-full text-sm">
+
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="text-left px-4 py-3">Lead</th>
+              <th class="text-left px-4 py-3">City</th>
+              <th class="text-left px-4 py-3">Bill</th>
+              <th class="text-left px-4 py-3">Type</th>
+              <th class="text-left px-4 py-3">Stage</th>
+              <th class="text-left px-4 py-3">Status</th>
+              <th class="text-left px-4 py-3">Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="leadsTableBody">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module" src="./admin.js"></script>
+
+</body>
+</html>
