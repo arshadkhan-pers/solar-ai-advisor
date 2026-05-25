@@ -1,32 +1,3 @@
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  updateDoc,
-  doc
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// =====================================
-// FIREBASE CONFIG
-// =====================================
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
-  authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
-  projectId: "solar-ai-advisor-6e70c",
-  storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
-  messagingSenderId: "414713467470",
-  appId: "1:414713467470:web:437d1cf23454d472c7e91f"
-};
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
 
 // =====================================
 // GLOBALS
