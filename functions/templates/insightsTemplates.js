@@ -3,34 +3,91 @@ function generateAIInsights(
   trustScore
 ) {
 
-  const aiInsights = [];
+  const insights = [];
 
-  if (trustScore >= 80) {
+  // =========================
+  // TRUST PROFILE
+  // =========================
 
-    aiInsights.push(
+  if (
+    trustScore >= 80
+  ) {
+
+    insights.push(
       "Your property profile appears highly suitable for rooftop solar installation."
     );
   }
 
-  if (after.bill >= 3000) {
+  // =========================
+  // SAVINGS POTENTIAL
+  // =========================
 
-    aiInsights.push(
+  if (
+    after.bill >= 6000
+  ) {
+
+    insights.push(
+      "Your electricity usage indicates exceptionally strong long-term solar savings potential."
+    );
+  }
+  else if (
+    after.bill >= 3000
+  ) {
+
+    insights.push(
       "Your current electricity consumption indicates strong long-term savings potential."
     );
   }
 
-  if (after.billUploaded === "Yes") {
+  // =========================
+  // BILL VERIFIED
+  // =========================
 
-    aiInsights.push(
+  if (
+    after.billUploaded === "Yes"
+  ) {
+
+    insights.push(
       "Bill verification improves pricing accuracy and installer transparency."
     );
   }
 
-  aiInsights.push(
+  // =========================
+  // ROOFTOP READINESS
+  // =========================
+
+  if (
+    after.rooftopOwnership?.includes("Yes")
+  ) {
+
+    insights.push(
+      "Your rooftop ownership profile may simplify installation and subsidy processing."
+    );
+  }
+
+  // =========================
+  // INDEPENDENT HOUSE
+  // =========================
+
+  if (
+    after.propertyType ===
+    "Independent House"
+  ) {
+
+    insights.push(
+      "Independent house properties generally achieve faster rooftop solar deployment."
+    );
+  }
+
+  // =========================
+  // SUBSIDY
+  // =========================
+
+  insights.push(
     "Government subsidy benefits may significantly reduce your upfront investment."
   );
 
-  return aiInsights;
+  return insights;
 }
 
 function generateBuyerProtectionChecklist() {
