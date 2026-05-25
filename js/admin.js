@@ -252,10 +252,10 @@ async function(id, status) {
 };
 
 // =====================================
-// VIEW LEAD
+// OPEN LEAD PANEL
 // =====================================
 
-window.viewLead = function(id) {
+window.viewLead = async function(id) {
 
   const lead =
     allLeads.find(
@@ -264,22 +264,219 @@ window.viewLead = function(id) {
 
   if (!lead) return;
 
-  alert(`
-Name: ${lead.name}
+  // OPEN PANEL
+  document
+    .getElementById("leadPanelOverlay")
+    .classList.remove("hidden");
 
-Phone: ${lead.phone}
+  const panel =
+    document.getElementById(
+      "leadDetailsPanel"
+    );
 
-City: ${lead.city}
+  panel.classList.remove(
+    "translate-x-full"
+  );
 
-Bill: ₹${lead.bill || 0}
+  // LOADING STATE
+  document.getElementById(
+    "leadPanelContent"
+  ).innerHTML = `
+    <div class="text-center py-10 text-slate-500">
+      Loading lead details...
+    </div>
+  `;
 
-Lead Type: ${lead.leadType}
+  // HEADER
+  document.getElementById(
+    "panelLeadCode"
+  ).innerText =
+    lead.leadCode || "";
 
-Status: ${lead.status}
+  try {
 
-Stage: ${lead.stage}
-  `);
+    // LOAD AI REPORT
+    const aiReportDoc =
+      await db
+        .collection("ai_reports")
+        .doc(id)
+        .get();
+
+    let aiReport = null;
+
+    if (aiReportDoc.exists) {
+      aiReport = aiReportDoc.data();
+    }
+
+    renderLeadPanel(
+      lead,
+      aiReport
+    );
+
+  }
+  catch (error) {
+
+    console.error(error);
+
+    document.getElementById(
+      "leadPanelContent"
+    ).innerHTML = `
+      <div class="text-red-600">
+        Failed to load AI report
+      </div>
+    `;
+  }
 };
+
+// =====================================
+// CLOSE PANEL
+// =====================================
+
+window.closeLeadPanel = function() {
+
+  document
+    .getElementById("leadPanelOverlay")
+    .classList.add("hidden");
+
+  document
+    .getElementById("leadDetailsPanel")
+    .classList.add("translate-x-full");
+};
+
+// =====================================
+// RENDER PANEL
+// =====================================
+
+function renderLeadPanel(
+  lead,
+  aiReport
+) {
+
+  const content =
+    document.getElementById(
+      "leadPanelContent"
+    );
+
+  content.innerHTML = `
+
+    <!-- CUSTOMER -->
+    <div class="space-y-2">
+
+      <h3 class="text-lg font-bold text-slate-900">
+        Customer Information
+      </h3>
+
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-2">
+
+        <p>
+          <span class="font-semibold">
+            Name:
+          </span>
+          ${lead.name || "-"}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            Phone:
+          </span>
+          ${lead.phone || "-"}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            City:
+          </span>
+          ${lead.city || "-"}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            Bill:
+          </span>
+          ₹${lead.bill || 0}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- SOLAR -->
+    <div class="space-y-2">
+
+      <h3 class="text-lg font-bold text-slate-900">
+        Solar Recommendation
+      </h3>
+
+      <div class="grid grid-cols-2 gap-3">
+
+        <div class="bg-indigo-50 rounded-2xl p-4">
+          <p class="text-sm text-slate-500">
+            System Size
+          </p>
+
+          <p class="text-2xl font-bold text-indigo-700 mt-2">
+            ${aiReport?.systemSizeKw || "-"} kW
+          </p>
+        </div>
+
+        <div class="bg-emerald-50 rounded-2xl p-4">
+          <p class="text-sm text-slate-500">
+            Net Cost
+          </p>
+
+          <p class="text-2xl font-bold text-emerald-700 mt-2">
+            ₹${aiReport?.netCost || 0}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- AI PROFILE -->
+    <div class="space-y-2">
+
+      <h3 class="text-lg font-bold text-slate-900">
+        AI Readiness Profile
+      </h3>
+
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
+
+        <p>
+          <span class="font-semibold">
+            Persona:
+          </span>
+          ${aiReport?.personaV2?.primary || "-"}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            AI Score:
+          </span>
+          ${aiReport?.trustScore || 0}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            Lead Temperature:
+          </span>
+          ${aiReport?.personaV2?.leadTemperature || "-"}
+        </p>
+
+        <p>
+          <span class="font-semibold">
+            Financing:
+          </span>
+          ${aiReport?.personaV2?.financingLikelihood || "-"}
+        </p>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
 
 // =====================================
 // START
