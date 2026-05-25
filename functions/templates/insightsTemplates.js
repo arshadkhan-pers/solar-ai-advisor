@@ -105,41 +105,10 @@ function generateBuyerProtectionChecklist() {
   ];
 }
 
-function generatePricingConfidence(
-  after
-) {
-
-  let pricingLevel = "Moderate";
-
-  if (after.bill >= 3000) {
-    pricingLevel = "High";
-  }
-
-  return {
-
-    level: pricingLevel,
-
-    message:
-      "Estimated pricing appears aligned with expected market ranges."
-
-  };
-}
-
-function generateRecommendationSummary() {
-
-  return (
-    "Based on your electricity usage, rooftop profile, and subsidy eligibility, our AI engine estimates that your property has strong potential for long-term solar savings and investment returns."
-  );
-}
-
 module.exports = {
 
   generateAIInsights,
 
-  generateBuyerProtectionChecklist,
-
-  generatePricingConfidence,
-
-  generateRecommendationSummary
+  generateBuyerProtectionChecklist
 
 };
