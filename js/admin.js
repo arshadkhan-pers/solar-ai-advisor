@@ -17,21 +17,13 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 // =====================================
 
 const firebaseConfig = {
-
-  apiKey: "YOUR_API_KEY",
-
-  authDomain: "YOUR_AUTH_DOMAIN",
-
-  projectId: "YOUR_PROJECT_ID",
-
-  storageBucket: "YOUR_STORAGE_BUCKET",
-
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-
-  appId: "YOUR_APP_ID"
-
+  apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
+  authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
+  projectId: "solar-ai-advisor-6e70c",
+  storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
+  messagingSenderId: "414713467470",
+  appId: "1:414713467470:web:437d1cf23454d472c7e91f"
 };
-
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
