@@ -296,17 +296,20 @@ window.viewLead = async function(id) {
   try {
 
     // LOAD AI REPORT
-    const aiReportDoc =
-      await db
-        .collection("ai_reports")
-        .doc(id)
-        .get();
+    const aiReportSnapshot =
+  await db
+    .collection("ai_reports")
+    .where("leadId", "==", id)
+    .limit(1)
+    .get();
 
-    let aiReport = null;
+let aiReport = null;
 
-    if (aiReportDoc.exists) {
-      aiReport = aiReportDoc.data();
-    }
+if (!aiReportSnapshot.empty) {
+
+  aiReport =
+    aiReportSnapshot.docs[0].data();
+}
 
     renderLeadPanel(
       lead,
