@@ -11,12 +11,10 @@ let allLeads = [];
 
 async function loadLeads() {
 
-  const q = query(
-    collection(db, "leads"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
+  const snapshot = await db
+  .collection("leads")
+  .orderBy("createdAt", "desc")
+  .get();
 
   allLeads = [];
 
@@ -229,14 +227,14 @@ window.updateLeadStatus =
 async function(id, status) {
 
   try {
-
-    await updateDoc(
-      doc(db, "leads", id),
-      {
-        status: status,
-        updatedAt: new Date()
-      }
-    );
+    
+    await db
+  .collection("leads")
+  .doc(id)
+  .update({
+    status: status,
+    updatedAt: new Date()
+  });
 
     alert("Lead status updated");
 
