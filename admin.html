@@ -139,6 +139,24 @@
 
   </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
+    authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
+    projectId: "solar-ai-advisor-6e70c",
+    storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
+    messagingSenderId: "414713467470",
+    appId: "1:414713467470:web:437d1cf23454d472c7e91f"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  window.db = firebase.firestore();
+</script>
+
   <script type="module" src="./admin.js"></script>
 
 </body>
