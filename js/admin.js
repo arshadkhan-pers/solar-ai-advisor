@@ -418,8 +418,12 @@ function renderLeadPanel(
           </p>
 
           <p class="text-2xl font-bold text-indigo-700 mt-2">
-            ${aiReport?.systemSizeKw || "-"} kW
-          </p>
+  ${
+    aiReport
+      ? `${aiReport?.systemSizeKw || "-"} kW`
+      : "Not Generated"
+  }
+</p>
         </div>
 
         <div class="bg-emerald-50 rounded-2xl p-4">
@@ -428,8 +432,12 @@ function renderLeadPanel(
           </p>
 
           <p class="text-2xl font-bold text-emerald-700 mt-2">
-            ₹${aiReport?.netCost || 0}
-          </p>
+  ${
+    aiReport
+      ? `₹${aiReport?.netCost || 0}`
+      : "Pending"
+  }
+</p>
         </div>
 
       </div>
@@ -449,28 +457,44 @@ function renderLeadPanel(
           <span class="font-semibold">
             Persona:
           </span>
-          ${aiReport?.personaV2?.primary || "-"}
+          ${
+  aiReport
+    ? aiReport?.personaV2?.primary || "-"
+    : "AI analysis pending"
+}
         </p>
 
         <p>
           <span class="font-semibold">
             AI Score:
           </span>
-          ${aiReport?.trustScore || 0}
+          ${
+  aiReport
+    ? aiReport?.trustScore || 0
+    : "Not Available"
+}
         </p>
 
         <p>
           <span class="font-semibold">
             Lead Temperature:
           </span>
-          ${aiReport?.personaV2?.leadTemperature || "-"}
+          ${
+  aiReport
+    ? aiReport?.personaV2?.leadTemperature || "-"
+    : "Unknown"
+}
         </p>
 
         <p>
           <span class="font-semibold">
             Financing:
           </span>
-          ${aiReport?.personaV2?.financingLikelihood || "-"}
+          ${
+  aiReport
+    ? aiReport?.personaV2?.financingLikelihood || "-"
+    : "Unknown"
+}
         </p>
 
       </div>
