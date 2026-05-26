@@ -5,6 +5,7 @@
 
 let allLeads = [];
 let currentOpenLeadId = null;
+let currentLeadRequestId = 0;
 const db = window.db;
 
 // =====================================
@@ -338,7 +339,8 @@ async function(id, status) {
 // =====================================
 
 window.viewLead = async function(id) {
-
+  
+  const requestId = ++currentLeadRequestId;
   const lead =
     allLeads.find(
       l => l.id === id
@@ -394,6 +396,9 @@ if (!aiReportSnapshot.empty) {
     aiReportSnapshot.docs[0].data();
 }
 
+if (requestId !== currentLeadRequestId) {
+  return;
+}
     renderLeadPanel(
       lead,
       aiReport
@@ -404,13 +409,17 @@ if (!aiReportSnapshot.empty) {
 
     console.error(error);
 
-    document.getElementById(
-      "leadPanelContent"
-    ).innerHTML = `
-      <div class="text-red-600">
-        Failed to load AI report
-      </div>
-    `;
+    if (requestId !== currentLeadRequestId) {
+  return;
+}
+
+document.getElementById(
+  "leadPanelContent"
+).innerHTML = `
+  <div class="text-red-600">
+    Failed to load AI report
+  </div>
+`;
   }
 };
 
