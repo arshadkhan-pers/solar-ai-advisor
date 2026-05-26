@@ -589,6 +589,69 @@ function renderLeadPanel(
   `;
 }
 
+// =====================================
+// SAVE OPS DETAILS
+// =====================================
+
+window.saveOpsDetails =
+async function(id) {
+
+  try {
+
+    const priority =
+      document.getElementById(
+        "opsPriority"
+      ).value;
+
+    const followUpDate =
+      document.getElementById(
+        "followUpDate"
+      ).value;
+
+    const opsNote =
+      document.getElementById(
+        "opsNote"
+      ).value;
+
+    await db
+      .collection("leads")
+      .doc(id)
+      .update({
+
+        priority:
+          priority,
+
+        followUpDate:
+          followUpDate,
+
+        opsNote:
+          opsNote,
+
+        assignedTo:
+          "Ops Team",
+
+        updatedAt:
+          new Date()
+
+      });
+
+    alert(
+      "Ops details saved successfully"
+    );
+
+    // REFRESH LEADS
+    loadLeads();
+
+  }
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Failed to save ops details"
+    );
+  }
+};
 
 // =====================================
 // START
