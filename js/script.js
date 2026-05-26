@@ -147,14 +147,23 @@ async function handleConsultationSubmit() {
   const phoneInput = document.getElementById('consPhone').value.trim();
   const city = document.getElementById('consCity').value.trim();
 
-  const validation = validateForm("cons", name, email, phoneInput, city);
-  if (!validation.isValid) {
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Show My Savings Report";
-  return;
-} 
+  const submitBtn =
+  document.getElementById("consSubmitBtn");
 
-  const submitBtn = document.getElementById("consSubmitBtn");
+const validation =
+  validateForm(
+    "cons",
+    name,
+    email,
+    phoneInput,
+    city
+  );
+
+if (!validation.isValid) {
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Request Call Back";
+  return;
+}
   submitBtn.disabled = true;
   submitBtn.innerText = "Processing...";
 
@@ -221,9 +230,32 @@ if (!snapshot.empty) {
   submitBtn.disabled = false;
   submitBtn.innerText = "Show My Savings Report";
 
-  alert(
-    "You have already submitted a solar request in the last 24 hours. Our solar advisor team will contact you shortly."
+  // Close popup
+  document.getElementById("leadPopup")
+    ?.classList.add("hidden");
+
+  const openWhatsAppNow = confirm(
+    "You have already submitted a solar request in the last 24 hours.\n\nOur solar advisor team will contact you shortly.\n\nWould you like to chat with us on WhatsApp now?"
   );
+
+  if (openWhatsAppNow) {
+
+    const state =
+      localStorage.getItem("state") || "";
+
+    const message =
+`Hi, I already submitted a solar request.
+
+Name: ${name}
+Phone: ${phone}
+City: ${city}
+State: ${state}
+Monthly Bill: ₹${bill}
+
+I would like to speak with your solar advisor team.`;
+
+    openWhatsAppChat(message);
+  }
 
   return;
 }
