@@ -14,25 +14,40 @@ const db = window.db;
 
 async function loadLeads() {
 
-  const snapshot = await db
-  .collection("leads")
-  .orderBy("createdAt", "desc")
-  .get();
+  try {
 
-  allLeads = [];
+    const snapshot = await db
+      .collection("leads")
+      .orderBy("createdAt", "desc")
+      .get();
 
-  snapshot.forEach((docItem) => {
+    allLeads = [];
 
-    allLeads.push({
-      id: docItem.id,
-      ...docItem.data()
+    snapshot.forEach((docItem) => {
+
+      allLeads.push({
+        id: docItem.id,
+        ...docItem.data()
+      });
+
     });
 
-  });
+    renderLeads(allLeads);
 
-  renderLeads(allLeads);
+    updateMetrics(allLeads);
 
-  updateMetrics(allLeads);
+  }
+  catch (error) {
+
+    console.error(
+      "LOAD LEADS ERROR:",
+      error
+    );
+
+    alert(
+      "Failed to load leads"
+    );
+  }
 }
 
 
@@ -829,13 +844,13 @@ if (
 if (lead.timeline?.length) {
 
   lead.timeline.forEach((item) => {
-
-    timeline.push({
-      ...item,
-      createdAt:
-        item.createdAt
-    });
-
+timeline.push({
+  ...item,
+  createdAt:
+    item.createdAt?.toDate
+      ? item.createdAt.toDate()
+      : item.createdAt
+});
   });
 
 }
@@ -853,13 +868,21 @@ if (lead.timeline?.length) {
   }
 
   const sortedTimeline =
-  [...timeline].sort(
+  [...timeline].sort((a, b) => {
 
-    (a, b) =>
-      new Date(b.createdAt) -
-      new Date(a.createdAt)
+    const dateA =
+      a.createdAt?.seconds
+        ? a.createdAt.seconds * 1000
+        : new Date(a.createdAt).getTime();
 
-  );
+    const dateB =
+      b.createdAt?.seconds
+        ? b.createdAt.seconds * 1000
+        : new Date(b.createdAt).getTime();
+
+    return dateB - dateA;
+
+  });
 
   sortedTimeline.forEach((item) => {
 
