@@ -280,9 +280,31 @@ if (!snapshot.empty) {
 }
 }
 
+// ==========================================
+// 5. WHATSAPP SUPPORT
+// ==========================================
+
+function openWhatsAppChat(customMessage = "") {
+
+  const defaultMessage =
+    "Hi, I’m interested in rooftop solar. Can your solar advisor help me?";
+
+  const message =
+    customMessage || defaultMessage;
+
+  const encodedMessage =
+    encodeURIComponent(message);
+
+  const number = "61404166347";
+
+  window.open(
+    `https://wa.me/${number}?text=${encodedMessage}`,
+    "_blank"
+  );
+}
 
 // ==========================================
-// 5. UI HANDLERS
+// 6. UI HANDLERS
 // ==========================================
 function openConsultation() {
   document.getElementById('consultationPopup').classList.remove('hidden');
@@ -328,7 +350,7 @@ function sortStates() {
 
 
 // ==========================================
-// 6. LIFECYCLE
+// 7. LIFECYCLE
 // ==========================================
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("leadPopup")?.classList.add("hidden");
