@@ -637,22 +637,7 @@ function renderLeadPanel(
             class="w-full border border-slate-200 rounded-xl px-3 py-3">
 
         </div>
-
-        <!-- NOTES -->
-        <div>
-
-          <label class="text-sm font-semibold text-slate-700 block mb-2">
-            Ops Notes
-          </label>
-
-          <textarea
-            id="opsNote"
-            rows="4"
-            class="w-full border border-slate-200 rounded-xl px-3 py-3"
-            placeholder="Add follow-up notes...">${lead.opsNote || ""}</textarea>
-
-        </div>
-
+        
         <!-- SAVE -->
         <button
           onclick="saveOpsDetails('${lead.id}')"
@@ -771,11 +756,6 @@ async function(id) {
         "followUpDate"
       ).value;
 
-    const opsNote =
-      document.getElementById(
-        "opsNote"
-      ).value;
-
     await db
       .collection("leads")
       .doc(id)
@@ -786,9 +766,6 @@ async function(id) {
 
         followUpDate:
           followUpDate,
-
-        opsNote:
-          opsNote,
 
         assignedTo:
           "Ops Team",
