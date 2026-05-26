@@ -84,8 +84,29 @@ function renderLeads(leads) {
 
     const row = document.createElement("tr");
 
-    row.className =
-      "border-b hover:bg-slate-50";
+    let rowClass =
+  "border-b hover:bg-slate-50";
+
+const isOverdue =
+  lead.followUpDate &&
+  new Date(lead.followUpDate) < new Date();
+
+if (lead.priority === "URGENT" || isOverdue) {
+  rowClass +=
+    " bg-red-50 border-l-4 border-red-500";
+}
+else if (lead.priority === "HIGH") {
+
+  rowClass +=
+    " bg-orange-50 border-l-4 border-orange-500";
+}
+else if (lead.priority === "MEDIUM") {
+
+  rowClass +=
+    " bg-yellow-50 border-l-4 border-yellow-500";
+}
+
+row.className = rowClass;
 
     row.innerHTML = `
 
@@ -104,6 +125,26 @@ function renderLeads(leads) {
           <p class="text-xs text-gray-400 mt-1">
             ${lead.leadCode || ""}
           </p>
+
+${
+  lead.followUpDate
+  ? `
+    <p class="
+      text-xs
+      mt-1
+      font-medium
+      ${
+        new Date(lead.followUpDate) < new Date()
+        ? "text-red-600"
+        : "text-emerald-600"
+      }
+    ">
+      Follow-up:
+      ${lead.followUpDate}
+    </p>
+  `
+  : ""
+}
 
         </div>
 
@@ -134,8 +175,45 @@ function renderLeads(leads) {
       </td>
 
       <td class="px-4 py-4">
-        ${lead.stage || '-'}
-      </td>
+
+  <div class="space-y-2">
+
+    <div>
+      ${lead.stage || '-'}
+    </div>
+
+    ${
+      lead.priority
+      ? `
+        <span class="
+          text-xs
+          px-2
+          py-1
+          rounded-full
+          font-semibold
+
+          ${
+            lead.priority === "URGENT"
+            ? "bg-red-600 text-white"
+
+            : lead.priority === "HIGH"
+            ? "bg-orange-500 text-white"
+
+            : lead.priority === "MEDIUM"
+            ? "bg-yellow-400 text-slate-900"
+
+            : "bg-slate-200 text-slate-700"
+          }
+        ">
+          ${lead.priority}
+        </span>
+      `
+      : ""
+    }
+
+  </div>
+
+</td>
 
       <td class="px-4 py-4">
 
