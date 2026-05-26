@@ -87,10 +87,13 @@ function renderLeads(leads) {
 
     let rowClass =
   "border-b hover:bg-slate-50";
+  
+  const today =
+  new Date().toISOString().split("T")[0];
 
 const isOverdue =
   lead.followUpDate &&
-  new Date(lead.followUpDate) < new Date();
+  lead.followUpDate < today;
 
 if (lead.priority === "URGENT" || isOverdue) {
   rowClass +=
