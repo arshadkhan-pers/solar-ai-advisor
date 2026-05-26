@@ -148,7 +148,11 @@ async function handleConsultationSubmit() {
   const city = document.getElementById('consCity').value.trim();
 
   const validation = validateForm("cons", name, email, phoneInput, city);
-  if (!validation.isValid) return; 
+  if (!validation.isValid) {
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Show My Savings Report";
+  return;
+} 
 
   const submitBtn = document.getElementById("consSubmitBtn");
   submitBtn.disabled = true;
@@ -190,7 +194,11 @@ async function submitLeadAndContinue() {
   const bill = localStorage.getItem("bill") || window.currentBill;
 
   const validation = validateForm("lead", name, email, phoneRaw, city);
-  if (!validation.isValid) return;
+  if (!validation.isValid) {
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Show My Savings Report";
+  return;
+}
 
   const phone = validation.normalizedPhone;
 
@@ -208,29 +216,14 @@ const snapshot = await db.collection("leads")
   
 if (!snapshot.empty) {
 
-  const existingLead = snapshot.docs[0];
-
   console.log("⚠️ Duplicate lead prevented");
 
-  // Reuse existing lead
-  localStorage.setItem("leadId", existingLead.id);
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Show My Savings Report";
 
-  localStorage.setItem("leadName", name);
-  localStorage.setItem("leadPhone", phone);
-  localStorage.setItem("leadCity", city);
-  localStorage.setItem("leadBill", bill);
-
-  const state = localStorage.getItem("state");
-
-  // Optional tracking
-  await existingLead.ref.update({
-    lastDuplicateAttemptAt:
-      firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  // Continue same journey
-  window.location.href =
-    `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+  alert(
+    "You have already submitted a solar request in the last 24 hours. Our solar advisor team will contact you shortly."
+  );
 
   return;
 }
