@@ -822,7 +822,7 @@ if (lead.createdAt) {
 
 }
 
-// AI ANALYSIS COMPLETED
+/***AI ANALYSIS COMPLETED
 if (
   lead.stage === "qualified" &&
   lead.updatedAt
@@ -839,7 +839,7 @@ if (
   });
 
 }
-
+***/
 // MANUAL TIMELINE EVENTS
 if (lead.timeline?.length) {
 
