@@ -497,6 +497,91 @@ function renderLeadPanel(
 }
         </p>
 
+    </div>
+
+    <!-- OPS MANAGEMENT -->
+    <div class="space-y-3 mt-6">
+
+      <h3 class="text-lg font-bold text-slate-900">
+        Ops Management
+      </h3>
+
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-4">
+
+        <!-- PRIORITY -->
+        <div>
+
+          <label class="text-sm font-semibold text-slate-700 block mb-2">
+            Priority
+          </label>
+
+          <select
+            id="opsPriority"
+            class="w-full border border-slate-200 rounded-xl px-3 py-3">
+
+            <option value="LOW"
+              ${lead.priority === "LOW" ? "selected" : ""}>
+              LOW
+            </option>
+
+            <option value="MEDIUM"
+              ${lead.priority === "MEDIUM" || !lead.priority ? "selected" : ""}>
+              MEDIUM
+            </option>
+
+            <option value="HIGH"
+              ${lead.priority === "HIGH" ? "selected" : ""}>
+              HIGH
+            </option>
+
+            <option value="URGENT"
+              ${lead.priority === "URGENT" ? "selected" : ""}>
+              URGENT
+            </option>
+
+          </select>
+
+        </div>
+
+        <!-- FOLLOW UP -->
+        <div>
+
+          <label class="text-sm font-semibold text-slate-700 block mb-2">
+            Follow-up Date
+          </label>
+
+          <input
+            id="followUpDate"
+            type="date"
+            value="${lead.followUpDate || ''}"
+            class="w-full border border-slate-200 rounded-xl px-3 py-3">
+
+        </div>
+
+        <!-- NOTES -->
+        <div>
+
+          <label class="text-sm font-semibold text-slate-700 block mb-2">
+            Ops Notes
+          </label>
+
+          <textarea
+            id="opsNote"
+            rows="4"
+            class="w-full border border-slate-200 rounded-xl px-3 py-3"
+            placeholder="Add follow-up notes...">${lead.opsNote || ""}</textarea>
+
+        </div>
+
+        <!-- SAVE -->
+        <button
+          onclick="saveOpsDetails('${lead.id}')"
+          class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold">
+
+          Save Ops Details
+
+        </button>
+
       </div>
 
     </div>
