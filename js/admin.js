@@ -4,6 +4,7 @@
 // =====================================
 
 let allLeads = [];
+let currentOpenLeadId = null;
 const db = window.db;
 
 // =====================================
@@ -341,6 +342,7 @@ window.viewLead = async function(id) {
     );
 
   if (!lead) return;
+  currentOpenLeadId = id;
 
   // OPEN PANEL
   document
@@ -665,7 +667,53 @@ function renderLeadPanel(
     </div>
 
   `;
+  renderLeadNotes(lead);
 }
+
+// =====================================
+// RENDER NOTES
+// =====================================
+
+function renderLeadNotes(lead) {
+
+  const notesList =
+    document.getElementById(
+      "leadNotesList"
+    );
+
+  if (!notesList) return;
+
+  notesList.innerHTML = "";
+
+  const notes =
+    lead.notes || [];
+
+  if (notes.length === 0) {
+
+    notesList.innerHTML = `
+      <div class="text-sm text-slate-400">
+        No notes added yet
+      </div>
+    `;
+
+    return;
+  }
+
+  notes.forEach((note) => {
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "bg-slate-100 rounded-xl p-3 text-sm text-slate-700";
+
+    item.innerText = note;
+
+    notesList.appendChild(item);
+
+  });
+}
+
 
 // =====================================
 // SAVE OPS DETAILS
@@ -734,5 +782,71 @@ async function(id) {
 // =====================================
 // START
 // =====================================
+
+// =====================================
+// SAVE NOTE
+// =====================================
+
+document.addEventListener(
+  "click",
+  async function(event) {
+
+    if (
+      event.target.id !==
+      "saveLeadNoteBtn"
+    ) {
+      return;
+    }
+
+    const textarea =
+      document.getElementById(
+        "newLeadNote"
+      );
+
+    const note =
+      textarea.value.trim();
+
+    if (!note) {
+
+      alert("Enter note");
+
+      return;
+    }
+
+    try {
+
+      await db
+        .collection("leads")
+        .doc(currentOpenLeadId)
+        .update({
+
+          notes:
+            firebase.firestore.FieldValue.arrayUnion(
+              note
+            ),
+
+          updatedAt:
+            new Date()
+
+        });
+
+      textarea.value = "";
+
+      await loadLeads();
+
+      await viewLead(
+        currentOpenLeadId
+      );
+
+    }
+    catch (error) {
+
+      console.error(error);
+
+      alert("Failed to save note");
+    }
+
+  }
+);
 
 loadLeads();
