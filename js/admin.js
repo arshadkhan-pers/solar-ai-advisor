@@ -336,7 +336,7 @@ async function(id, status) {
 
     alert("Lead status updated");
 
-    loadLeads();
+    await loadLeads();
 
   }
   catch (error) {
@@ -876,7 +876,8 @@ if (lead.timeline?.length) {
         <div>
 
           <div class="text-sm font-semibold text-slate-800">
-            ${
+
+  ${
   item.type === "NOTE_ADDED"
     ? "Note Added"
 
@@ -889,11 +890,10 @@ if (lead.timeline?.length) {
   : item.type === "QUALIFIED"
     ? "AI Analysis Completed"
 
-  : item.type || "Update"
-  
   : item.type === "STATUS_CHANGED"
-  ? "Status Updated"
-  
+    ? "Status Updated"
+
+  : item.type || "Update"
 }
           </div>
 
