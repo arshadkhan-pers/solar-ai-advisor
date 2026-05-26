@@ -179,6 +179,10 @@ async function handleConsultationSubmit() {
 }
 
 async function submitLeadAndContinue() {
+  const submitBtn = document.querySelector("#leadPopup button");
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Processing...";
+  
   const name = document.getElementById("leadName").value.trim();
   const email = document.getElementById("leadEmail").value.trim();
   const phoneRaw = document.getElementById("leadPhone").value.trim();
@@ -191,19 +195,44 @@ async function submitLeadAndContinue() {
   const phone = validation.normalizedPhone;
 
   try {
-    let duplicateLeadId = null;
-    const snapshot = await db.collection("leads")
-      .where("phone", "==", phone)
-      .orderBy("createdAt", "desc")
-      .limit(1)
-      .get();
+    const last24Hours = new Date(
+  Date.now() - 24 * 60 * 60 * 1000
+);
 
-    if (!snapshot.empty) {
-      const lastDoc = snapshot.docs[0];
-      const lastTime = lastDoc.data().createdAt?.toDate?.() || new Date(0);
-      const minutesDiff = (Date.now() - lastTime.getTime()) / 60000;
-      if (minutesDiff < 30) duplicateLeadId = lastDoc.id;
-    }
+const snapshot = await db.collection("leads")
+  .where("normalizedPhone", "==", phone)
+  .where("createdAt", ">=", last24Hours)
+  .limit(1)
+  .get();
+
+if (!snapshot.empty) {
+
+  const existingLead = snapshot.docs[0];
+
+  console.log("⚠️ Duplicate lead prevented");
+
+  // Reuse existing lead
+  localStorage.setItem("leadId", existingLead.id);
+
+  localStorage.setItem("leadName", name);
+  localStorage.setItem("leadPhone", phone);
+  localStorage.setItem("leadCity", city);
+  localStorage.setItem("leadBill", bill);
+
+  const state = localStorage.getItem("state");
+
+  // Optional tracking
+  await existingLead.ref.update({
+    lastDuplicateAttemptAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  // Continue same journey
+  window.location.href =
+    `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+
+  return;
+}
 
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
@@ -212,6 +241,7 @@ async function submitLeadAndContinue() {
       name,
       email,
       phone,
+      normalizedPhone: phone,
       city,
       state: localStorage.getItem("state"),
       bill: parseFloat(bill),
@@ -221,8 +251,6 @@ async function submitLeadAndContinue() {
       status: "New",
       stage: "initial",
       leadSource: "Website",
-      duplicateOf: duplicateLeadId || null,
-      isDuplicate: !!duplicateLeadId,
       assignedTo: "",
       assignedInstallerId: "",
       sharedWithInstaller: false,
@@ -232,7 +260,8 @@ async function submitLeadAndContinue() {
       lastUpdatedBy: "",
       notes: [],
       isTestLead: false,
-      createdAt: new Date()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     
@@ -246,9 +275,15 @@ async function submitLeadAndContinue() {
     window.location.href = `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
 
   } catch (error) {
-    console.error("Firestore Error:", error);
-    alert("Error saving data.");
-  }
+
+  console.error("Firestore Error:", error);
+
+  const submitBtn = document.querySelector("#leadPopup button");
+
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Show My Savings Report";
+  alert("Error saving data.");
+}
 }
 
 
