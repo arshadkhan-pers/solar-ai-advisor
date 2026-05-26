@@ -663,7 +663,32 @@ function renderLeadPanel(
         </button>
 
       </div>
+<!-- NOTES SECTION -->
+<div class="space-y-3 mt-6">
 
+  <h3 class="text-lg font-bold text-slate-900">
+    Ops Notes
+  </h3>
+
+  <div
+    id="leadNotesList"
+    class="space-y-2">
+  </div>
+
+  <textarea
+    id="newLeadNote"
+    rows="3"
+    placeholder="Add internal ops note..."
+    class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+  </textarea>
+
+  <button
+    id="saveLeadNoteBtn"
+    class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">
+    Save Note
+  </button>
+
+</div>
     </div>
 
   `;
@@ -707,7 +732,19 @@ function renderLeadNotes(lead) {
     item.className =
       "bg-slate-100 rounded-xl p-3 text-sm text-slate-700";
 
-    item.innerText = note;
+    item.innerHTML = `
+  <div class="flex items-start justify-between gap-3">
+
+    <div class="text-slate-700">
+      ${note}
+    </div>
+
+    <div class="text-[10px] text-slate-400 whitespace-nowrap">
+      OPS
+    </div>
+
+  </div>
+`;
 
     notesList.appendChild(item);
 
