@@ -138,10 +138,10 @@ ${
       mt-1
       font-medium
       ${
-        new Date(lead.followUpDate) < new Date()
-        ? "text-red-600"
-        : "text-emerald-600"
-      }
+  lead.followUpDate < today
+  ? "text-red-600"
+  : "text-emerald-600"
+}
     ">
       Follow-up:
       ${lead.followUpDate}
@@ -851,9 +851,15 @@ document.addEventListener(
 
       await loadLeads();
 
-      await viewLead(
-        currentOpenLeadId
-      );
+      const updatedLead =
+  allLeads.find(
+    l => l.id === currentOpenLeadId
+  );
+
+if (updatedLead) {
+
+  renderLeadNotes(updatedLead);
+}
 
     }
     catch (error) {
