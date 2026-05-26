@@ -318,7 +318,11 @@ async function(id, status) {
   .doc(id)
   .update({
     status: status,
-    updatedAt: new Date()
+    updatedAt:
+  new Date(),
+
+timeline:
+  existingTimeline
   });
 
     alert("Lead status updated");
@@ -809,7 +813,21 @@ function renderTimeline(lead) {
         <div>
 
           <div class="text-sm font-semibold text-slate-800">
-            ${item.type || "UPDATE"}
+            ${
+  item.type === "NOTE_ADDED"
+    ? "Note Added"
+
+  : item.type === "OPS_UPDATE"
+    ? "Ops Updated"
+
+  : item.type === "CREATED"
+    ? "Lead Created"
+
+  : item.type === "QUALIFIED"
+    ? "AI Analysis Completed"
+
+  : item.type || "Update"
+}
           </div>
 
           <div class="text-sm text-slate-600 mt-1">
@@ -821,9 +839,19 @@ function renderTimeline(lead) {
         <div class="text-xs text-slate-400 whitespace-nowrap">
           ${
             item.createdAt
-            ? new Date(item.createdAt)
-                .toLocaleDateString()
-            : ""
+? new Date(item.createdAt)
+    .toLocaleString(
+      "en-IN",
+      {
+        timeZone: "Asia/Kolkata",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }
+    )
+: ""
           }
         </div>
 
@@ -857,6 +885,31 @@ async function(id) {
       document.getElementById(
         "followUpDate"
       ).value;
+
+const leadDoc =
+  await db
+    .collection("leads")
+    .doc(id)
+    .get();
+
+const existingTimeline =
+  leadDoc.data()?.timeline || [];
+
+existingTimeline.push({
+
+  type: "OPS_UPDATE",
+
+  message:
+    `Priority changed to ${priority}${
+      followUpDate
+      ? ` • Follow-up: ${followUpDate}`
+      : ""
+    }`,
+
+  createdAt:
+    new Date().toISOString()
+
+});
 
     await db
       .collection("leads")
