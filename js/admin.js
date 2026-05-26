@@ -6,7 +6,341 @@
 let allLeads = [];
 let currentOpenLeadId = null;
 let currentLeadRequestId = 0;
+
+let lastVisibleDoc = null;
+let firstVisibleDoc = null;
+
+let currentPageLeads = [];
+
+let selectedLeadIds = [];
+
+const PAGE_SIZE = 20;
+
 const db = window.db;
+
+
+// =====================================
+// FORMAT LEAD TIME
+// =====================================
+
+function formatLeadTime(timestamp) {
+
+  const date =
+    timestamp?.toDate
+      ? timestamp.toDate()
+      : new Date(timestamp);
+
+  return date.toLocaleString(
+    "en-IN",
+    {
+      day: "numeric",
+      month: "short",
+      hour: "numeric",
+      minute: "2-digit"
+    }
+  );
+}
+
+// =====================================
+// SEARCH LEADS
+// =====================================
+
+window.searchLeads = function() {
+
+  const search =
+    document.getElementById(
+      "leadSearchInput"
+    )
+    .value
+    .toLowerCase()
+    .trim();
+
+  if (!search) {
+
+    renderLeads(currentPageLeads);
+
+    return;
+  }
+
+  const filtered =
+    currentPageLeads.filter((lead) => {
+
+      return (
+        (lead.name || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        (lead.phone || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        (lead.city || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        (lead.leadCode || "")
+          .toLowerCase()
+          .includes(search)
+      );
+
+    });
+
+  renderLeads(filtered);
+
+};
+
+// =====================================
+// TOGGLE LEAD SELECTION
+// =====================================
+
+window.toggleLeadSelection =
+function(id) {
+
+  if (
+    selectedLeadIds.includes(id)
+  ) {
+
+    selectedLeadIds =
+      selectedLeadIds.filter(
+        l => l !== id
+      );
+
+  }
+  else {
+
+    selectedLeadIds.push(id);
+
+  }
+};
+
+// =====================================
+// SELECT ALL
+// =====================================
+
+window.toggleSelectAll =
+function(isChecked) {
+
+  if (isChecked) {
+
+    selectedLeadIds =
+      currentPageLeads.map(
+        l => l.id
+      );
+
+  }
+  else {
+
+    selectedLeadIds = [];
+
+  }
+
+  renderLeads(currentPageLeads);
+
+};
+
+// =====================================
+// CSV EXPORT
+// =====================================
+
+window.downloadSelectedLeadsCSV =
+function() {
+
+  const selectedLeads =
+    currentPageLeads.filter(
+      l => selectedLeadIds.includes(l.id)
+    );
+
+  if (selectedLeads.length === 0) {
+
+    alert("Select leads first");
+
+    return;
+  }
+
+  const headers = [
+    "Lead Code",
+    "Name",
+    "Phone",
+    "City",
+    "Bill",
+    "Status",
+    "Priority",
+    "Stage"
+  ];
+
+  const rows =
+    selectedLeads.map((lead) => [
+
+      lead.leadCode || "",
+      lead.name || "",
+      lead.phone || "",
+      lead.city || "",
+      lead.bill || "",
+      lead.status || "",
+      lead.priority || "",
+      lead.stage || ""
+
+    ]);
+
+  const csvContent = [
+
+    headers.join(","),
+
+    ...rows.map(
+      r => r.join(",")
+    )
+
+  ].join("\n");
+
+  const blob =
+    new Blob(
+      [csvContent],
+      {
+        type: "text/csv"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+
+  a.download =
+    "solar_leads.csv";
+
+  a.click();
+
+};
+
+// =====================================
+// WHATSAPP SHARE
+// =====================================
+
+window.shareSelectedLeadsWhatsApp =
+function() {
+
+  const selectedLeads =
+    currentPageLeads.filter(
+      l => selectedLeadIds.includes(l.id)
+    );
+
+  if (selectedLeads.length === 0) {
+
+    alert("Select leads first");
+
+    return;
+  }
+
+  let message = "";
+
+  selectedLeads.forEach((lead) => {
+
+    message +=
+`Lead: ${lead.leadCode || ""}
+
+Name: ${lead.name || ""}
+Phone: ${lead.phone || ""}
+City: ${lead.city || ""}
+Bill: ₹${lead.bill || 0}
+Status: ${lead.status || ""}
+Priority: ${lead.priority || "-"}
+
+-------------------------
+
+`;
+
+  });
+
+  window.open(
+    `https://wa.me/?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
+
+};
+
+// =====================================
+// NEXT PAGE
+// =====================================
+
+window.loadNextPage =
+async function() {
+
+  if (!lastVisibleDoc) return;
+
+  try {
+
+    const snapshot =
+      await db
+        .collection("leads")
+        .orderBy("createdAt", "desc")
+        .startAfter(lastVisibleDoc)
+        .limit(PAGE_SIZE)
+        .get();
+
+    if (snapshot.empty) {
+
+      alert("No more leads");
+
+      return;
+    }
+
+    allLeads = [];
+
+    snapshot.forEach((docItem) => {
+
+      allLeads.push({
+        id: docItem.id,
+        ...docItem.data()
+      });
+
+    });
+
+    currentPageLeads = allLeads;
+
+    firstVisibleDoc =
+      snapshot.docs[0];
+
+    lastVisibleDoc =
+      snapshot.docs[
+        snapshot.docs.length - 1
+      ];
+
+    renderLeads(allLeads);
+
+    updateMetrics(allLeads);
+
+  }
+  catch (error) {
+
+    console.error(error);
+
+    alert("Failed loading next page");
+
+  }
+
+};
+
+// =====================================
+// PREVIOUS PAGE
+// =====================================
+
+window.loadPreviousPage =
+function() {
+
+  alert(
+    "Previous page support coming next"
+  );
+
+};
 
 // =====================================
 // LOAD LEADS
@@ -19,6 +353,7 @@ async function loadLeads() {
     const snapshot = await db
       .collection("leads")
       .orderBy("createdAt", "desc")
+      .limit(PAGE_SIZE)
       .get();
 
     allLeads = [];
@@ -32,9 +367,24 @@ async function loadLeads() {
 
     });
 
+    currentPageLeads = allLeads;
+
+    firstVisibleDoc =
+      snapshot.docs[0] || null;
+
+    lastVisibleDoc =
+      snapshot.docs[
+        snapshot.docs.length - 1
+      ] || null;
+
     renderLeads(allLeads);
 
     updateMetrics(allLeads);
+
+    document.getElementById(
+      "paginationInfo"
+    ).innerText =
+      `Showing ${allLeads.length} latest leads`;
 
   }
   catch (error) {
@@ -49,7 +399,6 @@ async function loadLeads() {
     );
   }
 }
-
 
 // =====================================
 // METRICS
@@ -128,11 +477,25 @@ else if (lead.priority === "MEDIUM") {
 
 row.className = rowClass;
 
-    row.innerHTML = `
+row.innerHTML = `
 
-      <td class="px-4 py-4">
+<td class="px-4 py-4">
 
-        <div>
+  <input
+    type="checkbox"
+    ${
+      selectedLeadIds.includes(lead.id)
+      ? "checked"
+      : ""
+    }
+    onchange="toggleLeadSelection('${lead.id}')"
+  >
+
+</td>
+
+<td class="px-4 py-4">
+
+  <div>
 
           <p class="font-semibold">
             ${lead.name || "N/A"}
@@ -145,6 +508,14 @@ row.className = rowClass;
           <p class="text-xs text-gray-400 mt-1">
             ${lead.leadCode || ""}
           </p>
+
+<p class="text-xs text-indigo-500 mt-1">
+  ${
+    lead.createdAt
+    ? formatLeadTime(lead.createdAt)
+    : ""
+  }
+</p>
 
 ${
   lead.followUpDate
