@@ -661,6 +661,19 @@ function renderLeadPanel(
 
       </div>
 <!-- NOTES SECTION -->
+<!-- TIMELINE -->
+<div class="space-y-3 mt-6">
+
+  <h3 class="text-lg font-bold text-slate-900">
+    Activity Timeline
+  </h3>
+
+  <div
+    id="leadTimeline"
+    class="space-y-3">
+  </div>
+
+</div>
 <div class="space-y-3 mt-6">
 
   <h3 class="text-lg font-bold text-slate-900">
@@ -690,6 +703,7 @@ function renderLeadPanel(
 
   `;
   renderLeadNotes(lead);
+  renderTimeline(lead);
 }
 
 // =====================================
@@ -746,6 +760,82 @@ function renderLeadNotes(lead) {
     notesList.appendChild(item);
 
   });
+}
+
+// =====================================
+// RENDER TIMELINE
+// =====================================
+
+function renderTimeline(lead) {
+
+  const timelineContainer =
+    document.getElementById(
+      "leadTimeline"
+    );
+
+  if (!timelineContainer) return;
+
+  timelineContainer.innerHTML = "";
+
+  const timeline =
+    lead.timeline || [];
+
+  if (timeline.length === 0) {
+
+    timelineContainer.innerHTML = `
+      <div class="text-sm text-slate-400">
+        No timeline activity available
+      </div>
+    `;
+
+    return;
+  }
+
+  const sortedTimeline =
+    [...timeline].reverse();
+
+  sortedTimeline.forEach((item) => {
+
+    const timelineItem =
+      document.createElement("div");
+
+    timelineItem.className =
+      "border border-slate-200 rounded-xl p-4 bg-white";
+
+    timelineItem.innerHTML = `
+
+      <div class="flex items-start justify-between gap-3">
+
+        <div>
+
+          <div class="text-sm font-semibold text-slate-800">
+            ${item.type || "UPDATE"}
+          </div>
+
+          <div class="text-sm text-slate-600 mt-1">
+            ${item.message || ""}
+          </div>
+
+        </div>
+
+        <div class="text-xs text-slate-400 whitespace-nowrap">
+          ${
+            item.createdAt
+            ? new Date(item.createdAt)
+                .toLocaleDateString()
+            : ""
+          }
+        </div>
+
+      </div>
+    `;
+
+    timelineContainer.appendChild(
+      timelineItem
+    );
+
+  });
+
 }
 
 
@@ -852,7 +942,20 @@ document.addEventListener(
             ),
 
           updatedAt:
-            new Date()
+  new Date(),
+
+timeline:
+  firebase.firestore.FieldValue.arrayUnion({
+
+    type: "NOTE_ADDED",
+
+    message:
+      note,
+
+    createdAt:
+      new Date().toISOString()
+
+  })
 
         });
 
