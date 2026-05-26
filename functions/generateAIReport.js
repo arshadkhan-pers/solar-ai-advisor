@@ -75,7 +75,13 @@ exports.generateAIReport = onDocumentUpdated(
     if (!after.aiRegenerationRequired) {
   return null;
 }
-    
+    if (
+  before.aiRegenerationRequired === true &&
+  after.aiRegenerationRequired === true
+) {
+  return null;
+}
+
     // In Gen 2, wildcard parameters live inside event.params
     const leadId = event.params.leadId;
 
