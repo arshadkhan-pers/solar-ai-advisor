@@ -320,9 +320,18 @@ async function(id, status) {
     status: status,
     updatedAt:
   new Date(),
+  timeline:
+  firebase.firestore.FieldValue.arrayUnion({
 
-timeline:
-  existingTimeline
+    type: "STATUS_CHANGED",
+
+    message:
+      `Lead status changed to ${status}`,
+
+    createdAt:
+      new Date().toISOString()
+
+  })
   });
 
     alert("Lead status updated");
@@ -781,8 +790,56 @@ function renderTimeline(lead) {
 
   timelineContainer.innerHTML = "";
 
-  const timeline =
-    lead.timeline || [];
+  const timeline = [];
+
+// LEAD CREATED
+if (lead.createdAt) {
+
+  timeline.push({
+    type: "CREATED",
+    message:
+      `Lead created from ${lead.leadSource || "Website"}`,
+    createdAt:
+      lead.createdAt?.toDate
+        ? lead.createdAt.toDate()
+        : lead.createdAt
+  });
+
+}
+
+// AI ANALYSIS COMPLETED
+if (
+  lead.stage === "qualified" &&
+  lead.updatedAt
+) {
+
+  timeline.push({
+    type: "QUALIFIED",
+    message:
+      "AI analysis completed successfully",
+    createdAt:
+      lead.updatedAt?.toDate
+        ? lead.updatedAt.toDate()
+        : lead.updatedAt
+  });
+
+}
+
+// MANUAL TIMELINE EVENTS
+if (lead.timeline?.length) {
+
+  lead.timeline.forEach((item) => {
+
+    timeline.push({
+      ...item,
+      createdAt:
+        item.createdAt
+    });
+
+  });
+
+}
+
 
   if (timeline.length === 0) {
 
@@ -796,7 +853,13 @@ function renderTimeline(lead) {
   }
 
   const sortedTimeline =
-    [...timeline].reverse();
+  [...timeline].sort(
+
+    (a, b) =>
+      new Date(b.createdAt) -
+      new Date(a.createdAt)
+
+  );
 
   sortedTimeline.forEach((item) => {
 
@@ -827,6 +890,10 @@ function renderTimeline(lead) {
     ? "AI Analysis Completed"
 
   : item.type || "Update"
+  
+  : item.type === "STATUS_CHANGED"
+  ? "Status Updated"
+  
 }
           </div>
 
@@ -837,10 +904,14 @@ function renderTimeline(lead) {
         </div>
 
         <div class="text-xs text-slate-400 whitespace-nowrap">
+          
           ${
-            item.createdAt
-? new Date(item.createdAt)
-    .toLocaleString(
+  item.createdAt
+  ? new Date(
+      item.createdAt?.seconds
+        ? item.createdAt.seconds * 1000
+        : item.createdAt
+    ).toLocaleString(
       "en-IN",
       {
         timeZone: "Asia/Kolkata",
@@ -851,8 +922,9 @@ function renderTimeline(lead) {
         minute: "2-digit"
       }
     )
-: ""
-          }
+  : ""
+}
+
         </div>
 
       </div>
@@ -926,7 +998,10 @@ existingTimeline.push({
           "Ops Team",
 
         updatedAt:
-          new Date()
+  new Date(),
+
+timeline:
+  existingTimeline
 
       });
 
@@ -935,7 +1010,17 @@ existingTimeline.push({
     );
 
     // REFRESH LEADS
-    loadLeads();
+    await loadLeads();
+
+const updatedLead =
+  allLeads.find(
+    l => l.id === id
+  );
+
+if (updatedLead) {
+
+  renderTimeline(updatedLead);
+}
 
   }
   catch (error) {
@@ -1024,6 +1109,8 @@ timeline:
 if (updatedLead) {
 
   renderLeadNotes(updatedLead);
+
+  renderTimeline(updatedLead);
 }
 
     }
