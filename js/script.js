@@ -202,9 +202,10 @@ async function submitLeadAndContinue() {
 const snapshot = await db.collection("leads")
   .where("normalizedPhone", "==", phone)
   .where("createdAt", ">=", last24Hours)
+  .orderBy("createdAt", "desc")
   .limit(1)
   .get();
-
+  
 if (!snapshot.empty) {
 
   const existingLead = snapshot.docs[0];
