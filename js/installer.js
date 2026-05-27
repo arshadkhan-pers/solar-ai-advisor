@@ -45,7 +45,7 @@ function clearError(inputId, errorId) {
 // 🔥 Helper to load external JSON
 async function fetchCityData() {
     try {
-        const response = await fetch('data/cities.json');
+        const response = await fetch('../data/cities.json');
         if (!response.ok) throw new Error('Network response was not ok');
         citiesByState = await response.json();
     } catch (error) {
