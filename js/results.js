@@ -335,17 +335,6 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 // ✅ Submit lead (Firestore update)
 
 async function submitLead() {
-  
-    // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
-  const consentCheckbox = document.getElementById("dpdpConsentCheckbox");
-  if (!consentCheckbox ||!consentCheckbox.checked) {
-    alert("Please review and accept the privacy consent policy to unlock your expert AI Analysis.");
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
-    return;
-  }
-  // ----------------------------------------------
-
 
   const submitBtn =
   document.querySelector("#leadForm button");
