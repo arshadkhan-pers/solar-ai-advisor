@@ -335,34 +335,30 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 // ✅ Submit lead (Firestore update)
 
 async function submitLead() {
-
-  const submitBtn =
-  document.querySelector("#leadForm button");
+  const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
   submitBtn.innerText = "Generating AI Analysis...";
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
   const connectionType = document.getElementById("connectionType")?.value;
-  const billFile = document.getElementById("billUpload")?.files?.[0];
+  const billFile = document.getElementById("billUpload")?.files?.;
 
-if (!rooftopOwnership) {
-  alert("Please select rooftop ownership");
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Submit Request";
-  return;
-}
+  if (!rooftopOwnership) {
+    alert("Please select rooftop ownership");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
+    return;
+  }
 
   const leadId = localStorage.getItem("leadId");
 
   if (!leadId) {
-  alert("Lead ID not found");
-
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Submit Request";
-
-  return;
-}
+    alert("Lead ID not found");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
+    return;
+  }
 
   if (typeof firebase === "undefined" || typeof db === "undefined") {
     alert("Database not initialized");
@@ -374,7 +370,6 @@ if (!rooftopOwnership) {
   const requestTime = Date.now();
   
   try {
-    
     await db.collection("leads").doc(leadId).update({
       propertyType,
       roofType,
@@ -384,75 +379,47 @@ if (!rooftopOwnership) {
       leadType,
       stage: "qualified",
       aiRegenerationRequired: true,
-      // --- SAVE COMPLIANT AUDIT TRAIL DATA ---
-      consentGiven: true,
-      consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      consentVersion: "1.0-rules-2025",
-      // ---------------------------------------
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-
-
 
     console.log("✅ Lead updated successfully");
 
   } catch (error) {
     console.error("❌ Update failed:", error);
-    //alert("Error updating lead");
     alert(error.message);
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request";
     return;
   }
-  document.getElementById("leadForm")
-  ?.classList.add("hidden");
   
-// 🤖 AI INSIGHTS
-const result = calculateSolar(bill);
-
-/*
-renderAIInsights({
-  bill,
-  result,
-  propertyType,
-  rooftopOwnership,
-  roofType
-});
-*/
-// new call///
-showAILoadingState();
-
-try {
-
-  const aiReport =
-    await waitForAIReport(leadId, requestTime);
-
-  renderDynamicAIReport(
-    aiReport,
-    result
-  );
-   submitBtn.disabled = false;
-   submitBtn.innerText = "Submit Request"; 
-} catch (error) {
-
-  console.error(error);
-  document.getElementById("aiLoadingState")
-  ?.classList.add("hidden");
+  document.getElementById("leadForm")?.classList.add("hidden");
   
-  // fallback
-  renderAIInsights({
-    bill,
-    result,
-    propertyType,
-    rooftopOwnership,
-    roofType
-  });
+  // 🤖 AI INSIGHTS
+  const result = calculateSolar(bill);
+  showAILoadingState();
+
+  try {
+    const aiReport = await waitForAIReport(leadId, requestTime);
+    renderDynamicAIReport(aiReport, result);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request"; 
+  } catch (error) {
+    console.error(error);
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+    
+    // fallback
+    renderAIInsights({
+      bill,
+      result,
+      propertyType,
+      rooftopOwnership,
+      roofType
+    });
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request";
+  }
 }
-// new call end////
 
-}
 
 // ✅ Upload handling
 function setupBillUpload() {
