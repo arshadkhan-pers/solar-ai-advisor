@@ -198,6 +198,17 @@ async function submitLeadAndContinue() {
 }
 
   const phone = validation.normalizedPhone;
+  
+    // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
+  const consentCheckbox = document.getElementById("leadConsentCheckbox");
+  if (!consentCheckbox ||!consentCheckbox.checked) {
+    alert("Please accept the privacy policy consent to view your savings report.");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Show My Savings Report";
+    return;
+  }
+  // ----------------------------------------------
+
 
 const consentCheckbox = document.getElementById("leadConsentCheckbox");
   if (!consentCheckbox || !consentCheckbox.checked) {
@@ -283,10 +294,14 @@ I would like to speak with your solar advisor team.`;
       lastUpdatedBy: "",
       notes: [],
       isTestLead: false,
+      // --- SAVE COMPLIANT AUDIT TRAIL DATA ---
+      consentGiven: true,
+      consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      consentVersion: "1.0-rules-2025",
+      // ---------------------------------------
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-
     
     localStorage.setItem("leadId", docRef.id);
     const state = localStorage.getItem("state");
