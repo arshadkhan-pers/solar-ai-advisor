@@ -1518,4 +1518,4 @@ if (updatedLead) {
   }
 );
 
-loadLeads();
+//loadLeads();
