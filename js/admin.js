@@ -346,7 +346,7 @@ function() {
 // LOAD LEADS
 // =====================================
 
-async function loadLeads() {
+window.loadLeads = async function() {
 
   try {
 
