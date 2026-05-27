@@ -183,6 +183,21 @@ function calculateSolar(bill) {
   const area = Math.round(systemSize * 80);
   const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
+
+  // --- ADDED EMI & LOAN MATHS (Canara Bank 6.5% for 60 Months) ---
+  const principalLoan = Math.round(finalCost * 0.90); // Bank finances 90% of final net cost [1]
+  const annualRate = 6.5; // Canara Bank specialized rate [5, 1]
+  const monthlyRate = (annualRate / 12) / 100;
+  const months = 60; // 5-year tenure [2]
+
+  const solarEmi = Math.round(
+    (principalLoan * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+    (Math.pow(1 + monthlyRate, months) - 1)
+  );
+
+  const netMonthlyBenefit = Math.round(monthlySavings - solarEmi);
+
+
   return {
     systemSize: systemSize.toFixed(1),
     totalCost: Math.round(totalCost),
@@ -195,8 +210,12 @@ function calculateSolar(bill) {
     panels,
     area,
     lifetimeSavings,
-    state
+    state,
+    // Add these fields
+    solarEmi,
+    netMonthlyBenefit
   };
+
 }
 
 // ===============================
@@ -241,6 +260,17 @@ function renderResults(data, bill) {
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings;
   document.getElementById("centralSubsidy").innerText = data.centralSubsidy;
   document.getElementById("stateSubsidy").innerText = data.stateSubsidy;
+
+
+  // --- POPULATE AND REVEAL THE COMPLIANT EMI PLAN CARD ---
+  const emiCard = document.getElementById("dynamicEmiCard");
+  if (emiCard) {
+    document.getElementById("solarEmi").innerText = data.solarEmi.toLocaleString('en-IN');
+    document.getElementById("emiMonthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
+    document.getElementById("netMonthlyBenefit").innerText = data.netMonthlyBenefit.toLocaleString('en-IN');
+    emiCard.classList.remove("hidden"); // Reveal the hidden card dynamically
+  }
+
 }
 
 // ===============================
@@ -305,6 +335,18 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 // ✅ Submit lead (Firestore update)
 
 async function submitLead() {
+  
+    // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
+  const consentCheckbox = document.getElementById("dpdpConsentCheckbox");
+  if (!consentCheckbox ||!consentCheckbox.checked) {
+    alert("Please review and accept the privacy consent policy to unlock your expert AI Analysis.");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
+    return;
+  }
+  // ----------------------------------------------
+
+
   const submitBtn =
   document.querySelector("#leadForm button");
   submitBtn.disabled = true;
@@ -343,18 +385,25 @@ if (!rooftopOwnership) {
   const requestTime = Date.now();
   
   try {
+    
     await db.collection("leads").doc(leadId).update({
-      
       propertyType,
       roofType,
       rooftopOwnership,
       connectionType,
-      billUploaded: billFile ? "Yes" : "No",
+      billUploaded: billFile? "Yes" : "No",
       leadType,
       stage: "qualified",
       aiRegenerationRequired: true,
+      // --- SAVE COMPLIANT AUDIT TRAIL DATA ---
+      consentGiven: true,
+      consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      consentVersion: "1.0-rules-2025",
+      // ---------------------------------------
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+
 
     console.log("✅ Lead updated successfully");
 
