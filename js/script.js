@@ -296,7 +296,8 @@ I would like to speak with your solar advisor team.`;
 
   submitBtn.disabled = false;
   submitBtn.innerText = "Show My Savings Report";
-  alert("Error saving data.");
+  //alert("Error saving data.");
+alert(error.message);
 }
 }
 
