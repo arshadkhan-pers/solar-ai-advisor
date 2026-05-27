@@ -204,7 +204,7 @@ async function submitLeadAndContinue() {
   Date.now() - 24 * 60 * 60 * 1000
 );
 
-/***
+//////
 const snapshot = await db.collection("leads")
   .where("normalizedPhone", "==", phone)
   .where("createdAt", ">=", last24Hours)
@@ -248,7 +248,7 @@ I would like to speak with your solar advisor team.`;
 
   return;
 }
-***/
+/////
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
 
