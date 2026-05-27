@@ -1,20 +1,8 @@
-<!-- New script.js -->
+
 // ==========================================
 // 1. FIREBASE INITIALIZATION (Must be first!)
 // ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAUBwx-i38T6rfr9lsNYUV6bLOpxvdPfjQ",
-  authDomain: "solar-ai-advisor-6e70c.firebaseapp.com",
-  projectId: "solar-ai-advisor-6e70c",
-  storageBucket: "solar-ai-advisor-6e70c.firebasestorage.app",
-  messagingSenderId: "414713467470",
-  appId: "1:414713467470:web:437d1cf23454d472c7e91f"
-};
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.firestore();
+const db = window.db;
 
 
 // ==========================================
