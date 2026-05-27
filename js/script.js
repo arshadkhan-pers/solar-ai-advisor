@@ -199,6 +199,14 @@ async function submitLeadAndContinue() {
 
   const phone = validation.normalizedPhone;
 
+const consentCheckbox = document.getElementById("leadConsentCheckbox");
+  if (!consentCheckbox || !consentCheckbox.checked) {
+    alert("Please accept the privacy policy to proceed.");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Show My Savings Report";
+    return;
+  }
+  
   try {
     const last24Hours = new Date(
   Date.now() - 24 * 60 * 60 * 1000
