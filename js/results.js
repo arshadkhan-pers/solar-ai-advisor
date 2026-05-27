@@ -360,7 +360,8 @@ if (!rooftopOwnership) {
 
   } catch (error) {
     console.error("❌ Update failed:", error);
-    alert("Error updating lead");
+    //alert("Error updating lead");
+    alert(error.message);
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request";
     return;
