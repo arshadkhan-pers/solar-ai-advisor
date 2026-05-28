@@ -58,6 +58,7 @@ const {
 const db = admin.firestore();
 
 // 🌐 Modern Gen 2 trigger architecture targeting Mumbai (asia-south1)
+
 exports.generateAIReport = onDocumentUpdated(
   { 
     document: "leads/{leadId}", 
@@ -87,11 +88,11 @@ exports.generateAIReport = onDocumentUpdated(
 
     if (!before || !after) return null;
 
-// ✅ Only process qualified leads
+/*✅ Only process qualified leads
 if (after.stage !== "qualified") {
   return null;
 }
-
+*/
 
     console.log("🚀 Generating AI Report & Sizing Math for:", leadId);
 
