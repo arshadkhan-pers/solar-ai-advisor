@@ -342,7 +342,7 @@ async function submitLead() {
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
   const connectionType = document.getElementById("connectionType")?.value;
-  const billFile = document.getElementById("billUpload")?.files?.;
+  const billFile = document.getElementById("billUpload")?.files?.[0];
 
   if (!rooftopOwnership) {
     alert("Please select rooftop ownership");
@@ -1131,6 +1131,7 @@ requestAnimationFrame(() => {
 // ===============================
 // 🔹 INIT
 // ===============================
+/*
 const bill = getBillFromURL();
 
 if (bill > 0) {
@@ -1142,3 +1143,18 @@ if (bill > 0) {
 } else {
   document.body.innerHTML = "Invalid Input";
 }
+*/
+/------
+// Change the very bottom of results.js to this:
+document.addEventListener("DOMContentLoaded", () => {
+  const bill = getBillFromURL();
+  if (bill > 0) {
+    const result = calculateSolar(bill);
+    renderResults(result, bill);
+    setupBillUpload();
+    populateCapturedData();
+    setupEditableInputs();
+  } else {
+    console.error("Invalid Bill Input");
+  }
+});
