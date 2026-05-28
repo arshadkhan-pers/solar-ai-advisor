@@ -466,11 +466,18 @@ function populateCapturedData() {
   const city = document.getElementById("capturedCity");
   const bill = document.getElementById("capturedBill");
 
-  if (name) name.value = params.get("name") || "";
+  const rawName = params.get("name") || "";
+  if (name) name.value = rawName === "Homeowner"? "" : rawName;
   if (phone) phone.value = params.get("phone") || "";
-  if (city) city.value = params.get("city") || "";
+  
+  const rawCity = params.get("city") || "";
+  if (city) {
+    city.value = rawCity === "N/A"? "" : rawCity;
+    city.placeholder = "City (e.g., Lucknow)";
+  }
   if (bill) bill.value = params.get("bill") || "";
 }
+
 
 function setupEditableInputs() {
 
