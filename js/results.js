@@ -1,3 +1,6 @@
+
+/* eslint-disable max-len */
+
 // ===============================
 // ✅ CONFIGURATION
 // ===============================
@@ -8,7 +11,7 @@ const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
 // Zero top-up states
 const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
 
-// State top-up configuration (UPDATED ACCURATE)
+// State top-up configuration (UPDATED ACCURATE) [3]
 const stateSubsidyConfig = {
   "UP": { type: "perKW", value: 15000, cap: 30000 },
   "GJ": { type: "perKW", value: 10000, cap: 30000 },
@@ -20,8 +23,6 @@ const stateSubsidyConfig = {
   "BR": { type: "perKW", value: 10000, cap: 30000 },
   "MP": { type: "perKW", value: 5000, cap: 15000 },
   "UK": { type: "flat", value: 15000 },
-
-  // 🔥 GOA SPECIAL MODEL
   "GA": { type: "goa_model" }
 };
 
@@ -54,19 +55,15 @@ const stateNames = {
 // ===============================
 // ✅ Indian compact currency formatter
 function formatIndianCurrency(num) {
-
   if (num >= 10000000) {
     return "₹" + (num / 10000000).toFixed(1) + "Cr";
   }
-
   if (num >= 100000) {
     return "₹" + (num / 100000).toFixed(1) + "L";
   }
-
   if (num >= 1000) {
     return "₹" + (num / 1000).toFixed(1) + "K";
   }
-
   return "₹" + num;
 }
 
@@ -81,11 +78,10 @@ function getBillFromURL() {
 }
 
 // ===============================
-// 🔵 CENTRAL SUBSIDY (2026)
+// 🔵 CENTRAL SUBSIDY (2026) [3]
 // ===============================
 function calculateCentralSubsidy(systemSize, state) {
   let subsidy = 0;
-
   if (systemSize <= 2) {
     subsidy = systemSize * 30000;
   } else if (systemSize <= 3) {
@@ -93,12 +89,9 @@ function calculateCentralSubsidy(systemSize, state) {
   } else {
     subsidy = 78000;
   }
-
-  // Special state boost (+10%)
   if (specialStates.includes(state)) {
     subsidy = subsidy * 1.1;
   }
-
   return Math.round(subsidy);
 }
 
@@ -106,47 +99,31 @@ function calculateCentralSubsidy(systemSize, state) {
 // 🟢 STATE SUBSIDY ENGINE
 // ===============================
 function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
-
-  // ZERO states
   if (zeroTopUpStates.includes(state)) return 0;
-
   const config = stateSubsidyConfig[state];
   if (!config) return 0;
 
-  // 🔥 GOA SPECIAL LOGIC
   if (config.type === "goa_model") {
-
-  const units = bill / 7;
-
-  // Low consumption (<400 units)
-  if (units <= 400) {
-
-    // near zero cost up to 5kW
-    if (systemSize <= 5) {
-      const required = totalCost - centralSubsidy;
-      return Math.min(required, 250000);
+    const units = bill / 7;
+    if (units <= 400) {
+      if (systemSize <= 5) {
+        const required = totalCost - centralSubsidy;
+        return Math.min(required, 250000);
+      }
     }
+    let subsidy = systemSize * 23000;
+    subsidy = Math.min(subsidy, 250000);
+    return Math.round(subsidy);
   }
 
-  // High consumption
-  let subsidy = systemSize * 23000;
-  subsidy = Math.min(subsidy, 250000);
-
-  return Math.round(subsidy);
-}
-
-  // STANDARD STATES
   let subsidy = 0;
-
   if (config.type === "flat") {
     subsidy = config.value;
   }
-
   if (config.type === "perKW") {
     subsidy = systemSize * config.value;
     subsidy = Math.min(subsidy, config.cap);
   }
-
   return Math.round(subsidy);
 }
 
@@ -154,24 +131,14 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 // 🔹 CORE CALCULATION
 // ===============================
 function calculateSolar(bill) {
-
   const state = getStateFromURL();
-
   const units = bill / 7;
   const systemSize = Math.max(1, Math.round(units / 120));
-
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
 
   const centralSubsidy = calculateCentralSubsidy(systemSize, state);
-
-  const stateSubsidy = calculateStateSubsidy(
-    systemSize,
-    state,
-    bill,
-    totalCost,
-    centralSubsidy
-  );
+  const stateSubsidy = calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy);
 
   const totalSubsidy = centralSubsidy + stateSubsidy;
   const finalCost = totalCost - totalSubsidy;
@@ -183,12 +150,11 @@ function calculateSolar(bill) {
   const area = Math.round(systemSize * 80);
   const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
-
-  // --- ADDED EMI & LOAN MATHS (Canara Bank 6.5% for 60 Months) ---
-  const principalLoan = Math.round(finalCost * 0.90); // Bank finances 90% of final net cost [1]
-  const annualRate = 6.5; // Canara Bank specialized rate [5, 1]
+  // --- ADDED EMI & LOAN MATHS (Canara Bank 6.5% for 60 Months) [1] ---
+  const principalLoan = Math.round(finalCost * 0.90);
+  const annualRate = 6.5; 
   const monthlyRate = (annualRate / 12) / 100;
-  const months = 60; // 5-year tenure [2]
+  const months = 60; 
 
   const solarEmi = Math.round(
     (principalLoan * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
@@ -196,7 +162,6 @@ function calculateSolar(bill) {
   );
 
   const netMonthlyBenefit = Math.round(monthlySavings - solarEmi);
-
 
   return {
     systemSize: systemSize.toFixed(1),
@@ -211,56 +176,43 @@ function calculateSolar(bill) {
     area,
     lifetimeSavings,
     state,
-    // Add these fields
     solarEmi,
     netMonthlyBenefit
   };
-
 }
 
 // ===============================
 // 🔹 RENDER
 // ===============================
 function renderResults(data, bill) {
-
   const stateFullName = stateNames[data.state] || data.state;
-
   const el = document.getElementById("stateInfo");
 
   if (el) {
     if (data.stateSubsidy > 0) {
-
       if (data.state === "GA") {
-        el.innerText =
-          `Includes Goa special subsidy (may be credited after installation)`;
+        el.innerText = `Includes Goa special subsidy (may be credited after installation)`;
       } else {
-        el.innerText =
-          `Includes central + ${stateFullName} state subsidy`;
+        el.innerText = `Includes central + ${stateFullName} state subsidy`;
       }
-
     } else {
-      el.innerText =
-        `Only central subsidy applicable in ${stateFullName}`;
+      el.innerText = `Only central subsidy applicable in ${stateFullName}`;
     }
   }
 
-  document.getElementById("systemSize").innerText =
-    `${data.systemSize} kW Solar System Recommended`;
+  document.getElementById("systemSize").innerText = `${data.systemSize} kW Solar System Recommended`;
+  document.getElementById("billInfo").innerText = `Based on your ₹${bill}/month bill`;
 
-  document.getElementById("billInfo").innerText =
-    `Based on your ₹${bill}/month bill`;
-
-  document.getElementById("totalCost").innerText = data.totalCost;
-  document.getElementById("subsidy").innerText = data.subsidy;
-  document.getElementById("finalCost").innerText = data.finalCost;
-  document.getElementById("monthlySavings").innerText = data.monthlySavings;
+  document.getElementById("totalCost").innerText = data.totalCost.toLocaleString('en-IN');
+  document.getElementById("subsidy").innerText = data.subsidy.toLocaleString('en-IN');
+  document.getElementById("finalCost").innerText = data.finalCost.toLocaleString('en-IN');
+  document.getElementById("monthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
   document.getElementById("payback").innerText = data.payback;
   document.getElementById("panels").innerText = data.panels;
   document.getElementById("area").innerText = data.area;
-  document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings;
-  document.getElementById("centralSubsidy").innerText = data.centralSubsidy;
-  document.getElementById("stateSubsidy").innerText = data.stateSubsidy;
-
+  document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings.toLocaleString('en-IN');
+  document.getElementById("centralSubsidy").innerText = data.centralSubsidy.toLocaleString('en-IN');
+  document.getElementById("stateSubsidy").innerText = data.stateSubsidy.toLocaleString('en-IN');
 
   // --- POPULATE AND REVEAL THE COMPLIANT EMI PLAN CARD ---
   const emiCard = document.getElementById("dynamicEmiCard");
@@ -268,9 +220,8 @@ function renderResults(data, bill) {
     document.getElementById("solarEmi").innerText = data.solarEmi.toLocaleString('en-IN');
     document.getElementById("emiMonthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
     document.getElementById("netMonthlyBenefit").innerText = data.netMonthlyBenefit.toLocaleString('en-IN');
-    emiCard.classList.remove("hidden"); // Reveal the hidden card dynamically
+    emiCard.classList.remove("hidden"); 
   }
-
 }
 
 // ===============================
@@ -281,14 +232,13 @@ function openWhatsApp() {
   const result = calculateSolar(bill);
   const stateFullName = stateNames[result.state] || result.state;
 
-  const message = `Hi, I’m interested in installing rooftop solar.
-
-Location: ${stateFullName}
-Monthly Bill: ₹${bill}
-Recommended System: ${result.systemSize} kW
-Estimated Cost: ₹${result.finalCost}
-Monthly Savings: ₹${result.monthlySavings}
-Payback Period: ${result.payback} years`;
+  const message = `Hi, I’m interested in installing rooftop solar.\n\n` +
+    `Location: ${stateFullName}\n` +
+    `Monthly Bill: ₹${bill}\n` +
+    `Recommended System: ${result.systemSize} kW\n` +
+    `Estimated Cost: ₹${result.finalCost.toLocaleString('en-IN')}\n` +
+    `Monthly Savings: ₹${result.monthlySavings.toLocaleString('en-IN')}\n` +
+    `Payback Period: ${result.payback} years`;
 
   const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
@@ -305,11 +255,7 @@ function showForm() {
   const form = document.getElementById("leadForm");
   if (form) {
     form.classList.remove("hidden");
-
-form.scrollIntoView({
-  behavior: "smooth",
-  block: "start"
-});
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
   } else {
     console.warn("leadForm not found");
   }
@@ -318,7 +264,6 @@ form.scrollIntoView({
 // 🔥 Lead scoring
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
-
   if (bill >= 3000) score += 2;
   else if (bill >= 1500) score += 1;
 
@@ -333,16 +278,29 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 }
 
 // ✅ Submit lead (Firestore update)
-
 async function submitLead() {
   const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
   submitBtn.innerText = "Generating AI Analysis...";
+  
+  const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
+  const city = document.getElementById("capturedCity")?.value.trim();
+  const billValue = document.getElementById("capturedBill")?.value;
+  const bill = parseFloat(billValue || getBillFromURL());
+  
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
   const connectionType = document.getElementById("connectionType")?.value;
   const billFile = document.getElementById("billUpload")?.files?.[0];
+
+  // Validate City is provided (crucial for local installers and accurate dynamic routing)
+  if (!city || city.length < 2) {
+    alert("Please enter your City to complete the dynamic feasibility analysis.");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
+    return;
+  }
 
   if (!rooftopOwnership) {
     alert("Please select rooftop ownership");
@@ -352,7 +310,6 @@ async function submitLead() {
   }
 
   const leadId = localStorage.getItem("leadId");
-
   if (!leadId) {
     alert("Lead ID not found");
     submitBtn.disabled = false;
@@ -365,12 +322,17 @@ async function submitLead() {
     return;
   }
 
-  const bill = parseFloat(getBillFromURL());
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
   
+  // Recalculate solar parameters in case bill or state changed
+  const result = calculateSolar(bill);
+  
   try {
     await db.collection("leads").doc(leadId).update({
+      name,
+      city,
+      bill,
       propertyType,
       roofType,
       rooftopOwnership,
@@ -379,6 +341,15 @@ async function submitLead() {
       leadType,
       stage: "qualified",
       aiRegenerationRequired: true,
+      // Persist compiled calculations back to Firestore
+      systemSizeKw: result.systemSize,
+      totalSubsidy: result.subsidy,
+      netCost: result.finalCost,
+      monthlySavings: result.monthlySavings,
+      paybackYears: result.payback,
+      panelsCount: result.panels,
+      areaRequired: result.area,
+      lifetimeSavings: result.lifetimeSavings,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
@@ -393,9 +364,6 @@ async function submitLead() {
   }
   
   document.getElementById("leadForm")?.classList.add("hidden");
-  
-  // 🤖 AI INSIGHTS
-  const result = calculateSolar(bill);
   showAILoadingState();
 
   try {
@@ -420,14 +388,13 @@ async function submitLead() {
   }
 }
 
-
 // ✅ Upload handling
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
   const fileInput = document.getElementById("billUpload");
   const fileNameDisplay = document.getElementById("billFileName");
 
-  if (!uploadArea || !fileInput || !fileNameDisplay) return;
+  if (!uploadArea ||!fileInput ||!fileNameDisplay) return;
 
   uploadArea.addEventListener("click", () => fileInput.click());
 
@@ -457,7 +424,6 @@ function setupBillUpload() {
 }
 
 // ✅ Populate captured data
-
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
@@ -467,165 +433,87 @@ function populateCapturedData() {
   const bill = document.getElementById("capturedBill");
 
   const rawName = params.get("name") || "";
-  if (name) name.value = rawName === "Homeowner"? "" : rawName;
+  if (name) name.value = (rawName === "Homeowner" ||!rawName)? "" : decodeURIComponent(rawName);
   if (phone) phone.value = params.get("phone") || "";
   
   const rawCity = params.get("city") || "";
   if (city) {
-    city.value = rawCity === "N/A"? "" : rawCity;
+    city.value = (rawCity === "N/A" ||!rawCity)? "" : decodeURIComponent(rawCity);
     city.placeholder = "City (e.g., Lucknow)";
   }
   if (bill) bill.value = params.get("bill") || "";
 }
 
-
 function setupEditableInputs() {
+  const billInput = document.getElementById("capturedBill");
+  const cityInput = document.getElementById("capturedCity");
+  const nameInput = document.getElementById("capturedName");
+  const leadId = localStorage.getItem("leadId");
 
-  const billInput =
-    document.getElementById("capturedBill");
-
-  const cityInput =
-    document.getElementById("capturedCity");
-
-  const nameInput =
-    document.getElementById("capturedName");
-
-  const leadId =
-    localStorage.getItem("leadId");
-
-  if (!billInput || !leadId) return;
+  if (!billInput ||!leadId) return;
 
   async function syncLeadChanges() {
+    const newBill = parseFloat(billInput.value);
+    if (!newBill || newBill < 500) return;
 
-    const newBill =
-      parseFloat(billInput.value);
-
-    if (!newBill || newBill < 500) {
-      return;
-    }
-
-    const newCity =
-      cityInput?.value?.trim() || "";
-
-    const newName =
-      nameInput?.value?.trim() || "";
+    const newCity = cityInput?.value?.trim() || "";
+    const newName = nameInput?.value?.trim() || "";
 
     // =========================
     // UPDATE URL
     // =========================
-    const params =
-      new URLSearchParams(window.location.search);
-
+    const params = new URLSearchParams(window.location.search);
     params.set("bill", newBill);
+    if (newCity) params.set("city", newCity);
+    if (newName) params.set("name", newName);
 
-    if (newCity) {
-      params.set("city", newCity);
-    }
-
-    if (newName) {
-      params.set("name", newName);
-    }
-
-    history.replaceState(
-      {},
-      "",
-      `${window.location.pathname}?${params.toString()}`
-    );
+    history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
 
     // =========================
     // INSTANT UI RECALCULATION
     // =========================
-    const result =
-      calculateSolar(newBill);
-
+    const result = calculateSolar(newBill);
     renderResults(result, newBill);
 
     // =========================
     // FIRESTORE UPDATE
     // =========================
     try {
-
       showAILoadingState();
-
       const requestTime = Date.now();
 
-      await db.collection("leads")
-        .doc(leadId)
-        .update({
-
-          bill: newBill,
-          city: newCity,
-          name: newName,
-
-          aiRegenerationRequired: true,
-
-          updatedAt:
-            firebase.firestore.FieldValue.serverTimestamp()
-
-        });
+      await db.collection("leads").doc(leadId).update({
+        bill: newBill,
+        city: newCity,
+        name: newName,
+        aiRegenerationRequired: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
 
       // Wait for regenerated AI report
-      const aiReport =
-        await waitForAIReport(
-          leadId,
-          requestTime
-        );
-
-      renderDynamicAIReport(
-        aiReport,
-        result
-      );
+      const aiReport = await waitForAIReport(leadId, requestTime);
+      renderDynamicAIReport(aiReport, result);
 
     } catch (error) {
-
-      console.error(
-        "Editable sync failed:",
-        error
-      );
-
+      console.error("Editable sync failed:", error);
     }
-
   }
 
-  // Trigger only after user finishes editing
-  billInput.addEventListener(
-    "change",
-    syncLeadChanges
-  );
-
-  cityInput?.addEventListener(
-    "change",
-    syncLeadChanges
-  );
-
-  nameInput?.addEventListener(
-    "change",
-    syncLeadChanges
-  );
-
+  billInput.addEventListener("change", syncLeadChanges);
+  cityInput?.addEventListener("change", syncLeadChanges);
+  nameInput?.addEventListener("change", syncLeadChanges);
 }
 
 // ===============================
 // 🤖 AI INSIGHTS ENGINE
 // ===============================
-
-function generateAIScore(
-  bill,
-  propertyType,
-  rooftopOwnership,
-  roofType,
-  payback
-) {
-
+function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback) {
   let score = 50;
-
   if (bill >= 3000) score += 20;
   else if (bill >= 1500) score += 10;
 
   if (propertyType === "Independent House") score += 15;
-
   if (rooftopOwnership === "Yes") score += 10;
-
   if (roofType === "Concrete") score += 10;
 
   if (payback <= 4) score += 10;
@@ -635,7 +523,6 @@ function generateAIScore(
 }
 
 function getDynamicAISummary(data) {
-
   const summaries = [
 
     `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
@@ -650,116 +537,53 @@ function getDynamicAISummary(data) {
 
   ];
 
-  // Bonus line for state subsidy
   if (data.stateSubsidy > 0) {
-    summaries.push(
-      `Additional state-level subsidy support currently improves your estimated solar return on investment.`
-    );
+    summaries.push(`Additional state-level subsidy support currently improves your estimated solar return on investment.`);
   }
 
-  // Random selection
-  const randomIndex =
-    Math.floor(Math.random() * summaries.length);
-
+  const randomIndex = Math.floor(Math.random() * summaries.length);
   return summaries[randomIndex];
 }
 
-function renderAIInsights({
-  bill,
-  result,
-  propertyType,
-  rooftopOwnership,
-  roofType
-}) {
-
-  const aiSection =
-    document.getElementById("aiInsightsSection");
-
+function renderAIInsights({ bill, result, propertyType, rooftopOwnership, roofType }) {
+  const aiSection = document.getElementById("aiInsightsSection");
   if (!aiSection) return;
 
-  const score = generateAIScore(
-    bill,
-    propertyType,
-    rooftopOwnership,
-    roofType,
-    parseFloat(result.payback)
-  );
+  const score = generateAIScore(bill, propertyType, rooftopOwnership, roofType, parseFloat(result.payback));
 
-  // SCORE
   document.getElementById("aiScore").innerText = score;
 
-  // BADGE
   let badge = "Moderate Match";
-
   if (score >= 85) badge = "Excellent Match";
   else if (score >= 70) badge = "Strong Match";
   else if (score >= 55) badge = "Good Match";
 
   document.getElementById("aiBadge").innerText = badge;
+  document.getElementById("aiProgressBar").style.width = score + "%";
 
-  // PROGRESS
-  document.getElementById("aiProgressBar").style.width =
-    score + "%";
-
-  // FINANCIAL INSIGHT
-  let financialText =
-    `Your estimated monthly savings of ₹${result.monthlySavings} and projected payback period of ${result.payback} years indicate favorable long-term solar economics.`;
-
+  let financialText = `Your estimated monthly savings of ₹${result.monthlySavings} and projected payback period of ${result.payback} years indicate favorable long-term solar economics.`;
   if (parseFloat(result.payback) <= 4) {
-    financialText =
-      `Your projected payback period is considered excellent for residential rooftop solar adoption.`;
+    financialText = `Your projected payback period is considered excellent for residential rooftop solar adoption.`;
   }
+  document.getElementById("financialInsight").innerText = financialText;
 
-  document.getElementById("financialInsight").innerText =
-    financialText;
-
-  // ROOF INSIGHT
-  let roofText =
-    `Your rooftop profile appears compatible with standard residential solar installation requirements.`;
-
-  if (
-    rooftopOwnership === "Yes" &&
-    roofType === "Concrete"
-  ) {
-    roofText =
-      `Concrete rooftop ownership significantly improves installation feasibility and installer readiness.`;
+  let roofText = `Your rooftop profile appears compatible with standard residential solar installation requirements.`;
+  if (rooftopOwnership === "Yes" && roofType === "Concrete") {
+    roofText = `Concrete rooftop ownership significantly improves installation feasibility and installer readiness.`;
   }
+  document.getElementById("roofInsight").innerText = roofText;
 
-  document.getElementById("roofInsight").innerText =
-    roofText;
-
-  // SUBSIDY INSIGHT
-  let subsidyText =
-    `Your location currently qualifies for central government rooftop solar subsidy support.`;
-
+  let subsidyText = `Your location currently qualifies for central government rooftop solar subsidy support.`;
   if (result.stateSubsidy > 0) {
-    subsidyText =
-      `Your state currently offers additional subsidy support beyond the central government scheme, improving overall ROI.`;
+    subsidyText = `Your state currently offers additional subsidy support beyond the central government scheme, improving overall ROI.`;
   }
+  document.getElementById("subsidyInsight").innerText = subsidyText;
 
-  document.getElementById("subsidyInsight").innerText =
-    subsidyText;
-
-  // SAVINGS PROJECTION
-  document.getElementById("save5").innerText =
-  formatIndianCurrency(
-    Math.round(result.monthlySavings * 12 * 5)
-  );
-
-document.getElementById("save10").innerText =
-  formatIndianCurrency(
-    Math.round(result.monthlySavings * 12 * 10)
-  );
-
-document.getElementById("save25").innerText =
-  formatIndianCurrency(
-    Math.round(result.monthlySavings * 12 * 25)
-  );
+  document.getElementById("save5").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 5));
+  document.getElementById("save10").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 10));
+  document.getElementById("save25").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 25));
   
-  // SUMMARY
-  
-  document.getElementById("aiSummary").innerText =
-  getDynamicAISummary({
+  document.getElementById("aiSummary").innerText = getDynamicAISummary({
     bill,
     systemSize: result.systemSize,
     payback: result.payback,
@@ -767,390 +591,157 @@ document.getElementById("save25").innerText =
     stateSubsidy: result.stateSubsidy
   });
 
-  // SHOW
   aiSection.classList.remove("hidden");
-
-  aiSection.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+  aiSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function showAILoadingState() {
-
-  document.getElementById("submitSuccess")
-    ?.classList.add("hidden");
-
-  document.getElementById("aiInsightsSection")
-    ?.classList.add("hidden");
-    
-    document.getElementById("personaSection")
-  ?.classList.add("hidden");
-
-  document.getElementById("pricingConfidenceSection")
-    ?.classList.add("hidden");
-
-  document.getElementById("buyerProtectionSection")
-    ?.classList.add("hidden");
+  document.getElementById("submitSuccess")?.classList.add("hidden");
+  document.getElementById("aiInsightsSection")?.classList.add("hidden");
+  document.getElementById("personaSection")?.classList.add("hidden");
+  document.getElementById("pricingConfidenceSection")?.classList.add("hidden");
+  document.getElementById("buyerProtectionSection")?.classList.add("hidden");
   
-  const loadingEl =
-    document.getElementById("aiLoadingState");
-
+  const loadingEl = document.getElementById("aiLoadingState");
   loadingEl?.classList.remove("hidden");
-
-  loadingEl?.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
+  loadingEl?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 async function waitForAIReport(leadId, requestTime) {
-
   const maxAttempts = 12;
-
   for (let i = 0; i < maxAttempts; i++) {
-
     try {
-
-      const doc = await db
-        .collection("ai_reports")
-        .doc(leadId)
-        .get();
-
+      const doc = await db.collection("ai_reports").doc(leadId).get();
       if (doc.exists) {
-
         const data = doc.data();
-
-        const generatedAt =
-          data.generatedAt?.toMillis?.() || 0;
-
+        const generatedAt = data.generatedAt?.toMillis?.() || 0;
         if (generatedAt >= requestTime) {
           return data;
         }
       }
-
     } catch (error) {
       console.error("AI report fetch error:", error);
     }
-
-    await new Promise(resolve =>
-      setTimeout(resolve, 2000)
-    );
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
-
   throw new Error("AI report generation timeout");
 }
 
 function renderDynamicAIReport(report, result) {
+  document.getElementById("aiLoadingState")?.classList.add("hidden");
 
-  // Hide loading
-  document.getElementById("aiLoadingState")
-    ?.classList.add("hidden");
+  const aiSection = document.getElementById("aiInsightsSection");
+  if (aiSection) {
+    aiSection.classList.remove("hidden");
+  }
 
-  // SHOW SECTION
-  const aiSection =
-  document.getElementById("aiInsightsSection");
+  const aiScoreEl = document.getElementById("aiScore");
+  if (aiScoreEl) {
+    aiScoreEl.innerText = report.persona?.confidence || 85;
+  }
 
-if (aiSection) {
-  aiSection.classList.remove("hidden");
-}
+  document.getElementById("aiBadge").innerText = report.installerReadiness?.level || "Strong Match";
+  document.getElementById("aiProgressBar").style.width = `${report.persona?.confidence || 85}%`;
+  document.getElementById("financialInsight").innerText = `Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`;
+  document.getElementById("roofInsight").innerText = report.installerReadiness?.message || "Your rooftop profile appears compatible with residential solar installation.";
 
-  // SCORE
-  const aiScoreEl =
-  document.getElementById("aiScore");
-
-if (aiScoreEl) {
-  aiScoreEl.innerText =
-    report.persona?.confidence || 85;
-}
-
-  // BADGE
-  document.getElementById("aiBadge").innerText =
-    report.installerReadiness?.level || "Strong Match";
-
-  // PROGRESS
-  document.getElementById("aiProgressBar").style.width =
-    `${report.persona?.confidence || 85}%`;
-
-  // FINANCIAL
-  document.getElementById("financialInsight").innerText =
-    `Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`;
-
-  // ROOF
-  document.getElementById("roofInsight").innerText =
-    report.installerReadiness?.message ||
-    "Your rooftop profile appears compatible with residential solar installation.";
-
-  // SUBSIDY
   document.getElementById("subsidyInsight").innerText =
     report.stateSubsidy > 0
-      ? "Your state currently offers additional subsidy support beyond central schemes."
+    ? "Your state currently offers additional subsidy support beyond central schemes."
       : "Your location qualifies for central rooftop solar subsidy support.";
 
-  // SAVINGS
-  document.getElementById("save5").innerText =
-    formatIndianCurrency(
-      Math.round(result.monthlySavings * 12 * 5)
-    );
+  document.getElementById("save5").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 5));
+  document.getElementById("save10").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 10));
+  document.getElementById("save25").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 25));
+  document.getElementById("aiSummary").innerText = report.recommendationSummary || "";
 
-  document.getElementById("save10").innerText =
-    formatIndianCurrency(
-      Math.round(result.monthlySavings * 12 * 10)
-    );
+  // 🧠 PERSONA ENGINE V2 RENDER
+  const personaPrimary = report.personaV2?.primary || "Balanced Buyer";
+  const personaSecondary = report.personaV2?.secondary || "";
+  const personaConfidence = report.personaV2?.confidence || 85;
+  const personaUrgency = report.personaV2?.urgency || "Normal";
+  const financingLikelihood = report.personaV2?.financingLikelihood || "Low";
+  const installerFit = report.personaV2?.installerFit || "Moderate";
+  const personaCharacteristics = report.personaV2?.characteristics || [];
+  const personaSummary = report.personaV2?.summary || "";
 
-  document.getElementById("save25").innerText =
-    formatIndianCurrency(
-      Math.round(result.monthlySavings * 12 * 25)
-    );
+  const primaryEl = document.getElementById("personaPrimary");
+  if (primaryEl) primaryEl.innerText = personaPrimary;
 
-  // SUMMARY
-  document.getElementById("aiSummary").innerText =
-    report.recommendationSummary || "";
+  const secondaryEl = document.getElementById("personaSecondary");
+  if (secondaryEl) secondaryEl.innerText = personaSecondary;
 
-// ===============================
-// 🧠 PERSONA ENGINE V2 RENDER
-// ===============================
+  const confidenceEl = document.getElementById("personaConfidence");
+  if (confidenceEl) confidenceEl.innerText = `${personaConfidence}%`;
 
-const personaPrimary =
-  report.personaV2?.primary || "Balanced Buyer";
+  const urgencyEl = document.getElementById("personaUrgency");
+  if (urgencyEl) urgencyEl.innerText = personaUrgency;
 
-const personaSecondary =
-  report.personaV2?.secondary || "";
+  const financingEl = document.getElementById("personaFinancing");
+  if (financingEl) financingEl.innerText = financingLikelihood;
 
-const personaConfidence =
-  report.personaV2?.confidence || 85;
+  const installerFitEl = document.getElementById("personaInstallerFit");
+  if (installerFitEl) installerFitEl.innerText = installerFit;
 
-const personaUrgency =
-  report.personaV2?.urgency || "Normal";
+  const summaryEl = document.getElementById("personaSummary");
+  if (summaryEl) summaryEl.innerText = personaSummary;
 
-const financingLikelihood =
-  report.personaV2?.financingLikelihood || "Low";
+  const traitsEl = document.getElementById("personaTraits");
+  if (traitsEl) {
+    traitsEl.innerHTML = personaCharacteristics.map(trait => `<li>${trait}</li>`).join("");
+  }
 
-const installerFit =
-  report.personaV2?.installerFit || "Moderate";
-
-const personaCharacteristics =
-  report.personaV2?.characteristics || [];
-
-const personaSummary =
-  report.personaV2?.summary || "";
-
-// Primary persona
-const primaryEl =
-  document.getElementById("personaPrimary");
-
-if (primaryEl) {
-  primaryEl.innerText = personaPrimary;
-}
-
-// Secondary persona
-const secondaryEl =
-  document.getElementById("personaSecondary");
-
-if (secondaryEl) {
-  secondaryEl.innerText = personaSecondary;
-}
-
-// Confidence
-const confidenceEl =
-  document.getElementById("personaConfidence");
-
-if (confidenceEl) {
-  confidenceEl.innerText =
-    `${personaConfidence}%`;
-}
-
-// Urgency
-const urgencyEl =
-  document.getElementById("personaUrgency");
-
-if (urgencyEl) {
-  urgencyEl.innerText = personaUrgency;
-}
-
-// Financing
-const financingEl =
-  document.getElementById("personaFinancing");
-
-if (financingEl) {
-  financingEl.innerText =
-    financingLikelihood;
-}
-
-// Installer fit
-const installerFitEl =
-  document.getElementById("personaInstallerFit");
-
-if (installerFitEl) {
-  installerFitEl.innerText =
-    installerFit;
-}
-
-// Summary
-const summaryEl =
-  document.getElementById("personaSummary");
-
-if (summaryEl) {
-  summaryEl.innerText =
-    personaSummary;
-}
-
-// Characteristics
-const traitsEl =
-  document.getElementById("personaTraits");
-
-if (traitsEl) {
-
-  traitsEl.innerHTML =
-    personaCharacteristics
-      .map(trait =>
-        `<li>${trait}</li>`
-      )
-      .join("");
-}
-
-// SHOW SECTION
-document.getElementById("personaSection")
-  ?.classList.remove("hidden");
+  document.getElementById("personaSection")?.classList.remove("hidden");
   
-// =========================
-// 💰 PRICING CONFIDENCE
-// =========================
+  // 💰 PRICING CONFIDENCE
+  const pricingSection = document.getElementById("pricingConfidenceSection");
+  pricingSection?.classList.remove("hidden");
 
-const pricingSection =
-  document.getElementById(
-    "pricingConfidenceSection"
-  );
+  const pricingLevel = report.pricingConfidence?.level || "Moderate";
+  document.getElementById("pricingConfidenceLevel").innerText = pricingLevel;
+  document.getElementById("pricingConfidenceMessage").innerText = report.pricingConfidence?.message || "Estimated pricing appears aligned with expected market ranges.";
 
-pricingSection?.classList.remove("hidden");
+  const pricingBar = document.getElementById("pricingConfidenceBar");
+  let pricingWidth = 65;
+  if (pricingBar) {
+    pricingBar.className = "h-full transition-all duration-700";
+    if (pricingLevel === "High") {
+      pricingWidth = 90;
+      pricingBar.classList.add("bg-emerald-500");
+    } else if (pricingLevel === "Moderate") {
+      pricingWidth = 70;
+      pricingBar.classList.add("bg-yellow-500");
+    } else {
+      pricingWidth = 50;
+      pricingBar.classList.add("bg-red-500");
+    }
+    pricingBar.style.width = `${pricingWidth}%`;
+  }
 
-const pricingLevel =
-  report.pricingConfidence?.level || "Moderate";
+  // 🛡️ BUYER PROTECTION
+  const buyerSection = document.getElementById("buyerProtectionSection");
+  buyerSection?.classList.remove("hidden");
 
-document.getElementById(
-  "pricingConfidenceLevel"
-).innerText = pricingLevel;
+  const protectionList = document.getElementById("buyerProtectionList");
+  const checklist = report.buyerProtectionChecklist || [];
+  protectionList.innerHTML = "";
 
-document.getElementById(
-  "pricingConfidenceMessage"
-).innerText =
-  report.pricingConfidence?.message ||
-  "Estimated pricing appears aligned with expected market ranges.";
-/*
-let pricingWidth = 65;
-
-if (pricingLevel === "High") {
-  pricingWidth = 90;
-}
-
-if (pricingLevel === "Moderate") {
-  pricingWidth = 70;
-}
-*/
-
-const pricingBar = document.getElementById("pricingConfidenceBar");
-let pricingWidth = 65;
-if (pricingBar) {
-  pricingBar.className =
-    "h-full transition-all duration-700";
-}
-if (pricingLevel === "High") {
-  pricingWidth = 90;
-  pricingBar.classList.add("bg-emerald-500");
-}
-else if (pricingLevel === "Moderate") {
-  pricingWidth = 70;
-  pricingBar.classList.add("bg-yellow-500");
-}
-else {
-  pricingWidth = 50;
-  pricingBar.classList.add("bg-red-500");
-}
-
-  
-document.getElementById(
-  "pricingConfidenceBar"
-).style.width = `${pricingWidth}%`;
-
-
-// =========================
-// 🛡️ BUYER PROTECTION
-// =========================
-
-const buyerSection =
-  document.getElementById(
-    "buyerProtectionSection"
-  );
-
-buyerSection?.classList.remove("hidden");
-
-const protectionList =
-  document.getElementById(
-    "buyerProtectionList"
-  );
-
-const checklist =
-  report.buyerProtectionChecklist || [];
-
-protectionList.innerHTML = "";
-
-checklist.forEach((item) => {
-
-  protectionList.innerHTML += `
-
-    <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
-
-      <div class="text-emerald-600 text-lg mt-0.5">
-        ✔
+  checklist.forEach((item) => {
+    protectionList.innerHTML += `
+      <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
+        <div class="text-emerald-600 text-lg mt-0.5">✔</div>
+        <p class="text-sm text-slate-700 leading-relaxed">${item}</p>
       </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed">
-        ${item}
-      </p>
-
-    </div>
-
-  `;
-
-});
-
-requestAnimationFrame(() => {
-
-  const aiSection =
-    document.getElementById("aiInsightsSection");
-
-  if (!aiSection) return;
-
-  const y =
-    aiSection.getBoundingClientRect().top +
-    window.pageYOffset - 24;
-
-  window.scrollTo({
-    top: y,
-    behavior: "smooth"
+    `;
   });
 
-});
+  requestAnimationFrame(() => {
+    const aiSection = document.getElementById("aiInsightsSection");
+    if (!aiSection) return;
+    const y = aiSection.getBoundingClientRect().top + window.pageYOffset - 24;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  });
 }
-
-// new end////
-
-// ===============================
-// 🔹 INIT
-// ===============================
-/*
-const bill = getBillFromURL();
-
-if (bill > 0) {
-  const result = calculateSolar(bill);
-  renderResults(result, bill);
-  setupBillUpload();
-  populateCapturedData();
-  setupEditableInputs();
-} else {
-  document.body.innerHTML = "Invalid Input";
-}
-*/
 
 // ===============================
 // 🔹 INITIALIZATION
