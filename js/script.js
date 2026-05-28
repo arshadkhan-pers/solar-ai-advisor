@@ -1,9 +1,6 @@
 
-// ==========================================
-// 1. FIREBASE INITIALIZATION (Must be first!)
-// ==========================================
+/* eslint-disable max-len */
 const db = window.db;
-
 
 // ==========================================
 // 2. HELPERS & UTILITIES
@@ -49,9 +46,37 @@ function clearError(inputId, errorId) {
   }
 }
 
+// Maps first two PIN digits to standard 2-letter State Codes
+function getStateFromPin(pin) {
+  if (!pin || pin.length < 2) return "UP";
+  const prefix = parseInt(pin.substring(0, 2));
+  if (prefix === 11) return "DL";
+  if (prefix >= 12 && prefix <= 13) return "HR";
+  if (prefix >= 14 && prefix <= 16) return "PB";
+  if (prefix === 17) return "HP";
+  if (prefix >= 18 && prefix <= 19) return "JK";
+  if (prefix >= 20 && prefix <= 23) return "UP";
+  if (prefix >= 24 && prefix <= 28) return "UK"; // Uttarakhand
+  if (prefix >= 30 && prefix <= 34) return "RJ";
+  if (prefix >= 36 && prefix <= 39) return "GJ";
+  if (prefix >= 40 && prefix <= 44) return "MH";
+  if (prefix >= 45 && prefix <= 48) return "MP";
+  if (prefix === 49) return "CG";
+  if (prefix === 50) return "TS";
+  if (prefix >= 51 && prefix <= 53) return "AP";
+  if (prefix >= 56 && prefix <= 59) return "KA";
+  if (prefix >= 60 && prefix <= 64) return "TN";
+  if (prefix >= 67 && prefix <= 69) return "KL";
+  if (prefix >= 70 && prefix <= 74) return "WB";
+  if (prefix >= 75 && prefix <= 77) return "OR";
+  if (prefix === 78) return "AS";
+  if (prefix === 79) return "AS"; 
+  if (prefix >= 80 && prefix <= 85) return "BR";
+  return "UP";
+}
 
 // ==========================================
-// 3. UNIFIED VALIDATION 
+// 3. UNIFIED VALIDATION (Name is optional for leads popup)
 // ==========================================
 function validateForm(prefix, name, email, phone, city) {
   let isValid = true;
@@ -61,20 +86,28 @@ function validateForm(prefix, name, email, phone, city) {
   const phoneRegex = /^[6-9]\d{9}$/;
 
   const fields = {
-    name: { input: prefix + 'Name', error: prefix === 'cons' ? 'consNameError' : 'nameError' },
-    email: { input: prefix + 'Email', error: prefix === 'cons' ? 'consEmailError' : 'emailError' },
-    phone: { input: prefix + 'Phone', error: prefix === 'cons' ? 'consPhoneError' : 'phoneError' },
-    city: { input: prefix + 'City', error: prefix === 'cons' ? 'consCityError' : 'cityError' }
+    name: { input: prefix + 'Name', error: prefix === 'cons'? 'consNameError' : 'nameError' },
+    email: { input: prefix + 'Email', error: prefix === 'cons'? 'consEmailError' : 'emailError' },
+    phone: { input: prefix + 'Phone', error: prefix === 'cons'? 'consPhoneError' : 'phoneError' }
   };
+  if (prefix === 'cons') {
+    fields.city = { input: 'consCity', error: 'consCityError' };
+  }
 
-  Object.values(fields).forEach(f => clearError(f.input, f.error));
+  Object.values(fields).forEach(f => {
+    const el = document.getElementById(f.input);
+    if (el) clearError(f.input, f.error);
+  });
 
-  if (!nameRegex.test(name) || name.trim().length < 2) {
+  // Name is optional on leads popup; mandatory for consultations
+  if (prefix === 'lead' && name.trim().length === 0) {
+    // Optional - skip error checks
+  } else if (!nameRegex.test(name) || name.trim().length < 2) {
     showError(fields.name.input, fields.name.error, "Enter valid name (letters only)");
     isValid = false;
   }
 
-  if (email.length > 0 && !emailRegex.test(email)) {
+  if (email.length > 0 &&!emailRegex.test(email)) {
     showError(fields.email.input, fields.email.error, "Please enter a valid email format");
     isValid = false;
   }
@@ -85,9 +118,12 @@ function validateForm(prefix, name, email, phone, city) {
     isValid = false;
   }
 
-  if (!city || city.length < 2) {
-    showError(fields.city.input, fields.city.error, "Enter your city");
-    isValid = false;
+  // City is only validated for the direct free-consultation callback form
+  if (prefix === 'cons') {
+    if (!city || city.length < 2) {
+      showError(fields.city.input, fields.city.error, "Enter your city");
+      isValid = false;
+    }
   }
 
   return { isValid, normalizedPhone };
@@ -99,13 +135,13 @@ function validateForm(prefix, name, email, phone, city) {
 // ==========================================
 function handleHeroCalculate() {
   const billInput = document.getElementById("billInput");
-  const stateInput = document.getElementById("state");
+  const pincodeInput = document.getElementById("pincodeInput");
   const billValue = billInput?.value;
   const bill = parseFloat(billValue);
-  const state = stateInput?.value;
+  const pincodeValue = pincodeInput?.value?.trim();
 
   clearError("billInput", "billError");
-  clearError("state", "stateHeroError");
+  clearError("pincodeInput", "pincodeError");
 
   let isValid = true;
 
@@ -114,18 +150,20 @@ function handleHeroCalculate() {
     isValid = false;
   }
 
-  if (!state) {
-    showError("state", "stateHeroError", "Please select your state");
+  const pincodeRegex = /^[1-9][0-9]{5}$/; // Validates standard Indian PIN structure
+  if (!pincodeValue ||!pincodeRegex.test(pincodeValue)) {
+    showError("pincodeInput", "pincodeError", "Enter valid 6-digit PIN code");
     isValid = false;
   }
 
   if (isValid) {
-    localStorage.setItem("state", state);
+    const resolvedState = getStateFromPin(pincodeValue);
+    localStorage.setItem("pincode", pincodeValue);
+    localStorage.setItem("state", resolvedState);
     window.currentBill = bill;
     localStorage.setItem("bill", bill);
 
     document.getElementById("leadPopup").classList.remove("hidden");
-    loadCities(state);
   }
 }
 
@@ -135,23 +173,15 @@ async function handleConsultationSubmit() {
   const phoneInput = document.getElementById('consPhone').value.trim();
   const city = document.getElementById('consCity').value.trim();
 
-  const submitBtn =
-  document.getElementById("consSubmitBtn");
+  const submitBtn = document.getElementById("consSubmitBtn");
 
-const validation =
-  validateForm(
-    "cons",
-    name,
-    email,
-    phoneInput,
-    city
-  );
+  const validation = validateForm("cons", name, email, phoneInput, city);
 
-if (!validation.isValid) {
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Request Call Back";
-  return;
-}
+  if (!validation.isValid) {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Request Call Back";
+    return;
+  }
   submitBtn.disabled = true;
   submitBtn.innerText = "Processing...";
 
@@ -179,7 +209,8 @@ if (!validation.isValid) {
   }
 }
 
-async function submitLeadAndContinue() {
+async function submitLeadAndContinue(event) {
+  if (event) event.preventDefault();
   const submitBtn = document.querySelector("#leadPopup button");
   submitBtn.disabled = true;
   submitBtn.innerText = "Processing...";
@@ -187,19 +218,20 @@ async function submitLeadAndContinue() {
   const name = document.getElementById("leadName").value.trim();
   const email = document.getElementById("leadEmail").value.trim();
   const phoneRaw = document.getElementById("leadPhone").value.trim();
-  const city = document.getElementById("leadCity").value.trim();
   const bill = localStorage.getItem("bill") || window.currentBill;
+  const pincode = localStorage.getItem("pincode") || "";
+  const city = ""; // City is omitted from the popup and resolved dynamically below
 
   const validation = validateForm("lead", name, email, phoneRaw, city);
   if (!validation.isValid) {
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Show My Savings Report";
-  return;
-}
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Show My Savings Report";
+    return;
+  }
 
   const phone = validation.normalizedPhone;
   
-    // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
+  // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
   const consentCheckbox = document.getElementById("leadConsentCheckbox");
   if (!consentCheckbox ||!consentCheckbox.checked) {
     alert("Please accept the privacy policy consent to view your savings report.");
@@ -207,68 +239,100 @@ async function submitLeadAndContinue() {
     submitBtn.innerText = "Show My Savings Report";
     return;
   }
-  // ----------------------------------------------
-  
+  // -----------------------------------------------------
+
   try {
-    const last24Hours = new Date(
-  Date.now() - 24 * 60 * 60 * 1000
-);
+    const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-//////
-const snapshot = await db.collection("leads")
-  .where("normalizedPhone", "==", phone)
-  .where("createdAt", ">=", last24Hours)
-  .orderBy("createdAt", "desc")
-  .limit(1)
-  .get();
+    const snapshot = await db.collection("leads")
+    .where("normalizedPhone", "==", phone)
+    .where("createdAt", ">=", last24Hours)
+    .orderBy("createdAt", "desc")
+    .limit(1)
+    .get();
   
-if (!snapshot.empty) {
+    if (!snapshot.empty) {
+      console.log("⚠️ Duplicate lead prevented");
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Show My Savings Report";
 
-  console.log("⚠️ Duplicate lead prevented");
+      document.getElementById("leadPopup")?.classList.add("hidden");
 
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Show My Savings Report";
+      const openWhatsAppNow = confirm(
+        "You have already submitted a solar request in the last 24 hours.\n\nOur solar advisor team will contact you shortly.\n\nWould you like to chat with us on WhatsApp now?"
+      );
 
-  // Close popup
-  document.getElementById("leadPopup")
-    ?.classList.add("hidden");
+      if (openWhatsAppNow) {
+        const state = localStorage.getItem("state") || "";
+        const message =
+          `Hi, I already submitted a solar request.\n\n` +
+          `Name: ${name || "Homeowner"}\n` +
+          `Phone: ${phone}\n` +
+          `Pincode: ${pincode}\n` +
+          `State: ${state}\n` +
+          `Monthly Bill: ₹${bill}\n\n` +
+          `I would like to speak with your solar advisor team.`;
 
-  const openWhatsAppNow = confirm(
-    "You have already submitted a solar request in the last 24 hours.\n\nOur solar advisor team will contact you shortly.\n\nWould you like to chat with us on WhatsApp now?"
-  );
+        openWhatsAppChat(message);
+      }
+      return;
+    }
 
-  if (openWhatsAppNow) {
-
-    const state =
-      localStorage.getItem("state") || "";
-
-    const message =
-`Hi, I already submitted a solar request.
-
-Name: ${name}
-Phone: ${phone}
-City: ${city}
-State: ${state}
-Monthly Bill: ₹${bill}
-
-I would like to speak with your solar advisor team.`;
-
-    openWhatsAppChat(message);
-  }
-
-  return;
-}
-/////
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
 
+    // DYNAMIC RE-LOCATOR: Resolve the exact City and State automatically from the PIN Code
+    let resolvedCity = "N/A";
+    let resolvedState = localStorage.getItem("state") || "UP";
+
+    try {
+      const pinResponse = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      if (pinResponse.ok) {
+        
+        const pinData = await pinResponse.json();
+        /*
+        if (pinData && pinData.Status === "Success" && pinData.PostOffice && pinData.PostOffice) {
+          resolvedCity = pinData.PostOffice.District;
+          const fullStateName = pinData.PostOffice.State;
+          */
+
+if (
+  Array.isArray(pinData) &&
+  pinData[0]?.Status === "Success" &&
+  pinData[0]?.PostOffice?.length
+) {
+  resolvedCity = pinData[0].PostOffice[0].District;
+
+  const fullStateName =
+    pinData[0].PostOffice[0].State;
+}
+          
+          const pinData = await pinResponse.json();
+          
+          // Reverses full state name into standard 2-letter database codes
+          const stateReverseMap = {
+            "Uttar Pradesh": "UP", "Uttarakhand": "UK", "Delhi": "DL", "Gujarat": "GJ",
+            "Maharashtra": "MH", "Rajasthan": "RJ", "Madhya Pradesh": "MP", "Karnataka": "KA",
+            "Tamil Nadu": "TN", "Kerala": "KL", "West Bengal": "WB", "Andhra Pradesh": "AP",
+            "Telangana": "TS", "Bihar": "BR", "Jharkhand": "JH", "Assam": "AS", "Goa": "GA"
+          };
+          if (stateReverseMap[fullStateName]) {
+  resolvedState = stateReverseMap[fullStateName];
+          }
+        }
+      }
+    } catch (apiError) {
+      console.warn("Background API PIN lookup failed. Falling back to local prefix:", apiError);
+    }
+
     const docRef = await db.collection("leads").add({
-      name,
-      email,
+      name: name || "Homeowner", 
+      email: email || "",
       phone,
       normalizedPhone: phone,
-      city,
-      state: localStorage.getItem("state"),
+      city: resolvedCity, // Saved dynamically
+      pincode: pincode,
+      state: resolvedState, // Saved dynamically
       bill: parseFloat(bill),
       leadCode,
       customerId: phone,
@@ -289,48 +353,37 @@ I would like to speak with your solar advisor team.`;
       consentGiven: true,
       consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
       consentVersion: "1.0-rules-2025",
-      // ---------------------------------------
+      // -------------------------------------------------------------
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
     localStorage.setItem("leadId", docRef.id);
-    const state = localStorage.getItem("state");
-
-    localStorage.setItem("leadName", name);
+    localStorage.setItem("state", resolvedState);
+    localStorage.setItem("leadName", name || "Homeowner");
     localStorage.setItem("leadPhone", phone);
-    localStorage.setItem("leadCity", city);
+    localStorage.setItem("leadCity", resolvedCity);
     localStorage.setItem("leadBill", bill);
-    window.location.href = `results.html?bill=${bill}&state=${state}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}`;
+    
+    window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(resolvedCity)}`;
 
   } catch (error) {
-
-  console.error("Firestore Error:", error);
-
-  const submitBtn = document.querySelector("#leadPopup button");
-
-  submitBtn.disabled = false;
-  submitBtn.innerText = "Show My Savings Report";
-  //alert("Error saving data.");
-alert(error.message);
-}
+    console.error("Firestore Error:", error);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Show My Savings Report";
+    alert(error.message);
+  }
 }
 
 // ==========================================
 // 5. WHATSAPP SUPPORT
 // ==========================================
-
 function openWhatsAppChat(customMessage = "") {
-
   const defaultMessage =
     "Hi, I’m interested in rooftop solar. Can your solar advisor help me?";
 
-  const message =
-    customMessage || defaultMessage;
-
-  const encodedMessage =
-    encodeURIComponent(message);
-
+  const message = customMessage || defaultMessage;
+  const encodedMessage = encodeURIComponent(message);
   const number = "61404166347";
 
   window.open(
@@ -361,42 +414,11 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function loadCities(state) {
-  const datalist = document.getElementById("cityList");
-  if (!datalist) return;
-  datalist.innerHTML = "";
-  const cities = (typeof citiesByState !== "undefined" && citiesByState[state]) ? citiesByState[state] : [];
-  cities.forEach(city => {
-    const option = document.createElement("option");
-    option.value = city;
-    datalist.appendChild(option);
-  });
-}
-
-function sortStates() {
-  const select = document.getElementById("state");
-  if (!select) return;
-  const options = Array.from(select.options);
-  const first = options.shift();
-  options.sort((a, b) => a.text.localeCompare(b.text));
-  select.innerHTML = "";
-  select.appendChild(first);
-  options.forEach(opt => select.appendChild(opt));
-}
-
-
 // ==========================================
 // 7. LIFECYCLE
 // ==========================================
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("leadPopup")?.classList.add("hidden");
   document.getElementById("consultationPopup")?.classList.add("hidden");
-
-  sortStates();
-  
-  const calculateBtn = document.getElementById("calculateBtn");
-  if (calculateBtn) calculateBtn.addEventListener("click", handleHeroCalculate);
-  
-  const selectedState = localStorage.getItem("state");
-  if (selectedState) loadCities(selectedState);
 });
+
