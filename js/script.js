@@ -285,47 +285,54 @@ async function submitLeadAndContinue(event) {
     let resolvedCity = "N/A";
     let resolvedState = localStorage.getItem("state") || "UP";
 
-    try {
-      const pinResponse = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-      if (pinResponse.ok) {
-        
-        const pinData = await pinResponse.json();
-        /*
-        if (pinData && pinData.Status === "Success" && pinData.PostOffice && pinData.PostOffice) {
-          resolvedCity = pinData.PostOffice.District;
-          const fullStateName = pinData.PostOffice.State;
-          */
 
-if (
-  Array.isArray(pinData) &&
-  pinData[0]?.Status === "Success" &&
-  pinData[0]?.PostOffice?.length
-) {
-  resolvedCity = pinData[0].PostOffice[0].District;
 
-  const fullStateName =
-    pinData[0].PostOffice[0].State;
-}
-          
-          const pinData = await pinResponse.json();
-          
-          // Reverses full state name into standard 2-letter database codes
-          const stateReverseMap = {
-            "Uttar Pradesh": "UP", "Uttarakhand": "UK", "Delhi": "DL", "Gujarat": "GJ",
-            "Maharashtra": "MH", "Rajasthan": "RJ", "Madhya Pradesh": "MP", "Karnataka": "KA",
-            "Tamil Nadu": "TN", "Kerala": "KL", "West Bengal": "WB", "Andhra Pradesh": "AP",
-            "Telangana": "TS", "Bihar": "BR", "Jharkhand": "JH", "Assam": "AS", "Goa": "GA"
-          };
-          if (stateReverseMap[fullStateName]) {
-  resolvedState = stateReverseMap[fullStateName];
-          }
-        }
+try {
+  const pinResponse = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+  if (pinResponse.ok) {
+    const pinData = await pinResponse.json();
+    if (
+      Array.isArray(pinData) &&
+      pinData[0]?.Status === "Success" &&
+      pinData[0]?.PostOffice?.length
+    ) {
+      resolvedCity =
+        pinData[0].PostOffice[0].District;
+      const fullStateName =
+        pinData[0].PostOffice[0].State;
+      // Reverses full state name into standard 2-letter database codes
+      const stateReverseMap = {
+        "Uttar Pradesh": "UP",
+        "Uttarakhand": "UK",
+        "Delhi": "DL",
+        "Gujarat": "GJ",
+        "Maharashtra": "MH",
+        "Rajasthan": "RJ",
+        "Madhya Pradesh": "MP",
+        "Karnataka": "KA",
+        "Tamil Nadu": "TN",
+        "Kerala": "KL",
+        "West Bengal": "WB",
+        "Andhra Pradesh": "AP",
+        "Telangana": "TS",
+        "Bihar": "BR",
+        "Jharkhand": "JH",
+        "Assam": "AS",
+        "Goa": "GA"
+      };
+      if (stateReverseMap[fullStateName]) {
+        resolvedState =
+          stateReverseMap[fullStateName];
       }
-    } catch (apiError) {
-      console.warn("Background API PIN lookup failed. Falling back to local prefix:", apiError);
     }
-
-    const docRef = await db.collection("leads").add({
+  }
+} catch (apiError) {
+  console.warn(
+    "Background API PIN lookup failed. Falling back to local prefix:",
+    apiError
+  );
+}
+      const docRef = await db.collection("leads").add({
       name: name || "Homeowner", 
       email: email || "",
       phone,
