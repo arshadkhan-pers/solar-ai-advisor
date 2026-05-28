@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +17,6 @@
 
 <body class="bg-[#E3A857] text-slate-900">
 
-<!-- NAVBAR -->
 <nav class="fixed top-0 left-0 w-full z-[110] bg-white border-b border-slate-100 px-4 md:px-8 py-3">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
     
@@ -42,7 +42,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="relative min-h-[95vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
 
   <video autoplay muted loop playsinline class="absolute w-full h-full object-cover">
@@ -61,53 +60,30 @@
       Get your exact system size, government subsidy, and monthly savings — instantly.
     </p>
 
-    <!-- INPUT GROUP -->
     <div class="flex flex-col md:flex-row gap-4 justify-center items-start bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 shadow-2xl">
 
-        <div class="w-full md:w-64 text-left">
+      <div class="w-full md:w-64 text-left">
+        <input
+          id="billInput"
+          type="number"
+          placeholder="Monthly bill (₹)"
+          class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white"
+        />
+        <p id="billError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
+      </div>
+
+      <div class="w-full md:w-64 text-left">
         <input
           id="pincodeInput"
           type="text"
           pattern="[0-9]*"
           inputmode="numeric"
           maxlength="6"
-          placeholder="Enter PIN Code"
+          placeholder="6-Digit PIN Code"
           class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
         />
         <p id="pincodeError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
-      </div>
-
-
-      <div class="w-full md:w-64 text-left">
-        <select
-          id="state"
-          class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all appearance-none bg-white">
-
-          <option value="">Select State</option>
-          <option value="AP">Andhra Pradesh</option>
-          <option value="AS">Assam</option>
-          <option value="BR">Bihar</option>
-          <option value="DL">Delhi</option>
-          <option value="GA">Goa</option>
-          <option value="GJ">Gujarat</option>
-          <option value="HR">Haryana</option>
-          <option value="HP">Himachal Pradesh</option>
-          <option value="JH">Jharkhand</option>
-          <option value="KA">Karnataka</option>
-          <option value="KL">Kerala</option>
-          <option value="MP">Madhya Pradesh</option>
-          <option value="MH">Maharashtra</option>
-          <option value="OR">Odisha</option>
-          <option value="PB">Punjab</option>
-          <option value="RJ">Rajasthan</option>
-          <option value="TN">Tamil Nadu</option>
-          <option value="TS">Telangana</option>
-          <option value="UP">Uttar Pradesh</option>
-          <option value="UK">Uttarakhand</option>
-          <option value="WB">West Bengal</option>
-        </select>
-
-        <p id="stateHeroError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
       </div>
 
       <button
@@ -117,7 +93,6 @@
       </button>
     </div>
 
-    <!-- TRUST -->
     <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-green-300 font-medium">
       <span class="flex items-center gap-1.5">✓ Govt subsidy eligible</span>
       <span class="flex items-center gap-1.5">✓ 25-year warranty</span>
@@ -133,7 +108,6 @@
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
 <section id="how-it-works" class="py-24 bg-slate-50 text-center scroll-mt-20">
 
   <div class="max-w-5xl mx-auto px-6">
@@ -188,12 +162,10 @@
   </div>
 </section>
 
-<!-- FEATURES -->
 <section class="py-24 px-6 bg-white">
 
   <div class="max-w-6xl mx-auto space-y-12">
 
-    <!-- FEATURE 1 -->
     <div class="bg-slate-50 rounded-[3rem] p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 items-center overflow-hidden">
 
       <div class="w-full md:w-1/2 rounded-3xl h-80 overflow-hidden shadow-2xl">
@@ -215,7 +187,6 @@
       </div>
     </div>
 
-    <!-- FEATURE 2 -->
     <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col-reverse md:flex-row gap-8 md:gap-12 items-center">
 
       <div class="w-full md:w-1/2 space-y-4 text-left md:text-right">
@@ -237,7 +208,6 @@
 
     </div>
 
-    <!-- FEATURE 3 -->
     <div class="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-md flex flex-col md:flex-row gap-8 md:gap-12 items-center">
 
       <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-72">
@@ -262,13 +232,11 @@
   </div>
 </section>
 
-<!-- BIG IMPACT -->
-<section class="bg-slate-900 text-white text-center py-16">
+<section class="py-24 bg-slate-950 text-center text-white relative z-10">
   <h2 class="text-3xl font-semibold mb-2">Save ₹50,000+ Every Year</h2>
   <p class="text-gray-300">Join thousands switching to solar</p>
 </section>
 
-<!-- TESTIMONIALS -->
 <section class="py-16 text-center">
 
   <h2 class="text-3xl font-semibold mb-10">What Users Say</h2>
@@ -288,7 +256,6 @@
   </div>
 </section>
 
-<!-- CTA -->
 <section class="text-center py-16 bg-white">
 
   <h2 class="text-3xl font-bold mb-4">
@@ -303,78 +270,35 @@
 
 </section>
 
-<!-- LEAD POPUP -->
-      <div class="w-full md:w-64 text-left">
-        <input
-          id="pincodeInput"
-          type="text"
-          pattern="[0-9]*"
-          inputmode="numeric"
-          maxlength="6"
-          placeholder="Enter PIN Code"
-          class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white"
-        />
-        <p id="pincodeError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
-      </div>
-
-<div id="leadPopup"
-  class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z- backdrop-blur-md p-4">
-
+<div id="leadPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
   <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl relative">
-
-    <h3 class="text-2xl font-bold text-slate-900 mb-2">
-      Almost There!
-    </h3>
-
-    <p class="text-slate-500 text-sm mb-8">
-      We need a few details to generate your personalized report.
-    </p>
-
+    <h3 class="text-2xl font-bold text-slate-900 mb-2">Almost There!</h3>
+    <p class="text-slate-500 text-sm mb-8">We need a few details to generate your personalized report.</p>
     <div class="space-y-4 text-left">
-
       <div>
-        <input
-          id="leadName"
-          placeholder="Full Name (Optional)"
-          class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+        <input id="leadName" placeholder="Full Name (Optional)" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
         <p id="nameError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
-
       <div>
         <input id="leadEmail" type="email" placeholder="Email Address (Optional)" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
         <p id="emailError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
-      
       <div>
-        <input
-          id="leadPhone"
-          placeholder="Phone Number (Mandatory)"
-          class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
+        <input id="leadPhone" placeholder="Phone Number (Mandatory)" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500"/>
         <p id="phoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
-
       <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-3 text-left my-4">
         <input type="checkbox" id="leadConsentCheckbox" required class="w-5 h-5 mt-0.5 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer">
         <label for="leadConsentCheckbox" class="text-xs text-slate-600 leading-relaxed cursor-pointer select-none">
           I explicitly consent to <strong>Solar AI Advisor</strong> processing my energy profile and sharing my contact/bill details with <strong>only one</strong> matched, UPNEDA-approved local installer solely for arranging a free physical site survey. I understand my data is protected under the <strong>DPDP Act, 2023</strong> and I can withdraw my consent at any time.
         </label>
       </div>
-
-      <button
-        onclick="submitLeadAndContinue(event)"
-        class="w-full bg-green-600 text-white py-4 rounded-2xl mt-2 font-bold shadow-lg hover:bg-green-700 transition-all">
-        Show My Savings Report
-      </button>
-
+      <button onclick="submitLeadAndContinue(event)" class="w-full bg-green-600 text-white py-4 rounded-2xl mt-2 font-bold shadow-lg hover:bg-green-700 transition-all">Show My Savings Report</button>
     </div>
   </div>
 </div>
 
-
-<!-- CONSULTATION POPUP -->
-  
-  <div id="consultationPopup"
-  class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
+<div id="consultationPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
   <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl relative">
     
     <button onclick="closeConsultation()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
@@ -422,26 +346,12 @@
   </div>
 </div>
 
-<!-- FLOATING WHATSAPP BUTTON -->
-<button
-  onclick="openWhatsAppChat()"
-  class="fixed bottom-6 right-6 z-[120] bg-[#25D366] hover:bg-[#1ebe5d] text-white px-5 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all hover:scale-105">
 
-  <svg xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 32 32"
-    class="w-6 h-6 fill-current">
-
-    <path d="M19.11 17.21c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.8-1.67-2.1-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.5.7.3 1.25.47 1.67.6.7.22 1.35.2 1.85.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM16 3C8.82 3 3 8.82 3 16c0 2.82.9 5.42 2.43 7.53L3 29l5.63-2.37A12.93 12.93 0 0 0 16 29c7.18 0 13-5.82 13-13S23.18 3 16 3zm0 23.5c-2.17 0-4.18-.63-5.88-1.72l-.42-.27-3.34 1.4 1.43-3.25-.28-.44A10.42 10.42 0 0 1 5.5 16C5.5 10.2 10.2 5.5 16 5.5S26.5 10.2 26.5 16 21.8 26.5 16 26.5z"/>
-  </svg>
-
-  <span class="font-semibold text-sm hidden md:block">
-    Chat With Solar Advisor
-  </span>
-
+<button onclick="openWhatsAppChat()" class="fixed bottom-6 right-6 z-[120] bg-[#25D366] hover:bg-[#1ebe5d] text-white px-5 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all hover:scale-105">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="w-6 h-6 fill-current"><path d="M19.11 17.21c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.8-1.67-2.1-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.5.7.3 1.25.47 1.67.6.7.22 1.35.2 1.85.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM16 3C8.82 3 3 8.82 3 16c0 2.82.9 5.42 2.43 7.53L3 29l5.63-2.37A12.93 12.93 0 0 0 16 29c7.18 0 13-5.82 13-13S23.18 3 16 3zm0 23.5c-2.17 0-4.18-.63-5.88-1.72l-.42-.27-3.34 1.4 1.43-3.25-.28-.44A10.42 10.42 0 0 1 5.5 16C5.5 10.2 10.2 5.5 16 5.5S26.5 10.2 26.5 16 21.8 26.5 16 26.5z"/></svg>
+  <span class="font-semibold text-sm hidden md:block">Chat With Solar Advisor</span>
 </button>
 
-<!-- SCRIPTS -->
-<script src="../data/cities.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../js/firebase-init.js"></script>
@@ -449,3 +359,4 @@
 
 </body>
 </html>
+
