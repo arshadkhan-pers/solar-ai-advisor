@@ -1144,8 +1144,10 @@ if (bill > 0) {
   document.body.innerHTML = "Invalid Input";
 }
 */
-/------
-// Change the very bottom of results.js to this:
+
+// ===============================
+// 🔹 INITIALIZATION
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const bill = getBillFromURL();
   if (bill > 0) {
