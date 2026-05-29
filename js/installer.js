@@ -1,3 +1,14 @@
+
+
+// Add this line at the top of your existing installer.js logic
+document.addEventListener("DOMContentLoaded", async () => {
+    // Pass null for callback since installer just captures data
+    await LocationHandler.init("state", "city"); 
+});
+
+// Remove the old fetchCityData, populateStateDropdown, updateCityDropdown, and sortStates functions entirely.
+
+
 // ==========================================
 // ✅ 1. CONFIGURATION & DATA INIT
 // ==========================================
@@ -42,6 +53,8 @@ function clearError(inputId, errorId) {
     if (inputEl) inputEl.style.borderColor = "";
 }
 
+
+/****
 // 🔥 Helper to load external JSON
 async function fetchCityData() {
     try {
@@ -111,6 +124,7 @@ function updateCityDropdown(stateCode) {
         });
     }
 }
+****/
 
 // ==========================================
 // ✅ 3. CORE REGISTRATION LOGIC
@@ -183,8 +197,9 @@ async function submitInstaller() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
+
         // 2. Google Forms Backup
-        await backupToGoogleForms(business, contactName, normalizedPhone, city, areasRaw, experience);
+        //await backupToGoogleForms(business, contactName, normalizedPhone, city, areasRaw, experience);
 
         form.reset();
         formSection.classList.add("hidden");
@@ -199,6 +214,7 @@ async function submitInstaller() {
     }
 }
 
+/***
 // ==========================================
 // ✅ 4. GOOGLE FORMS BACKUP
 // ==========================================
@@ -218,10 +234,12 @@ async function backupToGoogleForms(business, name, phone, city, areas, exp) {
         console.warn("Google Form backup failed.");
     }
 }
+***/
 
 // ==========================================
 // ✅ 5. INITIALIZATION
 // ==========================================
+/***
 function sortStates() {
     const select = document.getElementById("state");
     if (!select) return;
@@ -232,6 +250,7 @@ function sortStates() {
     select.appendChild(first);
     options.forEach(opt => select.appendChild(opt));
 }
+***/
 
 document.addEventListener("DOMContentLoaded", async () => {
     // 1. Fetch data & dynamically build states
