@@ -477,48 +477,6 @@ function setupEditableInputs() {
   nameInput?.addEventListener("input", updateUIDisplay);
 }
 
-// Attach this function to your "AI Analysis" button's onclick event
-async function performFullAnalysisSync() {
-  const leadId = localStorage.getItem("leadId");
-  const billInput = document.getElementById("capturedBill");
-  const cityInput = document.getElementById("capturedCity");
-  const nameInput = document.getElementById("capturedName");
-
-  if (!leadId) return alert("Session expired. Please refresh.");
-
-  // 1. Show spinner immediately
-  showAILoadingState();
-  
-  const newBill = parseFloat(billInput.value);
-  const newCity = cityInput?.value?.trim() || "";
-  const newName = nameInput?.value?.trim() || "";
-  const requestTime = Date.now();
-
-  try {
-    // 2. Perform ONE database write
-    await db.collection("leads").doc(leadId).update({
-      bill: newBill,
-      city: newCity,
-      name: newName,
-      aiRegenerationRequired: true,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // 3. Wait for the Cloud Function to finish processing
-    const aiReport = await waitForAIReport(leadId, requestTime);
-    
-    // 4. Render the results
-    const result = calculateSolar(newBill);
-    renderDynamicAIReport(aiReport, result);
-    
-  } catch (error) {
-    console.error("Analysis sync failed:", error);
-    alert("Failed to generate AI report. Please try again.");
-    // Hide loading state if error occurs
-    document.getElementById("aiLoadingState")?.classList.add("hidden");
-  }
-}
-
 /****
 function setupEditableInputs() {
   const billInput = document.getElementById("capturedBill");
@@ -817,6 +775,48 @@ function renderDynamicAIReport(report, result) {
     const y = aiSection.getBoundingClientRect().top + window.pageYOffset - 24;
     window.scrollTo({ top: y, behavior: "smooth" });
   });
+}
+
+// Attach this function to your "AI Analysis" button's onclick event
+async function performFullAnalysisSync() {
+  const leadId = localStorage.getItem("leadId");
+  const billInput = document.getElementById("capturedBill");
+  const cityInput = document.getElementById("capturedCity");
+  const nameInput = document.getElementById("capturedName");
+
+  if (!leadId) return alert("Session expired. Please refresh.");
+
+  // 1. Show spinner immediately
+  showAILoadingState();
+  
+  const newBill = parseFloat(billInput.value);
+  const newCity = cityInput?.value?.trim() || "";
+  const newName = nameInput?.value?.trim() || "";
+  const requestTime = Date.now();
+
+  try {
+    // 2. Perform ONE database write
+    await db.collection("leads").doc(leadId).update({
+      bill: newBill,
+      city: newCity,
+      name: newName,
+      aiRegenerationRequired: true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // 3. Wait for the Cloud Function to finish processing
+    const aiReport = await waitForAIReport(leadId, requestTime);
+    
+    // 4. Render the results
+    const result = calculateSolar(newBill);
+    renderDynamicAIReport(aiReport, result);
+    
+  } catch (error) {
+    console.error("Analysis sync failed:", error);
+    alert("Failed to generate AI report. Please try again.");
+    // Hide loading state if error occurs
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+  }
 }
 
 // ===============================
