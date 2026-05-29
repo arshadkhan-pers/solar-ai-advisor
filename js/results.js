@@ -130,8 +130,9 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 // ===============================
 // 🔹 CORE CALCULATION
 // ===============================
-function calculateSolar(bill) {
-  const state = getStateFromURL();
+function calculateSolar(bill, stateOverride = null) {
+  // If a stateOverride (from the dropdown) exists, use it. Otherwise, use URL.
+  const state = stateOverride || getStateFromURL();
   const units = bill / 7;
   const systemSize = Math.max(1, Math.round(units / 120));
   const costPerKW = 55000;
@@ -819,18 +820,43 @@ async function performFullAnalysisSync() {
   }
 }
 
+
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  const bill = getBillFromURL();
-  if (bill > 0) {
-    const result = calculateSolar(bill);
-    renderResults(result, bill);
-    setupBillUpload();
-    populateCapturedData();
-    setupEditableInputs();
-  } else {
-    console.error("Invalid Bill Input");
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Initialize location dropdowns
+    // We pass a callback that triggers the recalculation whenever the dropdown changes
+    const initialState = localStorage.getItem("state") || "UP";
+    
+    await LocationHandler.init("resState", "resCity", (newState) => {
+        console.log("State changed to:", newState);
+        localStorage.setItem("state", newState); // Update local storage
+        calculateSavings(); // Re-run math
+    }, initialState);
+
+    // 2. Existing app logic
+    const bill = getBillFromURL();
+    if (bill > 0) {
+        // Initial render
+        calculateSavings(); 
+        
+        setupBillUpload();
+        populateCapturedData();
+        setupEditableInputs();
+    } else {
+        console.error("Invalid Bill Input");
+    }
 });
+
+// Logic to pull data from dropdown, recalculate, and re-render
+function calculateSavings() {
+    const bill = parseFloat(localStorage.getItem("bill")) || getBillFromURL();
+    const state = document.getElementById("resState").value || localStorage.getItem("state");
+    
+    if (bill > 0 && state) {
+        // Pass the state from the dropdown as the second argument
+        const result = calculateSolar(bill, state);
+        renderResults(result, bill);
+    }
+}
