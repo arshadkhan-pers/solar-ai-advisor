@@ -48,7 +48,7 @@ function clearError(inputId, errorId) {
 
 // Maps first two PIN digits to standard 2-letter State Codes
 function getStateFromPin(pin) {
-  if (!pin || pin.length < 2) return "UP";
+  if (!pin || pin.length < 2) return "DL";
   const prefix = parseInt(pin.substring(0, 2));
   if (prefix === 11) return "DL";
   if (prefix >= 12 && prefix <= 13) return "HR";
@@ -70,9 +70,9 @@ function getStateFromPin(pin) {
   if (prefix >= 70 && prefix <= 74) return "WB";
   if (prefix >= 75 && prefix <= 77) return "OR";
   if (prefix === 78) return "AS";
-  if (prefix === 79) return "AS"; 
+  if (prefix === 79) return "AR"; 
   if (prefix >= 80 && prefix <= 85) return "BR";
-  return "UP";
+  return "DL";
 }
 
 // ==========================================
