@@ -254,10 +254,17 @@
             placeholder="City (e.g. Lucknow)"
             class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
 -->
-<div class="grid grid-cols-2 gap-4">
-  <select id="resState" class="p-3 border rounded-xl"></select>
-  <select id="resCity" class="p-3 border rounded-xl"></select>
+<div class="grid grid-cols-2 gap-4 my-6">
+  <div>
+    <label class="block text-sm font-medium mb-1">State</label>
+    <select id="resState" class="w-full p-3 border rounded-xl bg-white"></select>
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">City</label>
+    <select id="resCity" class="w-full p-3 border rounded-xl bg-white"></select>
+  </div>
 </div>
+
 
       <input id="capturedBill" type="number" min="500"
              class="w-full p-3.5 border border-slate-200 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
@@ -504,6 +511,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 </script>
+<script src="../js/locationUtils.js"></script>
 <script src="../js/results.js"></script>
 
 </body>
