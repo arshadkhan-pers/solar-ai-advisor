@@ -285,12 +285,14 @@ async function submitLeadAndContinue(event) {
     let resolvedCity = "N/A";
     let resolvedState = localStorage.getItem("state") || "UP";
 
-
-
 try {
   const pinResponse = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
   if (pinResponse.ok) {
     const pinData = await pinResponse.json();
+    
+    // ADD THIS LOG: Check what the API is actually sending back
+    console.log("PIN API Response:", pinData);
+    
     if (
       Array.isArray(pinData) &&
       pinData[0]?.Status === "Success" &&
