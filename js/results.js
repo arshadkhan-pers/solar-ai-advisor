@@ -444,6 +444,82 @@ function populateCapturedData() {
   if (bill) bill.value = params.get("bill") || "";
 }
 
+
+//////////////
+function setupEditableInputs() {
+  const billInput = document.getElementById("capturedBill");
+  const cityInput = document.getElementById("capturedCity");
+  const nameInput = document.getElementById("capturedName");
+  
+  if (!billInput) return;
+
+  // This function ONLY updates the UI and the URL
+  function updateUIDisplay() {
+    const newBill = parseFloat(billInput.value) || 0;
+    const newCity = cityInput?.value?.trim() || "";
+    const newName = nameInput?.value?.trim() || "";
+
+    // 1. Update URL without refreshing page
+    const params = new URLSearchParams(window.location.search);
+    params.set("bill", newBill);
+    if (newCity) params.set("city", newCity);
+    if (newName) params.set("name", newName);
+    history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+
+    // 2. Instant UI Recalculation (Local only, no DB call)
+    const result = calculateSolar(newBill);
+    renderResults(result, newBill);
+  }
+
+  // Attach to inputs (no spinner, no DB write)
+  billInput.addEventListener("input", updateUIDisplay);
+  cityInput?.addEventListener("input", updateUIDisplay);
+  nameInput?.addEventListener("input", updateUIDisplay);
+}
+
+// Attach this function to your "AI Analysis" button's onclick event
+async function performFullAnalysisSync() {
+  const leadId = localStorage.getItem("leadId");
+  const billInput = document.getElementById("capturedBill");
+  const cityInput = document.getElementById("capturedCity");
+  const nameInput = document.getElementById("capturedName");
+
+  if (!leadId) return alert("Session expired. Please refresh.");
+
+  // 1. Show spinner immediately
+  showAILoadingState();
+  
+  const newBill = parseFloat(billInput.value);
+  const newCity = cityInput?.value?.trim() || "";
+  const newName = nameInput?.value?.trim() || "";
+  const requestTime = Date.now();
+
+  try {
+    // 2. Perform ONE database write
+    await db.collection("leads").doc(leadId).update({
+      bill: newBill,
+      city: newCity,
+      name: newName,
+      aiRegenerationRequired: true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // 3. Wait for the Cloud Function to finish processing
+    const aiReport = await waitForAIReport(leadId, requestTime);
+    
+    // 4. Render the results
+    const result = calculateSolar(newBill);
+    renderDynamicAIReport(aiReport, result);
+    
+  } catch (error) {
+    console.error("Analysis sync failed:", error);
+    alert("Failed to generate AI report. Please try again.");
+    // Hide loading state if error occurs
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+  }
+}
+
+/****
 function setupEditableInputs() {
   const billInput = document.getElementById("capturedBill");
   const cityInput = document.getElementById("capturedCity");
@@ -503,7 +579,7 @@ function setupEditableInputs() {
   cityInput?.addEventListener("change", syncLeadChanges);
   nameInput?.addEventListener("change", syncLeadChanges);
 }
-
+****/
 // ===============================
 // 🤖 AI INSIGHTS ENGINE
 // ===============================
