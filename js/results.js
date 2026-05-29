@@ -467,16 +467,20 @@ function setupEditableInputs() {
     const cityDropdown = document.getElementById("resCity");
     const newCity = cityDropdown?.value || ""; 
     const newName = nameInput?.value?.trim() || "";
+    
+    const currentState = document.getElementById("resState")?.value || "UP";
 
     // 1. Update URL without refreshing page
     const params = new URLSearchParams(window.location.search);
     params.set("bill", newBill);
+    params.set("state", currentState); // Update state in URL too
     if (newCity) params.set("city", newCity);
     if (newName) params.set("name", newName);
     history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
 
+
     // 2. Instant UI Recalculation (Local only, no DB call)
-    const result = calculateSolar(newBill);
+    const result = calculateSolar(newBill, currentState); // Pass currentState here
     renderResults(result, newBill);
   }
 
@@ -787,6 +791,7 @@ function renderDynamicAIReport(report, result) {
 }
 
 // Attach this function to your "AI Analysis" button's onclick event
+/***
 async function performFullAnalysisSync() {
   const leadId = localStorage.getItem("leadId");
   const billInput = document.getElementById("capturedBill");
@@ -827,7 +832,7 @@ async function performFullAnalysisSync() {
     document.getElementById("aiLoadingState")?.classList.add("hidden");
   }
 }
-
+***/
 
 // ===============================
 // 🔹 INITIALIZATION
