@@ -65,6 +65,7 @@ async function fetchCityData() {
         console.error("Failed to load cities.json:", error);
     }
 }
+****/
 
 // 🔥 State name mapping dictionary
 const stateNames = {
@@ -92,6 +93,7 @@ const stateNames = {
     "GA": "Goa"
 };
 
+/****
 function populateStateDropdown() {
     const stateSelect = document.getElementById("state");
     if (!stateSelect) return;
