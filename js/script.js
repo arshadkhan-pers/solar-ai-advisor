@@ -220,7 +220,9 @@ async function submitLeadAndContinue(event) {
   const phoneRaw = document.getElementById("leadPhone").value.trim();
   const bill = localStorage.getItem("bill") || window.currentBill;
   const pincode = localStorage.getItem("pincode") || "";
-  const city = ""; // City is omitted from the popup and resolved dynamically below
+  
+  // City is now handled on the Results page, so we default this to an empty state
+  const city = ""; 
 
   const validation = validateForm("lead", name, email, phoneRaw, city);
   if (!validation.isValid) {
@@ -233,7 +235,7 @@ async function submitLeadAndContinue(event) {
   
   // --- DPDP PRIVACY CONSENT VALIDATION BLOCK ---
   const consentCheckbox = document.getElementById("leadConsentCheckbox");
-  if (!consentCheckbox ||!consentCheckbox.checked) {
+  if (!consentCheckbox || !consentCheckbox.checked) {
     alert("Please accept the privacy policy consent to view your savings report.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Show My Savings Report";
@@ -277,63 +279,14 @@ async function submitLeadAndContinue(event) {
       }
       return;
     }
-
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
 
-    // DYNAMIC RE-LOCATOR: Resolve the exact City and State automatically from the PIN Code
-    let resolvedCity = "N/A";
-    let resolvedState = localStorage.getItem("state") || "UP";
+      // ✅ SECURE LOCAL RESOLUTION
+    // No API dependency. Using your existing reliable local logic.
+    const resolvedState = getStateFromPin(pincode);
+    const resolvedCity = "Not Provided"; // Results page will prompt user to select this via dropdown later
 
-try {
-  const pinResponse = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-  if (pinResponse.ok) {
-    const pinData = await pinResponse.json();
-    
-    // ADD THIS LOG: Check what the API is actually sending back
-    console.log("PIN API Response:", pinData);
-    
-    if (
-      Array.isArray(pinData) &&
-      pinData[0]?.Status === "Success" &&
-      pinData[0]?.PostOffice?.length
-    ) {
-      resolvedCity =
-        pinData[0].PostOffice[0].District;
-      const fullStateName =
-        pinData[0].PostOffice[0].State;
-      // Reverses full state name into standard 2-letter database codes
-      const stateReverseMap = {
-        "Uttar Pradesh": "UP",
-        "Uttarakhand": "UK",
-        "Delhi": "DL",
-        "Gujarat": "GJ",
-        "Maharashtra": "MH",
-        "Rajasthan": "RJ",
-        "Madhya Pradesh": "MP",
-        "Karnataka": "KA",
-        "Tamil Nadu": "TN",
-        "Kerala": "KL",
-        "West Bengal": "WB",
-        "Andhra Pradesh": "AP",
-        "Telangana": "TS",
-        "Bihar": "BR",
-        "Jharkhand": "JH",
-        "Assam": "AS",
-        "Goa": "GA"
-      };
-      if (stateReverseMap[fullStateName]) {
-        resolvedState =
-          stateReverseMap[fullStateName];
-      }
-    }
-  }
-} catch (apiError) {
-  console.warn(
-    "Background API PIN lookup failed. Falling back to local prefix:",
-    apiError
-  );
-}
       const docRef = await db.collection("leads").add({
       name: name || "Homeowner", 
       email: email || "",
@@ -374,15 +327,17 @@ try {
     localStorage.setItem("leadCity", resolvedCity);
     localStorage.setItem("leadBill", bill);
     
-    window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(resolvedCity)}`;
+ // Redirect to results with the locally resolved state
+    window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=`;
 
   } catch (error) {
     console.error("Firestore Error:", error);
     submitBtn.disabled = false;
     submitBtn.innerText = "Show My Savings Report";
-    alert(error.message);
+    alert("Submission failed. Please try again.");
   }
 }
+
 
 // ==========================================
 // 5. WHATSAPP SUPPORT
