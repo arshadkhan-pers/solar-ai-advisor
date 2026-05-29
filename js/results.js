@@ -285,7 +285,14 @@ async function submitLead() {
   submitBtn.innerText = "Generating AI Analysis...";
   
   const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
-  const city = document.getElementById("capturedCity")?.value.trim();
+  
+  // Try to get city from the new dropdown, fallback to the old input if needed
+  const cityDropdown = document.getElementById("resCity");
+  const cityInput = document.getElementById("capturedCity");
+  const city = (cityDropdown && cityDropdown.value) ? cityDropdown.value : cityInput?.value?.trim();
+  // ---------------------------
+
+  //const city = document.getElementById("capturedCity")?.value.trim();
   const billValue = document.getElementById("capturedBill")?.value;
   const bill = parseFloat(billValue || getBillFromURL());
   
@@ -296,8 +303,8 @@ async function submitLead() {
   const billFile = document.getElementById("billUpload")?.files?.[0];
 
   // Validate City is provided (crucial for local installers and accurate dynamic routing)
-  if (!city || city.length < 2) {
-    alert("Please enter your City to complete the dynamic feasibility analysis.");
+  if (!city || city === "" || city === "Select City") { // Check specifically for "Select City" if that's your placeholder
+    alert("Please select your City from the dropdown to complete the dynamic feasibility analysis.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request";
     return;
@@ -457,7 +464,8 @@ function setupEditableInputs() {
   // This function ONLY updates the UI and the URL
   function updateUIDisplay() {
     const newBill = parseFloat(billInput.value) || 0;
-    const newCity = cityInput?.value?.trim() || "";
+    const cityDropdown = document.getElementById("resCity");
+    const newCity = cityDropdown?.value || ""; 
     const newName = nameInput?.value?.trim() || "";
 
     // 1. Update URL without refreshing page
