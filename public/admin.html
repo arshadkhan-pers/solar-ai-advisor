@@ -71,6 +71,24 @@
   </div>
 
   <!-- FILTERS + SEARCH + ACTIONS -->
+  
+  <div class="px-6 py-4 flex gap-2">
+    <button id="btnTabLeads" onclick="switchView('leads')" class="px-6 py-2 rounded-xl font-semibold bg-slate-900 text-white shadow-lg transition">
+      Leads
+    </button>
+    <button id="btnTabSurveys" onclick="switchView('surveys')" class="px-6 py-2 rounded-xl font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+      Survey Requests
+    </button>
+  </div>
+
+  <div id="leadsContainer">
+    <div class="px-6 pb-4 space-y-4">
+      </div>
+
+    <div class="px-6 pb-10">
+      </div>
+
+  
 <div class="px-6 pb-4 space-y-4">
 
   <!-- TOP ROW -->
@@ -178,6 +196,24 @@
         </table>
 
 </div>
+ <div id="surveysContainer" class="hidden">
+    <div class="bg-white rounded-2xl shadow overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-4 py-3 text-left">Lead Code</th>
+            <th class="px-4 py-3 text-left">Client Name</th>
+            <th class="px-4 py-3 text-left">Phone</th>
+            <th class="px-4 py-3 text-left">City</th>
+            <th class="px-4 py-3 text-left">Requested At</th>
+          </tr>
+        </thead>
+        <tbody id="surveysTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
 <!-- PAGINATION -->
 <div class="flex items-center justify-between px-6 py-4 border-t bg-slate-50">
