@@ -832,6 +832,7 @@ function renderMetric(label, value) {
     `;
 }
 
+/***
 // Helper: Generate and display installer cards
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
@@ -856,6 +857,59 @@ function renderInstallerCards(installers) {
                 <div class="text-right">
                     <div class="text-2xl font-bold text-emerald-600">${score}%</div>
                     <div class="text-[10px] text-slate-400 uppercase tracking-wider">Match Score</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                ${matchReasons.map(reason => `
+                    <span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-1 rounded-full border border-emerald-100 font-medium">
+                        ${reason}
+                    </span>
+                `).join('')}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                ${renderMetric("Reliability", installerAI.reliabilityScore)}
+                ${renderMetric("Subsidy Exp.", installerAI.subsidyExpertise)}
+                ${renderMetric("Experience", installerAI.experienceScore)}
+                ${renderMetric("Response", installerAI.responseScore)}
+            </div>
+
+            <button onclick="alert('Contacting ${businessName}...')" 
+                    class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+                WhatsApp ${businessName}
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+***/
+
+// Helper: Generate and display installer cards
+function renderInstallerCards(installers) {
+    const container = document.getElementById("installerListContainer");
+    container.innerHTML = ""; // Clear existing
+
+    installers.forEach(installer => {
+        const { installerAI, matchReasons, score, businessName, installerType } = installer;
+        
+        const card = document.createElement("div");
+        card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow";
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">${businessName}</h3>
+                    <span class="inline-block mt-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
+                        installerType === 'Premium' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                    }">
+                        ${installerType}
+                    </span>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-emerald-600">${score}%</div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Compatibility</div>
                 </div>
             </div>
 
