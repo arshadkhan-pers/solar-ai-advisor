@@ -321,6 +321,7 @@ async function submitLeadAndContinue(event) {
     });
     
     localStorage.setItem("leadId", docRef.id);
+    localStorage.setItem("leadCode", leadData.leadCode); // Save this locally
     localStorage.setItem("state", resolvedState);
     localStorage.setItem("leadName", name || "Homeowner");
     localStorage.setItem("leadPhone", phone);
