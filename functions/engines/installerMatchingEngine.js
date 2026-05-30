@@ -187,7 +187,7 @@ matchReasons:
     );
 
     matchedInstallers =
-      matchedInstallers.slice(0, 3);
+      matchedInstallers.slice(0, 2);
 
   }
   catch (error) {
