@@ -690,17 +690,17 @@ function renderDynamicAIReport(report, result) {
 // Logic to show/hide Concierge vs Installer
 
   const conciergeCard = document.getElementById("conciergeCard");
-  const installerContainer = document.getElementById("installerListContainer");
+  const installerSection = document.getElementById("installerSection"); // Target the parent container now
 
   if (report.matchedInstallers && report.matchedInstallers.length > 0) {
     conciergeCard.classList.add("hidden");
-    installerContainer.classList.remove("hidden");
+    installerSection.classList.remove("hidden"); // Show the whole section
     
     // Call the new renderer
     renderInstallerCards(report.matchedInstallers);
   } else {
     conciergeCard.classList.remove("hidden");
-    installerContainer.classList.add("hidden");
+    installerSection.classList.add("hidden"); // Hide the whole section (Heading + List)
   }
   
   const aiSection = document.getElementById("aiInsightsSection");
