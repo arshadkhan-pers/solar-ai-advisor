@@ -490,67 +490,6 @@ function setupEditableInputs() {
   nameInput?.addEventListener("input", updateUIDisplay);
 }
 
-/****
-function setupEditableInputs() {
-  const billInput = document.getElementById("capturedBill");
-  const cityInput = document.getElementById("capturedCity");
-  const nameInput = document.getElementById("capturedName");
-  const leadId = localStorage.getItem("leadId");
-
-  if (!billInput ||!leadId) return;
-
-  async function syncLeadChanges() {
-    const newBill = parseFloat(billInput.value);
-    if (!newBill || newBill < 500) return;
-
-    const newCity = cityInput?.value?.trim() || "";
-    const newName = nameInput?.value?.trim() || "";
-
-    // =========================
-    // UPDATE URL
-    // =========================
-    const params = new URLSearchParams(window.location.search);
-    params.set("bill", newBill);
-    if (newCity) params.set("city", newCity);
-    if (newName) params.set("name", newName);
-
-    history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-
-    // =========================
-    // INSTANT UI RECALCULATION
-    // =========================
-    const result = calculateSolar(newBill);
-    renderResults(result, newBill);
-
-    // =========================
-    // FIRESTORE UPDATE
-    // =========================
-    try {
-      showAILoadingState();
-      const requestTime = Date.now();
-
-      await db.collection("leads").doc(leadId).update({
-        bill: newBill,
-        city: newCity,
-        name: newName,
-        aiRegenerationRequired: true,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      // Wait for regenerated AI report
-      const aiReport = await waitForAIReport(leadId, requestTime);
-      renderDynamicAIReport(aiReport, result);
-
-    } catch (error) {
-      console.error("Editable sync failed:", error);
-    }
-  }
-
-  billInput.addEventListener("change", syncLeadChanges);
-  cityInput?.addEventListener("change", syncLeadChanges);
-  nameInput?.addEventListener("change", syncLeadChanges);
-}
-****/
 // ===============================
 // 🤖 AI INSIGHTS ENGINE
 // ===============================
@@ -674,9 +613,52 @@ async function waitForAIReport(leadId, requestTime) {
   throw new Error("AI report generation timeout");
 }
 
+async function requestSiteSurvey() {
+  const leadId = localStorage.getItem("leadId");
+  const btn = event.target;
+  
+  btn.innerText = "Requesting...";
+  btn.disabled = true;
+
+  try {
+    // 1. Create a record in 'survey_requests'
+    // This collection trigger will handle the email to User + BCC Ops
+    await db.collection("survey_requests").add({
+      leadId: leadId,
+      status: "pending",
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      // Include metadata the Ops team needs
+      requestedCity: document.getElementById("resCity")?.value || "Unknown",
+      clientName: document.getElementById("capturedName")?.value || "Homeowner"
+    });
+
+    // 2. Success Feedback
+    btn.innerText = "✓ Request Received";
+    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
+    
+    alert("Request received! Our team will contact you once a vetted partner in your city is ready.");
+    
+  } catch (error) {
+    console.error("Survey request failed:", error);
+    btn.innerText = "Try Again";
+    btn.disabled = false;
+  }
+}
+
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
 
+// Logic to show/hide Concierge vs Installer
+  const conciergeCard = document.getElementById("conciergeCard");
+  const hasInstaller = report.matchedInstallers && report.matchedInstallers.length > 0;
+
+  if (hasInstaller) {
+    conciergeCard.classList.add("hidden");
+    // Show your existing installer match UI here
+  } else {
+    conciergeCard.classList.remove("hidden");
+  }
+  
   const aiSection = document.getElementById("aiInsightsSection");
   if (aiSection) {
     aiSection.classList.remove("hidden");
@@ -789,50 +771,6 @@ function renderDynamicAIReport(report, result) {
     window.scrollTo({ top: y, behavior: "smooth" });
   });
 }
-
-// Attach this function to your "AI Analysis" button's onclick event
-/***
-async function performFullAnalysisSync() {
-  const leadId = localStorage.getItem("leadId");
-  const billInput = document.getElementById("capturedBill");
-  const cityInput = document.getElementById("capturedCity");
-  const nameInput = document.getElementById("capturedName");
-
-  if (!leadId) return alert("Session expired. Please refresh.");
-
-  // 1. Show spinner immediately
-  showAILoadingState();
-  
-  const newBill = parseFloat(billInput.value);
-  const newCity = cityInput?.value?.trim() || "";
-  const newName = nameInput?.value?.trim() || "";
-  const requestTime = Date.now();
-
-  try {
-    // 2. Perform ONE database write
-    await db.collection("leads").doc(leadId).update({
-      bill: newBill,
-      city: newCity,
-      name: newName,
-      aiRegenerationRequired: true,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // 3. Wait for the Cloud Function to finish processing
-    const aiReport = await waitForAIReport(leadId, requestTime);
-    
-    // 4. Render the results
-    const result = calculateSolar(newBill);
-    renderDynamicAIReport(aiReport, result);
-    
-  } catch (error) {
-    console.error("Analysis sync failed:", error);
-    alert("Failed to generate AI report. Please try again.");
-    // Hide loading state if error occurs
-    document.getElementById("aiLoadingState")?.classList.add("hidden");
-  }
-}
-***/
 
 // ===============================
 // 🔹 INITIALIZATION
