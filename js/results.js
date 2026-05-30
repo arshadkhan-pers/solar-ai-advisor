@@ -652,11 +652,23 @@ function renderDynamicAIReport(report, result) {
   const conciergeCard = document.getElementById("conciergeCard");
   const hasInstaller = report.matchedInstallers && report.matchedInstallers.length > 0;
 
-  if (hasInstaller) {
+    if (hasInstaller) {
     conciergeCard.classList.add("hidden");
-    // Show your existing installer match UI here
+    
+    // 1. Get the first matched installer
+    const installer = report.matchedInstallers[0];
+    const matchCard = document.getElementById("installerMatchCard");
+    
+    // 2. Populate data
+    document.getElementById("installerName").innerText = installer.name || "Local Solar Partner";
+    document.getElementById("installerRating").innerText = installer.rating ? `⭐ ${installer.rating}` : "⭐ 4.5";
+    document.getElementById("installerDescription").innerText = installer.description || "Our AI has matched you with this top-rated installer in your area based on your location and system requirements.";
+    
+    // 3. Show the card
+    matchCard.classList.remove("hidden");
   } else {
     conciergeCard.classList.remove("hidden");
+    document.getElementById("installerMatchCard").classList.add("hidden");
   }
   
   const aiSection = document.getElementById("aiInsightsSection");
