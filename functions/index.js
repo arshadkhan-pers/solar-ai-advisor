@@ -459,7 +459,12 @@ exports.triggerConsultationEmail = triggerConsultationEmail;
 
 const { triggerInstallerEmail} = require("./triggers/triggerInstallerEmail");
 exports.triggerInstallerEmail = triggerInstallerEmail;
-  
+
+// Add to your existing exports in index.js
+const { triggerSurveyRequestEmail } = require("./triggers/triggerSurveyRequestEmail");
+exports.triggerSurveyRequestEmail = triggerSurveyRequestEmail;
+
+
 // =====================================================================
 // TRIGGER: LEAD ASSIGNMENT PROFILE DELIVERY (To Matched Installer)
 // =====================================================================
