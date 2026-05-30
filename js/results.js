@@ -613,6 +613,7 @@ async function waitForAIReport(leadId, requestTime) {
   throw new Error("AI report generation timeout");
 }
 
+/***
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
   const btn = event.target;
@@ -644,6 +645,44 @@ async function requestSiteSurvey() {
     btn.disabled = false;
   }
 }
+***/
+
+async function requestSiteSurvey() {
+  const leadId = localStorage.getItem("leadId");
+  const btn = event.target;
+  
+  // 1. Visual feedback
+  btn.disabled = true;
+  btn.innerText = "Requesting...";
+  btn.classList.add("opacity-50", "cursor-not-allowed");
+
+  try {
+    await db.collection("survey_requests").add({
+      leadId: leadId,
+      status: "pending",
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      requestedCity: document.getElementById("resCity")?.value || "Unknown",
+      clientName: document.getElementById("capturedName")?.value || "Homeowner"
+    });
+
+    // 2. Success state
+    btn.innerText = "✓ Request Submitted";
+    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
+    
+    // Add a success message below the button
+    const successMsg = document.createElement("p");
+    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
+    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
+    btn.parentNode.appendChild(successMsg);
+    
+  } catch (error) {
+    console.error("Survey request failed:", error);
+    btn.innerText = "Try Again";
+    btn.disabled = false;
+    btn.classList.remove("opacity-50");
+  }
+}
+
 
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
