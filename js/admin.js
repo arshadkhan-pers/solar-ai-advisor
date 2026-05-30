@@ -1193,24 +1193,7 @@ if (lead.createdAt) {
 
 }
 
-/***AI ANALYSIS COMPLETED
-if (
-  lead.stage === "qualified" &&
-  lead.updatedAt
-) {
 
-  timeline.push({
-    type: "QUALIFIED",
-    message:
-      "AI analysis completed successfully",
-    createdAt:
-      lead.updatedAt?.toDate
-        ? lead.updatedAt.toDate()
-        : lead.updatedAt
-  });
-
-}
-***/
 // MANUAL TIMELINE EVENTS
 if (lead.timeline?.length) {
 
@@ -1426,11 +1409,6 @@ if (updatedLead) {
     );
   }
 };
-
-// =====================================
-// START
-// =====================================
-
 // =====================================
 // SAVE NOTE
 // =====================================
@@ -1517,5 +1495,67 @@ if (updatedLead) {
 
   }
 );
+
+// =====================================
+// VIEW SWITCHING
+// =====================================
+window.switchView = function(view) {
+  const leadsContainer = document.getElementById("leadsContainer");
+  const surveysContainer = document.getElementById("surveysContainer");
+  const btnLeads = document.getElementById("btnTabLeads");
+  const btnSurveys = document.getElementById("btnTabSurveys");
+
+  if (view === 'leads') {
+    leadsContainer.classList.remove("hidden");
+    surveysContainer.classList.add("hidden");
+    btnLeads.classList.replace("bg-white", "bg-slate-900");
+    btnLeads.classList.replace("text-slate-600", "text-white");
+    btnSurveys.classList.replace("bg-slate-900", "bg-white");
+    btnSurveys.classList.replace("text-white", "text-slate-600");
+  } else {
+    leadsContainer.classList.add("hidden");
+    surveysContainer.classList.remove("hidden");
+    btnSurveys.classList.replace("bg-white", "bg-slate-900");
+    btnSurveys.classList.replace("text-slate-600", "text-white");
+    btnLeads.classList.replace("bg-slate-900", "bg-white");
+    btnLeads.classList.replace("text-white", "text-slate-600");
+    loadSurveyRequests(); // Trigger load when switching
+  }
+};
+
+// =====================================
+// LOAD SURVEY REQUESTS
+// =====================================
+async function loadSurveyRequests() {
+  const tbody = document.getElementById("surveysTableBody");
+  tbody.innerHTML = "<tr><td colspan='5' class='text-center p-4'>Loading...</td></tr>";
+
+  try {
+    const snapshot = await db.collection("survey_requests")
+      .orderBy("requestedAt", "desc")
+      .get();
+
+    tbody.innerHTML = "";
+    
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const row = document.createElement("tr");
+      row.className = "border-b hover:bg-slate-50";
+      
+      row.innerHTML = `
+        <td class="px-4 py-4 font-mono text-xs">${data.leadCode || "N/A"}</td>
+        <td class="px-4 py-4 font-semibold">${data.clientName || "N/A"}</td>
+        <td class="px-4 py-4">${data.phone || "N/A"}</td>
+        <td class="px-4 py-4">${data.requestedCity || "N/A"}</td>
+        <td class="px-4 py-4 text-xs text-gray-500">${formatLeadTime(data.requestedAt)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error loading surveys:", error);
+    tbody.innerHTML = "<tr><td colspan='5' class='text-red-500 text-center p-4'>Failed to load data</td></tr>";
+  }
+}
+
 
 //loadLeads();
