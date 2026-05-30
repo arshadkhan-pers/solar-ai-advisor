@@ -618,39 +618,6 @@ async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
   const btn = event.target;
   
-  btn.innerText = "Requesting...";
-  btn.disabled = true;
-
-  try {
-    // 1. Create a record in 'survey_requests'
-    // This collection trigger will handle the email to User + BCC Ops
-    await db.collection("survey_requests").add({
-      leadId: leadId,
-      status: "pending",
-      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      // Include metadata the Ops team needs
-      requestedCity: document.getElementById("resCity")?.value || "Unknown",
-      clientName: document.getElementById("capturedName")?.value || "Homeowner"
-    });
-
-    // 2. Success Feedback
-    btn.innerText = "✓ Request Received";
-    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
-    
-    alert("Request received! Our team will contact you once a vetted partner in your city is ready.");
-    
-  } catch (error) {
-    console.error("Survey request failed:", error);
-    btn.innerText = "Try Again";
-    btn.disabled = false;
-  }
-}
-***/
-
-async function requestSiteSurvey() {
-  const leadId = localStorage.getItem("leadId");
-  const btn = event.target;
-  
   // 1. Visual feedback
   btn.disabled = true;
   btn.innerText = "Requesting...";
@@ -677,6 +644,53 @@ async function requestSiteSurvey() {
     
   } catch (error) {
     console.error("Survey request failed:", error);
+    btn.innerText = "Try Again";
+    btn.disabled = false;
+    btn.classList.remove("opacity-50");
+  }
+}
+***/
+
+async function requestSiteSurvey() {
+  const leadId = localStorage.getItem("leadId");
+  const leadCode = localStorage.getItem("leadCode"); // Retrieve leadCode from storage
+  const btn = event.target; // Capture button reference immediately
+  
+  if (!leadId) {
+    alert("Lead ID not found. Please refresh the page.");
+    return;
+  }
+
+  // 1. Visual feedback
+  btn.disabled = true;
+  btn.innerText = "Requesting...";
+  btn.classList.add("opacity-50", "cursor-not-allowed");
+
+  try {
+    // 2. Use .doc(leadId).set() to ensure the survey_request doc ID matches the lead ID
+    await db.collection("survey_requests").doc(leadId).set({
+      leadId: leadId,
+      leadCode: leadCode || "N/A", // Added requirement
+      phone: document.getElementById("capturedPhone")?.value || "N/A", // Added requirement
+      status: "pending",
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      requestedCity: document.getElementById("resCity")?.value || "Unknown",
+      clientName: document.getElementById("capturedName")?.value || "Homeowner"
+    });
+
+    // 3. Success state
+    btn.innerText = "✓ Request Submitted";
+    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
+    
+    // Add success message
+    const successMsg = document.createElement("p");
+    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
+    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
+    btn.parentNode.appendChild(successMsg);
+    
+  } catch (error) {
+    console.error("Survey request failed:", error);
+    alert("Request failed. Please try again.");
     btn.innerText = "Try Again";
     btn.disabled = false;
     btn.classList.remove("opacity-50");
