@@ -649,26 +649,19 @@ function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
 
 // Logic to show/hide Concierge vs Installer
-  const conciergeCard = document.getElementById("conciergeCard");
-  const hasInstaller = report.matchedInstallers && report.matchedInstallers.length > 0;
 
-    if (hasInstaller) {
+  const conciergeCard = document.getElementById("conciergeCard");
+  const installerContainer = document.getElementById("installerListContainer");
+
+  if (report.matchedInstallers && report.matchedInstallers.length > 0) {
     conciergeCard.classList.add("hidden");
+    installerContainer.classList.remove("hidden");
     
-    // 1. Get the first matched installer
-    const installer = report.matchedInstallers[0];
-    const matchCard = document.getElementById("installerMatchCard");
-    
-    // 2. Populate data
-    document.getElementById("installerName").innerText = installer.name || "Local Solar Partner";
-    document.getElementById("installerRating").innerText = installer.rating ? `⭐ ${installer.rating}` : "⭐ 4.5";
-    document.getElementById("installerDescription").innerText = installer.description || "Our AI has matched you with this top-rated installer in your area based on your location and system requirements.";
-    
-    // 3. Show the card
-    matchCard.classList.remove("hidden");
+    // Call the new renderer
+    renderInstallerCards(report.matchedInstallers);
   } else {
     conciergeCard.classList.remove("hidden");
-    document.getElementById("installerMatchCard").classList.add("hidden");
+    installerContainer.classList.add("hidden");
   }
   
   const aiSection = document.getElementById("aiInsightsSection");
@@ -823,3 +816,72 @@ function calculateSavings() {
         renderResults(result, bill);
     }
 }
+
+// Helper: Render individual score bars
+function renderMetric(label, value) {
+    return `
+        <div class="text-xs">
+            <div class="flex justify-between mb-1">
+                <span class="text-slate-500">${label}</span>
+                <span class="font-semibold text-slate-800">${value}%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${value}%"></div>
+            </div>
+        </div>
+    `;
+}
+
+// Helper: Generate and display installer cards
+function renderInstallerCards(installers) {
+    const container = document.getElementById("installerListContainer");
+    container.innerHTML = ""; // Clear existing
+
+    installers.forEach(installer => {
+        const { installerAI, matchReasons, score, businessName, installerType } = installer;
+        
+        const card = document.createElement("div");
+        card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow";
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">${businessName}</h3>
+                    <span class="inline-block mt-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
+                        installerType === 'Premium' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                    }">
+                        ${installerType}
+                    </span>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-emerald-600">${score}%</div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider">Match Score</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                ${matchReasons.map(reason => `
+                    <span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-1 rounded-full border border-emerald-100 font-medium">
+                        ${reason}
+                    </span>
+                `).join('')}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                ${renderMetric("Reliability", installerAI.reliabilityScore)}
+                ${renderMetric("Subsidy Exp.", installerAI.subsidyExpertise)}
+                ${renderMetric("Experience", installerAI.experienceScore)}
+                ${renderMetric("Response", installerAI.responseScore)}
+            </div>
+
+            <button onclick="alert('Contacting ${businessName}...')" 
+                    class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+                WhatsApp ${businessName}
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+
+
