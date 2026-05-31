@@ -1,6 +1,11 @@
 // ====================================
 // GLOBALS
 // ====================================
+const LEAD_STATUSES = ["NEW", "REVIEWING", "CONTACTED", "QUALIFIED", "SHARED", "CLOSED", "REJECTED"];
+const LEAD_STAGES = [
+  "INITIAL", "AI_GENERATED", "SURVEY_REQUESTED", "SURVEY_COMPLETED", 
+  "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", 
+  "SUBSIDY_CREDITED", "CLOSED_SUCCESS", "CLOSED_REJECTED"];
 
 let allLeads = [];
 let currentOpenLeadId = null;
@@ -596,14 +601,25 @@ ${
         </span>
 
       </td>
-
-      <td class="px-4 py-4">
-
+///////
+// Replace the existing <td class="px-4 py-4"> containing the stage div
+<td class="px-4 py-4">
   <div class="space-y-2">
+    <select
+      onchange="updateLeadField('${lead.id}', 'stage', this.value)"
+      class="border rounded-lg px-2 py-1 text-sm w-full">
+      ${LEAD_STAGES.map(s => `
+        <option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>
+      `).join('')}
+    </select>
 
-    <div>
-      ${lead.stage || '-'}
-    </div>
+    <select
+      onchange="updateLeadField('${lead.id}', 'status', this.value)"
+      class="border rounded-lg px-2 py-1 text-sm w-full">
+      ${LEAD_STATUSES.map(s => `
+        <option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>
+      `).join('')}
+    </select>
 
     ${
       lead.priority
@@ -725,43 +741,43 @@ window.filterLeads = function(type) {
 // =====================================
 // UPDATE STATUS
 // =====================================
-
-window.updateLeadStatus =
-async function(id, status) {
-
+window.updateLeadField = async function(id, field, value) {
   try {
-    
-    await db
-  .collection("leads")
-  .doc(id)
-  .update({
-    status: status,
-    updatedAt:
-  new Date(),
-  timeline:
-  firebase.firestore.FieldValue.arrayUnion({
+    const batch = db.batch();
+    const leadRef = db.collection("leads").doc(id);
+    const surveyRef = db.collection("survey_requests").doc(id);
 
-    type: "STATUS_CHANGED",
+    // 1. Update the primary lead document
+    const updateData = {
+      updatedAt: new Date(),
+      timeline: firebase.firestore.FieldValue.arrayUnion({
+        type: "FIELD_UPDATED",
+        message: `${field} changed to ${value}`,
+        createdAt: new Date().toISOString()
+      })
+    };
+    updateData[field] = value;
+    batch.update(leadRef, updateData);
 
-    message:
-      `Lead status changed to ${status}`,
-
-    createdAt:
-      new Date().toISOString()
-
-  })
-  });
-
-    alert("Lead status updated");
-
-    await loadLeads();
-
+    // 2. Conditional Sync: Update Survey Request Status if needed
+if (field === 'stage') {
+  // Sync logic: If stage is CLOSED_REJECTED, update/create survey_request status
+  if (value === 'CLOSED_REJECTED') {
+    batch.set(surveyRef, { status: 'rejected' }, { merge: true });
+  } 
+  // If stage is SURVEY_COMPLETED, update/create survey_request status
+  else if (value === 'SURVEY_COMPLETED') {
+    batch.set(surveyRef, { status: 'completed' }, { merge: true });
   }
-  catch (error) {
+}
 
-    console.error(error);
-
-    alert("Failed to update status");
+    await batch.commit();
+    
+    alert(`Lead ${field} updated successfully.`);
+    await loadLeads(); // Refresh table
+  } catch (error) {
+    console.error("Update failed:", error);
+    alert(`Failed to update ${field}.`);
   }
 };
 
