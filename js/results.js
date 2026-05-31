@@ -347,7 +347,7 @@ async function submitLead() {
       connectionType,
       billUploaded: billFile? "Yes" : "No",
       leadType,
-      stage: "qualified",
+      stage: "AI_GENERATED",
       aiRegenerationRequired: true,
       // Persist compiled calculations back to Firestore
       systemSizeKw: result.systemSize,
@@ -612,45 +612,7 @@ async function waitForAIReport(leadId, requestTime) {
   }
   throw new Error("AI report generation timeout");
 }
-
 /***
-async function requestSiteSurvey() {
-  const leadId = localStorage.getItem("leadId");
-  const btn = event.target;
-  
-  // 1. Visual feedback
-  btn.disabled = true;
-  btn.innerText = "Requesting...";
-  btn.classList.add("opacity-50", "cursor-not-allowed");
-
-  try {
-    await db.collection("survey_requests").add({
-      leadId: leadId,
-      status: "pending",
-      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      requestedCity: document.getElementById("resCity")?.value || "Unknown",
-      clientName: document.getElementById("capturedName")?.value || "Homeowner"
-    });
-
-    // 2. Success state
-    btn.innerText = "✓ Request Submitted";
-    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
-    
-    // Add a success message below the button
-    const successMsg = document.createElement("p");
-    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
-    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
-    btn.parentNode.appendChild(successMsg);
-    
-  } catch (error) {
-    console.error("Survey request failed:", error);
-    btn.innerText = "Try Again";
-    btn.disabled = false;
-    btn.classList.remove("opacity-50");
-  }
-}
-***/
-
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
   const leadCode = localStorage.getItem("leadCode"); // Retrieve leadCode from storage
@@ -696,7 +658,67 @@ async function requestSiteSurvey() {
     btn.classList.remove("opacity-50");
   }
 }
+***/
 
+async function requestSiteSurvey() {
+  const leadId = localStorage.getItem("leadId");
+  const leadCode = localStorage.getItem("leadCode");
+  const btn = event.target;
+  
+  if (!leadId) {
+    alert("Lead ID not found. Please refresh the page.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Requesting...";
+  btn.classList.add("opacity-50", "cursor-not-allowed");
+
+  try {
+    // Use Batch write for atomic operation
+    const batch = db.batch();
+    
+    // 1. Reference to the lead document
+    const leadRef = db.collection("leads").doc(leadId);
+    // 2. Reference to the new survey request
+    const surveyRef = db.collection("survey_requests").doc(leadId);
+
+    // Set the Lead Stage
+    batch.update(leadRef, { 
+      stage: "SURVEY_REQUESTED" 
+    });
+
+    // Create the Survey Request
+    batch.set(surveyRef, {
+      leadId: leadId,
+      leadCode: leadCode || "N/A",
+      phone: document.getElementById("capturedPhone")?.value || "N/A",
+      status: "pending",
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      requestedCity: document.getElementById("resCity")?.value || "Unknown",
+      clientName: document.getElementById("capturedName")?.value || "Homeowner"
+    });
+
+    // Commit both updates
+    await batch.commit();
+
+    // Success state
+    btn.innerText = "✓ Request Submitted";
+    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
+    
+    const successMsg = document.createElement("p");
+    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
+    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
+    btn.parentNode.appendChild(successMsg);
+    
+  } catch (error) {
+    console.error("Survey request failed:", error);
+    alert("Request failed. Please try again.");
+    btn.innerText = "Try Again";
+    btn.disabled = false;
+    btn.classList.remove("opacity-50");
+  }
+}
 
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
