@@ -752,9 +752,9 @@ async function requestSiteSurvey() {
     await batch.commit();
 
 // TRIGGER THE UI LOCK IMMEDIATELY
-    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
+   /* localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
     updateRoadmap("SURVEY_REQUESTED"); // This handles the button disabling
-
+*/
     
     // Success state
     btn.innerText = "✓ Request Submitted";
