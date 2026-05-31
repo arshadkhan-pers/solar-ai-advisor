@@ -633,42 +633,6 @@ ${
   </div>
 </td>
 
-
-      <td class="px-4 py-4">
-
-        <select
-          onchange="updateLeadStatus('${lead.id}', this.value)"
-          class="border rounded-lg px-2 py-1 text-sm">
-
-          <option value="NEW"
-            ${lead.status === 'NEW' || lead.status === 'New' ? 'selected' : ''}>
-            NEW
-          </option>
-
-          <option value="CONTACTED"
-            ${lead.status === 'CONTACTED' ? 'selected' : ''}>
-            CONTACTED
-          </option>
-
-          <option value="SHARED"
-            ${lead.status === 'SHARED' ? 'selected' : ''}>
-            SHARED
-          </option>
-
-          <option value="CLOSED"
-            ${lead.status === 'CLOSED' ? 'selected' : ''}>
-            CLOSED
-          </option>
-
-          <option value="REJECTED"
-            ${lead.status === 'REJECTED' ? 'selected' : ''}>
-            REJECTED
-          </option>
-
-        </select>
-
-      </td>
-
       <td class="px-4 py-4">
 
         <button
