@@ -102,7 +102,7 @@ function updateRoadmap(stage) {
     if (uploadSection) {
         uploadSection.classList.toggle('hidden', !(stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED"));
     }
-
+/*
     // 2. NEW: Disable "Unlock My AI Solar Analysis" button if survey requested
     const submitBtn = document.querySelector("#leadForm button");
     if (submitBtn) {
@@ -114,7 +114,7 @@ function updateRoadmap(stage) {
             submitBtn.innerText = "Analysis Locked";
             submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         }
-    }
+    }*/
 }
 
 
