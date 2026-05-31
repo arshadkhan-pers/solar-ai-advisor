@@ -602,7 +602,6 @@ ${
 
       </td>
 
-// Replace the existing <td class="px-4 py-4"> containing the stage div
 <td class="px-4 py-4">
   <div class="space-y-2">
     <select
@@ -621,38 +620,19 @@ ${
       `).join('')}
     </select>
 
-    ${
-      lead.priority
-      ? `
-        <span class="
-          text-xs
-          px-2
-          py-1
-          rounded-full
-          font-semibold
-
-          ${
-            lead.priority === "URGENT"
-            ? "bg-red-600 text-white"
-
-            : lead.priority === "HIGH"
-            ? "bg-orange-500 text-white"
-
-            : lead.priority === "MEDIUM"
-            ? "bg-yellow-400 text-slate-900"
-
-            : "bg-slate-200 text-slate-700"
-          }
-        ">
-          ${lead.priority}
-        </span>
-      `
-      : ""
-    }
-
+    ${lead.priority ? `
+      <span class="text-xs px-2 py-1 rounded-full font-semibold inline-block ${
+        lead.priority === "URGENT" ? "bg-red-600 text-white" :
+        lead.priority === "HIGH" ? "bg-orange-500 text-white" :
+        lead.priority === "MEDIUM" ? "bg-yellow-400 text-slate-900" :
+        "bg-slate-200 text-slate-700"
+      }">
+        ${lead.priority}
+      </span>
+    ` : ""}
   </div>
-
 </td>
+
 
       <td class="px-4 py-4">
 
