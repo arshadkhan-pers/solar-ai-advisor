@@ -198,9 +198,10 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 // ===============================
 // 🔹 CORE CALCULATION
 // ===============================
+
 function calculateSolar(bill, stateOverride = null) {
   // If a stateOverride (from the dropdown) exists, use it. Otherwise, use URL.
-  const state = stateOverride || getStateFromURL();
+  const state = stateOverride || getStateFromURL() || "UP";
   const units = bill / 7;
   const systemSize = Math.max(1, Math.round(units / 120));
   const costPerKW = 55000;
@@ -909,55 +910,58 @@ function renderDynamicAIReport(report, result) {
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
     
-    // --- NEW: FETCH & SYNC STAGE FROM FIRESTORE ---
+    // 1. Sync Stage from Firestore
     const leadId = localStorage.getItem("leadId");
     if (leadId) {
         try {
             const leadDoc = await db.collection("leads").doc(leadId).get();
             if (leadDoc.exists) {
                 const stage = leadDoc.data().stage || "INITIAL";
-                localStorage.setItem("leadStage", stage); // Sync for freeze logic
-                updateRoadmap(stage); // Sync for progress bar UI
+                localStorage.setItem("leadStage", stage);
+                updateRoadmap(stage);
             }
         } catch (err) {
             console.error("Error syncing stage:", err);
         }
     }
-    // -----------------------------------------------
 
-    // 1. Initialize location dropdowns
+    // 2. Setup inputs early
+    setupBillUpload();
+    populateCapturedData();
+    setupEditableInputs();
+
+    // 3. Initialize location dropdowns
     const initialState = localStorage.getItem("state") || "UP";
     
     await LocationHandler.init("resState", "resCity", (newState) => {
         console.log("State changed to:", newState);
         localStorage.setItem("state", newState); 
+        // Trigger calculation ONLY after the dropdown is populated
         calculateSavings(); 
     }, initialState);
 
-    // 2. Existing app logic
-    const bill = getBillFromURL();
-    if (bill > 0) {
-        // Initial render
-        calculateSavings(); 
-        
-        setupBillUpload();
-        populateCapturedData();
-        setupEditableInputs();
-    } else {
-        console.error("Invalid Bill Input");
-    }
+    // 4. Initial Trigger
+    // We only call this here if we aren't relying on the async LocationHandler to fire it.
+    // If LocationHandler.init triggers calculateSavings, you can remove this call.
+    calculateSavings(); 
 });
 
 
 // Logic to pull data from dropdown, recalculate, and re-render
 function calculateSavings() {
-    const bill = parseFloat(localStorage.getItem("bill")) || getBillFromURL();
-    const state = document.getElementById("resState").value || localStorage.getItem("state");
+    // 1. Get Bill (Prioritize local storage, fallback to URL)
+    const bill = parseFloat(localStorage.getItem("bill") || getBillFromURL());
     
-    if (bill > 0 && state) {
-        // Pass the state from the dropdown as the second argument
+    // 2. Get State safely (Check for element existence)
+    const stateEl = document.getElementById("resState");
+    const state = (stateEl && stateEl.value) ? stateEl.value : (localStorage.getItem("state") || "UP");
+    
+    if (bill > 0) {
+        // Pass the state safely
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
+    } else {
+        console.warn("Skipping calculation: Bill is 0 or invalid.");
     }
 }
 
