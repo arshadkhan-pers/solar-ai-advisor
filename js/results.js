@@ -694,6 +694,7 @@ async function waitForAIReport(leadId, requestTime) {
   }
   throw new Error("AI report generation timeout");
 }
+/*
 // ... inside the 'try' block of requestSiteSurvey ...
     
     // Commit both updates
@@ -706,7 +707,7 @@ async function waitForAIReport(leadId, requestTime) {
     // Success state
     btn.innerText = "✓ Request Submitted";
 // ... rest of success logic ...
-
+*/
 
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
