@@ -347,7 +347,7 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 async function submitLead() {
   
   const currentStage = localStorage.getItem("leadStage"); 
-  if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
+  if (currentStage && currentStage !== "INITIAL" && currentStage !== "initial" && currentStage !== "AI_GENERATED") {
       alert("Analysis report is locked. You have already requested a site survey.");
       return; // Stop execution
   }
