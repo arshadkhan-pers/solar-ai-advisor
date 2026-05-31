@@ -1574,6 +1574,7 @@ async function loadSurveyRequests() {
       const row = document.createElement("tr");
       row.className = "border-b hover:bg-slate-50";
       
+      // Fixed: Use data.leadId instead of data.leadCode
       row.innerHTML = `
         <td class="px-4 py-4 font-mono text-xs">${data.leadId || "N/A"}</td>
         <td class="px-4 py-4 font-semibold">${data.clientName || "N/A"}</td>
@@ -1585,9 +1586,8 @@ async function loadSurveyRequests() {
     });
   } catch (error) {
     console.error("Error loading surveys:", error);
-    tbody.innerHTML = "<tr><td colspan='5' class='text-red-500 text-center p-4'>Failed to load data</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='5' class='text-red-500 text-center p-4'>Error loading data</td></tr>";
   }
 }
-
 
 //loadLeads();
