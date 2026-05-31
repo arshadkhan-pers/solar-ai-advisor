@@ -602,26 +602,30 @@ ${
 
       </td>
 
-<td class="px-4 py-4">
-  <div class="space-y-2">
-    <select
-      onchange="updateLeadField('${lead.id}', 'stage', this.value)"
-      class="border rounded-lg px-2 py-1 text-sm w-full">
-      ${LEAD_STAGES.map(s => `
-        <option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>
-      `).join('')}
-    </select>
+// 1. Stage Column
+<td class="px-4 py-4 align-top">
+  <select
+    onchange="updateLeadField('${lead.id}', 'stage', this.value)"
+    class="border rounded-lg px-2 py-1 text-xs w-full max-w-[140px]">
+    ${LEAD_STAGES.map(s => `
+      <option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>
+    `).join('')}
+  </select>
+</td>
 
+// 2. Status Column
+<td class="px-4 py-4 align-top">
+  <div class="flex flex-col gap-2">
     <select
       onchange="updateLeadField('${lead.id}', 'status', this.value)"
-      class="border rounded-lg px-2 py-1 text-sm w-full">
+      class="border rounded-lg px-2 py-1 text-xs w-full max-w-[140px]">
       ${LEAD_STATUSES.map(s => `
         <option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>
       `).join('')}
     </select>
-
+    
     ${lead.priority ? `
-      <span class="text-xs px-2 py-1 rounded-full font-semibold inline-block ${
+      <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold text-center w-fit ${
         lead.priority === "URGENT" ? "bg-red-600 text-white" :
         lead.priority === "HIGH" ? "bg-orange-500 text-white" :
         lead.priority === "MEDIUM" ? "bg-yellow-400 text-slate-900" :
@@ -632,6 +636,7 @@ ${
     ` : ""}
   </div>
 </td>
+
 
       <td class="px-4 py-4">
 
