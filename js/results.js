@@ -78,6 +78,62 @@ function getBillFromURL() {
 }
 
 // ===============================
+// 🔹 ROADMAP & UPLOAD HELPERS
+// ===============================
+
+// Logic to drive the progress bar UI
+function updateRoadmap(stage) {
+    const roadmapProgress = document.getElementById('roadmapProgress');
+    if (!roadmapProgress) return;
+
+    const stageMap = { 
+        "INITIAL": 1, "AI_GENERATED": 1, "SURVEY_REQUESTED": 2, 
+        "SURVEY_COMPLETED": 2, "OFFER_GIVEN": 3, "OFFER_ACCEPTED": 3, 
+        "INSTALLATION_COMPLETED": 4 
+    };
+    
+    const step = stageMap[stage] || 1;
+    roadmapProgress.style.width = (step * 25) + "%";
+    
+    // Show upload section if at Proposal stage
+    const uploadSection = document.getElementById('quoteUploadSection');
+    if (uploadSection) {
+        if (stage === "OFFER_GIVEN") {
+            uploadSection.classList.remove('hidden');
+        } else {
+            uploadSection.classList.add('hidden');
+        }
+    }
+}
+
+// Logic to handle Quote Upload
+async function uploadQuote() {
+    const fileInput = document.getElementById('quoteFileInput');
+    const file = fileInput?.files[0];
+    const leadId = localStorage.getItem("leadId");
+    
+    if (!file) return alert("Please select a file first");
+    if (!leadId) return alert("Lead ID not found");
+
+    try {
+        const storageRef = firebase.storage().ref('quotes/' + leadId);
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
+        
+        await db.collection("leads").doc(leadId).update({ 
+            quoteUrl: url,
+            stage: "OFFER_ACCEPTED" 
+        });
+        
+        alert("Quote uploaded successfully!");
+        location.reload(); // Refresh to update UI
+    } catch (error) {
+        console.error("Upload failed:", error);
+        alert("Upload failed. Please try again.");
+    }
+}
+
+// ===============================
 // 🔵 CENTRAL SUBSIDY (2026) [3]
 // ===============================
 function calculateCentralSubsidy(systemSize, state) {
@@ -186,6 +242,10 @@ function calculateSolar(bill, stateOverride = null) {
 // 🔹 RENDER
 // ===============================
 function renderResults(data, bill) {
+  // If you store the stage in localStorage, retrieve it; otherwise default to AI_GENERATED
+  const currentStage = localStorage.getItem("leadStage") || "AI_GENERATED";
+  updateRoadmap(currentStage);
+  
   const stateFullName = stateNames[data.state] || data.state;
   const el = document.getElementById("stateInfo");
 
