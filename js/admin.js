@@ -333,15 +333,47 @@ async function() {
 // PREVIOUS PAGE
 // =====================================
 
-window.loadPreviousPage =
-function() {
+window.loadPreviousPage = async function() {
+  if (!firstVisibleDoc) return;
 
-  alert(
-    "Previous page support coming next"
-  );
+  try {
+    // Fetch records ending before the current first visible document
+    const snapshot = await db
+      .collection("leads")
+      .orderBy("createdAt", "desc")
+      .endBefore(firstVisibleDoc)
+      .limitToLast(PAGE_SIZE)
+      .get();
 
+    if (snapshot.empty) {
+      alert("No previous pages");
+      return;
+    }
+
+    // Rebuild the leads array
+    allLeads = [];
+    snapshot.forEach((docItem) => {
+      allLeads.push({ id: docItem.id, ...docItem.data() });
+    });
+
+    currentPageLeads = allLeads;
+
+    // Update cursors
+    firstVisibleDoc = snapshot.docs[0];
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    // Render
+    renderLeads(allLeads);
+    updateMetrics(allLeads);
+    
+    document.getElementById("paginationInfo").innerText = 
+      `Showing previous page (${allLeads.length} leads)`;
+
+  } catch (error) {
+    console.error("Error loading previous page:", error);
+    alert("Failed to load previous page");
+  }
 };
-
 // =====================================
 // LOAD LEADS
 // =====================================
@@ -1543,7 +1575,7 @@ async function loadSurveyRequests() {
       row.className = "border-b hover:bg-slate-50";
       
       row.innerHTML = `
-        <td class="px-4 py-4 font-mono text-xs">${data.leadCode || "N/A"}</td>
+        <td class="px-4 py-4 font-mono text-xs">${data.leadId || "N/A"}</td>
         <td class="px-4 py-4 font-semibold">${data.clientName || "N/A"}</td>
         <td class="px-4 py-4">${data.phone || "N/A"}</td>
         <td class="px-4 py-4">${data.requestedCity || "N/A"}</td>
