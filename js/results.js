@@ -927,17 +927,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateCapturedData();
     setupEditableInputs();
 
-    // 3. Initialize location & Trigger calculation ONLY via callback
+    // 3. Initialize location dropdowns
     const initialState = localStorage.getItem("state") || "UP";
     
-    // This is the only place we call calculation to ensure the dropdowns are ready
+    // The callback here will now ONLY handle future changes made by the user
     await LocationHandler.init("resState", "resCity", (newState) => {
-        console.log("Location ready, State is:", newState);
+        console.log("Location changed by user, State is:", newState);
         localStorage.setItem("state", newState); 
         calculateSavings(); 
     }, initialState);
-});
 
+    // 4. 🔥 FORCE INITIAL CALCULATION 🔥
+    // This explicitly runs the math right after the page and dropdowns are ready.
+    console.log("Initialization complete, running first calculation...");
+    calculateSavings(); 
+});
 
 
 // Logic to pull data from dropdown, recalculate, and re-render
