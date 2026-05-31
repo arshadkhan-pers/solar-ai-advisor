@@ -80,31 +80,36 @@ function getBillFromURL() {
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
-
-// Logic to drive the progress bar UI
 function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
+    // Mapping each stage to its 12.5% increment step
     const stageMap = { 
-        "INITIAL": 1, "AI_GENERATED": 1, "SURVEY_REQUESTED": 2, 
-        "SURVEY_COMPLETED": 2, "OFFER_GIVEN": 3, "OFFER_ACCEPTED": 3, 
-        "INSTALLATION_COMPLETED": 4 
+        "INITIAL": 1,           // 12.5%
+        "AI_GENERATED": 2,      // 25%
+        "SURVEY_REQUESTED": 3,  // 37.5%
+        "SURVEY_COMPLETED": 4,  // 50%
+        "OFFER_GIVEN": 5,       // 62.5%
+        "OFFER_ACCEPTED": 6,    // 75%
+        "INSTALLATION_COMPLETED": 7, // 87.5%
+        "SUBSIDY_CREDITED": 8   // 100%
     };
     
     const step = stageMap[stage] || 1;
-    roadmapProgress.style.width = (step * 25) + "%";
+    roadmapProgress.style.width = (step * 12.5) + "%";
     
     // Show upload section if at Proposal stage
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        if (stage === "OFFER_GIVEN") {
+        if (stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED") {
             uploadSection.classList.remove('hidden');
         } else {
             uploadSection.classList.add('hidden');
         }
     }
 }
+
 
 // Logic to handle Quote Upload
 async function uploadQuote() {
@@ -340,6 +345,13 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 
 // ✅ Submit lead (Firestore update)
 async function submitLead() {
+  
+  const currentStage = localStorage.getItem("leadStage"); 
+  if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
+      alert("Analysis report is locked. You have already requested a site survey.");
+      return; // Stop execution
+  }
+  
   const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
   submitBtn.innerText = "Generating AI Analysis...";
@@ -916,14 +928,30 @@ function renderDynamicAIReport(report, result) {
 // 🔹 INITIALIZATION
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
+    
+    // --- NEW: FETCH & SYNC STAGE FROM FIRESTORE ---
+    const leadId = localStorage.getItem("leadId");
+    if (leadId) {
+        try {
+            const leadDoc = await db.collection("leads").doc(leadId).get();
+            if (leadDoc.exists) {
+                const stage = leadDoc.data().stage || "INITIAL";
+                localStorage.setItem("leadStage", stage); // Sync for freeze logic
+                updateRoadmap(stage); // Sync for progress bar UI
+            }
+        } catch (err) {
+            console.error("Error syncing stage:", err);
+        }
+    }
+    // -----------------------------------------------
+
     // 1. Initialize location dropdowns
-    // We pass a callback that triggers the recalculation whenever the dropdown changes
     const initialState = localStorage.getItem("state") || "UP";
     
     await LocationHandler.init("resState", "resCity", (newState) => {
         console.log("State changed to:", newState);
-        localStorage.setItem("state", newState); // Update local storage
-        calculateSavings(); // Re-run math
+        localStorage.setItem("state", newState); 
+        calculateSavings(); 
     }, initialState);
 
     // 2. Existing app logic
@@ -939,6 +967,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Invalid Bill Input");
     }
 });
+
 
 // Logic to pull data from dropdown, recalculate, and re-render
 function calculateSavings() {
