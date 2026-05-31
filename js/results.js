@@ -909,7 +909,6 @@ function renderDynamicAIReport(report, result) {
 // 🔹 INITIALIZATION
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-    
     // 1. Sync Stage from Firestore
     const leadId = localStorage.getItem("leadId");
     if (leadId) {
@@ -925,45 +924,49 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // 2. Setup inputs early
+    // 2. Setup inputs
     setupBillUpload();
     populateCapturedData();
     setupEditableInputs();
 
-    // 3. Initialize location dropdowns
+    // 3. Initialize location & Trigger calculation ONLY via callback
     const initialState = localStorage.getItem("state") || "UP";
     
+    // This is the only place we call calculation to ensure the dropdowns are ready
     await LocationHandler.init("resState", "resCity", (newState) => {
-        console.log("State changed to:", newState);
+        console.log("Location ready, State is:", newState);
         localStorage.setItem("state", newState); 
-        // Trigger calculation ONLY after the dropdown is populated
         calculateSavings(); 
     }, initialState);
-
-    // 4. Initial Trigger
-    // We only call this here if we aren't relying on the async LocationHandler to fire it.
-    // If LocationHandler.init triggers calculateSavings, you can remove this call.
-    calculateSavings(); 
 });
+
 
 
 // Logic to pull data from dropdown, recalculate, and re-render
 function calculateSavings() {
-    // 1. Get Bill (Prioritize local storage, fallback to URL)
-    const bill = parseFloat(localStorage.getItem("bill") || getBillFromURL());
+    // 1. Get Bill: Check storage first, then URL, fallback to 0
+    let bill = parseFloat(localStorage.getItem("bill")) || getBillFromURL();
     
-    // 2. Get State safely (Check for element existence)
+    // If bill is still 0 (e.g. fresh load), look in the input field directly
+    if (!bill) {
+        const billInput = document.getElementById("capturedBill");
+        bill = billInput ? parseFloat(billInput.value) : 0;
+    }
+
+    // 2. Get State: Check element, then storage, fallback to UP
     const stateEl = document.getElementById("resState");
     const state = (stateEl && stateEl.value) ? stateEl.value : (localStorage.getItem("state") || "UP");
     
+    console.log(`Calculating for: ${state} with Bill: ₹${bill}`);
+
     if (bill > 0) {
-        // Pass the state safely
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
     } else {
-        console.warn("Skipping calculation: Bill is 0 or invalid.");
+        console.warn("Skipping render: No bill amount found.");
     }
 }
+
 
 // Helper: Render individual score bars
 function renderMetric(label, value) {
