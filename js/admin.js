@@ -249,7 +249,7 @@ function() {
 Name: ${lead.name || ""}
 Phone: ${lead.phone || ""}
 City: ${lead.city || ""}
-Bill: ${lead.bill || 0}
+Bill: ₹${(lead.bill || 0).toLocaleString('en-IN')}
 Status: ${lead.status || ""}
 Priority: ${lead.priority || "-"}
 
@@ -578,7 +578,6 @@ ${
       </td>
 
       <td class="px-4 py-4">
-       //${lead.bill || 0}
        ₹${(lead.bill || 0).toLocaleString('en-IN')}
       </td>
 
@@ -920,7 +919,7 @@ function renderLeadPanel(
           <span class="font-semibold">
             Bill:
           </span>
-          ${lead.bill || 0}
+          ₹${(lead.bill || 0).toLocaleString('en-IN')}
         </p>
 
       </div>
