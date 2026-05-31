@@ -346,11 +346,13 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
 // ✅ Submit lead (Firestore update)
 async function submitLead() {
   
-  const currentStage = localStorage.getItem("leadStage"); 
-  if (currentStage && currentStage !== "INITIAL" && currentStage !== "initial" && currentStage !== "AI_GENERATED") {
-      alert("Analysis report is locked. You have already requested a site survey.");
-      return; // Stop execution
-  }
+  const currentStage = (localStorage.getItem("leadStage") || "").toUpperCase();
+
+// This effectively locks the report for any stage that is NOT Initial or AI_GENERATED
+if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
+    alert("Analysis report is locked. You have already requested a site survey.");
+    return; // Stop execution
+}
   
   const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
