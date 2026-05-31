@@ -602,7 +602,6 @@ ${
 
       </td>
 
-// 1. Stage Column
 <td class="px-4 py-4 align-top">
   <select
     onchange="updateLeadField('${lead.id}', 'stage', this.value)"
@@ -613,7 +612,6 @@ ${
   </select>
 </td>
 
-// 2. Status Column
 <td class="px-4 py-4 align-top">
   <div class="flex flex-col gap-2">
     <select
@@ -1190,24 +1188,6 @@ if (lead.createdAt) {
 
 }
 
-/***AI ANALYSIS COMPLETED
-if (
-  lead.stage === "qualified" &&
-  lead.updatedAt
-) {
-
-  timeline.push({
-    type: "QUALIFIED",
-    message:
-      "AI analysis completed successfully",
-    createdAt:
-      lead.updatedAt?.toDate
-        ? lead.updatedAt.toDate()
-        : lead.updatedAt
-  });
-
-}
-***/
 // MANUAL TIMELINE EVENTS
 if (lead.timeline?.length) {
 
