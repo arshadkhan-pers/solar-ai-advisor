@@ -80,32 +80,39 @@ function getBillFromURL() {
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
+// ===============================
+// 🔹 ROADMAP & UPLOAD HELPERS
+// ===============================
 function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // Mapping each stage to its 12.5% increment step
+    // Mapping each stage
     const stageMap = { 
-        "INITIAL": 1,           // 12.5%
-        "AI_GENERATED": 2,      // 25%
-        "SURVEY_REQUESTED": 3,  // 37.5%
-        "SURVEY_COMPLETED": 4,  // 50%
-        "OFFER_GIVEN": 5,       // 62.5%
-        "OFFER_ACCEPTED": 6,    // 75%
-        "INSTALLATION_COMPLETED": 7, // 87.5%
-        "SUBSIDY_CREDITED": 8   // 100%
+        "INITIAL": 1, "AI_GENERATED": 2, "SURVEY_REQUESTED": 3, 
+        "SURVEY_COMPLETED": 4, "OFFER_GIVEN": 5, "OFFER_ACCEPTED": 6, 
+        "INSTALLATION_COMPLETED": 7, "SUBSIDY_CREDITED": 8
     };
     
     const step = stageMap[stage] || 1;
     roadmapProgress.style.width = (step * 12.5) + "%";
     
-    // Show upload section if at Proposal stage
+    // 1. Show/Hide Upload Section
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        if (stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED") {
-            uploadSection.classList.remove('hidden');
-        } else {
-            uploadSection.classList.add('hidden');
+        uploadSection.classList.toggle('hidden', !(stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED"));
+    }
+
+    // 2. NEW: Disable "Unlock My AI Solar Analysis" button if survey requested
+    const submitBtn = document.querySelector("#leadForm button");
+    if (submitBtn) {
+        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
+        const isLocked = lockedStages.includes(stage);
+        
+        submitBtn.disabled = isLocked;
+        if (isLocked) {
+            submitBtn.innerText = "Analysis Locked";
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         }
     }
 }
@@ -686,53 +693,19 @@ async function waitForAIReport(leadId, requestTime) {
   }
   throw new Error("AI report generation timeout");
 }
-/***
-async function requestSiteSurvey() {
-  const leadId = localStorage.getItem("leadId");
-  const leadCode = localStorage.getItem("leadCode"); // Retrieve leadCode from storage
-  const btn = event.target; // Capture button reference immediately
-  
-  if (!leadId) {
-    alert("Lead ID not found. Please refresh the page.");
-    return;
-  }
+// ... inside the 'try' block of requestSiteSurvey ...
+    
+    // Commit both updates
+    await batch.commit();
 
-  // 1. Visual feedback
-  btn.disabled = true;
-  btn.innerText = "Requesting...";
-  btn.classList.add("opacity-50", "cursor-not-allowed");
+    // TRIGGER THE UI LOCK IMMEDIATELY
+    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
+    updateRoadmap("SURVEY_REQUESTED"); // This handles the button disabling
 
-  try {
-    // 2. Use .doc(leadId).set() to ensure the survey_request doc ID matches the lead ID
-    await db.collection("survey_requests").doc(leadId).set({
-      leadId: leadId,
-      leadCode: leadCode || "N/A", // Added requirement
-      phone: document.getElementById("capturedPhone")?.value || "N/A", // Added requirement
-      status: "pending",
-      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      requestedCity: document.getElementById("resCity")?.value || "Unknown",
-      clientName: document.getElementById("capturedName")?.value || "Homeowner"
-    });
-
-    // 3. Success state
+    // Success state
     btn.innerText = "✓ Request Submitted";
-    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
-    
-    // Add success message
-    const successMsg = document.createElement("p");
-    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
-    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
-    btn.parentNode.appendChild(successMsg);
-    
-  } catch (error) {
-    console.error("Survey request failed:", error);
-    alert("Request failed. Please try again.");
-    btn.innerText = "Try Again";
-    btn.disabled = false;
-    btn.classList.remove("opacity-50");
-  }
-}
-***/
+// ... rest of success logic ...
+
 
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
@@ -776,6 +749,11 @@ async function requestSiteSurvey() {
     // Commit both updates
     await batch.commit();
 
+// TRIGGER THE UI LOCK IMMEDIATELY
+    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
+    updateRoadmap("SURVEY_REQUESTED"); // This handles the button disabling
+
+    
     // Success state
     btn.innerText = "✓ Request Submitted";
     btn.classList.replace("bg-indigo-600", "bg-emerald-500");
