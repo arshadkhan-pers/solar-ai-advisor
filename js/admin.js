@@ -616,7 +616,7 @@ ${
   <div class="flex flex-col gap-2">
     <select
       onchange="updateLeadField('${lead.id}', 'status', this.value)"
-      class="border rounded-lg px-2 py-1 text-xs w-[120px]">
+      class="border rounded-lg px-2 py-1 text-xs w-[100px]">
       ${LEAD_STATUSES.map(s => `
         <option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>
       `).join('')}
