@@ -417,7 +417,7 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
   
   // Recalculate solar parameters in case bill or state changed
   const result = calculateSolar(bill);
-  
+  renderResults(result, bill);
   try {
     await db.collection("leads").doc(leadId).update({
       name,
@@ -534,8 +534,6 @@ function populateCapturedData() {
   if (bill) bill.value = params.get("bill") || "";
 }
 
-
-//////////////
 function setupEditableInputs() {
   const billInput = document.getElementById("capturedBill");
   const cityInput = document.getElementById("capturedCity");
@@ -559,7 +557,6 @@ function setupEditableInputs() {
     if (newCity) params.set("city", newCity);
     if (newName) params.set("name", newName);
     history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-
 
     // 2. Instant UI Recalculation (Local only, no DB call)
     const result = calculateSolar(newBill, currentState); // Pass currentState here
@@ -945,29 +942,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Logic to pull data from dropdown, recalculate, and re-render
 function calculateSavings() {
-    // 1. Get Bill: Check storage first, then URL, fallback to 0
-    let bill = parseFloat(localStorage.getItem("bill")) || getBillFromURL();
-    
-    // If bill is still 0 (e.g. fresh load), look in the input field directly
-    if (!bill) {
-        const billInput = document.getElementById("capturedBill");
-        bill = billInput ? parseFloat(billInput.value) : 0;
-    }
-
-    // 2. Get State: Check element, then storage, fallback to UP
+    // 1. Try to get values from the INPUT FIELDS first (Most reliable)
+    const billInput = document.getElementById("capturedBill");
     const stateEl = document.getElementById("resState");
-    const state = (stateEl && stateEl.value) ? stateEl.value : (localStorage.getItem("state") || "UP");
     
-    console.log(`Calculating for: ${state} with Bill: ₹${bill}`);
-
+    // Fallback to localStorage/URL only if input is empty
+    const bill = parseFloat(billInput?.value) || parseFloat(localStorage.getItem("bill")) || getBillFromURL() || 0;
+    const state = stateEl?.value || localStorage.getItem("state") || "UP";
+    
     if (bill > 0) {
+        console.log(`Rendering for: Bill ${bill}, State ${state}`);
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
     } else {
-        console.warn("Skipping render: No bill amount found.");
+        console.log("Waiting for user input...");
     }
 }
-
 
 // Helper: Render individual score bars
 function renderMetric(label, value) {
