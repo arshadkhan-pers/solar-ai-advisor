@@ -605,7 +605,7 @@ ${
 <td class="px-4 py-4 align-top">
   <select
     onchange="updateLeadField('${lead.id}', 'stage', this.value)"
-    class="border rounded-lg px-2 py-1 text-xs w-[170px]">
+    class="border rounded-lg px-4 py-4 text-xs w-[160px]">
     ${LEAD_STAGES.map(s => `
       <option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>
     `).join('')}
@@ -616,7 +616,7 @@ ${
   <div class="flex flex-col gap-2">
     <select
       onchange="updateLeadField('${lead.id}', 'status', this.value)"
-      class="border rounded-lg px-2 py-1 text-xs w-[170px]">
+      class="border rounded-lg px-2 py-4 text-xs w-[160px]">
       ${LEAD_STATUSES.map(s => `
         <option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>
       `).join('')}
