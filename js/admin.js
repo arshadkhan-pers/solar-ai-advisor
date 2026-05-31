@@ -601,7 +601,7 @@ ${
         </span>
 
       </td>
-///////
+
 // Replace the existing <td class="px-4 py-4"> containing the stage div
 <td class="px-4 py-4">
   <div class="space-y-2">
