@@ -191,7 +191,8 @@ async function reportSurveyStatus(status) {
         location.reload(); // Refresh page to hydrate the next stage
     } catch (error) {
         console.error("Error reporting survey status:", error);
-        alert("Failed to update status. Please try again.");
+        //alert("Failed to update status. Please try again.");
+        alert("Failed to update status: " + error.message); 
         if (btnYes) btnYes.disabled = false;
         if (btnNo) btnNo.disabled = false;
     }
