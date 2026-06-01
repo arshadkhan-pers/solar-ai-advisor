@@ -83,7 +83,6 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // Mapping each stage
     const stageMap = { 
         "INITIAL": 1, "AI_GENERATED": 2, "SURVEY_REQUESTED": 3, 
         "SURVEY_COMPLETED": 4, "OFFER_GIVEN": 5, "OFFER_ACCEPTED": 6, 
@@ -91,7 +90,6 @@ function updateRoadmap(stage) {
     };
     
     const step = stageMap[stage] || 1;
-    // Step 3 (SURVEY_REQUESTED) produces 37.5%, placing it directly over the "2. Survey" column center
     roadmapProgress.style.width = (step * 12.5) + "%";
     
     // 1. Show/Hide Upload Section
@@ -100,7 +98,7 @@ function updateRoadmap(stage) {
         uploadSection.classList.toggle('hidden', !(stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED"));
     }
 
-    // 2. Lock "Unlock My AI Solar Analysis" button if site survey was requested
+    // 2. Lock "Unlock My AI Solar Analysis" button
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
     if (unlockBtn) {
         const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
@@ -108,7 +106,7 @@ function updateRoadmap(stage) {
         
         unlockBtn.disabled = isLocked;
         if (isLocked) {
-            unlockBtn.innerText = "Analysis Locked";
+            unlockBtn.innerText = "AI Analysis Locked";
             unlockBtn.classList.add("opacity-50", "cursor-not-allowed");
             unlockBtn.classList.remove("hover:bg-indigo-700", "hover:-translate-y-0.5");
         } else {
@@ -117,7 +115,28 @@ function updateRoadmap(stage) {
             unlockBtn.classList.add("hover:bg-indigo-700", "hover:-translate-y-0.5");
         }
     }
+
+    // 3. Toggle Survey & Concierge UI based on stage
+    const conciergeCard = document.getElementById("conciergeCard");
+    const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
+    
+    if (conciergeCard && surveyFeedbackCard) {
+        if (stage === "AI_GENERATED" || stage === "INITIAL") {
+            // Before request is made
+            conciergeCard.classList.remove("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        } else if (stage === "SURVEY_REQUESTED") {
+            // Requested, waiting for completion feedback
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.remove("hidden");
+        } else {
+            // Past the survey phase (Completed, Offer Given, etc.)
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        }
+    }
 }
+
 
 // Logic to handle Quote Upload
 async function uploadQuote() {
@@ -143,6 +162,38 @@ async function uploadQuote() {
     } catch (error) {
         console.error("Upload failed:", error);
         alert("Upload failed. Please try again.");
+    }
+}
+
+// ===============================
+// 🔹 SURVEY FEEDBACK SYSTEM
+// ===============================
+async function reportSurveyStatus(status) {
+    const leadId = localStorage.getItem("leadId");
+    if (!leadId) return;
+    
+    // Disable buttons to prevent double-clicks
+    const btnYes = document.getElementById("surveyYesBtn");
+    const btnNo = document.getElementById("surveyNoBtn");
+    if (btnYes) btnYes.disabled = true;
+    if (btnNo) btnNo.disabled = true;
+
+    try {
+        if (status === 'completed') {
+            await db.collection("leads").doc(leadId).update({ stage: "SURVEY_COMPLETED" });
+            await db.collection("survey_requests").doc(leadId).update({ status: "completed" });
+            localStorage.setItem("leadStage", "SURVEY_COMPLETED");
+            alert("Thank you! Your survey is marked as complete. We will now prepare your final proposal.");
+        } else {
+            await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
+            alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
+        }
+        location.reload(); // Refresh page to hydrate the next stage
+    } catch (error) {
+        console.error("Error reporting survey status:", error);
+        alert("Failed to update status. Please try again.");
+        if (btnYes) btnYes.disabled = false;
+        if (btnNo) btnNo.disabled = false;
     }
 }
 
@@ -729,20 +780,24 @@ function renderDynamicAIReport(report, result) {
 
   const conciergeCard = document.getElementById("conciergeCard");
   const installerSection = document.getElementById("installerSection");
+  const currentStage = localStorage.getItem("leadStage") || "INITIAL";
 
-  // ✅ FIX: Prevent Null Pointer Exception if layout variations don't include these cards
   if (conciergeCard && installerSection) {
     if (report.matchedInstallers && report.matchedInstallers.length > 0) {
       conciergeCard.classList.add("hidden");
       installerSection.classList.remove("hidden");
       renderInstallerCards(report.matchedInstallers);
     } else {
-      conciergeCard.classList.remove("hidden");
+      // ✅ Only reveal the concierge card if the user hasn't progressed past AI_GENERATED
+      if (currentStage === "AI_GENERATED" || currentStage === "INITIAL") {
+          conciergeCard.classList.remove("hidden");
+      } else {
+          conciergeCard.classList.add("hidden");
+      }
       installerSection.classList.add("hidden");
     }
   } else {
     console.warn("Skipping layout toggle: 'conciergeCard' or 'installerSection' is missing from DOM.");
-    // Fallback invocation if installers exist but layouts are structured differently
     if (report.matchedInstallers && report.matchedInstallers.length > 0) {
       renderInstallerCards(report.matchedInstallers);
     }
@@ -863,6 +918,8 @@ function renderDynamicAIReport(report, result) {
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
+    let aiReportCache = null; // Store the report for re-hydration
+
     if (leadId) {
         try {
             const leadDoc = await db.collection("leads").doc(leadId).get();
@@ -870,9 +927,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const stage = leadDoc.data().stage || "INITIAL";
                 localStorage.setItem("leadStage", stage);
                 updateRoadmap(stage);
+                
+                // ✅ Fetch the existing AI report if the user has already generated it
+                if (stage !== "INITIAL") {
+                    const aiDoc = await db.collection("ai_reports").doc(leadId).get();
+                    if (aiDoc.exists) {
+                        aiReportCache = aiDoc.data();
+                    }
+                }
             }
         } catch (err) {
-            console.error("Error syncing stage:", err);
+            console.error("Error syncing stage or AI report:", err);
         }
     }
 
@@ -889,8 +954,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, initialState);
 
     console.log("Initialization complete, running first calculation...");
-    calculateSavings(); 
+    const initialResult = calculateSavings(); 
+    
+    // ✅ Re-render AI insights UI immediately if we loaded an existing report from cache
+    if (aiReportCache && initialResult) {
+         renderDynamicAIReport(aiReportCache, initialResult);
+    }
 });
+
 
 function calculateSavings() {
     const billInput = document.getElementById("capturedBill");
@@ -903,10 +974,13 @@ function calculateSavings() {
         console.log(`Rendering for: Bill ${bill}, State ${state}`);
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
+        return result; // ✅ Provide the math result outward
     } else {
         console.log("Waiting for user input...");
+        return null;
     }
 }
+
 
 function renderMetric(label, value) {
     return `
