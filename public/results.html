@@ -498,11 +498,6 @@
   <button id="surveyBtn" onclick="requestSiteSurvey()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition">
     Join Priority Waitlist for Free Site Survey
   </button>
-  <!--
-  <p class="text-xs text-indigo-500 mt-3 text-center">
-    "We will contact you as soon as a partner is ready."
-  </p>
-  -->
 </div>
 
 <div id="installerSection" class="mt-8 hidden">
@@ -510,6 +505,25 @@
     <div id="installerListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         </div>
 </div>
+
+<div id="surveyFeedbackCard" class="hidden bg-slate-50 border-2 border-slate-200 p-6 rounded-2xl mt-6 shadow-sm">
+  <div class="flex items-center gap-3 mb-3">
+    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-xl">📋</div>
+    <h3 class="text-xl font-bold text-slate-900">Site Survey Status</h3>
+  </div>
+  <p class="text-slate-600 mb-5 text-sm leading-relaxed">
+    Your survey request is active. Has the solar expert visited your property and completed the technical assessment?
+  </p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <button id="surveyYesBtn" onclick="reportSurveyStatus('completed')" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-sm hover:bg-emerald-700 transition">
+      Yes, Survey Completed
+    </button>
+    <button id="surveyNoBtn" onclick="reportSurveyStatus('issue')" class="w-full bg-slate-200 text-slate-700 font-bold py-3 rounded-xl shadow-sm hover:bg-slate-300 transition">
+      No, Still Waiting
+    </button>
+  </div>
+</div>
+
 
 <div id="quoteUploadSection" class="p-4 border-2 border-dashed border-indigo-200 rounded-xl mt-6 hidden">
   <h4 class="font-bold text-sm text-slate-800">Upload Installer Quote</h4>
