@@ -1,4 +1,3 @@
-
 /* eslint-disable max-len */
 
 // ===============================
@@ -80,9 +79,6 @@ function getBillFromURL() {
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
-// ===============================
-// 🔹 ROADMAP & UPLOAD HELPERS
-// ===============================
 function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
@@ -95,6 +91,7 @@ function updateRoadmap(stage) {
     };
     
     const step = stageMap[stage] || 1;
+    // Step 3 (SURVEY_REQUESTED) produces 37.5%, placing it directly over the "2. Survey" column center
     roadmapProgress.style.width = (step * 12.5) + "%";
     
     // 1. Show/Hide Upload Section
@@ -102,21 +99,25 @@ function updateRoadmap(stage) {
     if (uploadSection) {
         uploadSection.classList.toggle('hidden', !(stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED"));
     }
-/*
-    // 2. NEW: Disable "Unlock My AI Solar Analysis" button if survey requested
-    const submitBtn = document.querySelector("#leadForm button");
-    if (submitBtn) {
+
+    // 2. Lock "Unlock My AI Solar Analysis" button if site survey was requested
+    const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
+    if (unlockBtn) {
         const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
         const isLocked = lockedStages.includes(stage);
         
-        submitBtn.disabled = isLocked;
+        unlockBtn.disabled = isLocked;
         if (isLocked) {
-            submitBtn.innerText = "Analysis Locked";
-            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+            unlockBtn.innerText = "Analysis Locked";
+            unlockBtn.classList.add("opacity-50", "cursor-not-allowed");
+            unlockBtn.classList.remove("hover:bg-indigo-700", "hover:-translate-y-0.5");
+        } else {
+            unlockBtn.innerText = "Unlock My AI Solar Analysis";
+            unlockBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            unlockBtn.classList.add("hover:bg-indigo-700", "hover:-translate-y-0.5");
         }
-    }*/
+    }
 }
-
 
 // Logic to handle Quote Upload
 async function uploadQuote() {
@@ -198,9 +199,7 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 // ===============================
 // 🔹 CORE CALCULATION
 // ===============================
-
 function calculateSolar(bill, stateOverride = null) {
-  // If a stateOverride (from the dropdown) exists, use it. Otherwise, use URL.
   const state = stateOverride || getStateFromURL() || "UP";
   const units = bill / 7;
   const systemSize = Math.max(1, Math.round(units / 120));
@@ -220,7 +219,6 @@ function calculateSolar(bill, stateOverride = null) {
   const area = Math.round(systemSize * 80);
   const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
 
-  // --- ADDED EMI & LOAN MATHS (Canara Bank 6.5% for 60 Months) [1] ---
   const principalLoan = Math.round(finalCost * 0.90);
   const annualRate = 6.5; 
   const monthlyRate = (annualRate / 12) / 100;
@@ -255,8 +253,7 @@ function calculateSolar(bill, stateOverride = null) {
 // 🔹 RENDER
 // ===============================
 function renderResults(data, bill) {
-  // If you store the stage in localStorage, retrieve it; otherwise default to AI_GENERATED
-  const currentStage = localStorage.getItem("leadStage") || "AI_GENERATED";
+  const currentStage = localStorage.getItem("leadStage") || "INITIAL";
   updateRoadmap(currentStage);
   
   const stateFullName = stateNames[data.state] || data.state;
@@ -288,7 +285,6 @@ function renderResults(data, bill) {
   document.getElementById("centralSubsidy").innerText = data.centralSubsidy.toLocaleString('en-IN');
   document.getElementById("stateSubsidy").innerText = data.stateSubsidy.toLocaleString('en-IN');
 
-  // --- POPULATE AND REVEAL THE COMPLIANT EMI PLAN CARD ---
   const emiCard = document.getElementById("dynamicEmiCard");
   if (emiCard) {
     document.getElementById("solarEmi").innerText = data.solarEmi.toLocaleString('en-IN');
@@ -321,10 +317,8 @@ function openWhatsApp() {
 }
 
 // ===============================
-// 🔹 RESTORED FUNCTIONS (DO NOT REMOVE)
+// 🔹 AUXILIARY FUNCTIONS
 // ===============================
-
-// ✅ Show lead form
 function showForm() {
   const form = document.getElementById("leadForm");
   if (form) {
@@ -335,7 +329,6 @@ function showForm() {
   }
 }
 
-// 🔥 Lead scoring
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
   if (bill >= 3000) score += 2;
@@ -351,30 +344,24 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
   return "Basic";
 }
 
-// ✅ Submit lead (Firestore update)
+
 async function submitLead() {
-  
   const currentStage = (localStorage.getItem("leadStage") || "").toUpperCase();
 
-// This effectively locks the report for any stage that is NOT Initial or AI_GENERATED
-if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
-    alert("Analysis report is locked. You have already requested a site survey.");
-    return; // Stop execution
-}
+  if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
+      alert("Analysis report is locked. You have already requested a site survey.");
+      return;
+  }
   
   const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
   submitBtn.innerText = "Generating AI Analysis...";
   
   const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
-  
-  // Try to get city from the new dropdown, fallback to the old input if needed
   const cityDropdown = document.getElementById("resCity");
   const cityInput = document.getElementById("capturedCity");
   const city = (cityDropdown && cityDropdown.value) ? cityDropdown.value : cityInput?.value?.trim();
-  // ---------------------------
 
-  //const city = document.getElementById("capturedCity")?.value.trim();
   const billValue = document.getElementById("capturedBill")?.value;
   const bill = parseFloat(billValue || getBillFromURL());
   
@@ -384,8 +371,7 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
   const connectionType = document.getElementById("connectionType")?.value;
   const billFile = document.getElementById("billUpload")?.files?.[0];
 
-  // Validate City is provided (crucial for local installers and accurate dynamic routing)
-  if (!city || city === "" || city === "Select City") { // Check specifically for "Select City" if that's your placeholder
+  if (!city || city === "" || city === "Select City") { 
     alert("Please select your City from the dropdown to complete the dynamic feasibility analysis.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request";
@@ -415,11 +401,10 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
   
-  // Recalculate solar parameters in case bill or state changed
   const result = calculateSolar(bill);
   renderResults(result, bill);
   try {
-    await db.collection("leads").doc(leadId).update({
+     await db.collection("leads").doc(leadId).update({
       name,
       city,
       bill,
@@ -431,7 +416,6 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
       leadType,
       stage: "AI_GENERATED",
       aiRegenerationRequired: true,
-      // Persist compiled calculations back to Firestore
       systemSizeKw: result.systemSize,
       totalSubsidy: result.subsidy,
       netCost: result.finalCost,
@@ -444,6 +428,7 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
     });
 
     console.log("✅ Lead updated successfully");
+    localStorage.setItem("leadStage", "AI_GENERATED");
 
   } catch (error) {
     console.error("❌ Update failed:", error);
@@ -465,7 +450,6 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
     console.error(error);
     document.getElementById("aiLoadingState")?.classList.add("hidden");
     
-    // fallback
     renderAIInsights({
       bill,
       result,
@@ -478,7 +462,6 @@ if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED
   }
 }
 
-// ✅ Upload handling
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
   const fileInput = document.getElementById("billUpload");
@@ -513,7 +496,6 @@ function setupBillUpload() {
   });
 }
 
-// ✅ Populate captured data
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
 
@@ -541,29 +523,24 @@ function setupEditableInputs() {
   
   if (!billInput) return;
 
-  // This function ONLY updates the UI and the URL
   function updateUIDisplay() {
     const newBill = parseFloat(billInput.value) || 0;
     const cityDropdown = document.getElementById("resCity");
     const newCity = cityDropdown?.value || ""; 
     const newName = nameInput?.value?.trim() || "";
-    
     const currentState = document.getElementById("resState")?.value || "UP";
 
-    // 1. Update URL without refreshing page
     const params = new URLSearchParams(window.location.search);
     params.set("bill", newBill);
-    params.set("state", currentState); // Update state in URL too
+    params.set("state", currentState); 
     if (newCity) params.set("city", newCity);
     if (newName) params.set("name", newName);
     history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
 
-    // 2. Instant UI Recalculation (Local only, no DB call)
-    const result = calculateSolar(newBill, currentState); // Pass currentState here
+    const result = calculateSolar(newBill, currentState); 
     renderResults(result, newBill);
   }
 
-  // Attach to inputs (no spinner, no DB write)
   billInput.addEventListener("input", updateUIDisplay);
   cityInput?.addEventListener("input", updateUIDisplay);
   nameInput?.addEventListener("input", updateUIDisplay);
@@ -589,17 +566,11 @@ function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback
 
 function getDynamicAISummary(data) {
   const summaries = [
-
     `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
-
     `Based on your projected payback period of ${data.payback} years, this solar investment appears financially attractive for residential installation.`,
-
     `Your profile aligns well with subsidy-supported solar adoption, potentially improving long-term savings and installation ROI.`,
-
     `With estimated lifetime savings exceeding ${formatIndianCurrency(data.lifetimeSavings)}, rooftop solar may provide substantial financial benefits over time.`,
-
     `Our AI analysis indicates that your rooftop and electricity usage profile are compatible with high-efficiency residential solar deployment.`
-
   ];
 
   if (data.stateSubsidy > 0) {
@@ -615,7 +586,6 @@ function renderAIInsights({ bill, result, propertyType, rooftopOwnership, roofTy
   if (!aiSection) return;
 
   const score = generateAIScore(bill, propertyType, rooftopOwnership, roofType, parseFloat(result.payback));
-
   document.getElementById("aiScore").innerText = score;
 
   let badge = "Moderate Match";
@@ -691,20 +661,6 @@ async function waitForAIReport(leadId, requestTime) {
   }
   throw new Error("AI report generation timeout");
 }
-/*
-// ... inside the 'try' block of requestSiteSurvey ...
-    
-    // Commit both updates
-    await batch.commit();
-
-    // TRIGGER THE UI LOCK IMMEDIATELY
-    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
-    updateRoadmap("SURVEY_REQUESTED"); // This handles the button disabling
-
-    // Success state
-    btn.innerText = "✓ Request Submitted";
-// ... rest of success logic ...
-*/
 
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
@@ -721,20 +677,14 @@ async function requestSiteSurvey() {
   btn.classList.add("opacity-50", "cursor-not-allowed");
 
   try {
-    // Use Batch write for atomic operation
     const batch = db.batch();
-    
-    // 1. Reference to the lead document
     const leadRef = db.collection("leads").doc(leadId);
-    // 2. Reference to the new survey request
     const surveyRef = db.collection("survey_requests").doc(leadId);
 
-    // Set the Lead Stage
     batch.update(leadRef, { 
       stage: "SURVEY_REQUESTED" 
     });
 
-    // Create the Survey Request
     batch.set(surveyRef, {
       leadId: leadId,
       leadCode: leadCode || "N/A",
@@ -745,13 +695,11 @@ async function requestSiteSurvey() {
       clientName: document.getElementById("capturedName")?.value || "Homeowner"
     });
 
-    // Commit both updates
     await batch.commit();
 
-// TRIGGER THE UI LOCK IMMEDIATELY
-   /* localStorage.setItem("leadStage", "SURVEY_REQUESTED"); // Ensure localStorage is updated
-    updateRoadmap("SURVEY_REQUESTED"); // This handles the button disabling
-*/
+    // 🔥 TRIGGER THE UI LOCK AND PROGRESS BAR UPDATE IMMEDIATELY 🔥
+    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); 
+    updateRoadmap("SURVEY_REQUESTED"); 
     
     // Success state
     btn.innerText = "✓ Request Submitted";
@@ -774,20 +722,16 @@ async function requestSiteSurvey() {
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
 
-// Logic to show/hide Concierge vs Installer
-
   const conciergeCard = document.getElementById("conciergeCard");
-  const installerSection = document.getElementById("installerSection"); // Target the parent container now
+  const installerSection = document.getElementById("installerSection");
 
   if (report.matchedInstallers && report.matchedInstallers.length > 0) {
     conciergeCard.classList.add("hidden");
-    installerSection.classList.remove("hidden"); // Show the whole section
-    
-    // Call the new renderer
+    installerSection.classList.remove("hidden");
     renderInstallerCards(report.matchedInstallers);
   } else {
     conciergeCard.classList.remove("hidden");
-    installerSection.classList.add("hidden"); // Hide the whole section (Heading + List)
+    installerSection.classList.add("hidden");
   }
   
   const aiSection = document.getElementById("aiInsightsSection");
@@ -815,7 +759,6 @@ function renderDynamicAIReport(report, result) {
   document.getElementById("save25").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 25));
   document.getElementById("aiSummary").innerText = report.recommendationSummary || "";
 
-  // 🧠 PERSONA ENGINE V2 RENDER
   const personaPrimary = report.personaV2?.primary || "Balanced Buyer";
   const personaSecondary = report.personaV2?.secondary || "";
   const personaConfidence = report.personaV2?.confidence || 85;
@@ -853,7 +796,6 @@ function renderDynamicAIReport(report, result) {
 
   document.getElementById("personaSection")?.classList.remove("hidden");
   
-  // 💰 PRICING CONFIDENCE
   const pricingSection = document.getElementById("pricingConfidenceSection");
   pricingSection?.classList.remove("hidden");
 
@@ -878,7 +820,6 @@ function renderDynamicAIReport(report, result) {
     pricingBar.style.width = `${pricingWidth}%`;
   }
 
-  // 🛡️ BUYER PROTECTION
   const buyerSection = document.getElementById("buyerProtectionSection");
   buyerSection?.classList.remove("hidden");
 
@@ -907,7 +848,6 @@ function renderDynamicAIReport(report, result) {
 // 🔹 INITIALIZATION
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Sync Stage from Firestore
     const leadId = localStorage.getItem("leadId");
     if (leadId) {
         try {
@@ -922,35 +862,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // 2. Setup inputs
     setupBillUpload();
     populateCapturedData();
     setupEditableInputs();
 
-    // 3. Initialize location dropdowns
     const initialState = localStorage.getItem("state") || "UP";
     
-    // The callback here will now ONLY handle future changes made by the user
     await LocationHandler.init("resState", "resCity", (newState) => {
         console.log("Location changed by user, State is:", newState);
         localStorage.setItem("state", newState); 
         calculateSavings(); 
     }, initialState);
 
-    // 4. 🔥 FORCE INITIAL CALCULATION 🔥
-    // This explicitly runs the math right after the page and dropdowns are ready.
     console.log("Initialization complete, running first calculation...");
     calculateSavings(); 
 });
 
-
-// Logic to pull data from dropdown, recalculate, and re-render
 function calculateSavings() {
-    // 1. Try to get values from the INPUT FIELDS first (Most reliable)
     const billInput = document.getElementById("capturedBill");
     const stateEl = document.getElementById("resState");
     
-    // Fallback to localStorage/URL only if input is empty
     const bill = parseFloat(billInput?.value) || parseFloat(localStorage.getItem("bill")) || getBillFromURL() || 0;
     const state = stateEl?.value || localStorage.getItem("state") || "UP";
     
@@ -963,7 +894,6 @@ function calculateSavings() {
     }
 }
 
-// Helper: Render individual score bars
 function renderMetric(label, value) {
     return `
         <div class="text-xs">
@@ -978,10 +908,9 @@ function renderMetric(label, value) {
     `;
 }
 
-// Helper: Generate and display installer cards
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
-    container.innerHTML = ""; // Clear existing
+    container.innerHTML = ""; 
 
     installers.forEach(installer => {
         const { installerAI, matchReasons, score, businessName, installerType } = installer;
@@ -1028,6 +957,3 @@ function renderInstallerCards(installers) {
         container.appendChild(card);
     });
 }
-
-
-
