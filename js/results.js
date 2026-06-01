@@ -83,14 +83,19 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    const stageMap = { 
-        "INITIAL": 1, "AI_GENERATED": 2, "SURVEY_REQUESTED": 3, 
-        "SURVEY_COMPLETED": 4, "OFFER_GIVEN": 5, "OFFER_ACCEPTED": 6, 
-        "INSTALLATION_COMPLETED": 7, "SUBSIDY_CREDITED": 8
+    // ✅ FIX: Custom width mapping to align precisely with your 4 UI columns
+    const widthMap = {
+        "INITIAL": "15%",
+        "AI_GENERATED": "25%",          // Feasibility Complete
+        "SURVEY_REQUESTED": "40%",      // Survey in Progress
+        "SURVEY_COMPLETED": "55%",      // Survey Complete, bridging to Proposal
+        "OFFER_GIVEN": "70%",           // Proposal Ready
+        "OFFER_ACCEPTED": "80%",        // Proposal Accepted
+        "INSTALLATION_COMPLETED": "100%",// Install Complete
+        "SUBSIDY_CREDITED": "100%"
     };
     
-    const step = stageMap[stage] || 1;
-    roadmapProgress.style.width = (step * 12.5) + "%";
+    roadmapProgress.style.width = widthMap[stage] || "15%";
     
     // 1. Show/Hide Upload Section
     const uploadSection = document.getElementById('quoteUploadSection');
@@ -115,6 +120,38 @@ function updateRoadmap(stage) {
             unlockBtn.classList.add("hover:bg-indigo-700", "hover:-translate-y-0.5");
         }
     }
+
+    // 3. Toggle Survey & Concierge UI based on stage
+    const conciergeCard = document.getElementById("conciergeCard");
+    const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
+    
+    if (conciergeCard && surveyFeedbackCard) {
+        if (stage === "AI_GENERATED" || stage === "INITIAL") {
+            conciergeCard.classList.remove("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        } else if (stage === "SURVEY_REQUESTED") {
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.remove("hidden");
+            
+            // ✅ UX ENHANCEMENT: Don't ask them again if they just reported a delay
+            if (localStorage.getItem("surveyIssueReported") === "true") {
+                surveyFeedbackCard.innerHTML = `
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">⏳</div>
+                        <h3 class="text-xl font-bold text-slate-900">Survey Delayed</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        You reported a delay. Our support team is actively following up with the installer to expedite your site assessment.
+                    </p>
+                `;
+            }
+        } else {
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        }
+    }
+}
+
 
     // 3. Toggle Survey & Concierge UI based on stage
     const conciergeCard = document.getElementById("conciergeCard");
@@ -186,6 +223,7 @@ async function reportSurveyStatus(status) {
             alert("Thank you! Your survey is marked as complete. We will now prepare your final proposal.");
         } else {
             await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
+            localStorage.setItem("surveyIssueReported", "true");
             alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
         }
         location.reload(); // Refresh page to hydrate the next stage
@@ -968,14 +1006,18 @@ function calculateSavings() {
     const billInput = document.getElementById("capturedBill");
     const stateEl = document.getElementById("resState");
     
-    const bill = parseFloat(billInput?.value) || parseFloat(localStorage.getItem("bill")) || getBillFromURL() || 0;
-    const state = stateEl?.value || localStorage.getItem("state") || "UP";
+    let bill = parseFloat(billInput?.value) || parseFloat(localStorage.getItem("bill")) || getBillFromURL() || 0;
+    let state = stateEl?.value || localStorage.getItem("state") || "UP";
     
     if (bill > 0) {
+        // ✅ FIX: Aggressively persist the inputs so the AI UI survives page reloads
+        localStorage.setItem("bill", bill);
+        localStorage.setItem("state", state);
+
         console.log(`Rendering for: Bill ${bill}, State ${state}`);
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
-        return result; // ✅ Provide the math result outward
+        return result; 
     } else {
         console.log("Waiting for user input...");
         return null;
