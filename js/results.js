@@ -401,7 +401,12 @@ async function submitLead() {
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
   
-  const result = calculateSolar(bill);
+  // ✅ FIX: Extract dynamic state selection before calculation to avoid fallback to default "UP"
+  const selectedState = document.getElementById("resState")?.value || 
+                        localStorage.getItem("state") || 
+                        "UP";
+  
+  const result = calculateSolar(bill, selectedState);
   renderResults(result, bill);
   try {
      await db.collection("leads").doc(leadId).update({
@@ -725,13 +730,22 @@ function renderDynamicAIReport(report, result) {
   const conciergeCard = document.getElementById("conciergeCard");
   const installerSection = document.getElementById("installerSection");
 
-  if (report.matchedInstallers && report.matchedInstallers.length > 0) {
-    conciergeCard.classList.add("hidden");
-    installerSection.classList.remove("hidden");
-    renderInstallerCards(report.matchedInstallers);
+  // ✅ FIX: Prevent Null Pointer Exception if layout variations don't include these cards
+  if (conciergeCard && installerSection) {
+    if (report.matchedInstallers && report.matchedInstallers.length > 0) {
+      conciergeCard.classList.add("hidden");
+      installerSection.classList.remove("hidden");
+      renderInstallerCards(report.matchedInstallers);
+    } else {
+      conciergeCard.classList.remove("hidden");
+      installerSection.classList.add("hidden");
+    }
   } else {
-    conciergeCard.classList.remove("hidden");
-    installerSection.classList.add("hidden");
+    console.warn("Skipping layout toggle: 'conciergeCard' or 'installerSection' is missing from DOM.");
+    // Fallback invocation if installers exist but layouts are structured differently
+    if (report.matchedInstallers && report.matchedInstallers.length > 0) {
+      renderInstallerCards(report.matchedInstallers);
+    }
   }
   
   const aiSection = document.getElementById("aiInsightsSection");
@@ -910,6 +924,11 @@ function renderMetric(label, value) {
 
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
+    // ✅ FIX: Exit gracefully if target list container is missing from the page layout
+    if (!container) {
+        console.error("Target container 'installerListContainer' missing from DOM.");
+        return;
+    }
     container.innerHTML = ""; 
 
     installers.forEach(installer => {
