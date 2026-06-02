@@ -902,12 +902,12 @@ function renderLeadPanel(
           </p>
 
           <p class="text-2xl font-bold text-indigo-700 mt-2">
-  ${
-    aiReport
-      ? `${aiReport?.systemSizeKw || "-"} kW`
-      : "Not Generated"
-  }
-</p>
+            ${
+              aiReport
+                ? `${aiReport?.systemSizeKw || "-"} kW`
+                : "Not Generated"
+            }
+          </p>
         </div>
 
         <div class="bg-emerald-50 rounded-2xl p-4">
@@ -916,12 +916,12 @@ function renderLeadPanel(
           </p>
 
           <p class="text-2xl font-bold text-emerald-700 mt-2">
-  ${
-    aiReport
-      ? `₹${aiReport?.netCost || 0}`
-      : "Pending"
-  }
-</p>
+            ${
+              aiReport
+                ? `₹${aiReport?.netCost || 0}`
+                : "Pending"
+            }
+          </p>
         </div>
 
       </div>
@@ -941,10 +941,10 @@ function renderLeadPanel(
             Persona:
           </span>
           ${
-  aiReport
-    ? aiReport?.personaV2?.primary || "-"
-    : "AI analysis pending"
-}
+            aiReport
+              ? aiReport?.personaV2?.primary || "-"
+              : "AI analysis pending"
+          }
         </p>
 
         <p>
@@ -952,10 +952,10 @@ function renderLeadPanel(
             AI Score:
           </span>
           ${
-  aiReport
-    ? aiReport?.trustScore || 0
-    : "Not Available"
-}
+            aiReport
+              ? aiReport?.trustScore || 0
+              : "Not Available"
+          }
         </p>
 
         <p>
@@ -963,10 +963,10 @@ function renderLeadPanel(
             Lead Temperature:
           </span>
           ${
-  aiReport
-    ? aiReport?.personaV2?.leadTemperature || "-"
-    : "Unknown"
-}
+            aiReport
+              ? aiReport?.personaV2?.leadTemperature || "-"
+              : "Unknown"
+          }
         </p>
 
         <p>
@@ -974,15 +974,14 @@ function renderLeadPanel(
             Financing:
           </span>
           ${
-  aiReport
-    ? aiReport?.personaV2?.financingLikelihood || "-"
-    : "Unknown"
-}
+            aiReport
+              ? aiReport?.personaV2?.financingLikelihood || "-"
+              : "Unknown"
+          }
         </p>
 
-    </div>
-
-    <div class="space-y-2 mt-4">
+      </div>
+    </div> <div class="space-y-2 mt-4">
       <h3 class="text-lg font-bold text-slate-900">
         Verification Desk (User Offer)
       </h3>
@@ -1091,49 +1090,50 @@ function renderLeadPanel(
         </button>
 
       </div>
-<div class="space-y-3 mt-6">
+    </div> <div class="space-y-3 mt-6">
 
-  <h3 class="text-lg font-bold text-slate-900">
-    Activity Timeline
-  </h3>
+      <h3 class="text-lg font-bold text-slate-900">
+        Activity Timeline
+      </h3>
 
-  <div
-    id="leadTimeline"
-    class="space-y-3">
-  </div>
+      <div
+        id="leadTimeline"
+        class="space-y-3">
+      </div>
 
-</div>
-<div class="space-y-3 mt-6">
-
-  <h3 class="text-lg font-bold text-slate-900">
-    Ops Notes
-  </h3>
-
-  <div
-    id="leadNotesList"
-    class="space-y-2">
-  </div>
-
-  <textarea
-    id="newLeadNote"
-    rows="3"
-    placeholder="Add internal ops note..."
-    class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-  </textarea>
-
-  <button
-    id="saveLeadNoteBtn"
-    class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">
-    Save Note
-  </button>
-
-</div>
     </div>
 
-  `;
+    <div class="space-y-3 mt-6">
+
+      <h3 class="text-lg font-bold text-slate-900">
+        Ops Notes
+      </h3>
+
+      <div
+        id="leadNotesList"
+        class="space-y-2">
+      </div>
+
+      <textarea
+        id="newLeadNote"
+        rows="3"
+        placeholder="Add internal ops note..."
+        class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </textarea>
+
+      <button
+        id="saveLeadNoteBtn"
+        class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">
+        Save Note
+      </button>
+
+    </div>
+
+  `; // ✅ FIXED: Removed stray unmapped trailing closures completely
   renderLeadNotes(lead);
   renderTimeline(lead);
 }
+
 
 // =====================================
 // RENDER NOTES
