@@ -99,11 +99,65 @@ function updateRoadmap(stage) {
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
     // ✅ FIX ISSUE 4: Show Upload Section immediately upon Survey Completion
+        // ==========================================
+    // 🛠️ FIX & ENHANCE: QUOTE UPLOAD & AUDIT SHIELD
+    // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
         const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED"].includes(stage);
         uploadSection.classList.toggle('hidden', !showUpload);
+
+        // Inject the Subsidy & Audit Shield UI directly into the panel wrapper dynamically
+        if (showUpload) {
+            uploadSection.innerHTML = `
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">
+                            🛡️
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Trust & Subsidy Shield</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Protecting your investment and government incentives.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 mb-5 bg-white border border-slate-100 rounded-xl p-3.5">
+                        <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                            <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                            <span><strong>Technical & Component Audit:</strong> Our backend engineering cell checks the installer's structural design to ensure you are allocated genuine Tier-1 ALMM-approved components.</span>
+                        </div>
+                        <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                            <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                            <span><strong>Subsidy Verification:</strong> Cross-checks layout documents against PM Surya Ghar portal standards to prevent file rejections.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 mb-5">
+                        <div class="flex gap-2.5">
+                            <span class="text-amber-600 text-sm mt-0.5">⚠️</span>
+                            <div class="text-xs text-amber-900 leading-relaxed">
+                                <strong class="font-bold text-amber-950">Important Notice:</strong> 
+                                To safely lock-in your tracking registry, you must upload the official vendor quotation here. Dealing or negotiating with platform installers outside of <span class="font-semibold text-slate-950">Solar-AI-Advisor</span> immediately voids your centralized project liability protection, technical installation warranty, and backend subsidy liaisoning support.
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                        Upload Installer Quotation / Final Bill
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
+                               class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                        <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                                class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                            Submit for Verification Audit
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
     }
+
 
     // Lock "Unlock My AI Solar Analysis" button
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
@@ -222,7 +276,7 @@ async function reportSurveyStatus(status) {
             localStorage.removeItem("surveyIssueReported");
             localStorage.setItem("leadStage", "SURVEY_COMPLETED");
             
-            alert("Thank you! Your survey is marked as complete. We will now prepare your final proposal.");
+            alert("Thank you! Your survey is marked as complete. Please upload installer proposal for our review and confirmation.");
         } else {
             await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
             localStorage.setItem("surveyIssueReported", "true");
