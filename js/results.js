@@ -150,7 +150,7 @@ function updateRoadmap(stage) {
             surveyFeedbackCard.classList.add("hidden");
         }
     }
-}
+
 
 
     // 3. Toggle Survey & Concierge UI based on stage
