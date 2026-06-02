@@ -222,7 +222,7 @@ function updateRoadmap(stage) {
 
 // Logic to handle Quote Upload
 async function uploadQuote() {
-    const fileInput = document.getElementById('quoteFileInput');
+    const fileInput = document.getElementById('quoteUpload');
     const file = fileInput?.files[0];
     const leadId = localStorage.getItem("leadId");
     
@@ -813,16 +813,29 @@ async function waitForAIReport(leadId, requestTime) {
   throw new Error("AI report generation timeout");
 }
 
-
 // =========================================================================
 // 🛡️ ENHANCED: INTERCEPTIVE PLATFORM BOUNDARY & LIABILITY MODAL (APPROACH 2)
 // =========================================================================
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
   const leadCode = localStorage.getItem("leadCode");
+  // 1. Safely resolve the button even if an icon/span inside it was clicked
+    let btn = (typeof event !== 'undefined' && event?.target) 
+        ? event.target.closest('button') 
+        : null;
+
+    // 2. Safer fallback: Target by an explicit ID if the event context is missing
+    if (!btn) {
+        btn = document.getElementById('requestSurveyBtn') || 
+              document.querySelector('.survey-trigger-main'); 
+    }
+
+    if (!btn) {
+        console.warn("Survey button context could not be resolved.");
+    }
   
   // Safely grab structural reference to the original triggering context element
-  const btn = (typeof event !== 'undefined' && event?.target) ? event.target : document.querySelector('button[onclick*="requestSiteSurvey"]');
+  //const btn = (typeof event !== 'undefined' && event?.target) ? event.target : document.querySelector('button[onclick*="requestSiteSurvey"]');
   
   if (!leadId) {
     alert("Lead ID not found. Please refresh the page.");
