@@ -98,9 +98,8 @@ function updateRoadmap(stage) {
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
-    // ✅ FIX ISSUE 4: Show Upload Section immediately upon Survey Completion
-        // ==========================================
-    // 🛠️ FIX & ENHANCE: QUOTE UPLOAD & AUDIT SHIELD
+    // ==========================================
+    // 🛠️ FIX & ENHANCE: QUOTE UPLOAD & AUDIT SHIELD (LIABILITY SAFE)
     // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
@@ -116,19 +115,19 @@ function updateRoadmap(stage) {
                             🛡️
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Trust & Subsidy Shield</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Protecting your investment and government incentives.</p>
+                            <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Verification Desk</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Track your installation safely through our platform.</p>
                         </div>
                     </div>
 
                     <div class="space-y-2.5 mb-5 bg-white border border-slate-100 rounded-xl p-3.5">
                         <div class="flex items-start gap-2.5 text-xs text-slate-600">
                             <span class="text-emerald-500 font-bold mt-0.5">✓</span>
-                            <span><strong>Technical & Component Audit:</strong> Our backend engineering cell checks the installer's structural design to ensure you are allocated genuine Tier-1 ALMM-approved components.</span>
+                            <span><strong>Quote & Component Review:</strong> Our team audits your official quotation to verify that the proposed components meet Tier-1 ALMM guidelines on paper, helping you avoid substandard equipment.</span>
                         </div>
                         <div class="flex items-start gap-2.5 text-xs text-slate-600">
                             <span class="text-emerald-500 font-bold mt-0.5">✓</span>
-                            <span><strong>Subsidy Verification:</strong> Cross-checks layout documents against PM Surya Ghar portal standards to prevent file rejections.</span>
+                            <span><strong>Subsidy Compliance Guidance:</strong> We provide paperwork checklists and guidance aligned with PM Surya Ghar portal requirements to help streamline your Discom application process.</span>
                         </div>
                     </div>
 
@@ -137,7 +136,8 @@ function updateRoadmap(stage) {
                             <span class="text-amber-600 text-sm mt-0.5">⚠️</span>
                             <div class="text-xs text-amber-900 leading-relaxed">
                                 <strong class="font-bold text-amber-950">Important Notice:</strong> 
-                                To safely lock-in your tracking registry, you must upload the official vendor quotation here. Dealing or negotiating with platform installers outside of <span class="font-semibold text-slate-950">Solar-AI-Advisor</span> immediately voids your centralized project liability protection, technical installation warranty, and backend subsidy liaisoning support.
+                                Upload your final quotation here to activate our platform tracking. If you choose to deal with platform-matched installers offline, <strong>Solar-AI-Advisor</strong> cannot provide vendor dispute resolution, escalation support, or backend subsidy assistance. 
+                                <span class="block mt-1.5 text-[10px] text-amber-700/80 italic">Note: Final hardware warranties, performance yields, and government subsidy approvals remain the sole legal responsibility of the contracted vendor and respective government authorities.</span>
                             </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@ function updateRoadmap(stage) {
                                class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
                         <button id="uploadQuoteBtn" onclick="uploadQuote()" 
                                 class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
-                            Submit for Verification Audit
+                            Submit for Verification
                         </button>
                     </div>
                 </div>
@@ -187,7 +187,6 @@ function updateRoadmap(stage) {
             surveyFeedbackCard.classList.add("hidden");
             
         } else if (stage === "SURVEY_REQUESTED") {
-            // ✅ FIX ISSUES 2 & 3: Corrected bracket scoping ensures Survey Panel stays visible
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.remove("hidden");
             
@@ -216,7 +215,6 @@ function updateRoadmap(stage) {
             // Past the survey phase (SURVEY_COMPLETED, OFFER_GIVEN, etc.)
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.add("hidden");
-            // Note: The upload section takes over the UI flow here due to the toggle logic above!
         }
     }
 }
@@ -242,7 +240,7 @@ async function uploadQuote() {
         });
         
         alert("Quote uploaded successfully!");
-        location.reload(); // Refresh to update UI
+        location.reload(); 
     } catch (error) {
         console.error("Upload failed:", error);
         alert("Upload failed. Please try again.");
@@ -256,7 +254,6 @@ async function reportSurveyStatus(status) {
     const leadId = localStorage.getItem("leadId");
     if (!leadId) return;
     
-    // Disable buttons to prevent double-clicks
     const btnYes = document.getElementById("surveyYesBtn");
     const btnNo = document.getElementById("surveyNoBtn");
     const btnResolve = document.getElementById("surveyResolveBtn");
@@ -272,7 +269,6 @@ async function reportSurveyStatus(status) {
             await db.collection("leads").doc(leadId).update({ stage: "SURVEY_COMPLETED" });
             await db.collection("survey_requests").doc(leadId).update({ status: "completed" });
             
-            // ✅ CLEANUP: Remove the issue flag so the layout returns to normal workflow
             localStorage.removeItem("surveyIssueReported");
             localStorage.setItem("leadStage", "SURVEY_COMPLETED");
             
@@ -282,7 +278,7 @@ async function reportSurveyStatus(status) {
             localStorage.setItem("surveyIssueReported", "true");
             alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
         }
-        location.reload(); // Refresh page to hydrate the next stage
+        location.reload(); 
     } catch (error) {
         console.error("Error reporting survey status:", error);
         alert("Failed to update status: " + error.message); 
@@ -478,6 +474,7 @@ function showForm() {
   }
 }
 
+// Pre-packaged criteria scoring
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
   if (bill >= 3000) score += 2;
@@ -550,7 +547,6 @@ async function submitLead() {
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
   
-  // ✅ FIX: Extract dynamic state selection before calculation to avoid fallback to default "UP"
   const selectedState = document.getElementById("resState")?.value || 
                         localStorage.getItem("state") || 
                         "UP";
@@ -718,6 +714,7 @@ function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback
   return Math.min(score, 99);
 }
 
+// Random summaries fallback
 function getDynamicAISummary(data) {
   const summaries = [
     `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
@@ -816,62 +813,127 @@ async function waitForAIReport(leadId, requestTime) {
   throw new Error("AI report generation timeout");
 }
 
+
+// =========================================================================
+// 🛡️ ENHANCED: INTERCEPTIVE PLATFORM BOUNDARY & LIABILITY MODAL (APPROACH 2)
+// =========================================================================
 async function requestSiteSurvey() {
   const leadId = localStorage.getItem("leadId");
   const leadCode = localStorage.getItem("leadCode");
-  const btn = event.target;
+  
+  // Safely grab structural reference to the original triggering context element
+  const btn = (typeof event !== 'undefined' && event?.target) ? event.target : document.querySelector('button[onclick*="requestSiteSurvey"]');
   
   if (!leadId) {
     alert("Lead ID not found. Please refresh the page.");
     return;
   }
 
-  btn.disabled = true;
-  btn.innerText = "Requesting...";
-  btn.classList.add("opacity-50", "cursor-not-allowed");
+  // Prevent multiple overlay mounts if button is double-clicked rapidly
+  if (document.getElementById('surveyLegalModal')) return;
 
-  try {
-    const batch = db.batch();
-    const leadRef = db.collection("leads").doc(leadId);
-    const surveyRef = db.collection("survey_requests").doc(leadId);
+  // 1. Generate & Inject the Contextual Shield Confirmation Modal
+  const modal = document.createElement('div');
+  modal.id = 'surveyLegalModal';
+  modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in';
+  
+  modal.innerHTML = `
+    <div class="bg-white border border-slate-200/60 rounded-2xl max-w-md w-full p-5 shadow-2xl transform transition-all scale-100">
+        <div class="flex items-center gap-3 mb-3.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">
+                🛡️
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Platform Scope Acknowledgement</h3>
+                <p class="text-[11px] text-slate-500">Please review before scheduling your physical site survey.</p>
+            </div>
+        </div>
 
-    batch.update(leadRef, { 
-      stage: "SURVEY_REQUESTED" 
-    });
+        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5 mb-4 text-xs text-slate-600 leading-relaxed space-y-2">
+            <p>
+                By booking this site assessment, you acknowledge that <span class="font-semibold text-slate-900">Solar-AI-Advisor</span> acts exclusively as an independent discovery and technical verification advisory service.
+            </p>
+            <p>
+                All physical structural engineering, field execution, material guarantees (Tier-1 ALMM panels), and central/state subsidy processing remain the direct commercial and legal liability of your chosen vendor and respective Discom utilities.
+            </p>
+        </div>
 
-    batch.set(surveyRef, {
-      leadId: leadId,
-      leadCode: leadCode || "N/A",
-      phone: document.getElementById("capturedPhone")?.value || "N/A",
-      status: "pending",
-      requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      requestedCity: document.getElementById("resCity")?.value || "Unknown",
-      clientName: document.getElementById("capturedName")?.value || "Homeowner"
-    });
+        <div class="flex items-center gap-2.5 justify-end">
+            <button id="closeSurveyModalBtn" class="text-xs font-semibold text-slate-500 hover:text-slate-700 px-4 py-2.5 rounded-xl border border-slate-200 bg-white transition cursor-pointer">
+                Go Back
+            </button>
+            <button id="confirmSurveyModalBtn" class="bg-indigo-600 text-white text-xs px-4 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm cursor-pointer">
+                Agree & Schedule Survey
+            </button>
+        </div>
+    </div>
+  `;
 
-    await batch.commit();
+  document.body.appendChild(modal);
 
-    // 🔥 TRIGGER THE UI LOCK AND PROGRESS BAR UPDATE IMMEDIATELY 🔥
-    localStorage.setItem("leadStage", "SURVEY_REQUESTED"); 
-    updateRoadmap("SURVEY_REQUESTED"); 
-    
-    // Success state
-    btn.innerText = "✓ Request Submitted";
-    btn.classList.replace("bg-indigo-600", "bg-emerald-500");
-    
-    const successMsg = document.createElement("p");
-    successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
-    successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
-    btn.parentNode.appendChild(successMsg);
-    
-  } catch (error) {
-    console.error("Survey request failed:", error);
-    alert("Request failed. Please try again.");
-    btn.innerText = "Try Again";
-    btn.disabled = false;
-    btn.classList.remove("opacity-50");
-  }
+  // Close interface handler
+  document.getElementById('closeSurveyModalBtn').onclick = () => {
+      modal.remove();
+  };
+
+  // Execution validation gateway handler
+  document.getElementById('confirmSurveyModalBtn').onclick = async () => {
+      modal.remove(); // Dismount view layer instantly
+      
+      if (btn) {
+          btn.disabled = true;
+          btn.innerText = "Requesting...";
+          btn.classList.add("opacity-50", "cursor-not-allowed");
+      }
+
+      try {
+        const batch = db.batch();
+        const leadRef = db.collection("leads").doc(leadId);
+        const surveyRef = db.collection("survey_requests").doc(leadId);
+
+        // Append timestamp log proving explicit acceptance at step-level milestone
+        batch.update(leadRef, { 
+          stage: "SURVEY_REQUESTED",
+          scopeTermsAgreedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        batch.set(surveyRef, {
+          leadId: leadId,
+          leadCode: leadCode || "N/A",
+          phone: document.getElementById("capturedPhone")?.value || "N/A",
+          status: "pending",
+          requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          requestedCity: document.getElementById("resCity")?.value || "Unknown",
+          clientName: document.getElementById("capturedName")?.value || "Homeowner"
+        });
+
+        await batch.commit();
+
+        localStorage.setItem("leadStage", "SURVEY_REQUESTED"); 
+        updateRoadmap("SURVEY_REQUESTED"); 
+        
+        if (btn) {
+            btn.innerText = "✓ Request Submitted";
+            btn.classList.replace("bg-indigo-600", "bg-emerald-500");
+            
+            const successMsg = document.createElement("p");
+            successMsg.className = "text-emerald-600 text-sm mt-3 font-medium text-center animate-fade-in";
+            successMsg.innerText = "Our team will contact you within 24 hours to schedule your survey.";
+            btn.parentNode.appendChild(successMsg);
+        }
+        
+      } catch (error) {
+        console.error("Survey request failed:", error);
+        alert("Request failed. Please try again.");
+        if (btn) {
+            btn.innerText = "Try Again";
+            btn.disabled = false;
+            btn.classList.remove("opacity-50");
+        }
+      }
+  };
 }
+
 
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
@@ -886,7 +948,6 @@ function renderDynamicAIReport(report, result) {
       installerSection.classList.remove("hidden");
       renderInstallerCards(report.matchedInstallers);
     } else {
-      // ✅ Only reveal the concierge card if the user hasn't progressed past AI_GENERATED
       if (currentStage === "AI_GENERATED" || currentStage === "INITIAL") {
           conciergeCard.classList.remove("hidden");
       } else {
@@ -1016,7 +1077,7 @@ function renderDynamicAIReport(report, result) {
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
-    let aiReportCache = null; // Store the report for re-hydration
+    let aiReportCache = null; 
 
     if (leadId) {
         try {
@@ -1026,7 +1087,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 localStorage.setItem("leadStage", stage);
                 updateRoadmap(stage);
                 
-                // ✅ Fetch the existing AI report if the user has already generated it
                 if (stage !== "INITIAL") {
                     const aiDoc = await db.collection("ai_reports").doc(leadId).get();
                     if (aiDoc.exists) {
@@ -1054,7 +1114,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Initialization complete, running first calculation...");
     const initialResult = calculateSavings(); 
     
-    // ✅ Re-render AI insights UI immediately if we loaded an existing report from cache
     if (aiReportCache && initialResult) {
          renderDynamicAIReport(aiReportCache, initialResult);
     }
@@ -1069,7 +1128,6 @@ function calculateSavings() {
     let state = stateEl?.value || localStorage.getItem("state") || "UP";
     
     if (bill > 0) {
-        // ✅ FIX: Aggressively persist the inputs so the AI UI survives page reloads
         localStorage.setItem("bill", bill);
         localStorage.setItem("state", state);
 
@@ -1100,7 +1158,6 @@ function renderMetric(label, value) {
 
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
-    // ✅ FIX: Exit gracefully if target list container is missing from the page layout
     if (!container) {
         console.error("Target container 'installerListContainer' missing from DOM.");
         return;
