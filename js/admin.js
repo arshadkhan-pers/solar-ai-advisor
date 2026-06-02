@@ -341,7 +341,6 @@ window.loadPreviousPage = async function() {
   if (!firstVisibleDoc) return;
 
   try {
-    // Fetch records ending before the current first visible document
     const snapshot = await db
       .collection("leads")
       .orderBy("createdAt", "desc")
@@ -354,7 +353,6 @@ window.loadPreviousPage = async function() {
       return;
     }
 
-    // Rebuild the leads array
     allLeads = [];
     snapshot.forEach((docItem) => {
       allLeads.push({ id: docItem.id, ...docItem.data() });
@@ -362,11 +360,9 @@ window.loadPreviousPage = async function() {
 
     currentPageLeads = allLeads;
 
-    // Update cursors
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
 
-    // Render
     renderLeads(allLeads);
     updateMetrics(allLeads);
     
@@ -555,6 +551,18 @@ row.innerHTML = `
 </p>
 
 ${
+  lead.quoteUrl
+  ? `
+    <div class="mt-1">
+      <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200 shadow-sm">
+        📄 Offer Uploaded
+      </span>
+    </div>
+  `
+  : ""
+}
+
+${
   lead.followUpDate
   ? `
     <p class="
@@ -694,7 +702,6 @@ window.updateLeadField = async function(id, field, value) {
     const leadRef = db.collection("leads").doc(id);
     const surveyRef = db.collection("survey_requests").doc(id);
 
-    // 1. Update the primary lead document
     const updateData = {
       updatedAt: new Date(),
       timeline: firebase.firestore.FieldValue.arrayUnion({
@@ -706,22 +713,19 @@ window.updateLeadField = async function(id, field, value) {
     updateData[field] = value;
     batch.update(leadRef, updateData);
 
-    // 2. Conditional Sync: Update Survey Request Status if needed
-if (field === 'stage') {
-  // Sync logic: If stage is CLOSED_REJECTED, update/create survey_request status
-  if (value === 'CLOSED_REJECTED') {
-    batch.set(surveyRef, { status: 'rejected' }, { merge: true });
-  } 
-  // If stage is SURVEY_COMPLETED, update/create survey_request status
-  else if (value === 'SURVEY_COMPLETED') {
-    batch.set(surveyRef, { status: 'completed' }, { merge: true });
-  }
-}
+    if (field === 'stage') {
+      if (value === 'CLOSED_REJECTED') {
+        batch.set(surveyRef, { status: 'rejected' }, { merge: true });
+      } 
+      else if (value === 'SURVEY_COMPLETED') {
+        batch.set(surveyRef, { status: 'completed' }, { merge: true });
+      }
+    }
 
     await batch.commit();
     
     alert(`Lead ${field} updated successfully.`);
-    await loadLeads(); // Refresh table
+    await loadLeads(); 
   } catch (error) {
     console.error("Update failed:", error);
     alert(`Failed to update ${field}.`);
@@ -743,7 +747,6 @@ window.viewLead = async function(id) {
   if (!lead) return;
   currentOpenLeadId = id;
 
-  // OPEN PANEL
   document
     .getElementById("leadPanelOverlay")
     .classList.remove("hidden");
@@ -757,7 +760,6 @@ window.viewLead = async function(id) {
     "translate-x-full"
   );
 
-  // LOADING STATE
   document.getElementById(
     "leadPanelContent"
   ).innerHTML = `
@@ -766,7 +768,6 @@ window.viewLead = async function(id) {
     </div>
   `;
 
-  // HEADER
   document.getElementById(
     "panelLeadCode"
   ).innerText =
@@ -774,7 +775,6 @@ window.viewLead = async function(id) {
 
   try {
 
-    // LOAD AI REPORT
     const aiReportSnapshot =
   await db
     .collection("ai_reports")
@@ -848,7 +848,6 @@ function renderLeadPanel(
 
   content.innerHTML = `
 
-    <!-- CUSTOMER -->
     <div class="space-y-2">
 
       <h3 class="text-lg font-bold text-slate-900">
@@ -889,7 +888,6 @@ function renderLeadPanel(
 
     </div>
 
-    <!-- SOLAR -->
     <div class="space-y-2">
 
       <h3 class="text-lg font-bold text-slate-900">
@@ -920,7 +918,7 @@ function renderLeadPanel(
           <p class="text-2xl font-bold text-emerald-700 mt-2">
   ${
     aiReport
-      ? `â¹${aiReport?.netCost || 0}`
+      ? `₹${aiReport?.netCost || 0}`
       : "Pending"
   }
 </p>
@@ -930,7 +928,6 @@ function renderLeadPanel(
 
     </div>
 
-    <!-- AI PROFILE -->
     <div class="space-y-2">
 
       <h3 class="text-lg font-bold text-slate-900">
@@ -985,7 +982,50 @@ function renderLeadPanel(
 
     </div>
 
-    <!-- OPS MANAGEMENT -->
+    <div class="space-y-2 mt-4">
+      <h3 class="text-lg font-bold text-slate-900">
+        Verification Desk (User Offer)
+      </h3>
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
+        ${lead.quoteUrl ? `
+          <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl shrink-0">
+                  📄
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">Installer Quotation</p>
+                  <p class="text-xs text-slate-400">Uploaded for tracking audit</p>
+                </div>
+              </div>
+              <a href="${lead.quoteUrl}" target="_blank" 
+                 class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition inline-block text-center whitespace-nowrap">
+                View Document ↗
+              </a>
+            </div>
+            
+            <div class="border-t border-slate-100 pt-3">
+              <label class="text-xs font-semibold text-slate-600 block mb-1.5">Quote Audit Feedback</label>
+              <select
+                onchange="updateLeadField('${lead.id}', 'quoteVerificationStatus', this.value)"
+                class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-slate-50 focus:bg-white focus:outline-none">
+                <option value="PENDING_REVIEW" ${lead.quoteVerificationStatus === 'PENDING_REVIEW' || !lead.quoteVerificationStatus ? 'selected' : ''}>⏳ Pending Review</option>
+                <option value="VERIFIED_TIER1_COMPLIANT" ${lead.quoteVerificationStatus === 'VERIFIED_TIER1_COMPLIANT' ? 'selected' : ''}>✅ Verified (Tier-1 ALMM Compliant)</option>
+                <option value="REJECTED_SUBSTANDARD" ${lead.quoteVerificationStatus === 'REJECTED_SUBSTANDARD' ? 'selected' : ''}>❌ Rejected (Substandard Components)</option>
+                <option value="REJECTED_INCOMPLETE" ${lead.quoteVerificationStatus === 'REJECTED_INCOMPLETE' ? 'selected' : ''}>⚠️ Rejected (Incomplete / Inaccurate Details)</option>
+              </select>
+            </div>
+          </div>
+        ` : `
+          <div class="text-center py-4 bg-white border border-dashed border-slate-200 rounded-xl">
+            <p class="text-sm text-slate-400 font-medium">No quotation uploaded yet</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Awaiting customer side submission</p>
+          </div>
+        `}
+      </div>
+    </div>
+
     <div class="space-y-3 mt-6">
 
       <h3 class="text-lg font-bold text-slate-900">
@@ -994,7 +1034,6 @@ function renderLeadPanel(
 
       <div class="bg-slate-50 rounded-2xl p-4 space-y-4">
 
-        <!-- PRIORITY -->
         <div>
 
           <label class="text-sm font-semibold text-slate-700 block mb-2">
@@ -1029,7 +1068,6 @@ function renderLeadPanel(
 
         </div>
 
-        <!-- FOLLOW UP -->
         <div>
 
           <label class="text-sm font-semibold text-slate-700 block mb-2">
@@ -1044,7 +1082,6 @@ function renderLeadPanel(
 
         </div>
         
-        <!-- SAVE -->
         <button
           onclick="saveOpsDetails('${lead.id}')"
           class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold">
@@ -1054,8 +1091,6 @@ function renderLeadPanel(
         </button>
 
       </div>
-<!-- NOTES SECTION -->
-<!-- TIMELINE -->
 <div class="space-y-3 mt-6">
 
   <h3 class="text-lg font-bold text-slate-900">
@@ -1173,7 +1208,6 @@ function renderTimeline(lead) {
 
   const timeline = [];
 
-// LEAD CREATED
 if (lead.createdAt) {
 
   timeline.push({
@@ -1188,7 +1222,6 @@ if (lead.createdAt) {
 
 }
 
-// MANUAL TIMELINE EVENTS
 if (lead.timeline?.length) {
 
   lead.timeline.forEach((item) => {
@@ -1345,7 +1378,7 @@ existingTimeline.push({
   message:
     `Priority changed to ${priority}${
       followUpDate
-      ? ` â¢ Follow-up: ${followUpDate}`
+      ? ` • Follow-up: ${followUpDate}`
       : ""
     }`,
 
@@ -1354,7 +1387,7 @@ existingTimeline.push({
 
 });
 
-    await db
+        await db
       .collection("leads")
       .doc(id)
       .update({
@@ -1403,10 +1436,6 @@ if (updatedLead) {
     );
   }
 };
-
-// =====================================
-// START
-// =====================================
 
 // =====================================
 // SAVE NOTE
@@ -1494,5 +1523,3 @@ if (updatedLead) {
 
   }
 );
-
-//loadLeads();
