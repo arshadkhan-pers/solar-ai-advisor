@@ -76,6 +76,7 @@ function getBillFromURL() {
   return parseFloat(params.get("bill")) || 0;
 }
 
+
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
@@ -83,7 +84,7 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // ✅ Custom width mapping to align precisely with your 4 UI columns
+    // Custom width mapping to align precisely with your 4 UI columns
     const widthMap = {
         "INITIAL": "15%",
         "AI_GENERATED": "25%",          // Feasibility Complete
@@ -97,13 +98,14 @@ function updateRoadmap(stage) {
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
-    // 1. Show/Hide Upload Section
+    // ✅ FIX ISSUE 4: Show Upload Section immediately upon Survey Completion
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        uploadSection.classList.toggle('hidden', !(stage === "OFFER_GIVEN" || stage === "OFFER_ACCEPTED"));
+        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED"].includes(stage);
+        uploadSection.classList.toggle('hidden', !showUpload);
     }
 
-    // 2. Lock "Unlock My AI Solar Analysis" button
+    // Lock "Unlock My AI Solar Analysis" button
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
     if (unlockBtn) {
         const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
@@ -129,11 +131,13 @@ function updateRoadmap(stage) {
         if (stage === "AI_GENERATED" || stage === "INITIAL") {
             conciergeCard.classList.remove("hidden");
             surveyFeedbackCard.classList.add("hidden");
+            
         } else if (stage === "SURVEY_REQUESTED") {
+            // ✅ FIX ISSUES 2 & 3: Corrected bracket scoping ensures Survey Panel stays visible
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.remove("hidden");
             
-            // ✅ UX ENHANCEMENT: Show reassurance text AND an interactive path to completion
+            // UX ENHANCEMENT: Show reassurance text AND an interactive path to completion
             if (localStorage.getItem("surveyIssueReported") === "true") {
                 surveyFeedbackCard.innerHTML = `
                     <div class="flex items-center gap-3 mb-3">
@@ -144,7 +148,6 @@ function updateRoadmap(stage) {
                         You reported a delay. Our support team is actively following up with the installer to expedite your site assessment.
                     </p>
                     
-                    <!-- 🛠️ Dynamic Recovery Action Layout -->
                     <div class="border-t border-slate-100 pt-3 mt-2 flex items-center justify-between gap-4 flex-wrap">
                         <span class="text-xs text-slate-500 font-medium">Did the installer arrive?</span>
                         <button id="surveyResolveBtn" onclick="reportSurveyStatus('completed')" 
@@ -153,14 +156,18 @@ function updateRoadmap(stage) {
                         </button>
                     </div>
                 `;
-            } else {
-            // Past the survey phase (Completed, Offer Given, etc.)
+            }
+            
+        } else {
+            // Past the survey phase (SURVEY_COMPLETED, OFFER_GIVEN, etc.)
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.add("hidden");
+            // Note: The upload section takes over the UI flow here due to the toggle logic above!
         }
     }
 }
-}
+
+
 // Logic to handle Quote Upload
 async function uploadQuote() {
     const fileInput = document.getElementById('quoteFileInput');
@@ -522,7 +529,7 @@ async function submitLead() {
 
     console.log("✅ Lead updated successfully");
     localStorage.setItem("leadStage", "AI_GENERATED");
-
+    updateRoadmap("AI_GENERATED");
   } catch (error) {
     console.error("❌ Update failed:", error);
     alert(error.message);
