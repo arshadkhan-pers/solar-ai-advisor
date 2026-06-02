@@ -1085,7 +1085,7 @@ function renderDynamicAIReport(report, result) {
     window.scrollTo({ top: y, behavior: "smooth" });
   });
 }
-
+}
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
