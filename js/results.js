@@ -83,7 +83,7 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // ✅ FIX: Custom width mapping to align precisely with your 4 UI columns
+    // ✅ Custom width mapping to align precisely with your 4 UI columns
     const widthMap = {
         "INITIAL": "15%",
         "AI_GENERATED": "25%",          // Feasibility Complete
@@ -146,34 +146,12 @@ function updateRoadmap(stage) {
                 `;
             }
         } else {
-            conciergeCard.classList.add("hidden");
-            surveyFeedbackCard.classList.add("hidden");
-        }
-    }
-
-
-
-    // 3. Toggle Survey & Concierge UI based on stage
-    const conciergeCard = document.getElementById("conciergeCard");
-    const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
-    
-    if (conciergeCard && surveyFeedbackCard) {
-        if (stage === "AI_GENERATED" || stage === "INITIAL") {
-            // Before request is made
-            conciergeCard.classList.remove("hidden");
-            surveyFeedbackCard.classList.add("hidden");
-        } else if (stage === "SURVEY_REQUESTED") {
-            // Requested, waiting for completion feedback
-            conciergeCard.classList.add("hidden");
-            surveyFeedbackCard.classList.remove("hidden");
-        } else {
             // Past the survey phase (Completed, Offer Given, etc.)
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.add("hidden");
         }
     }
 }
-
 
 // Logic to handle Quote Upload
 async function uploadQuote() {
