@@ -1076,7 +1076,8 @@ function renderDynamicAIReport(report, result) {
       </div>
     `;
   });
-
+ 
+  if (currentStage === "INITIAL" || currentStage === "AI_GENERATED") {
   requestAnimationFrame(() => {
     const aiSection = document.getElementById("aiInsightsSection");
     if (!aiSection) return;
