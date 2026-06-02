@@ -133,26 +133,34 @@ function updateRoadmap(stage) {
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.remove("hidden");
             
-            // ✅ UX ENHANCEMENT: Don't ask them again if they just reported a delay
+            // ✅ UX ENHANCEMENT: Show reassurance text AND an interactive path to completion
             if (localStorage.getItem("surveyIssueReported") === "true") {
                 surveyFeedbackCard.innerHTML = `
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">⏳</div>
                         <h3 class="text-xl font-bold text-slate-900">Survey Delayed</h3>
                     </div>
-                    <p class="text-slate-600 text-sm leading-relaxed">
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
                         You reported a delay. Our support team is actively following up with the installer to expedite your site assessment.
                     </p>
+                    
+                    <!-- 🛠️ Dynamic Recovery Action Layout -->
+                    <div class="border-t border-slate-100 pt-3 mt-2 flex items-center justify-between gap-4 flex-wrap">
+                        <span class="text-xs text-slate-500 font-medium">Did the installer arrive?</span>
+                        <button id="surveyResolveBtn" onclick="reportSurveyStatus('completed')" 
+                                class="bg-emerald-600 text-white text-xs px-3.5 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition shadow-sm">
+                            Yes, Survey Completed
+                        </button>
+                    </div>
                 `;
-            }
-        } else {
+            } else {
             // Past the survey phase (Completed, Offer Given, etc.)
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.add("hidden");
         }
     }
 }
-
+}
 // Logic to handle Quote Upload
 async function uploadQuote() {
     const fileInput = document.getElementById('quoteFileInput');
@@ -190,14 +198,23 @@ async function reportSurveyStatus(status) {
     // Disable buttons to prevent double-clicks
     const btnYes = document.getElementById("surveyYesBtn");
     const btnNo = document.getElementById("surveyNoBtn");
+    const btnResolve = document.getElementById("surveyResolveBtn");
     if (btnYes) btnYes.disabled = true;
     if (btnNo) btnNo.disabled = true;
+    if (btnResolve) {
+        btnResolve.disabled = true;
+        btnResolve.innerText = "Updating...";
+    }
 
     try {
         if (status === 'completed') {
             await db.collection("leads").doc(leadId).update({ stage: "SURVEY_COMPLETED" });
             await db.collection("survey_requests").doc(leadId).update({ status: "completed" });
+            
+            // ✅ CLEANUP: Remove the issue flag so the layout returns to normal workflow
+            localStorage.removeItem("surveyIssueReported");
             localStorage.setItem("leadStage", "SURVEY_COMPLETED");
+            
             alert("Thank you! Your survey is marked as complete. We will now prepare your final proposal.");
         } else {
             await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
@@ -207,10 +224,13 @@ async function reportSurveyStatus(status) {
         location.reload(); // Refresh page to hydrate the next stage
     } catch (error) {
         console.error("Error reporting survey status:", error);
-        //alert("Failed to update status. Please try again.");
         alert("Failed to update status: " + error.message); 
         if (btnYes) btnYes.disabled = false;
         if (btnNo) btnNo.disabled = false;
+        if (btnResolve) {
+            btnResolve.disabled = false;
+            btnResolve.innerText = "Yes, Survey Completed";
+        }
     }
 }
 
