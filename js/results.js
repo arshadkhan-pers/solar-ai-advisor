@@ -96,10 +96,11 @@ function getBillFromURL() {
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
-function updateRoadmap(stage) {
+function updateRoadmap(stage, leadData = null) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
+    // 🛠️ 1. Expanded width mapper to include new interactive stages
     const widthMap = {
         "INITIAL": "15%",
         "AI_GENERATED": "25%",          
@@ -109,19 +110,26 @@ function updateRoadmap(stage) {
         "OFFER_REJECTED": "70%",        
         "OFFER_UNDER_REVIEW": "75%",    
         "OFFER_ACCEPTED": "80%",        
+        "AGREEMENT_SIGNED": "85%",      // New Stage
+        "NET_METERING_APPLIED": "90%",  // New Stage
         "INSTALLATION_COMPLETED": "100%",
         "SUBSIDY_CREDITED": "100%"
     };
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
+    // ==========================================
+    // 🛠️ 2. DYNAMIC QUOTE UPLOAD & STATUS UI
+    // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
+        // Added the new stages to ensure this panel stays visible
+        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
         uploadSection.classList.toggle('hidden', !showUpload);
 
         if (showUpload) {
             if (stage === "OFFER_UNDER_REVIEW") {
+                // 🟡 PENDING STATE
                 uploadSection.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-center gap-3">
@@ -133,25 +141,57 @@ function updateRoadmap(stage) {
                         </div>
                     </div>
                 `;
-            } else if (stage === "OFFER_ACCEPTED" || stage === "INSTALLATION_COMPLETED" || stage === "SUBSIDY_CREDITED") {
+            } else if (["OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage)) {
+                
+                // 🟢 NEW: DYNAMIC INTERACTIVE STEPPER 
+                const timeline = leadData?.timeline || {};
+                let stepperHTML = `<div class="mt-5 space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">`;
+
+                // Interactive steps start from index 5 in the journeyMilestones array
+                const executionSteps = journeyMilestones.slice(5); 
+
+                executionSteps.forEach((step, index) => {
+                    const isComplete = timeline[step.dbKey]?.status === true;
+                    const isPrevComplete = index === 0 ? true : timeline[executionSteps[index - 1].dbKey]?.status === true;
+                    const isActive = !isComplete && isPrevComplete;
+
+                    stepperHTML += `
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group mb-6">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 ${isComplete ? 'border-emerald-500 bg-emerald-100 text-emerald-600' : isActive ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-200 bg-slate-50 text-slate-400'} shrink-0 z-10 shadow-sm transition-colors duration-300">
+                                ${isComplete ? '✓' : index + 1}
+                            </div>
+                            
+                            <div class="w-[calc(100%-4rem)] p-4 rounded-xl border ${isActive ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-100 bg-white'} shadow-sm transition-all duration-300">
+                                <h4 class="text-sm font-bold ${isActive ? 'text-indigo-900' : 'text-slate-800'}">${step.title}</h4>
+                                <p class="text-xs text-slate-500 mt-1">${step.desc}</p>
+                                
+                                ${isActive ? `
+                                    <button onclick="advanceTimelineMilestone('${step.dbKey}', '${step.triggersStage}')" 
+                                            class="mt-3 text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm">
+                                        ${step.actionBtn}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                stepperHTML += `</div>`;
+
                 uploadSection.innerHTML = `
-                    <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
-                        <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm mb-5">
+                        <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-xl shrink-0">✅</div>
                             <div>
                                 <h3 class="text-base font-bold text-emerald-900">Quotation Approved</h3>
-                                <p class="text-xs text-emerald-700 mt-0.5">Your quotation has passed our technical audit and meets Tier-1 ALMM guidelines.</p>
+                                <p class="text-xs text-emerald-700 mt-0.5">Your quotation has passed our technical audit. Track your deployment below.</p>
                             </div>
                         </div>
-                        <div class="bg-white border border-emerald-100 rounded-xl p-4 space-y-2.5 text-xs text-slate-700">
-                            <p class="font-bold text-slate-900 uppercase tracking-wider text-[10px] mb-1">Next Steps:</p>
-                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">1.</span> Proceed with finalizing your commercial agreement with the installer.</div>
-                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">2.</span> Ensure the vendor initiates your net-metering application on the PM Surya Ghar portal.</div>
-                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">3.</span> Schedule the physical installation date.</div>
-                        </div>
                     </div>
+                    ${stepperHTML}
                 `;
             } else {
+                // 🔵 UPLOAD / REJECTED STATE (SURVEY_COMPLETED, OFFER_GIVEN, OFFER_REJECTED)
                 const rejectionBanner = stage === "OFFER_REJECTED" ? `
                     <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 mb-5 flex gap-2.5">
                         <span class="text-red-600 text-sm mt-0.5">❌</span>
@@ -211,9 +251,11 @@ function updateRoadmap(stage) {
         }
     }
 
+    // 🛠️ 3. Ensure the Unlock AI button stays locked during the new stages
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
     if (unlockBtn) {
-        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
+        // Appended new stages to the lock array
+        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
         const isLocked = lockedStages.includes(stage);
         
         unlockBtn.disabled = isLocked;
@@ -228,6 +270,7 @@ function updateRoadmap(stage) {
         }
     }
 
+    // Toggle Survey & Concierge UI based on stage
     const conciergeCard = document.getElementById("conciergeCard");
     const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
     
