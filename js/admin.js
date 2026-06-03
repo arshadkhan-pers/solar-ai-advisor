@@ -2,10 +2,7 @@
 // GLOBALS
 // ====================================
 const LEAD_STATUSES = ["NEW", "REVIEWING", "CONTACTED", "QUALIFIED", "SHARED", "CLOSED", "REJECTED"];
-const LEAD_STAGES = [
-  "INITIAL", "AI_GENERATED", "SURVEY_REQUESTED", "SURVEY_COMPLETED", 
-  "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", 
-  "SUBSIDY_CREDITED", "CLOSED_SUCCESS", "CLOSED_REJECTED"];
+const LEAD_STAGES = ["INITIAL", "AI_GENERATED", "SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_UNDER_REVIEW", "OFFER_REJECTED", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED", "CLOSED_SUCCESS", "CLOSED_REJECTED"];
 
 let allLeads = [];
 let currentOpenLeadId = null;
@@ -15,328 +12,195 @@ let lastVisibleDoc = null;
 let firstVisibleDoc = null;
 
 let currentPageLeads = [];
-
 let selectedLeadIds = [];
 
 const PAGE_SIZE = 20;
-
 const db = window.db;
+
+
+// =====================================
+// TOAST NOTIFICATIONS
+// =====================================
+function showToast(message, isError = false) {
+  let toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-container";
+    toastContainer.className = "fixed bottom-5 right-5 z-50 flex flex-col gap-2";
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `px-4 py-3 rounded-xl text-xs font-semibold shadow-lg text-white transition-all duration-300 transform translate-y-2 opacity-0 ${
+    isError ? "bg-red-600" : "bg-slate-900"
+  }`;
+  toast.innerText = message;
+
+  toastContainer.appendChild(toast);
+
+  // Trigger animation
+  setTimeout(() => {
+    toast.classList.remove("translate-y-2", "opacity-0");
+  }, 10);
+
+  // Remove toast after 3 seconds
+  setTimeout(() => {
+    toast.classList.add("opacity-0", "translate-y-2");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
 
 
 // =====================================
 // FORMAT LEAD TIME
 // =====================================
-
 function formatLeadTime(timestamp) {
-
-  const date =
-    timestamp?.toDate
-      ? timestamp.toDate()
-      : new Date(timestamp);
-
-  return date.toLocaleString(
-    "en-IN",
-    {
-      day: "numeric",
-      month: "short",
-      hour: "numeric",
-      minute: "2-digit"
-    }
-  );
+  const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
+  return date.toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit"
+  });
 }
 
 // =====================================
 // SEARCH LEADS
 // =====================================
-
 window.searchLeads = function() {
-
-  const search =
-    document.getElementById(
-      "leadSearchInput"
-    )
-    .value
-    .toLowerCase()
-    .trim();
+  const search = document.getElementById("leadSearchInput").value.toLowerCase().trim();
 
   if (!search) {
-
     renderLeads(currentPageLeads);
-
     return;
   }
 
-  const filtered =
-    currentPageLeads.filter((lead) => {
-
-      return (
-        (lead.name || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (lead.phone || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (lead.city || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (lead.leadCode || "")
-          .toLowerCase()
-          .includes(search)
-      );
-
-    });
+  const filtered = currentPageLeads.filter((lead) => {
+    return (
+      (lead.name || "").toLowerCase().includes(search) ||
+      (lead.phone || "").toLowerCase().includes(search) ||
+      (lead.city || "").toLowerCase().includes(search) ||
+      (lead.leadCode || "").toLowerCase().includes(search)
+    );
+  });
 
   renderLeads(filtered);
-
 };
 
 // =====================================
 // TOGGLE LEAD SELECTION
 // =====================================
-
-window.toggleLeadSelection =
-function(id) {
-
-  if (
-    selectedLeadIds.includes(id)
-  ) {
-
-    selectedLeadIds =
-      selectedLeadIds.filter(
-        l => l !== id
-      );
-
-  }
-  else {
-
+window.toggleLeadSelection = function(id) {
+  if (selectedLeadIds.includes(id)) {
+    selectedLeadIds = selectedLeadIds.filter(l => l !== id);
+  } else {
     selectedLeadIds.push(id);
-
   }
 };
 
 // =====================================
 // SELECT ALL
 // =====================================
-
-window.toggleSelectAll =
-function(isChecked) {
-
+window.toggleSelectAll = function(isChecked) {
   if (isChecked) {
-
-    selectedLeadIds =
-      currentPageLeads.map(
-        l => l.id
-      );
-
-  }
-  else {
-
+    selectedLeadIds = currentPageLeads.map(l => l.id);
+  } else {
     selectedLeadIds = [];
-
   }
-
   renderLeads(currentPageLeads);
-
 };
 
 // =====================================
 // CSV EXPORT
 // =====================================
-
-window.downloadSelectedLeadsCSV =
-function() {
-
-  const selectedLeads =
-    currentPageLeads.filter(
-      l => selectedLeadIds.includes(l.id)
-    );
+window.downloadSelectedLeadsCSV = function() {
+  const selectedLeads = currentPageLeads.filter(l => selectedLeadIds.includes(l.id));
 
   if (selectedLeads.length === 0) {
-
-    alert("Select leads first");
-
+    showToast("Select leads first", true);
     return;
   }
 
-  const headers = [
-    "Lead Code",
-    "Name",
-    "Phone",
-    "City",
-    "Bill",
-    "Status",
-    "Priority",
-    "Stage"
-  ];
+  const headers = ["Lead Code", "Name", "Phone", "City", "Bill", "Status", "Priority", "Stage"];
+  const rows = selectedLeads.map((lead) => [
+    lead.leadCode || "",
+    lead.name || "",
+    lead.phone || "",
+    lead.city || "",
+    lead.bill || "",
+    lead.status || "",
+    lead.priority || "",
+    lead.stage || ""
+  ]);
 
-  const rows =
-    selectedLeads.map((lead) => [
-
-      lead.leadCode || "",
-      lead.name || "",
-      lead.phone || "",
-      lead.city || "",
-      lead.bill || "",
-      lead.status || "",
-      lead.priority || "",
-      lead.stage || ""
-
-    ]);
-
-  const csvContent = [
-
-    headers.join(","),
-
-    ...rows.map(
-      r => r.join(",")
-    )
-
-  ].join("\n");
-
-  const blob =
-    new Blob(
-      [csvContent],
-      {
-        type: "text/csv"
-      }
-    );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const a =
-    document.createElement("a");
+  const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
 
   a.href = url;
-
-  a.download =
-    "solar_leads.csv";
-
+  a.download = "solar_leads.csv";
   a.click();
-
 };
 
 // =====================================
 // WHATSAPP SHARE
 // =====================================
-
-window.shareSelectedLeadsWhatsApp =
-function() {
-
-  const selectedLeads =
-    currentPageLeads.filter(
-      l => selectedLeadIds.includes(l.id)
-    );
+window.shareSelectedLeadsWhatsApp = function() {
+  const selectedLeads = currentPageLeads.filter(l => selectedLeadIds.includes(l.id));
 
   if (selectedLeads.length === 0) {
-
-    alert("Select leads first");
-
+    showToast("Select leads first", true);
     return;
   }
 
   let message = "";
-
   selectedLeads.forEach((lead) => {
-
-    message +=
-`Lead: ${lead.leadCode || ""}
-
-Name: ${lead.name || ""}
-Phone: ${lead.phone || ""}
-City: ${lead.city || ""}
-Bill: ₹${(lead.bill || 0).toLocaleString('en-IN')}
-Status: ${lead.status || ""}
-Priority: ${lead.priority || "-"}
-
--------------------------
-
-`;
-
+    message += `Lead: ${lead.leadCode || ""}\n\nName: ${lead.name || ""}\nPhone: ${lead.phone || ""}\nCity: ${lead.city || ""}\nBill: ₹${(lead.bill || 0).toLocaleString('en-IN')}\nStatus: ${lead.status || ""}\nPriority: ${lead.priority || "-"}\n\n-------------------------\n\n`;
   });
 
-  window.open(
-    `https://wa.me/?text=${encodeURIComponent(message)}`,
-    "_blank"
-  );
-
+  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
 };
 
 // =====================================
 // NEXT PAGE
 // =====================================
-
-window.loadNextPage =
-async function() {
-
+window.loadNextPage = async function() {
   if (!lastVisibleDoc) return;
 
   try {
-
-    const snapshot =
-      await db
-        .collection("leads")
-        .orderBy("createdAt", "desc")
-        .startAfter(lastVisibleDoc)
-        .limit(PAGE_SIZE)
-        .get();
+    const snapshot = await db
+      .collection("leads")
+      .orderBy("createdAt", "desc")
+      .startAfter(lastVisibleDoc)
+      .limit(PAGE_SIZE)
+      .get();
 
     if (snapshot.empty) {
-
-      alert("No more leads");
-
+      showToast("No more leads available");
       return;
     }
 
     allLeads = [];
-
     snapshot.forEach((docItem) => {
-
-      allLeads.push({
-        id: docItem.id,
-        ...docItem.data()
-      });
-
+      allLeads.push({ id: docItem.id, ...docItem.data() });
     });
 
     currentPageLeads = allLeads;
-
-    firstVisibleDoc =
-      snapshot.docs[0];
-
-    lastVisibleDoc =
-      snapshot.docs[
-        snapshot.docs.length - 1
-      ];
+    firstVisibleDoc = snapshot.docs[0];
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
 
     renderLeads(allLeads);
-
     updateMetrics(allLeads);
-
-  }
-  catch (error) {
-
+  } catch (error) {
     console.error(error);
-
-    alert("Failed loading next page");
-
+    showToast("Failed loading next page", true);
   }
-
 };
 
 // =====================================
 // PREVIOUS PAGE
 // =====================================
-
 window.loadPreviousPage = async function() {
   if (!firstVisibleDoc) return;
 
@@ -349,7 +213,7 @@ window.loadPreviousPage = async function() {
       .get();
 
     if (snapshot.empty) {
-      alert("No previous pages");
+      showToast("No previous pages");
       return;
     }
 
@@ -359,30 +223,24 @@ window.loadPreviousPage = async function() {
     });
 
     currentPageLeads = allLeads;
-
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
 
     renderLeads(allLeads);
     updateMetrics(allLeads);
     
-    document.getElementById("paginationInfo").innerText = 
-      `Showing previous page (${allLeads.length} leads)`;
-
+    document.getElementById("paginationInfo").innerText = `Showing previous page (${allLeads.length} leads)`;
   } catch (error) {
     console.error("Error loading previous page:", error);
-    alert("Failed to load previous page");
+    showToast("Failed to load previous page", true);
   }
 };
 
 // =====================================
 // LOAD LEADS
 // =====================================
-
 window.loadLeads = async function() {
-
   try {
-
     const snapshot = await db
       .collection("leads")
       .orderBy("createdAt", "desc")
@@ -390,311 +248,136 @@ window.loadLeads = async function() {
       .get();
 
     allLeads = [];
-
     snapshot.forEach((docItem) => {
-
-      allLeads.push({
-        id: docItem.id,
-        ...docItem.data()
-      });
-
+      allLeads.push({ id: docItem.id, ...docItem.data() });
     });
 
     currentPageLeads = allLeads;
-
-    firstVisibleDoc =
-      snapshot.docs[0] || null;
-
-    lastVisibleDoc =
-      snapshot.docs[
-        snapshot.docs.length - 1
-      ] || null;
+    firstVisibleDoc = snapshot.docs[0] || null;
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1] || null;
 
     renderLeads(allLeads);
-
     updateMetrics(allLeads);
 
-    document.getElementById(
-      "paginationInfo"
-    ).innerText =
-      `Showing ${allLeads.length} latest leads`;
-
+    document.getElementById("paginationInfo").innerText = `Showing ${allLeads.length} latest leads`;
+  } catch (error) {
+    console.error("LOAD LEADS ERROR:", error);
+    showToast("Failed to load leads", true);
   }
-  catch (error) {
-
-    console.error(
-      "LOAD LEADS ERROR:",
-      error
-    );
-
-    alert(
-      "Failed to load leads"
-    );
-  }
-}
+};
 
 // =====================================
 // METRICS
 // =====================================
-
 function updateMetrics(leads) {
-
-  document.getElementById("totalLeadsCount").innerText =
-    `${leads.length} Leads`;
-
-  document.getElementById("newCount").innerText =
-    leads.filter(
-      l => l.status === "NEW" || l.status === "New"
-    ).length;
-
-  document.getElementById("hotCount").innerText =
-    leads.filter(
-      l => l.leadType === "Hot"
-    ).length;
-
-  document.getElementById("qualifiedCount").innerText =
-    leads.filter(
-      l => l.stage === "qualified"
-    ).length;
-
-  document.getElementById("contactedCount").innerText =
-    leads.filter(
-      l => l.status === "CONTACTED"
-    ).length;
-
-  document.getElementById("sharedCount").innerText =
-    leads.filter(
-      l => l.status === "SHARED"
-    ).length;
+  document.getElementById("totalLeadsCount").innerText = `${leads.length} Leads`;
+  document.getElementById("newCount").innerText = leads.filter(l => l.status === "NEW" || l.status === "New").length;
+  document.getElementById("hotCount").innerText = leads.filter(l => l.leadType === "Hot").length;
+  document.getElementById("qualifiedCount").innerText = leads.filter(l => l.status === "QUALIFIED").length;
+  document.getElementById("contactedCount").innerText = leads.filter(l => l.status === "CONTACTED").length;
+  document.getElementById("sharedCount").innerText = leads.filter(l => l.status === "SHARED").length;
 }
 
 // =====================================
 // RENDER LEADS
 // =====================================
-
 function renderLeads(leads) {
-
-  const tableBody =
-    document.getElementById("leadsTableBody");
-
+  const tableBody = document.getElementById("leadsTableBody");
   tableBody.innerHTML = "";
 
   leads.forEach((lead) => {
-
     const row = document.createElement("tr");
+    let rowClass = "border-b hover:bg-slate-50";
+    const today = new Date().toISOString().split("T")[0];
+    const isOverdue = lead.followUpDate && lead.followUpDate < today;
 
-    let rowClass =
-  "border-b hover:bg-slate-50";
-  
-  const today =
-  new Date().toISOString().split("T")[0];
-
-const isOverdue =
-  lead.followUpDate &&
-  lead.followUpDate < today;
-
-if (lead.priority === "URGENT" || isOverdue) {
-  rowClass +=
-    " bg-red-50 border-l-4 border-red-500";
-}
-else if (lead.priority === "HIGH") {
-
-  rowClass +=
-    " bg-orange-50 border-l-4 border-orange-500";
-}
-else if (lead.priority === "MEDIUM") {
-
-  rowClass +=
-    " bg-yellow-50 border-l-4 border-yellow-500";
-}
-
-row.className = rowClass;
-
-row.innerHTML = `
-
-<td class="px-4 py-4">
-
-  <input
-    type="checkbox"
-    ${
-      selectedLeadIds.includes(lead.id)
-      ? "checked"
-      : ""
+    if (lead.priority === "URGENT" || isOverdue) {
+      rowClass += " bg-red-50 border-l-4 border-red-500";
+    } else if (lead.priority === "HIGH") {
+      rowClass += " bg-orange-50 border-l-4 border-orange-500";
+    } else if (lead.priority === "MEDIUM") {
+      rowClass += " bg-yellow-50 border-l-4 border-yellow-500";
     }
-    onchange="toggleLeadSelection('${lead.id}')"
-  >
 
-</td>
-
-<td class="px-4 py-4">
-
-  <div>
-
-          <p class="font-semibold">
-            ${lead.name || "N/A"}
-          </p>
-
-          <p class="text-xs text-gray-500 mt-1">
-            ${lead.phone || ""}
-          </p>
-
-          <p class="text-xs text-gray-400 mt-1">
-            ${lead.leadCode || ""}
-          </p>
-
-<p class="text-xs text-indigo-500 mt-1">
-  ${
-    lead.createdAt
-    ? formatLeadTime(lead.createdAt)
-    : ""
-  }
-</p>
-
-${
-  lead.quoteUrl
-  ? `
-    <div class="mt-1">
-      <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200 shadow-sm">
-        📄 Offer Uploaded
-      </span>
-    </div>
-  `
-  : ""
-}
-
-${
-  lead.followUpDate
-  ? `
-    <p class="
-      text-xs
-      mt-1
-      font-medium
-      ${
-  lead.followUpDate < today
-  ? "text-red-600"
-  : "text-emerald-600"
-}
-    ">
-      Follow-up:
-      ${lead.followUpDate}
-    </p>
-  `
-  : ""
-}
-
+    row.className = rowClass;
+    row.innerHTML = `
+      <td class="px-4 py-4">
+        <input type="checkbox" ${selectedLeadIds.includes(lead.id) ? "checked" : ""} onchange="toggleLeadSelection('${lead.id}')">
+      </td>
+      <td class="px-4 py-4">
+        <div>
+          <p class="font-semibold">${lead.name || "N/A"}</p>
+          <p class="text-xs text-gray-500 mt-1">${lead.phone || ""}</p>
+          <p class="text-xs text-gray-400 mt-1">${lead.leadCode || ""}</p>
+          <p class="text-xs text-indigo-500 mt-1">${lead.createdAt ? formatLeadTime(lead.createdAt) : ""}</p>
+          ${lead.quoteUrl ? `
+            <div class="mt-1">
+              <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200 shadow-sm">
+                📄 Offer Uploaded
+              </span>
+            </div>
+          ` : ""}
+          ${lead.followUpDate ? `
+            <p class="text-xs mt-1 font-medium ${lead.followUpDate < today ? "text-red-600" : "text-emerald-600"}">
+              Follow-up: ${lead.followUpDate}
+            </p>
+          ` : ""}
         </div>
-
       </td>
-
+      <td class="px-4 py-4">${lead.city || "-"}</td>
+      <td class="px-4 py-4">₹${(lead.bill || 0).toLocaleString('en-IN')}</td>
       <td class="px-4 py-4">
-        ${lead.city || "-"}
-      </td>
-
-      <td class="px-4 py-4">
-       ₹${(lead.bill || 0).toLocaleString('en-IN')}
-      </td>
-
-      <td class="px-4 py-4">
-
-        <span class="
-          px-2 py-1 rounded-lg text-xs font-semibold
-
-          ${lead.leadType === 'Hot'
-            ? 'bg-red-100 text-red-700'
-            : 'bg-slate-100 text-slate-700'}
-        ">
-
+        <span class="px-2 py-1 rounded-lg text-xs font-semibold ${lead.leadType === 'Hot' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'}">
           ${lead.leadType || '-'}
-
         </span>
-
       </td>
-
-<td class="px-4 py-4 align-middle">
-  <select
-    onchange="updateLeadField('${lead.id}', 'stage', this.value)"
-    class="border rounded-lg px-2 py-1 text-xs w-[150px]">
-    ${LEAD_STAGES.map(s => `
-      <option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>
-    `).join('')}
-  </select>
-</td>
-
-<td class="px-4 py-4 align-middle">
-  <div class="flex flex-col gap-2">
-    <select
-      onchange="updateLeadField('${lead.id}', 'status', this.value)"
-      class="border rounded-lg px-2 py-1 text-xs w-[100px]">
-      ${LEAD_STATUSES.map(s => `
-        <option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>
-      `).join('')}
-    </select>
-    
-    ${lead.priority ? `
-      <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold text-center w-fit ${
-        lead.priority === "URGENT" ? "bg-red-600 text-white" :
-        lead.priority === "HIGH" ? "bg-orange-500 text-white" :
-        lead.priority === "MEDIUM" ? "bg-yellow-400 text-slate-900" :
-        "bg-slate-200 text-slate-700"
-      }">
-        ${lead.priority}
-      </span>
-    ` : ""}
-  </div>
-</td>
-
-
+      <td class="px-4 py-4 align-middle">
+        <select id="stage-select-${lead.id}" onchange="updateLeadField('${lead.id}', 'stage', this.value)" class="border rounded-lg px-2 py-1 text-xs w-[150px]">
+          ${LEAD_STAGES.map(s => `<option value="${s}" ${lead.stage === s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td class="px-4 py-4 align-middle">
+        <div class="flex flex-col gap-2">
+          <select id="status-select-${lead.id}" onchange="updateLeadField('${lead.id}', 'status', this.value)" class="border rounded-lg px-2 py-1 text-xs w-[100px]">
+            ${LEAD_STATUSES.map(s => `<option value="${s}" ${lead.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          ${lead.priority ? `
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold text-center w-fit ${
+              lead.priority === "URGENT" ? "bg-red-600 text-white" :
+              lead.priority === "HIGH" ? "bg-orange-500 text-white" :
+              lead.priority === "MEDIUM" ? "bg-yellow-400 text-slate-900" :
+              "bg-slate-200 text-slate-700"
+            }">
+              ${lead.priority}
+            </span>
+          ` : ""}
+        </div>
+      </td>
       <td class="px-4 py-4">
-
-        <button
-          onclick="viewLead('${lead.id}')"
-          class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs">
-
-          View
-
-        </button>
-
+        <button onclick="viewLead('${lead.id}')" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs">View</button>
       </td>
     `;
-
     tableBody.appendChild(row);
-
   });
 }
 
 // =====================================
 // FILTERS
 // =====================================
-
 window.filterLeads = function(type) {
-
   if (type === "ALL") {
-
     renderLeads(allLeads);
-
     return;
   }
-
   if (type === "Hot") {
-
-    renderLeads(
-      allLeads.filter(
-        l => l.leadType === "Hot"
-      )
-    );
-
+    renderLeads(allLeads.filter(l => l.leadType === "Hot"));
     return;
   }
-
-  renderLeads(
-    allLeads.filter(
-      l => l.status === type
-    )
-  );
+  renderLeads(allLeads.filter(l => l.status === type));
 };
 
 // =====================================
-// UPDATE STATUS
+// UPDATE STATUS (WITH SMART SYNC)
 // =====================================
 window.updateLeadField = async function(id, field, value) {
   try {
@@ -702,313 +385,240 @@ window.updateLeadField = async function(id, field, value) {
     const leadRef = db.collection("leads").doc(id);
     const surveyRef = db.collection("survey_requests").doc(id);
 
+    const timelineUpdate = {
+        type: "FIELD_UPDATED",
+        message: `${field.replace(/([A-Z])/g, ' $1')} changed to ${value}`,
+        createdAt: new Date().toISOString()
+    };
+
     const updateData = {
       updatedAt: new Date(),
-      timeline: firebase.firestore.FieldValue.arrayUnion({
-        type: "FIELD_UPDATED",
-        message: `${field} changed to ${value}`,
-        createdAt: new Date().toISOString()
-      })
+      timeline: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
     };
+    
     updateData[field] = value;
+
+    if (field === 'quoteVerificationStatus') {
+      let newStage = null;
+      if (value === 'VERIFIED_TIER1_COMPLIANT') {
+        newStage = 'OFFER_ACCEPTED';
+      } else if (value.startsWith('REJECTED_')) {
+        newStage = 'OFFER_REJECTED';
+      } else if (value === 'PENDING_REVIEW') {
+        newStage = 'OFFER_UNDER_REVIEW';
+      }
+      
+      if (newStage) {
+        updateData.stage = newStage;
+        updateData.timeline = firebase.firestore.FieldValue.arrayUnion(
+            timelineUpdate,
+            {
+                type: "STATUS_CHANGED",
+                message: `Stage automatically synchronized to ${newStage}`,
+                createdAt: new Date().toISOString()
+            }
+        );
+      }
+    }
+
     batch.update(leadRef, updateData);
 
     if (field === 'stage') {
       if (value === 'CLOSED_REJECTED') {
         batch.set(surveyRef, { status: 'rejected' }, { merge: true });
-      } 
-      else if (value === 'SURVEY_COMPLETED') {
+      } else if (value === 'SURVEY_COMPLETED') {
         batch.set(surveyRef, { status: 'completed' }, { merge: true });
       }
     }
 
     await batch.commit();
-    
-    alert(`Lead ${field} updated successfully.`);
-    await loadLeads(); 
+
+    // Optimistic fallback update for the main table row immediately if no active open stream
+    const localLead = currentPageLeads.find(l => l.id === id);
+    if (localLead) {
+      localLead[field] = value;
+      if (updateData.stage) localLead.stage = updateData.stage;
+      renderLeads(currentPageLeads);
+      updateMetrics(currentPageLeads);
+    }
+
+    showToast("Lead updated successfully");
   } catch (error) {
     console.error("Update failed:", error);
-    alert(`Failed to update ${field}.`);
+    showToast(`Failed to update ${field}`, true);
   }
 };
 
 // =====================================
+// REAL-TIME ADMIN STREAM
+// =====================================
+window.leadUpdatesUnsubscribe = window.leadUpdatesUnsubscribe || null;
+
+function setupRealTimeTimeline(explicitLeadId) {
+    if (!explicitLeadId) return;
+
+    if (window.leadUpdatesUnsubscribe) {
+        window.leadUpdatesUnsubscribe();
+    }
+
+    console.log("⚡ Establishing admin real-time listener for Lead:", explicitLeadId);
+
+    window.leadUpdatesUnsubscribe = db.collection("leads").doc(explicitLeadId)
+        .onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                const refreshedLead = { id: explicitLeadId, ...data };
+                
+                // 🚀 FIX: Update all cache states simultaneously to prevent drift
+                const idx = allLeads.findIndex(l => l.id === explicitLeadId);
+                if (idx > -1) allLeads[idx] = refreshedLead;
+
+                const pageIdx = currentPageLeads.findIndex(l => l.id === explicitLeadId);
+                if (pageIdx > -1) {
+                    currentPageLeads[pageIdx] = refreshedLead;
+                    renderLeads(currentPageLeads);
+                    updateMetrics(currentPageLeads);
+                }
+                
+                // Handle open slider rendering changes automatically
+                if (currentOpenLeadId === explicitLeadId) {
+                    renderLeadNotes(refreshedLead);
+                    renderTimeline(refreshedLead);
+                    
+                    // 🚀 FIX: Target clean, robust explicit IDs instead of brittle substrings
+                    const stageSelect = document.getElementById(`stage-select-${explicitLeadId}`);
+                    if (stageSelect && data.stage) stageSelect.value = data.stage;
+
+                    const statusSelect = document.getElementById(`status-select-${explicitLeadId}`);
+                    if (statusSelect && data.status) statusSelect.value = data.status;
+                }
+            }
+        }, (error) => {
+            console.error("Admin real-time timeline subscription failed:", error);
+        });
+}
+
+// =====================================
 // OPEN LEAD PANEL
 // =====================================
-
 window.viewLead = async function(id) {
-  
   const requestId = ++currentLeadRequestId;
-  const lead =
-    allLeads.find(
-      l => l.id === id
-    );
+  const lead = allLeads.find(l => l.id === id);
 
   if (!lead) return;
   currentOpenLeadId = id;
 
-  document
-    .getElementById("leadPanelOverlay")
-    .classList.remove("hidden");
+  document.getElementById("leadPanelOverlay").classList.remove("hidden");
+  const panel = document.getElementById("leadDetailsPanel");
+  panel.classList.remove("translate-x-full");
+  
+  setupRealTimeTimeline(id);
 
-  const panel =
-    document.getElementById(
-      "leadDetailsPanel"
-    );
-
-  panel.classList.remove(
-    "translate-x-full"
-  );
-
-  document.getElementById(
-    "leadPanelContent"
-  ).innerHTML = `
-    <div class="text-center py-10 text-slate-500">
-      Loading lead details...
-    </div>
+  document.getElementById("leadPanelContent").innerHTML = `
+    <div class="text-center py-10 text-slate-500">Loading lead details...</div>
   `;
-
-  document.getElementById(
-    "panelLeadCode"
-  ).innerText =
-    lead.leadCode || "";
+  document.getElementById("panelLeadCode").innerText = lead.leadCode || "";
 
   try {
+    const aiReportSnapshot = await db
+      .collection("ai_reports")
+      .where("leadId", "==", id)
+      .limit(1)
+      .get();
 
-    const aiReportSnapshot =
-  await db
-    .collection("ai_reports")
-    .where("leadId", "==", id)
-    .limit(1)
-    .get();
+    let aiReport = null;
+    if (!aiReportSnapshot.empty) {
+      aiReport = aiReportSnapshot.docs[0].data();
+    }
 
-let aiReport = null;
-
-if (!aiReportSnapshot.empty) {
-
-  aiReport =
-    aiReportSnapshot.docs[0].data();
-}
-
-if (requestId !== currentLeadRequestId) {
-  return;
-}
-    renderLeadPanel(
-      lead,
-      aiReport
-    );
-
-  }
-  catch (error) {
-
+    if (requestId !== currentLeadRequestId) return;
+    renderLeadPanel(lead, aiReport);
+  } catch (error) {
     console.error(error);
-
-    if (requestId !== currentLeadRequestId) {
-  return;
-}
-
-document.getElementById(
-  "leadPanelContent"
-).innerHTML = `
-  <div class="text-red-600">
-    Failed to load AI report
-  </div>
-`;
+    if (requestId !== currentLeadRequestId) return;
+    document.getElementById("leadPanelContent").innerHTML = `
+      <div class="text-red-600">Failed to load AI report</div>
+    `;
   }
 };
 
 // =====================================
 // CLOSE PANEL
 // =====================================
-
 window.closeLeadPanel = function() {
-
-  document
-    .getElementById("leadPanelOverlay")
-    .classList.add("hidden");
-
-  document
-    .getElementById("leadDetailsPanel")
-    .classList.add("translate-x-full");
+  document.getElementById("leadPanelOverlay").classList.add("hidden");
+  document.getElementById("leadDetailsPanel").classList.add("translate-x-full");
+    
+  if (window.leadUpdatesUnsubscribe) {
+      window.leadUpdatesUnsubscribe();
+      window.leadUpdatesUnsubscribe = null;
+      console.log("🛑 Admin detached real-time stream listener.");
+  }
+  currentOpenLeadId = null;
 };
 
 // =====================================
 // RENDER PANEL
 // =====================================
-
-function renderLeadPanel(
-  lead,
-  aiReport
-) {
-
-  const content =
-    document.getElementById(
-      "leadPanelContent"
-    );
+function renderLeadPanel(lead, aiReport) {
+  const content = document.getElementById("leadPanelContent");
 
   content.innerHTML = `
-
     <div class="space-y-2">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        Customer Information
-      </h3>
-
+      <h3 class="text-lg font-bold text-slate-900">Customer Information</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-2">
-
-        <p>
-          <span class="font-semibold">
-            Name:
-          </span>
-          ${lead.name || "-"}
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            Phone:
-          </span>
-          ${lead.phone || "-"}
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            City:
-          </span>
-          ${lead.city || "-"}
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            Bill:
-          </span>
-          ₹${(lead.bill || 0).toLocaleString('en-IN')}
-        </p>
-
+        <p><span class="font-semibold">Name:</span> ${lead.name || "-"}</p>
+        <p><span class="font-semibold">Phone:</span> ${lead.phone || "-"}</p>
+        <p><span class="font-semibold">City:</span> ${lead.city || "-"}</p>
+        <p><span class="font-semibold">Bill:</span> ₹${(lead.bill || 0).toLocaleString('en-IN')}</p>
       </div>
-
     </div>
 
     <div class="space-y-2">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        Solar Recommendation
-      </h3>
-
+      <h3 class="text-lg font-bold text-slate-900">Solar Recommendation</h3>
       <div class="grid grid-cols-2 gap-3">
-
         <div class="bg-indigo-50 rounded-2xl p-4">
-          <p class="text-sm text-slate-500">
-            System Size
-          </p>
-
-          <p class="text-2xl font-bold text-indigo-700 mt-2">
-            ${
-              aiReport
-                ? `${aiReport?.systemSizeKw || "-"} kW`
-                : "Not Generated"
-            }
-          </p>
+          <p class="text-sm text-slate-500">System Size</p>
+          <p class="text-2xl font-bold text-indigo-700 mt-2">${aiReport ? `${aiReport?.systemSizeKw || "-"} kW` : "Not Generated"}</p>
         </div>
-
         <div class="bg-emerald-50 rounded-2xl p-4">
-          <p class="text-sm text-slate-500">
-            Net Cost
-          </p>
-
-          <p class="text-2xl font-bold text-emerald-700 mt-2">
-            ${
-              aiReport
-                ? `₹${aiReport?.netCost || 0}`
-                : "Pending"
-            }
-          </p>
+          <p class="text-sm text-slate-500">Net Cost</p>
+          <p class="text-2xl font-bold text-emerald-700 mt-2">${aiReport ? `₹${aiReport?.netCost || 0}` : "Pending"}</p>
         </div>
-
       </div>
-
     </div>
 
     <div class="space-y-2">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        AI Readiness Profile
-      </h3>
-
+      <h3 class="text-lg font-bold text-slate-900">AI Readiness Profile</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
-
-        <p>
-          <span class="font-semibold">
-            Persona:
-          </span>
-          ${
-            aiReport
-              ? aiReport?.personaV2?.primary || "-"
-              : "AI analysis pending"
-          }
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            AI Score:
-          </span>
-          ${
-            aiReport
-              ? aiReport?.trustScore || 0
-              : "Not Available"
-          }
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            Lead Temperature:
-          </span>
-          ${
-            aiReport
-              ? aiReport?.personaV2?.leadTemperature || "-"
-              : "Unknown"
-          }
-        </p>
-
-        <p>
-          <span class="font-semibold">
-            Financing:
-          </span>
-          ${
-            aiReport
-              ? aiReport?.personaV2?.financingLikelihood || "-"
-              : "Unknown"
-          }
-        </p>
-
+        <p><span class="font-semibold">Persona:</span> ${aiReport ? aiReport?.personaV2?.primary || "-" : "AI analysis pending"}</p>
+        <p><span class="font-semibold">AI Score:</span> ${aiReport ? aiReport?.trustScore || 0 : "Not Available"}</p>
+        <p><span class="font-semibold">Lead Temperature:</span> ${aiReport ? aiReport?.personaV2?.leadTemperature || "-" : "Unknown"}</p>
+        <p><span class="font-semibold">Financing:</span> ${aiReport ? aiReport?.personaV2?.financingLikelihood || "-" : "Unknown"}</p>
       </div>
-    </div> <div class="space-y-2 mt-4">
-      <h3 class="text-lg font-bold text-slate-900">
-        Verification Desk (User Offer)
-      </h3>
+    </div> 
+    
+    <div class="space-y-2 mt-4">
+      <h3 class="text-lg font-bold text-slate-900">Verification Desk (User Offer)</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
         ${lead.quoteUrl ? `
           <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl shrink-0">
-                  📄
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl shrink-0">📄</div>
                 <div>
                   <p class="text-sm font-semibold text-slate-800">Installer Quotation</p>
                   <p class="text-xs text-slate-400">Uploaded for tracking audit</p>
                 </div>
               </div>
-              <a href="${lead.quoteUrl}" target="_blank" 
-                 class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition inline-block text-center whitespace-nowrap">
+              <a href="${lead.quoteUrl}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition inline-block text-center whitespace-nowrap">
                 View Document ↗
               </a>
             </div>
             
             <div class="border-t border-slate-100 pt-3">
               <label class="text-xs font-semibold text-slate-600 block mb-1.5">Quote Audit Feedback</label>
-              <select
-                onchange="updateLeadField('${lead.id}', 'quoteVerificationStatus', this.value)"
-                class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-slate-50 focus:bg-white focus:outline-none">
+              <select onchange="updateLeadField('${lead.id}', 'quoteVerificationStatus', this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-slate-50 focus:bg-white focus:outline-none">
                 <option value="PENDING_REVIEW" ${lead.quoteVerificationStatus === 'PENDING_REVIEW' || !lead.quoteVerificationStatus ? 'selected' : ''}>⏳ Pending Review</option>
                 <option value="VERIFIED_TIER1_COMPLIANT" ${lead.quoteVerificationStatus === 'VERIFIED_TIER1_COMPLIANT' ? 'selected' : ''}>✅ Verified (Tier-1 ALMM Compliant)</option>
                 <option value="REJECTED_SUBSTANDARD" ${lead.quoteVerificationStatus === 'REJECTED_SUBSTANDARD' ? 'selected' : ''}>❌ Rejected (Substandard Components)</option>
@@ -1026,500 +636,203 @@ function renderLeadPanel(
     </div>
 
     <div class="space-y-3 mt-6">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        Ops Management
-      </h3>
-
+      <h3 class="text-lg font-bold text-slate-900">Ops Management</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-4">
-
         <div>
-
-          <label class="text-sm font-semibold text-slate-700 block mb-2">
-            Priority
-          </label>
-
-          <select
-            id="opsPriority"
-            class="w-full border border-slate-200 rounded-xl px-3 py-3">
-
-            <option value="LOW"
-              ${lead.priority === "LOW" ? "selected" : ""}>
-              LOW
-            </option>
-
-            <option value="MEDIUM"
-              ${lead.priority === "MEDIUM" || !lead.priority ? "selected" : ""}>
-              MEDIUM
-            </option>
-
-            <option value="HIGH"
-              ${lead.priority === "HIGH" ? "selected" : ""}>
-              HIGH
-            </option>
-
-            <option value="URGENT"
-              ${lead.priority === "URGENT" ? "selected" : ""}>
-              URGENT
-            </option>
-
+          <label class="text-sm font-semibold text-slate-700 block mb-2">Priority</label>
+          <select id="opsPriority" class="w-full border border-slate-200 rounded-xl px-3 py-3">
+            <option value="LOW" ${lead.priority === "LOW" ? "selected" : ""}>LOW</option>
+            <option value="MEDIUM" ${lead.priority === "MEDIUM" || !lead.priority ? "selected" : ""}>MEDIUM</option>
+            <option value="HIGH" ${lead.priority === "HIGH" ? "selected" : ""}>HIGH</option>
+            <option value="URGENT" ${lead.priority === "URGENT" ? "selected" : ""}>URGENT</option>
           </select>
-
         </div>
 
         <div>
-
-          <label class="text-sm font-semibold text-slate-700 block mb-2">
-            Follow-up Date
-          </label>
-
-          <input
-            id="followUpDate"
-            type="date"
-            value="${lead.followUpDate || ''}"
-            class="w-full border border-slate-200 rounded-xl px-3 py-3">
-
+          <label class="text-sm font-semibold text-slate-700 block mb-2">Follow-up Date</label>
+          <input id="followUpDate" type="date" value="${lead.followUpDate || ''}" class="w-full border border-slate-200 rounded-xl px-3 py-3">
         </div>
         
-        <button
-          onclick="saveOpsDetails('${lead.id}')"
-          class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold">
-
+        <button onclick="saveOpsDetails('${lead.id}')" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold">
           Save Ops Details
-
         </button>
-
       </div>
-    </div> <div class="space-y-3 mt-6">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        Activity Timeline
-      </h3>
-
-      <div
-        id="leadTimeline"
-        class="space-y-3">
-      </div>
-
+    </div> 
+    
+    <div class="space-y-3 mt-6">
+      <h3 class="text-lg font-bold text-slate-900">Activity Timeline</h3>
+      <div id="leadTimeline" class="space-y-3"></div>
     </div>
 
     <div class="space-y-3 mt-6">
-
-      <h3 class="text-lg font-bold text-slate-900">
-        Ops Notes
-      </h3>
-
-      <div
-        id="leadNotesList"
-        class="space-y-2">
-      </div>
-
-      <textarea
-        id="newLeadNote"
-        rows="3"
-        placeholder="Add internal ops note..."
-        class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      </textarea>
-
-      <button
-        id="saveLeadNoteBtn"
-        class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">
-        Save Note
-      </button>
-
+      <h3 class="text-lg font-bold text-slate-900">Ops Notes</h3>
+      <div id="leadNotesList" class="space-y-2"></div>
+      <textarea id="newLeadNote" rows="3" placeholder="Add internal ops note..." class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+      <button id="saveLeadNoteBtn" class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">Save Note</button>
     </div>
-
-  `; // ✅ FIXED: Removed stray unmapped trailing closures completely
+  `;
   renderLeadNotes(lead);
   renderTimeline(lead);
 }
 
-
 // =====================================
 // RENDER NOTES
 // =====================================
-
 function renderLeadNotes(lead) {
-
-  const notesList =
-    document.getElementById(
-      "leadNotesList"
-    );
-
+  const notesList = document.getElementById("leadNotesList");
   if (!notesList) return;
 
   notesList.innerHTML = "";
-
-  const notes =
-    lead.notes || [];
+  const notes = lead.notes || [];
 
   if (notes.length === 0) {
-
-    notesList.innerHTML = `
-      <div class="text-sm text-slate-400">
-        No notes added yet
-      </div>
-    `;
-
+    notesList.innerHTML = `<div class="text-sm text-slate-400">No notes added yet</div>`;
     return;
   }
 
   notes.forEach((note) => {
-
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "bg-slate-100 rounded-xl p-3 text-sm text-slate-700";
-
+    const item = document.createElement("div");
+    item.className = "bg-slate-100 rounded-xl p-3 text-sm text-slate-700";
     item.innerHTML = `
-  <div class="flex items-start justify-between gap-3">
-
-    <div class="text-slate-700">
-      ${note}
-    </div>
-
-    <div class="text-[10px] text-slate-400 whitespace-nowrap">
-      OPS
-    </div>
-
-  </div>
-`;
-
+      <div class="flex items-start justify-between gap-3">
+        <div class="text-slate-700">${note}</div>
+        <div class="text-[10px] text-slate-400 whitespace-nowrap">OPS</div>
+      </div>
+    `;
     notesList.appendChild(item);
-
   });
 }
 
 // =====================================
 // RENDER TIMELINE
 // =====================================
-
 function renderTimeline(lead) {
-
-  const timelineContainer =
-    document.getElementById(
-      "leadTimeline"
-    );
-
+  const timelineContainer = document.getElementById("leadTimeline");
   if (!timelineContainer) return;
 
   timelineContainer.innerHTML = "";
-
   const timeline = [];
 
-if (lead.createdAt) {
+  if (lead.createdAt) {
+    timeline.push({
+      type: "CREATED",
+      message: `Lead created from ${lead.leadSource || "Website"}`,
+      createdAt: lead.createdAt?.toDate ? lead.createdAt.toDate() : lead.createdAt
+    });
+  }
 
-  timeline.push({
-    type: "CREATED",
-    message:
-      `Lead created from ${lead.leadSource || "Website"}`,
-    createdAt:
-      lead.createdAt?.toDate
-        ? lead.createdAt.toDate()
-        : lead.createdAt
-  });
-
-}
-
-if (lead.timeline?.length) {
-
-  lead.timeline.forEach((item) => {
-timeline.push({
-  ...item,
-  createdAt:
-    item.createdAt?.toDate
-      ? item.createdAt.toDate()
-      : item.createdAt
-});
-  });
-
-}
-
+  if (lead.timeline?.length) {
+    lead.timeline.forEach((item) => {
+      timeline.push({
+        ...item,
+        createdAt: item.createdAt?.toDate ? item.createdAt.toDate() : item.createdAt
+      });
+    });
+  }
 
   if (timeline.length === 0) {
-
-    timelineContainer.innerHTML = `
-      <div class="text-sm text-slate-400">
-        No timeline activity available
-      </div>
-    `;
-
+    timelineContainer.innerHTML = `<div class="text-sm text-slate-400">No timeline activity available</div>`;
     return;
   }
 
-  const sortedTimeline =
-  [...timeline].sort((a, b) => {
-
-    const dateA =
-      a.createdAt?.seconds
-        ? a.createdAt.seconds * 1000
-        : new Date(a.createdAt).getTime();
-
-    const dateB =
-      b.createdAt?.seconds
-        ? b.createdAt.seconds * 1000
-        : new Date(b.createdAt).getTime();
-
+  const sortedTimeline = [...timeline].sort((a, b) => {
+    const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt).getTime();
+    const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt).getTime();
     return dateB - dateA;
-
   });
 
   sortedTimeline.forEach((item) => {
-
-    const timelineItem =
-      document.createElement("div");
-
-    timelineItem.className =
-      "border border-slate-200 rounded-xl p-4 bg-white";
-
+    const timelineItem = document.createElement("div");
+    timelineItem.className = "border border-slate-200 rounded-xl p-4 bg-white";
     timelineItem.innerHTML = `
-
       <div class="flex items-start justify-between gap-3">
-
         <div>
-
           <div class="text-sm font-semibold text-slate-800">
-
-  ${
-  item.type === "NOTE_ADDED"
-    ? "Note Added"
-
-  : item.type === "OPS_UPDATE"
-    ? "Ops Updated"
-
-  : item.type === "CREATED"
-    ? "Lead Created"
-
-  : item.type === "QUALIFIED"
-    ? "AI Analysis Completed"
-
-  : item.type === "STATUS_CHANGED"
-    ? "Status Updated"
-
-  : item.type || "Update"
-}
+            ${
+              item.type === "NOTE_ADDED" ? "Note Added"
+              : item.type === "OPS_UPDATE" ? "Ops Updated"
+              : item.type === "CREATED" ? "Lead Created"
+              : item.type === "QUALIFIED" ? "AI Analysis Completed"
+              : item.type === "STATUS_CHANGED" ? "Status Updated"
+              : item.type === "FIELD_UPDATED" ? "Field Updated"
+              : item.type || "Update"
+            }
           </div>
-
-          <div class="text-sm text-slate-600 mt-1">
-            ${item.message || ""}
-          </div>
-
+          <div class="text-sm text-slate-600 mt-1">${item.message || ""}</div>
         </div>
-
         <div class="text-xs text-slate-400 whitespace-nowrap">
-          
-          ${
-  item.createdAt
-  ? new Date(
-      item.createdAt?.seconds
-        ? item.createdAt.seconds * 1000
-        : item.createdAt
-    ).toLocaleString(
-      "en-IN",
-      {
-        timeZone: "Asia/Kolkata",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit"
-      }
-    )
-  : ""
-}
-
+          ${item.createdAt ? new Date(item.createdAt?.seconds ? item.createdAt.seconds * 1000 : item.createdAt).toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit"
+          }) : ""}
         </div>
-
       </div>
     `;
-
-    timelineContainer.appendChild(
-      timelineItem
-    );
-
+    timelineContainer.appendChild(timelineItem);
   });
-
 }
-
 
 // =====================================
 // SAVE OPS DETAILS
 // =====================================
-
-window.saveOpsDetails =
-async function(id) {
-
+window.saveOpsDetails = async function(id) {
   try {
+    const priority = document.getElementById("opsPriority").value;
+    const followUpDate = document.getElementById("followUpDate").value;
 
-    const priority =
-      document.getElementById(
-        "opsPriority"
-      ).value;
+    const timelineUpdate = {
+      type: "OPS_UPDATE",
+      message: `Priority changed to ${priority}${followUpDate ? ` • Follow-up: ${followUpDate}` : ""}`,
+      createdAt: new Date().toISOString()
+    };
 
-    const followUpDate =
-      document.getElementById(
-        "followUpDate"
-      ).value;
+    // 🚀 FIX: Let real-time snapshot automatically handle array updates and rendering safely
+    await db.collection("leads").doc(id).update({
+      priority: priority,
+      followUpDate: followUpDate,
+      assignedTo: "Ops Team",
+      updatedAt: new Date(),
+      timeline: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
+    });
 
-const leadDoc =
-  await db
-    .collection("leads")
-    .doc(id)
-    .get();
-
-const existingTimeline =
-  leadDoc.data()?.timeline || [];
-
-existingTimeline.push({
-
-  type: "OPS_UPDATE",
-
-  message:
-    `Priority changed to ${priority}${
-      followUpDate
-      ? ` • Follow-up: ${followUpDate}`
-      : ""
-    }`,
-
-  createdAt:
-    new Date().toISOString()
-
-});
-
-        await db
-      .collection("leads")
-      .doc(id)
-      .update({
-
-        priority:
-          priority,
-
-        followUpDate:
-          followUpDate,
-
-        assignedTo:
-          "Ops Team",
-
-        updatedAt:
-  new Date(),
-
-timeline:
-  existingTimeline
-
-      });
-
-    alert(
-      "Ops details saved successfully"
-    );
-
-    // REFRESH LEADS
-    await loadLeads();
-
-const updatedLead =
-  allLeads.find(
-    l => l.id === id
-  );
-
-if (updatedLead) {
-
-  renderTimeline(updatedLead);
-}
-
-  }
-  catch (error) {
-
+    showToast("Ops details saved successfully");
+  } catch (error) {
     console.error(error);
-
-    alert(
-      "Failed to save ops details"
-    );
+    showToast("Failed to save ops details", true);
   }
 };
 
 // =====================================
 // SAVE NOTE
 // =====================================
+document.addEventListener("click", async function(event) {
+  if (event.target.id !== "saveLeadNoteBtn") return;
 
-document.addEventListener(
-  "click",
-  async function(event) {
+  const textarea = document.getElementById("newLeadNote");
+  const note = textarea.value.trim();
 
-    if (
-      event.target.id !==
-      "saveLeadNoteBtn"
-    ) {
-      return;
-    }
-
-    const textarea =
-      document.getElementById(
-        "newLeadNote"
-      );
-
-    const note =
-      textarea.value.trim();
-
-    if (!note) {
-
-      alert("Enter note");
-
-      return;
-    }
-
-    try {
-
-      await db
-        .collection("leads")
-        .doc(currentOpenLeadId)
-        .update({
-
-          notes:
-            firebase.firestore.FieldValue.arrayUnion(
-              note
-            ),
-
-          updatedAt:
-  new Date(),
-
-timeline:
-  firebase.firestore.FieldValue.arrayUnion({
-
-    type: "NOTE_ADDED",
-
-    message:
-      note,
-
-    createdAt:
-      new Date().toISOString()
-
-  })
-
-        });
-
-      textarea.value = "";
-
-      await loadLeads();
-
-      const updatedLead =
-  allLeads.find(
-    l => l.id === currentOpenLeadId
-  );
-
-if (updatedLead) {
-
-  renderLeadNotes(updatedLead);
-
-  renderTimeline(updatedLead);
-}
-
-    }
-    catch (error) {
-
-      console.error(error);
-
-      alert("Failed to save note");
-    }
-
+  if (!note) {
+    showToast("Enter note", true);
+    return;
   }
-);
+
+  try {
+    const timelineUpdate = {
+      type: "NOTE_ADDED",
+      message: note,
+      createdAt: new Date().toISOString()
+    };
+
+    // 🚀 FIX: Write cleanly to database; WebSocket handles real-time injection smoothly
+    await db.collection("leads").doc(currentOpenLeadId).update({
+      notes: firebase.firestore.FieldValue.arrayUnion(note),
+      updatedAt: new Date(),
+      timeline: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
+    });
+
+    textarea.value = "";
+    showToast("Note added successfully");
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to save note", true);
+  }
+});
