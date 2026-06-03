@@ -84,85 +84,131 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // Custom width mapping to align precisely with your 4 UI columns
+    // 🛠️ 1. Add the new stages to your width mapper
     const widthMap = {
         "INITIAL": "15%",
-        "AI_GENERATED": "25%",          // Feasibility Complete
-        "SURVEY_REQUESTED": "40%",      // Survey in Progress
-        "SURVEY_COMPLETED": "55%",      // Survey Complete, bridging to Proposal
-        "OFFER_GIVEN": "70%",           // Proposal Ready
-        "OFFER_ACCEPTED": "80%",        // Proposal Accepted
-        "INSTALLATION_COMPLETED": "100%",// Install Complete
+        "AI_GENERATED": "25%",          
+        "SURVEY_REQUESTED": "40%",      
+        "SURVEY_COMPLETED": "55%",      
+        "OFFER_GIVEN": "70%",           
+        "OFFER_REJECTED": "70%",        // Same as given so they can re-upload
+        "OFFER_UNDER_REVIEW": "75%",    // Waiting for admin
+        "OFFER_ACCEPTED": "80%",        
+        "INSTALLATION_COMPLETED": "100%",
         "SUBSIDY_CREDITED": "100%"
     };
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
     // ==========================================
-    // 🛠️ FIX & ENHANCE: QUOTE UPLOAD & AUDIT SHIELD (LIABILITY SAFE)
+    // 🛠️ 2. DYNAMIC QUOTE UPLOAD & STATUS UI
     // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED"].includes(stage);
+        // Define which stages should display the upload/status panel
+        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
         uploadSection.classList.toggle('hidden', !showUpload);
 
-        // Inject the Subsidy & Audit Shield UI directly into the panel wrapper dynamically
         if (showUpload) {
-            uploadSection.innerHTML = `
-                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm">
-                    <div class="flex items-start gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">
-                            🛡️
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Verification Desk</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Track your installation safely through our platform.</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2.5 mb-5 bg-white border border-slate-100 rounded-xl p-3.5">
-                        <div class="flex items-start gap-2.5 text-xs text-slate-600">
-                            <span class="text-emerald-500 font-bold mt-0.5">✓</span>
-                            <span><strong>Quote & Component Review:</strong> Our team audits your official quotation to verify that the proposed components meet Tier-1 ALMM guidelines on paper, helping you avoid substandard equipment.</span>
-                        </div>
-                        <div class="flex items-start gap-2.5 text-xs text-slate-600">
-                            <span class="text-emerald-500 font-bold mt-0.5">✓</span>
-                            <span><strong>Subsidy Compliance Guidance:</strong> We provide paperwork checklists and guidance aligned with PM Surya Ghar portal requirements to help streamline your Discom application process.</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 mb-5">
-                        <div class="flex gap-2.5">
-                            <span class="text-amber-600 text-sm mt-0.5">⚠️</span>
-                            <div class="text-xs text-amber-900 leading-relaxed">
-                                <strong class="font-bold text-amber-950">Important Notice:</strong> 
-                                Upload your final quotation here to activate our platform tracking. If you choose to deal with platform-matched installers offline, <strong>Solar-AI-Advisor</strong> cannot provide vendor dispute resolution, escalation support, or backend subsidy assistance. 
-                                <span class="block mt-1.5 text-[10px] text-amber-700/80 italic">Note: Final hardware warranties, performance yields, and government subsidy approvals remain the sole legal responsibility of the contracted vendor and respective government authorities.</span>
+            if (stage === "OFFER_UNDER_REVIEW") {
+                // 🟡 PENDING STATE (Matches your screenshot)
+                uploadSection.innerHTML = `
+                    <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">⏳</div>
+                            <div>
+                                <h3 class="text-base font-bold text-amber-900">Review in Progress</h3>
+                                <p class="text-xs text-amber-700 mt-0.5">Your uploaded quotation is currently under review by our technical team. We will notify you once the audit is complete.</p>
                             </div>
                         </div>
                     </div>
-
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-                        Upload Installer Quotation / Final Bill
-                    </label>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
-                               class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
-                        <button id="uploadQuoteBtn" onclick="uploadQuote()" 
-                                class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
-                            Submit for Verification
-                        </button>
+                `;
+            } else if (stage === "OFFER_ACCEPTED" || stage === "INSTALLATION_COMPLETED" || stage === "SUBSIDY_CREDITED") {
+                // 🟢 ACCEPTED STATE WITH NEXT STEPS
+                uploadSection.innerHTML = `
+                    <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-xl shrink-0">✅</div>
+                            <div>
+                                <h3 class="text-base font-bold text-emerald-900">Quotation Approved</h3>
+                                <p class="text-xs text-emerald-700 mt-0.5">Your quotation has passed our technical audit and meets Tier-1 ALMM guidelines.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-emerald-100 rounded-xl p-4 space-y-2.5 text-xs text-slate-700">
+                            <p class="font-bold text-slate-900 uppercase tracking-wider text-[10px] mb-1">Next Steps:</p>
+                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">1.</span> Proceed with finalizing your commercial agreement with the installer.</div>
+                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">2.</span> Ensure the vendor initiates your net-metering application on the PM Surya Ghar portal.</div>
+                            <div class="flex items-start gap-2"><span class="text-emerald-500 font-bold">3.</span> Schedule the physical installation date.</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                // 🔵 UPLOAD / REJECTED STATE (SURVEY_COMPLETED, OFFER_GIVEN, OFFER_REJECTED)
+                const rejectionBanner = stage === "OFFER_REJECTED" ? `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 mb-5 flex gap-2.5">
+                        <span class="text-red-600 text-sm mt-0.5">❌</span>
+                        <div class="text-xs text-red-900">
+                            <strong class="font-bold">Quotation Rejected:</strong> The previously uploaded document did not pass our verification criteria. Please upload a revised or updated quotation from your installer.
+                        </div>
+                    </div>
+                ` : "";
+
+                uploadSection.innerHTML = `
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">🛡️</div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Verification Desk</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Track your installation safely through our platform.</p>
+                            </div>
+                        </div>
+                        
+                        ${rejectionBanner}
+
+                        <div class="space-y-2.5 mb-5 bg-white border border-slate-100 rounded-xl p-3.5">
+                            <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                                <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                                <span><strong>Quote & Component Review:</strong> Our team audits your official quotation to verify that the proposed components meet Tier-1 ALMM guidelines on paper, helping you avoid substandard equipment.</span>
+                            </div>
+                            <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                                <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                                <span><strong>Subsidy Compliance Guidance:</strong> We provide paperwork checklists and guidance aligned with PM Surya Ghar portal requirements to help streamline your Discom application process.</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 mb-5">
+                            <div class="flex gap-2.5">
+                                <span class="text-amber-600 text-sm mt-0.5">⚠️</span>
+                                <div class="text-xs text-amber-900 leading-relaxed">
+                                    <strong class="font-bold text-amber-950">Important Notice:</strong> 
+                                    Upload your final quotation here to activate our platform tracking. If you choose to deal with platform-matched installers offline, <strong>Solar-AI-Advisor</strong> cannot provide vendor dispute resolution, escalation support, or backend subsidy assistance. 
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                            Upload Installer Quotation / Final Bill
+                        </label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
+                                   class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                            <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                                    class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                                Submit for Verification
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 
-
-    // Lock "Unlock My AI Solar Analysis" button
+    // 🛠️ 3. Ensure the Unlock AI button stays locked during the new stages
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
     if (unlockBtn) {
-        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
+        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
+        // ... (Keep the rest of your unlockBtn and surveyCard logic exactly the same)
+
         const isLocked = lockedStages.includes(stage);
         
         unlockBtn.disabled = isLocked;
@@ -219,7 +265,6 @@ function updateRoadmap(stage) {
     }
 }
 
-
 // Logic to handle Quote Upload
 async function uploadQuote() {
     const fileInput = document.getElementById('quoteUpload');
@@ -236,10 +281,11 @@ async function uploadQuote() {
         
         await db.collection("leads").doc(leadId).update({ 
             quoteUrl: url,
-            stage: "OFFER_ACCEPTED" 
+            stage: "OFFER_UNDER_REVIEW" 
         });
         
-        alert("Quote uploaded successfully!");
+        alert("Quote submitted for verification!");
+        localStorage.setItem("leadStage", "OFFER_UNDER_REVIEW");
         location.reload(); 
     } catch (error) {
         console.error("Upload failed:", error);
