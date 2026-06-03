@@ -4,6 +4,9 @@
 // ✅ CONFIGURATION
 // ===============================
 
+// Global cache variable for holding AI report data safely across operations
+let aiReportCache = null; 
+
 // Special category states (10% higher central subsidy)
 const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
 
@@ -52,7 +55,6 @@ const stateNames = {
 // ===============================
 // 🔹 HELPERS
 // ===============================
-// ✅ Indian compact currency formatter
 function formatIndianCurrency(num) {
   if (num >= 10000000) {
     return "₹" + (num / 10000000).toFixed(1) + "Cr";
@@ -76,7 +78,6 @@ function getBillFromURL() {
   return parseFloat(params.get("bill")) || 0;
 }
 
-
 // ===============================
 // 🔹 ROADMAP & UPLOAD HELPERS
 // ===============================
@@ -84,15 +85,14 @@ function updateRoadmap(stage) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // 🛠️ 1. Add the new stages to your width mapper
     const widthMap = {
         "INITIAL": "15%",
         "AI_GENERATED": "25%",          
         "SURVEY_REQUESTED": "40%",      
         "SURVEY_COMPLETED": "55%",      
         "OFFER_GIVEN": "70%",           
-        "OFFER_REJECTED": "70%",        // Same as given so they can re-upload
-        "OFFER_UNDER_REVIEW": "75%",    // Waiting for admin
+        "OFFER_REJECTED": "70%",        
+        "OFFER_UNDER_REVIEW": "75%",    
         "OFFER_ACCEPTED": "80%",        
         "INSTALLATION_COMPLETED": "100%",
         "SUBSIDY_CREDITED": "100%"
@@ -100,18 +100,13 @@ function updateRoadmap(stage) {
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
-    // ==========================================
-    // 🛠️ 2. DYNAMIC QUOTE UPLOAD & STATUS UI
-    // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        // Define which stages should display the upload/status panel
         const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
         uploadSection.classList.toggle('hidden', !showUpload);
 
         if (showUpload) {
             if (stage === "OFFER_UNDER_REVIEW") {
-                // 🟡 PENDING STATE (Matches your screenshot)
                 uploadSection.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-center gap-3">
@@ -124,7 +119,6 @@ function updateRoadmap(stage) {
                     </div>
                 `;
             } else if (stage === "OFFER_ACCEPTED" || stage === "INSTALLATION_COMPLETED" || stage === "SUBSIDY_CREDITED") {
-                // 🟢 ACCEPTED STATE WITH NEXT STEPS
                 uploadSection.innerHTML = `
                     <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-center gap-3 mb-4">
@@ -143,7 +137,6 @@ function updateRoadmap(stage) {
                     </div>
                 `;
             } else {
-                // 🔵 UPLOAD / REJECTED STATE (SURVEY_COMPLETED, OFFER_GIVEN, OFFER_REJECTED)
                 const rejectionBanner = stage === "OFFER_REJECTED" ? `
                     <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 mb-5 flex gap-2.5">
                         <span class="text-red-600 text-sm mt-0.5">❌</span>
@@ -203,12 +196,9 @@ function updateRoadmap(stage) {
         }
     }
 
-    // 🛠️ 3. Ensure the Unlock AI button stays locked during the new stages
     const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
     if (unlockBtn) {
         const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
-        // ... (Keep the rest of your unlockBtn and surveyCard logic exactly the same)
-
         const isLocked = lockedStages.includes(stage);
         
         unlockBtn.disabled = isLocked;
@@ -223,7 +213,6 @@ function updateRoadmap(stage) {
         }
     }
 
-    // 3. Toggle Survey & Concierge UI based on stage
     const conciergeCard = document.getElementById("conciergeCard");
     const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
     
@@ -231,12 +220,10 @@ function updateRoadmap(stage) {
         if (stage === "AI_GENERATED" || stage === "INITIAL") {
             conciergeCard.classList.remove("hidden");
             surveyFeedbackCard.classList.add("hidden");
-            
         } else if (stage === "SURVEY_REQUESTED") {
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.remove("hidden");
             
-            // UX ENHANCEMENT: Show reassurance text AND an interactive path to completion
             if (localStorage.getItem("surveyIssueReported") === "true") {
                 surveyFeedbackCard.innerHTML = `
                     <div class="flex items-center gap-3 mb-3">
@@ -246,7 +233,6 @@ function updateRoadmap(stage) {
                     <p class="text-slate-600 text-sm leading-relaxed mb-4">
                         You reported a delay. Our support team is actively following up with the installer to expedite your site assessment.
                     </p>
-                    
                     <div class="border-t border-slate-100 pt-3 mt-2 flex items-center justify-between gap-4 flex-wrap">
                         <span class="text-xs text-slate-500 font-medium">Did the installer arrive?</span>
                         <button id="surveyResolveBtn" onclick="reportSurveyStatus('completed')" 
@@ -256,16 +242,13 @@ function updateRoadmap(stage) {
                     </div>
                 `;
             }
-            
         } else {
-            // Past the survey phase (SURVEY_COMPLETED, OFFER_GIVEN, etc.)
             conciergeCard.classList.add("hidden");
             surveyFeedbackCard.classList.add("hidden");
         }
     }
 }
 
-// Logic to handle Quote Upload
 async function uploadQuote() {
     const fileInput = document.getElementById('quoteUpload');
     const file = fileInput?.files[0];
@@ -338,7 +321,7 @@ async function reportSurveyStatus(status) {
 }
 
 // ===============================
-// 🔵 CENTRAL SUBSIDY (2026) [3]
+// 🔵 CENTRAL SUBSIDY (2026)
 // ===============================
 function calculateCentralSubsidy(systemSize, state) {
   let subsidy = 0;
@@ -520,7 +503,6 @@ function showForm() {
   }
 }
 
-// Pre-packaged criteria scoring
 function getLeadType(bill, propertyType, rooftopOwnership) {
   let score = 0;
   if (bill >= 3000) score += 2;
@@ -535,7 +517,6 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
   if (score >= 3) return "Hot";
   return "Basic";
 }
-
 
 async function submitLead() {
   const currentStage = (localStorage.getItem("leadStage") || "").toUpperCase();
@@ -760,7 +741,6 @@ function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback
   return Math.min(score, 99);
 }
 
-// Random summaries fallback
 function getDynamicAISummary(data) {
   const summaries = [
     `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
@@ -860,38 +840,31 @@ async function waitForAIReport(leadId, requestTime) {
 }
 
 // =========================================================================
-// 🛡️ ENHANCED: INTERCEPTIVE PLATFORM BOUNDARY & LIABILITY MODAL (APPROACH 2)
+// 🛡️ PLATFORM BOUNDARY & LIABILITY MODAL
 // =========================================================================
-async function requestSiteSurvey() {
+async function requestSiteSurvey(e) {
+  // Safe extraction of trigger element from explicit passed parameter or global context fallback
+  let btn = null;
+  if (e && e.target) {
+      btn = e.target.closest('button');
+  } else if (typeof event !== 'undefined' && event?.target) {
+      btn = event.target.closest('button');
+  }
+  
+  if (!btn) {
+      btn = document.getElementById('requestSurveyBtn') || document.querySelector('.survey-trigger-main'); 
+  }
+
   const leadId = localStorage.getItem("leadId");
   const leadCode = localStorage.getItem("leadCode");
-  // 1. Safely resolve the button even if an icon/span inside it was clicked
-    let btn = (typeof event !== 'undefined' && event?.target) 
-        ? event.target.closest('button') 
-        : null;
-
-    // 2. Safer fallback: Target by an explicit ID if the event context is missing
-    if (!btn) {
-        btn = document.getElementById('requestSurveyBtn') || 
-              document.querySelector('.survey-trigger-main'); 
-    }
-
-    if (!btn) {
-        console.warn("Survey button context could not be resolved.");
-    }
-  
-  // Safely grab structural reference to the original triggering context element
-  //const btn = (typeof event !== 'undefined' && event?.target) ? event.target : document.querySelector('button[onclick*="requestSiteSurvey"]');
   
   if (!leadId) {
     alert("Lead ID not found. Please refresh the page.");
     return;
   }
 
-  // Prevent multiple overlay mounts if button is double-clicked rapidly
   if (document.getElementById('surveyLegalModal')) return;
 
-  // 1. Generate & Inject the Contextual Shield Confirmation Modal
   const modal = document.createElement('div');
   modal.id = 'surveyLegalModal';
   modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in';
@@ -899,45 +872,29 @@ async function requestSiteSurvey() {
   modal.innerHTML = `
     <div class="bg-white border border-slate-200/60 rounded-2xl max-w-md w-full p-5 shadow-2xl transform transition-all scale-100">
         <div class="flex items-center gap-3 mb-3.5">
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">
-                🛡️
-            </div>
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">🛡️</div>
             <div>
                 <h3 class="text-base font-bold text-slate-900">Platform Scope Acknowledgement</h3>
                 <p class="text-[11px] text-slate-500">Please review before scheduling your physical site survey.</p>
             </div>
         </div>
-
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5 mb-4 text-xs text-slate-600 leading-relaxed space-y-2">
-            <p>
-                By booking this site assessment, you acknowledge that <span class="font-semibold text-slate-900">Solar-AI-Advisor</span> acts exclusively as an independent discovery and technical verification advisory service.
-            </p>
-            <p>
-                All physical structural engineering, field execution, material guarantees (Tier-1 ALMM panels), and central/state subsidy processing remain the direct commercial and legal liability of your chosen vendor and respective Discom utilities.
-            </p>
+            <p>By booking this site assessment, you acknowledge that <span class="font-semibold text-slate-900">Solar-AI-Advisor</span> acts exclusively as an independent discovery and technical verification advisory service.</p>
+            <p>All physical structural engineering, field execution, material guarantees (Tier-1 ALMM panels), and central/state subsidy processing remain the direct commercial and legal liability of your chosen vendor and respective Discom utilities.</p>
         </div>
-
         <div class="flex items-center gap-2.5 justify-end">
-            <button id="closeSurveyModalBtn" class="text-xs font-semibold text-slate-500 hover:text-slate-700 px-4 py-2.5 rounded-xl border border-slate-200 bg-white transition cursor-pointer">
-                Go Back
-            </button>
-            <button id="confirmSurveyModalBtn" class="bg-indigo-600 text-white text-xs px-4 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm cursor-pointer">
-                Agree & Schedule Survey
-            </button>
+            <button id="closeSurveyModalBtn" class="text-xs font-semibold text-slate-500 hover:text-slate-700 px-4 py-2.5 rounded-xl border border-slate-200 bg-white transition cursor-pointer">Go Back</button>
+            <button id="confirmSurveyModalBtn" class="bg-indigo-600 text-white text-xs px-4 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm cursor-pointer">Agree & Schedule Survey</button>
         </div>
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  // Close interface handler
-  document.getElementById('closeSurveyModalBtn').onclick = () => {
-      modal.remove();
-  };
+  document.getElementById('closeSurveyModalBtn').onclick = () => { modal.remove(); };
 
-  // Execution validation gateway handler
   document.getElementById('confirmSurveyModalBtn').onclick = async () => {
-      modal.remove(); // Dismount view layer instantly
+      modal.remove(); 
       
       if (btn) {
           btn.disabled = true;
@@ -950,7 +907,6 @@ async function requestSiteSurvey() {
         const leadRef = db.collection("leads").doc(leadId);
         const surveyRef = db.collection("survey_requests").doc(leadId);
 
-        // Append timestamp log proving explicit acceptance at step-level milestone
         batch.update(leadRef, { 
           stage: "SURVEY_REQUESTED",
           scopeTermsAgreedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -992,7 +948,6 @@ async function requestSiteSurvey() {
       }
   };
 }
-
 
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
@@ -1124,26 +1079,20 @@ function renderDynamicAIReport(report, result) {
   });
  
   if (currentStage === "INITIAL" || currentStage === "AI_GENERATED") {
-  requestAnimationFrame(() => {
-    const aiSection = document.getElementById("aiInsightsSection");
-    if (!aiSection) return;
-    const y = aiSection.getBoundingClientRect().top + window.pageYOffset - 24;
-    window.scrollTo({ top: y, behavior: "smooth" });
-  });
-}
+    requestAnimationFrame(() => {
+      const aiSection = document.getElementById("aiInsightsSection");
+      if (!aiSection) return;
+      const y = aiSection.getBoundingClientRect().top + window.pageYOffset - 24;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    });
+  }
 }
 
-// This function is automatically picked up by your shared-firebase.js hook!
 function renderDetailedTimelineLogs(data) {
     const currentLocalStage = localStorage.getItem("previousObservedStage");
-    
-    // Check if the user was under review, but the database now says approved
     if (currentLocalStage === "OFFER_UNDER_REVIEW" && data.stage === "OFFER_ACCEPTED") {
-        // Trigger a celebratory notification or scroll to the upload element smoothly
         document.getElementById('quoteUploadSection')?.scrollIntoView({ behavior: 'smooth' });
     }
-    
-    // Keep a secondary track record to compare transitions
     localStorage.setItem("previousObservedStage", data.stage || "INITIAL");
 }
 
@@ -1154,11 +1103,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
 
     if (leadId) {
-        // 🚀 Fire up your new global real-time stream engine instantly
-        setupRealTimeTimeline(leadId);
+        if (typeof setupRealTimeTimeline === "function") {
+            setupRealTimeTimeline(leadId);
+        } else {
+            console.warn("setupRealTimeTimeline framework utility is missing from viewport dependencies.");
+        }
 
         try {
-            // Fetch your static cache payloads...
             const aiDoc = await db.collection("ai_reports").doc(leadId).get();
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
@@ -1174,17 +1125,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const initialState = localStorage.getItem("state") || "UP";
     
-    await LocationHandler.init("resState", "resCity", (newState) => {
-        localStorage.setItem("state", newState); 
-        calculateSavings(); 
-    }, initialState);
+    if (typeof LocationHandler !== "undefined" && LocationHandler.init) {
+        await LocationHandler.init("resState", "resCity", (newState) => {
+            localStorage.setItem("state", newState); 
+            calculateSavings(); 
+        }, initialState);
+    } else {
+        console.warn("LocationHandler component missing from runtime context.");
+    }
 
     const initialResult = calculateSavings(); 
     if (aiReportCache && initialResult) {
          renderDynamicAIReport(aiReportCache, initialResult);
     }
 });
-
 
 function calculateSavings() {
     const billInput = document.getElementById("capturedBill");
@@ -1206,7 +1160,6 @@ function calculateSavings() {
         return null;
     }
 }
-
 
 function renderMetric(label, value) {
     return `
