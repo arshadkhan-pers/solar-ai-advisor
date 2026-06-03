@@ -1132,6 +1132,8 @@ function renderDynamicAIReport(report, result) {
   });
 }
 }
+
+
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
@@ -1141,21 +1143,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (leadId) {
         try {
-            const leadDoc = await db.collection("leads").doc(leadId).get();
-            if (leadDoc.exists) {
-                const stage = leadDoc.data().stage || "INITIAL";
-                localStorage.setItem("leadStage", stage);
-                updateRoadmap(stage);
-                
-                if (stage !== "INITIAL") {
-                    const aiDoc = await db.collection("ai_reports").doc(leadId).get();
-                    if (aiDoc.exists) {
-                        aiReportCache = aiDoc.data();
-                    }
-                }
+            // Kick off the shared real-time listener stream instantly 🚀
+            setupRealTimeTimeline();
+
+            // Fetch the static AI report cache once as normal
+            const aiDoc = await db.collection("ai_reports").doc(leadId).get();
+            if (aiDoc.exists) {
+                aiReportCache = aiDoc.data();
             }
         } catch (err) {
-            console.error("Error syncing stage or AI report:", err);
+            console.error("Error syncing static assets:", err);
         }
     }
 
@@ -1166,14 +1163,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const initialState = localStorage.getItem("state") || "UP";
     
     await LocationHandler.init("resState", "resCity", (newState) => {
-        console.log("Location changed by user, State is:", newState);
         localStorage.setItem("state", newState); 
         calculateSavings(); 
     }, initialState);
 
-    console.log("Initialization complete, running first calculation...");
     const initialResult = calculateSavings(); 
-    
     if (aiReportCache && initialResult) {
          renderDynamicAIReport(aiReportCache, initialResult);
     }
