@@ -31,7 +31,7 @@ function setupRealTimeTimeline(explicitLeadId = null) {
 
                 // 2. Reactively push the updated stage directly into the UI roadmap
                 if (typeof updateRoadmap === "function") {
-                    updateRoadmap(latestStage);
+                    updateRoadmap(latestStage, data);
                 }
 
                 // 3. Fire custom page-specific render logs if they exist
