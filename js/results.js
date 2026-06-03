@@ -4,6 +4,21 @@
 // ✅ CONFIGURATION
 // ===============================
 
+// Master Journey Configuration
+const journeyMilestones = [
+    { id: "ai", dbKey: "aiGenerated", title: "AI Feasibility Analysis", desc: "Initial system sizing and ROI calculated." },
+    { id: "survey", dbKey: "surveyRequested", title: "Site Survey Requested", desc: "Awaiting physical assessment by the installer team." },
+    { id: "surveyDone", dbKey: "surveyCompleted", title: "Site Survey Completed", desc: "Rooftop structural integrity and shadow analysis done." },
+    { id: "offer", dbKey: "offerUploaded", title: "Quotation Uploaded", desc: "Awaiting Solar-AI technical audit." },
+    { id: "audit", dbKey: "offerAccepted", title: "Quotation Approved", desc: "Quote meets Tier-1 ALMM guidelines." },
+    
+    // --- USER / OPS INTERACTIVE STEPS BELOW ---
+    { id: "agreement", dbKey: "agreementSigned", title: "Commercial Agreement", desc: "Finalize terms and pay advance to your installer.", actionBtn: "Confirm Agreement Signed", triggersStage: "AGREEMENT_SIGNED" },
+    { id: "discom", dbKey: "netMetering", title: "Discom Net-Metering", desc: "Vendor has initiated the application on the PM Surya Ghar portal.", actionBtn: "Mark Application Submitted", triggersStage: "NET_METERING_APPLIED" },
+    { id: "install", dbKey: "installation", title: "Physical Installation", desc: "Rooftop deployment completed successfully.", actionBtn: "Log Installation Complete", triggersStage: "INSTALLATION_COMPLETED" },
+    { id: "subsidy", dbKey: "subsidy", title: "Subsidy Credited", desc: "Central subsidy disbursed to bank account.", actionBtn: "Confirm Subsidy Received", triggersStage: "SUBSIDY_CREDITED" }
+];
+
 // Global cache variable for holding AI report data safely across operations
 let aiReportCache = null; 
 
@@ -592,6 +607,17 @@ async function submitLead() {
       billUploaded: billFile? "Yes" : "No",
       leadType,
       stage: "AI_GENERATED",
+    timeline: {
+        aiGenerated: { status: true, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
+        surveyRequested: { status: false, timestamp: null },
+        surveyCompleted: { status: false, timestamp: null },
+        offerUploaded: { status: false, timestamp: null },
+        offerAccepted: { status: false, timestamp: null },
+        agreementSigned: { status: false, timestamp: null },
+        netMetering: { status: false, timestamp: null },
+        installation: { status: false, timestamp: null },
+        subsidy: { status: false, timestamp: null }
+    },
       aiRegenerationRequired: true,
       systemSizeKw: result.systemSize,
       totalSubsidy: result.subsidy,
@@ -1173,6 +1199,32 @@ function renderMetric(label, value) {
             </div>
         </div>
     `;
+}
+
+async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null) {
+    const leadId = localStorage.getItem("leadId");
+    if (!leadId) return;
+
+    try {
+        const updatePayload = {
+            [`timeline.${milestoneKey}.status`]: true,
+            [`timeline.${milestoneKey}.timestamp`]: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // If this step dictates a macro stage change (for your horizontal progress bar)
+        if (macroStageToTrigger) {
+            updatePayload.stage = macroStageToTrigger;
+        }
+
+        await db.collection("leads").doc(leadId).update(updatePayload);
+        
+        // Let the setupRealTimeTimeline listener handle the UI reload!
+        console.log(`Milestone ${milestoneKey} advanced successfully.`);
+
+    } catch (error) {
+        console.error("Failed to update milestone:", error);
+        alert("Update failed. Please try again.");
+    }
 }
 
 function renderInstallerCards(installers) {
