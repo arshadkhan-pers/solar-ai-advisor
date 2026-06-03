@@ -449,10 +449,12 @@ window.updateLeadField = async function(id, field, value) {
   }
 };
 
+
 // =====================================
-// REAL-TIME ADMIN STREAM
+// REAL-TIME ADMIN STREAM (UPDATED)
 // =====================================
 window.leadUpdatesUnsubscribe = window.leadUpdatesUnsubscribe || null;
+let currentOpenLeadAiReport = null; // 🚀 Global tracker for open panel's AI data
 
 function setupRealTimeTimeline(explicitLeadId) {
     if (!explicitLeadId) return;
@@ -469,7 +471,7 @@ function setupRealTimeTimeline(explicitLeadId) {
                 const data = doc.data();
                 const refreshedLead = { id: explicitLeadId, ...data };
                 
-                // 🚀 FIX: Update all cache states simultaneously to prevent drift
+                // Update all cache states simultaneously to prevent grid drift
                 const idx = allLeads.findIndex(l => l.id === explicitLeadId);
                 if (idx > -1) allLeads[idx] = refreshedLead;
 
@@ -480,17 +482,9 @@ function setupRealTimeTimeline(explicitLeadId) {
                     updateMetrics(currentPageLeads);
                 }
                 
-                // Handle open slider rendering changes automatically
+                // 🚀 FIX: Fully re-render the open details panel layout with up-to-the-second data
                 if (currentOpenLeadId === explicitLeadId) {
-                    renderLeadNotes(refreshedLead);
-                    renderTimeline(refreshedLead);
-                    
-                    // 🚀 FIX: Target clean, robust explicit IDs instead of brittle substrings
-                    const stageSelect = document.getElementById(`stage-select-${explicitLeadId}`);
-                    if (stageSelect && data.stage) stageSelect.value = data.stage;
-
-                    const statusSelect = document.getElementById(`status-select-${explicitLeadId}`);
-                    if (statusSelect && data.status) statusSelect.value = data.status;
+                    renderLeadPanel(refreshedLead, currentOpenLeadAiReport);
                 }
             }
         }, (error) => {
@@ -499,25 +493,26 @@ function setupRealTimeTimeline(explicitLeadId) {
 }
 
 // =====================================
-// OPEN LEAD PANEL
+// OPEN LEAD PANEL (UPDATED)
 // =====================================
 window.viewLead = async function(id) {
   const requestId = ++currentLeadRequestId;
-  const lead = allLeads.find(l => l.id === id);
-
-  if (!lead) return;
   currentOpenLeadId = id;
+  currentOpenLeadAiReport = null; // Reset context
 
   document.getElementById("leadPanelOverlay").classList.remove("hidden");
   const panel = document.getElementById("leadDetailsPanel");
   panel.classList.remove("translate-x-full");
   
-  setupRealTimeTimeline(id);
-
   document.getElementById("leadPanelContent").innerHTML = `
     <div class="text-center py-10 text-slate-500">Loading lead details...</div>
   `;
-  document.getElementById("panelLeadCode").innerText = lead.leadCode || "";
+
+  // Pre-populate structural codes from local grid cache instantly
+  const cachedLead = allLeads.find(l => l.id === id);
+  if (cachedLead) {
+    document.getElementById("panelLeadCode").innerText = cachedLead.leadCode || "";
+  }
 
   try {
     const aiReportSnapshot = await db
@@ -532,7 +527,11 @@ window.viewLead = async function(id) {
     }
 
     if (requestId !== currentLeadRequestId) return;
-    renderLeadPanel(lead, aiReport);
+    
+    // Save AI report context globally and execute the stream loop
+    currentOpenLeadAiReport = aiReport;
+    setupRealTimeTimeline(id);
+
   } catch (error) {
     console.error(error);
     if (requestId !== currentLeadRequestId) return;
@@ -541,6 +540,7 @@ window.viewLead = async function(id) {
     `;
   }
 };
+
 
 // =====================================
 // CLOSE PANEL
@@ -558,10 +558,14 @@ window.closeLeadPanel = function() {
 };
 
 // =====================================
-// RENDER PANEL
+// RENDER PANEL (UPDATED)
 // =====================================
 function renderLeadPanel(lead, aiReport) {
   const content = document.getElementById("leadPanelContent");
+  if (!content) return;
+
+  // 🚀 PRESERVATION: Track active note input draft so text isn't lost during real-time loops
+  const unsavedNoteText = document.getElementById("newLeadNote")?.value || "";
 
   content.innerHTML = `
     <div class="space-y-2">
@@ -671,6 +675,13 @@ function renderLeadPanel(lead, aiReport) {
       <button id="saveLeadNoteBtn" class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">Save Note</button>
     </div>
   `;
+  
+  // Restore user draft text if any existed before re-rendering
+  if (unsavedNoteText) {
+    const textarea = document.getElementById("newLeadNote");
+    if (textarea) textarea.value = unsavedNoteText;
+  }
+
   renderLeadNotes(lead);
   renderTimeline(lead);
 }
