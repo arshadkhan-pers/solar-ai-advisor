@@ -2,7 +2,7 @@
 // GLOBALS
 // ====================================
 const LEAD_STATUSES = ["NEW", "REVIEWING", "CONTACTED", "QUALIFIED", "SHARED", "CLOSED", "REJECTED"];
-const LEAD_STAGES = ["INITIAL", "AI_GENERATED", "SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_UNDER_REVIEW", "OFFER_REJECTED", "OFFER_ACCEPTED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED", "CLOSED_SUCCESS", "CLOSED_REJECTED"];
+const LEAD_STAGES = ["INITIAL", "AI_GENERATED", "SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_UNDER_REVIEW", "OFFER_REJECTED", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED", "CLOSED_SUCCESS", "CLOSED_REJECTED"];
 
 let allLeads = [];
 let currentOpenLeadId = null;
@@ -802,7 +802,7 @@ window.saveOpsDetails = async function(id) {
       followUpDate: followUpDate,
       assignedTo: "Ops Team",
       updatedAt: new Date(),
-      timeline: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
+      activityLogs: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
     });
 
     showToast("Ops details saved successfully");
@@ -837,7 +837,7 @@ document.addEventListener("click", async function(event) {
     await db.collection("leads").doc(currentOpenLeadId).update({
       notes: firebase.firestore.FieldValue.arrayUnion(note),
       updatedAt: new Date(),
-      timeline: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
+      activityLogs: firebase.firestore.FieldValue.arrayUnion(timelineUpdate)
     });
 
     textarea.value = "";
