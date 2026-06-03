@@ -1133,20 +1133,32 @@ function renderDynamicAIReport(report, result) {
 }
 }
 
+// This function is automatically picked up by your shared-firebase.js hook!
+function renderDetailedTimelineLogs(data) {
+    const currentLocalStage = localStorage.getItem("previousObservedStage");
+    
+    // Check if the user was under review, but the database now says approved
+    if (currentLocalStage === "OFFER_UNDER_REVIEW" && data.stage === "OFFER_ACCEPTED") {
+        // Trigger a celebratory notification or scroll to the upload element smoothly
+        document.getElementById('quoteUploadSection')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Keep a secondary track record to compare transitions
+    localStorage.setItem("previousObservedStage", data.stage || "INITIAL");
+}
 
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
-    let aiReportCache = null; 
 
     if (leadId) {
-        try {
-            // Kick off the shared real-time listener stream instantly 🚀
-            setupRealTimeTimeline();
+        // 🚀 Fire up your new global real-time stream engine instantly
+        setupRealTimeTimeline(leadId);
 
-            // Fetch the static AI report cache once as normal
+        try {
+            // Fetch your static cache payloads...
             const aiDoc = await db.collection("ai_reports").doc(leadId).get();
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
