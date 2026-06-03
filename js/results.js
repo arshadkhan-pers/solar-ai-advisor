@@ -100,7 +100,6 @@ function updateRoadmap(stage, leadData = null) {
     const roadmapProgress = document.getElementById('roadmapProgress');
     if (!roadmapProgress) return;
 
-    // 🛠️ 1. Expanded width mapper to include new interactive stages
     const widthMap = {
         "INITIAL": "15%",
         "AI_GENERATED": "25%",          
@@ -110,44 +109,46 @@ function updateRoadmap(stage, leadData = null) {
         "OFFER_REJECTED": "70%",        
         "OFFER_UNDER_REVIEW": "75%",    
         "OFFER_ACCEPTED": "80%",        
-        "AGREEMENT_SIGNED": "85%",      // New Stage
-        "NET_METERING_APPLIED": "90%",  // New Stage
+        "AGREEMENT_SIGNED": "85%",      
+        "NET_METERING_APPLIED": "90%",  
         "INSTALLATION_COMPLETED": "100%",
         "SUBSIDY_CREDITED": "100%"
     };
     
     roadmapProgress.style.width = widthMap[stage] || "15%";
     
-    // ==========================================
-    // 🛠️ 2. DYNAMIC QUOTE UPLOAD & STATUS UI
-    // ==========================================
     const uploadSection = document.getElementById('quoteUploadSection');
     if (uploadSection) {
-        // Added the new stages to ensure this panel stays visible
         const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
         uploadSection.classList.toggle('hidden', !showUpload);
 
         if (showUpload) {
             if (stage === "OFFER_UNDER_REVIEW") {
-                // 🟡 PENDING STATE
                 uploadSection.innerHTML = `
                     <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">⏳</div>
                             <div>
                                 <h3 class="text-base font-bold text-amber-900">Review in Progress</h3>
-                                <p class="text-xs text-amber-700 mt-0.5">Your uploaded quotation is currently under review by our technical team. We will notify you once the audit is complete.</p>
+                                <p class="text-xs text-amber-700 mt-0.5">Your uploaded quotation is currently under review by our technical team.</p>
                             </div>
                         </div>
                     </div>
                 `;
             } else if (["OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage)) {
                 
-                // 🟢 NEW: DYNAMIC INTERACTIVE STEPPER 
-                const timeline = leadData?.timeline || {};
-                let stepperHTML = `<div class="mt-5 space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">`;
+                // 🚀 FIX: Map out logical timeline statuses from macro stage when leadData is missing on manual refresh
+                let timeline = leadData?.timeline || {};
+                if (!leadData || !leadData.timeline) {
+                    timeline = {
+                        agreementSigned: { status: ["AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        netMetering: { status: ["NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        installation: { status: ["INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        subsidy: { status: ["SUBSIDY_CREDITED"].includes(stage) }
+                    };
+                }
 
-                // Interactive steps start from index 5 in the journeyMilestones array
+                let stepperHTML = `<div class="mt-5 space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">`;
                 const executionSteps = journeyMilestones.slice(5); 
 
                 executionSteps.forEach((step, index) => {
