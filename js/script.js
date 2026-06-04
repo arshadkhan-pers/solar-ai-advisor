@@ -241,8 +241,8 @@ async function submitLeadAndContinue(event) {
     submitBtn.innerText = "Show My Savings Report";
     return;
   }
-  // -----------------------------------------------------
-    try {
+
+  try {
     // Look for ANY existing active lead for this user, not just 24 hours
     const snapshot = await db.collection("leads")
         .where("normalizedPhone", "==", phone)
@@ -269,16 +269,16 @@ async function submitLeadAndContinue(event) {
         window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
         return;
     }
-    }
+
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
 
-      // ✅ SECURE LOCAL RESOLUTION
+    // ✅ SECURE LOCAL RESOLUTION
     // No API dependency. Using your existing reliable local logic.
     const resolvedState = getStateFromPin(pincode);
     const resolvedCity = "Not Provided"; // Results page will prompt user to select this via dropdown later
 
-      const docRef = await db.collection("leads").add({
+    const docRef = await db.collection("leads").add({
       name: name || "Homeowner", 
       email: email || "",
       phone,
@@ -312,14 +312,14 @@ async function submitLeadAndContinue(event) {
     });
     
     localStorage.setItem("leadId", docRef.id);
-    localStorage.setItem("leadCode", leadCode); // Save this locally
+    localStorage.setItem("leadCode", leadCode); 
     localStorage.setItem("state", resolvedState);
     localStorage.setItem("leadName", name || "Homeowner");
     localStorage.setItem("leadPhone", phone);
     localStorage.setItem("leadCity", resolvedCity);
     localStorage.setItem("leadBill", bill);
     
- // Redirect to results with the locally resolved state
+    // Redirect to results with the locally resolved state
     window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=`;
 
   } catch (error) {
@@ -329,6 +329,7 @@ async function submitLeadAndContinue(event) {
     alert("Submission failed. Please try again.");
   }
 }
+
 
 
 // ==========================================
