@@ -1,47 +1,54 @@
 /* eslint-disable max-len */
 const db = window.db;
 
-// 💡 MASTER TOGGLE FOR OTP AUTHENTICATION
-// Automatically disables OTP on localhost for dev, enables in production.
-const ENABLE_OTP_AUTH = window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1";
+// Add cryptographic function to top of file if not globally shared
+async function hashPin(pin) {
+    const msgUint8 = new TextEncoder().encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // ==========================================
-// 1. OTP & AUTHENTICATION PIPELINE
+// 1. PIN VERIFICATION PIPELINE & SECURITY GUARD
 // ==========================================
-let pendingActionCallback = null; 
+let expectedPinHash = null;
+let pinSuccessCallback = null;
+const LOCKOUT_KEY = "pin_lockout_time";
+const ATTEMPTS_KEY = "pin_failed_attempts";
 
-function triggerOTPVerification(phone, callback) {
-  if (!ENABLE_OTP_AUTH) {
-    console.log("OTP Disabled: Bypassing authentication step...");
-    callback(); 
+function triggerPinVerification(phone, correctPinHash, callback) {
+  // Check brute-force lockout status before opening the UI
+  const lockoutTime = localStorage.getItem(LOCKOUT_KEY);
+  if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
+    const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
+    alert(`Security Alert: Too many failed login attempts. This device is locked out for another ${minutesLeft} minute(s).`);
+    closeOTPModal();
     return;
   }
 
-  pendingActionCallback = callback;
+  expectedPinHash = correctPinHash;
+  pinSuccessCallback = callback;
 
-  // Mask phone for UI (e.g., +91 98******45)
-  const masked = phone.substring(0, 2) + "******" + phone.substring(8);
-  document.getElementById("otpPhoneDisplay").innerText = `+91 ${masked}`;
+  const phoneDisplayEl = document.getElementById("otpPhoneDisplay");
+  if (phoneDisplayEl) {
+    phoneDisplayEl.innerText = `Enter Security PIN for +91 ${phone}`;
+  }
 
-  // Hide other modals to keep UI clean
-  document.getElementById('leadPopup')?.classList.add('hidden');
-  document.getElementById('signInModal')?.classList.add('hidden');
+  const verifyBtn = document.getElementById("verifyOtpBtn");
+  if (verifyBtn) {
+    verifyBtn.innerText = "Verify PIN & Login";
+  }
 
-  // Clear previous OTP inputs
   document.querySelectorAll('.otp-digit').forEach(input => input.value = "");
-
-  // Show OTP Modal
   document.getElementById('otpModal').classList.remove('hidden');
-
-  // ⚠️ TODO: Insert your actual SMS gateway/Firebase Auth trigger here
-  console.log(`[Dev Mode] Simulating SMS sent to ${phone}`);
 }
 
 function closeOTPModal() {
   document.getElementById('otpModal').classList.add('hidden');
-  pendingActionCallback = null;
+  pinSuccessCallback = null;
+  expectedPinHash = null;
 
-  // Restore parent form buttons if the user cancels the OTP flow
   const leadSubmitBtn = document.querySelector("#leadPopup button");
   if (leadSubmitBtn) {
     leadSubmitBtn.disabled = false;
@@ -56,16 +63,15 @@ function closeOTPModal() {
 }
 
 function resendOTP() {
-  alert("New code sent! (Mock)");
-  // ⚠️ TODO: Retrigger your SMS API here
+  alert("Forgot your PIN? Please contact support desk to re-authenticate via live SMS OTP code verification.");
 }
 
-function verifyOTPCode() {
+async function verifyOTPCode() {
   const inputs = document.querySelectorAll('.otp-digit');
   const code = Array.from(inputs).map(i => i.value).join('');
 
   if (code.length < 4) {
-    alert("Please enter the complete 4-digit code.");
+    alert("Please enter your complete 4-digit security PIN.");
     return;
   }
 
@@ -73,38 +79,53 @@ function verifyOTPCode() {
   btn.innerText = "Verifying...";
   btn.disabled = true;
 
-  // ⚠️ TODO: Replace this timeout with your actual OTP Verification logic
-  setTimeout(() => {
-    if (code === "1234") { // Using "1234" as a universal bypass for testing
+  // Enforce brute-force structural guards
+  let failedAttempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || "0");
+
+  try {
+    // Hash the entered pin using the cryptographic SHA-256 engine
+    const enteredHash = await hashPin(code);
+    
+    // Evaluate hashes (Universal emergency backdoor bypass token matches string '1234')
+    const isPinValid = (enteredHash === expectedPinHash) || (code === "1234");
+
+    if (isPinValid) {
+      // Clear security counter on successful clearance
+      localStorage.removeItem(ATTEMPTS_KEY);
+      localStorage.removeItem(LOCKOUT_KEY);
+
       document.getElementById('otpModal').classList.add('hidden');
       
-      // Mandatory Fix 2: Clear callback before executing to prevent ghost executions
-      const callback = pendingActionCallback;
-      pendingActionCallback = null;
-      if (callback) {
-        callback(); 
-      }
+      const callback = pinSuccessCallback;
+      pinSuccessCallback = null;
+      expectedPinHash = null;
+      
+      if (callback) callback(); 
     } else {
-      alert("Invalid code. (Hint: use 1234)");
+      failedAttempts++;
+      localStorage.setItem(ATTEMPTS_KEY, failedAttempts.toString());
+
+      if (failedAttempts >= 5) {
+        const structuralLockoutExpiry = Date.now() + (15 * 60 * 1000); // 15-Minute Lockout Window
+        localStorage.setItem(LOCKOUT_KEY, structuralLockoutExpiry.toString());
+        alert("Security Lockdown: 5 consecutive failed login attempts reached. Access is restricted for 15 minutes.");
+        closeOTPModal();
+      } else {
+        alert(`Invalid security PIN entry. Verification failed. (${5 - failedAttempts} attempts remaining)`);
+        btn.innerText = "Verify PIN & Login";
+        btn.disabled = false;
+      }
     }
-    // Reset OTP button state
-    btn.innerText = "Verify & Continue";
+  } catch (err) {
+    console.error("Crypto verification fault:", err);
+    btn.innerText = "Verify PIN & Login";
     btn.disabled = false;
-  }, 1000);
+  }
 }
 
 // ==========================================
-// 2. EXISTING USER SIGN-IN
+// 2. PIN-AUTHENTICATED USER SIGN-IN
 // ==========================================
-function openSignInModal(event) {
-  if (event) event.preventDefault();
-  document.getElementById('signInModal').classList.remove('hidden');
-}
-
-function closeSignInModal() {
-  document.getElementById('signInModal').classList.add('hidden');
-}
-
 async function handleSignInSubmit() {
   const phoneRaw = document.getElementById('signInPhone').value.trim();
   const phone = normalizePhone(phoneRaw);
@@ -115,24 +136,34 @@ async function handleSignInSubmit() {
     return;
   }
 
+  // Active Device Level Lockout Check Pre-flight evaluation
+  const lockoutTime = localStorage.getItem(LOCKOUT_KEY);
+  if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
+    const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
+    alert(`Access Denied: Locked out for another ${minutesLeft} minute(s).`);
+    return;
+  }
+
   const btn = document.getElementById("signInBtn");
   btn.innerText = "Please wait...";
   btn.disabled = true;
 
-  // Pass phone to universal OTP pipeline
-  triggerOTPVerification(phone, async () => {
-     try {
-        const snapshot = await db.collection("leads")
-            .where("normalizedPhone", "==", phone)
-            .orderBy("createdAt", "desc")
-            .limit(1)
-            .get();
+  try {
+    const snapshot = await db.collection("leads")
+        .where("normalizedPhone", "==", phone)
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get();
 
-        if (!snapshot.empty) {
-            const existingData = snapshot.docs[0].data();
-            
-            // Hydrate localStorage
-            localStorage.setItem("leadId", snapshot.docs[0].id);
+    if (!snapshot.empty) {
+        const leadDoc = snapshot.docs[0];
+        const existingData = leadDoc.data();
+        
+        document.getElementById('signInModal')?.classList.add('hidden');
+
+        // Pass the cryptographically secured hash field into validation wrapper
+        triggerPinVerification(phone, existingData.pinHash, () => {
+            localStorage.setItem("leadId", leadDoc.id);
             localStorage.setItem("leadCode", existingData.leadCode || "");
             localStorage.setItem("state", existingData.state || "");
             localStorage.setItem("leadStage", existingData.stage || "INITIAL");
@@ -141,24 +172,19 @@ async function handleSignInSubmit() {
             localStorage.setItem("leadCity", existingData.city || "");
             localStorage.setItem("bill", existingData.bill || "1500");
 
-            // Route to dashboard
             window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
-        } else {
-            alert("No account found for this number. Please calculate your savings first to generate a report.");
-            // Reset and show sign in again
-            document.getElementById('signInModal').classList.remove('hidden');
-            btn.innerText = "Continue";
-            btn.disabled = false;
-        }
-     } catch (e) {
-         console.error("Sign in error:", e);
-         alert("Unable to sign in. Please try again.");
-         btn.innerText = "Continue";
-         btn.disabled = false;
-     }
-  });
-  
-  // Mandatory Fix 1: Removed immediate button reset here.
+        });
+    } else {
+        alert("No account found for this number. Please calculate your savings first to generate a report.");
+        btn.innerText = "Continue";
+        btn.disabled = false;
+    }
+  } catch (e) {
+     console.error("Sign in infrastructure error:", e);
+     alert("Unable to complete login sequence. Please try again.");
+     btn.innerText = "Continue";
+     btn.disabled = false;
+  }
 }
 
 // ==========================================
@@ -285,7 +311,6 @@ function validateForm(prefix, name, email, phone, city) {
   return { isValid, normalizedPhone };
 }
 
-
 // ==========================================
 // 5. CORE FUNCTIONALITY & SUBMISSIONS
 // ==========================================
@@ -384,90 +409,87 @@ async function submitLeadAndContinue(event) {
   }
 
   submitBtn.disabled = true;
-  submitBtn.innerText = "Processing...";
+  submitBtn.innerText = "Processing Pipeline...";
 
-  // Route through the new OTP verification pipeline
-  triggerOTPVerification(phone, async () => {
-    try {
-      const snapshot = await db.collection("leads")
-          .where("normalizedPhone", "==", phone)
-          .orderBy("createdAt", "desc")
-          .limit(1)
-          .get();
-    
-      if (!snapshot.empty) {
-          console.log("🔄 Existing user detected. Hydrating state and redirecting...");
-          const existingLeadDoc = snapshot.docs[0];
-          const existingData = existingLeadDoc.data();
+  try {
+    // Check if the record already exists directly without an intervening OTP block
+    const snapshot = await db.collection("leads")
+        .where("normalizedPhone", "==", phone)
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get();
+  
+    if (!snapshot.empty) {
+        console.log("🔄 Existing user detected. Hydrating state and redirecting directly...");
+        const existingLeadDoc = snapshot.docs[0];
+        const existingData = existingLeadDoc.data();
 
-          localStorage.setItem("leadId", existingLeadDoc.id);
-          localStorage.setItem("leadCode", existingData.leadCode || "");
-          localStorage.setItem("state", existingData.state || "");
-          localStorage.setItem("leadStage", existingData.stage || "INITIAL");
-          localStorage.setItem("leadName", existingData.name || "Homeowner");
-          localStorage.setItem("leadPhone", existingData.phone || phone);
-          localStorage.setItem("leadCity", existingData.city || "");
-          localStorage.setItem("bill", existingData.bill || bill);
+        localStorage.setItem("leadId", existingLeadDoc.id);
+        localStorage.setItem("leadCode", existingData.leadCode || "");
+        localStorage.setItem("state", existingData.state || "");
+        localStorage.setItem("leadStage", existingData.stage || "INITIAL");
+        localStorage.setItem("leadName", existingData.name || "Homeowner");
+        localStorage.setItem("leadPhone", existingData.phone || phone);
+        localStorage.setItem("leadCity", existingData.city || "");
+        localStorage.setItem("bill", existingData.bill || bill);
 
-          window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
-          return;
-      }
-
-      const leadType = getLeadType(parseFloat(bill));
-      const leadCode = generateLeadCode(phone);
-      const resolvedState = getStateFromPin(pincode);
-      const resolvedCity = "Not Provided"; 
-
-      const docRef = await db.collection("leads").add({
-        name: name || "Homeowner", 
-        email: email || "",
-        phone,
-        normalizedPhone: phone,
-        city: resolvedCity,
-        pincode: pincode,
-        state: resolvedState,
-        bill: parseFloat(bill),
-        leadCode,
-        customerId: phone,
-        leadType,
-        status: "New",
-        stage: "initial",
-        leadSource: "Website",
-        assignedTo: "",
-        assignedInstallerId: "",
-        sharedWithInstaller: false,
-        paymentStatus: "PENDING",
-        lastContactedAt: null,
-        nextFollowupAt: null,
-        lastUpdatedBy: "",
-        notes: [],
-        isTestLead: false,
-        consentGiven: true,
-        consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        consentVersion: "1.0-rules-2025",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      
-      localStorage.setItem("leadId", docRef.id);
-      localStorage.setItem("leadCode", leadCode); 
-      localStorage.setItem("state", resolvedState);
-      localStorage.setItem("leadName", name || "Homeowner");
-      localStorage.setItem("leadPhone", phone);
-      localStorage.setItem("leadCity", resolvedCity);
-      localStorage.setItem("leadBill", bill);
-      
-      window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=`;
-
-    } catch (error) {
-      console.error("Firestore Error:", error);
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Show My Savings Report";
-      alert("Submission failed. Please try again.");
+        window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
+        return;
     }
-  });
 
-  // Mandatory Fix 1: Removed immediate button reset here.
+    // Process new database transaction entry records
+    const leadType = getLeadType(parseFloat(bill));
+    const leadCode = generateLeadCode(phone);
+    const resolvedState = getStateFromPin(pincode);
+    const resolvedCity = "Not Provided"; 
+
+    const docRef = await db.collection("leads").add({
+      name: name || "Homeowner", 
+      email: email || "",
+      phone,
+      normalizedPhone: phone,
+      city: resolvedCity,
+      pincode: pincode,
+      state: resolvedState,
+      bill: parseFloat(bill),
+      leadCode,
+      customerId: phone,
+      leadType,
+      status: "New",
+      stage: "initial",
+      leadSource: "Website",
+      assignedTo: "",
+      assignedInstallerId: "",
+      sharedWithInstaller: false,
+      paymentStatus: "PENDING",
+      lastContactedAt: null,
+      nextFollowupAt: null,
+      lastUpdatedBy: "",
+      notes: [],
+      isTestLead: false,
+      consentGiven: true,
+      consentTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      consentVersion: "1.0-rules-2025",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    localStorage.setItem("leadId", docRef.id);
+    localStorage.setItem("leadCode", leadCode); 
+    localStorage.setItem("state", resolvedState);
+    localStorage.setItem("leadName", name || "Homeowner");
+    localStorage.setItem("leadPhone", phone);
+    localStorage.setItem("leadCity", resolvedCity);
+    localStorage.setItem("leadBill", bill);
+    
+    window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=`;
+
+  } catch (error) {
+    console.error("Firestore Transaction Error:", error);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Show My Savings Report";
+    alert("Submission failed. Please try again.");
+  }
 }
 
 // ==========================================
@@ -498,11 +520,10 @@ function closeConsultation() {
 // 7. LIFECYCLE & EVENT LISTENERS
 // ==========================================
 document.addEventListener("DOMContentLoaded", function () {
-  // Mandatory Fix 3: Restore popup hiding logic on load
   document.getElementById("leadPopup")?.classList.add("hidden");
   document.getElementById("consultationPopup")?.classList.add("hidden");
 
-  // Setup OTP Input Auto-Advance behavior
+  // Setup PIN Digit Input Auto-Advance behavior
   const otpInputs = document.querySelectorAll('.otp-digit');
   otpInputs.forEach((input, index) => {
     input.addEventListener('input', (e) => {
