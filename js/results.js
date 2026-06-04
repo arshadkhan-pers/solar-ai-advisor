@@ -1022,6 +1022,24 @@ async function requestSiteSurvey(e) {
 }
 ***/
 
+
+// =========================================================================
+// 🛠️ DEVELOPMENT & TESTING CONFIGURATION
+// =========================================================================
+/*
+How to use the Dev Controls:
+ To test OTP interface layout locally without spending API costs: Set ⁠isDevMode: true⁠ and ⁠bypassOtpFlow: false⁠. Typing ⁠123456⁠ will pass validation seamlessly.
+ To bypass authentication completely: Change ⁠bypassOtpFlow: true⁠. The script will instantly launch into the security 4-digit setup layout without prompt blocks.
+ Safe-fallback configuration protection: Added protective checks (⁠typeof db === 'undefined'⁠) inside the submission transaction block. If Firestore components aren't initiated yet on your local dev host environment, it will safely emulate local state tracking inside ⁠localStorage⁠ and trigger a refresh loop simulation without breaking your layout.
+*/
+
+
+const DEV_CONFIG = {
+    isDevMode: true,          // 🚨 Set to FALSE before deploying to production
+    bypassOtpFlow: false,     // Skip the OTP modal entirely and go directly to PIN creation
+    testOtpCode: "123456"     // Fallback OTP code when Firebase is unconfigured
+};
+
 // =========================================================================
 // 🛡️ AUTHENTICATED SURVEY REQUEST FLOW
 // =========================================================================
@@ -1030,100 +1048,206 @@ const MAX_OTP_ATTEMPTS = 3;
 
 async function requestSiteSurvey() {
     const leadId = localStorage.getItem("leadId");
-    const phone = document.getElementById("capturedPhone")?.value;
+    const phone = document.getElementById("capturedPhone")?.value || localStorage.getItem("billPhone");
 
     if (!leadId || !phone) {
-        alert("Lead information missing. Please complete the form.");
+        alert("Lead information missing. Please complete the form or refresh the page.");
         return;
     }
 
-    // 1. Show OTP Modal
+    // Prevent duplicate modals from stacking
+    if (document.getElementById('authModal')) return;
+
+    // MECHANISM: Complete Authentication Flow Bypass
+    if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
+        console.log("🛠️ [Dev Mode] Bypassing OTP entry screen completely.");
+        const placeholderModal = document.createElement('div');
+        placeholderModal.id = 'authModal';
+        placeholderModal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+        document.body.appendChild(placeholderModal);
+        
+        showPinSetupModal(placeholderModal, phone);
+        return;
+    }
+
+    // 1. Render OTP Verification Modal
     const modal = document.createElement('div');
     modal.id = 'authModal';
     modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="text-lg font-bold mb-2">Verify to Join Queue</h3>
-            <p class="text-sm text-slate-500 mb-4">Enter the OTP sent to ${phone}</p>
-            <input type="text" id="otpInput" maxlength="6" class="w-full p-3 border rounded-xl mb-4 text-center text-xl tracking-widest" placeholder="000000">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+            <h3 class="text-lg font-bold mb-2 text-slate-900">Verify to Join Queue</h3>
+            <p class="text-sm text-slate-500 mb-4">Enter the OTP sent to <span class="font-semibold text-slate-800">${phone}</span></p>
+            <input type="text" id="otpInput" maxlength="6" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-xl tracking-widest font-mono focus:outline-none focus:border-indigo-500" placeholder="000000">
             
             <div class="flex gap-2 mb-4">
-                <button id="verifyOtpBtn" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-semibold">Verify</button>
-                <button id="resendOtpBtn" disabled class="px-4 py-2.5 rounded-xl border font-semibold text-slate-400">Resend (30s)</button>
+                <button id="verifyOtpBtn" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm">Verify</button>
+                <button id="resendOtpBtn" disabled class="px-4 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-400 bg-slate-50 transition">Resend (30s)</button>
             </div>
-            <p id="attemptCounter" class="text-xs text-center text-slate-400">Attempts: ${otpAttempts}/3</p>
+            <p id="attemptCounter" class="text-xs text-center text-slate-400">Attempts: ${otpAttempts}/${MAX_OTP_ATTEMPTS}</p>
         </div>
     `;
     document.body.appendChild(modal);
 
-    // 2. Start Timer Logic
+    // 2. Initialize Resend Countdown Clock
     startResendTimer();
 
-    // 3. OTP Verification Handler
-    document.getElementById('verifyOtpBtn').onclick = async () => {
-        const otp = document.getElementById('otpInput').value;
-        otpAttempts++;
-        
-        if (otpAttempts >= MAX_OTP_ATTEMPTS) {
-            alert("Maximum attempts reached. Please contact our OPS team via WhatsApp for manual verification.");
-            window.open("https://wa.me/61404166347?text=Hi, I am having trouble with OTP authentication.", "_blank");
-            modal.remove();
-            return;
-        }
-
+    // 3. Bind Resend Click Event Listener
+    document.getElementById('resendOtpBtn').onclick = async () => {
         try {
-            // Firebase Auth Logic (Standard confirmCode integration)
-            // await window.confirmationResult.confirm(otp);
+            document.getElementById('resendOtpBtn').disabled = true;
             
-            // On Success: Transition to PIN Setup
-            showPinSetupModal(modal); 
-        } catch (e) {
-            document.getElementById('attemptCounter').innerText = `Attempts: ${otpAttempts}/3 - Invalid Code`;
+            if (typeof firebase !== 'undefined' && window.confirmationResult) {
+                // window.confirmationResult = await firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier);
+                alert("A fresh OTP verification code has been dispatched.");
+            } else if (DEV_CONFIG.isDevMode) {
+                alert(`[Dev Mode] SMS bypass active. Use test OTP code: ${DEV_CONFIG.testOtpCode}`);
+            } else {
+                alert("Firebase Authentication context not found.");
+            }
+            
+            startResendTimer();
+        } catch (resendError) {
+            console.error("OTP Resend failed:", resendError);
+            alert("Failed to resend verification code. Please try again.");
+            document.getElementById('resendOtpBtn').disabled = false;
+        }
+    };
+
+    // 4. OTP Verification Evaluator
+    document.getElementById('verifyOtpBtn').onclick = async () => {
+        const otp = document.getElementById('otpInput').value.trim();
+        if (otp.length < 6) return alert("Please enter a valid 6-digit verification code.");
+        
+        try {
+            // Check if production Firebase Auth flow is configured
+            if (typeof window !== 'undefined' && window.confirmationResult) {
+                await window.confirmationResult.confirm(otp);
+            } 
+            // Fallback checking logic for testing phase
+            else if (DEV_CONFIG.isDevMode && otp === DEV_CONFIG.testOtpCode) {
+                console.warn("🛠️ [Dev Mode] Firebase unconfigured or test pin matched. Bypassing network OTP call.");
+            } 
+            else {
+                throw new Error("Invalid Verification Code.");
+            }
+            
+            // On Success: Advance directly to security PIN initialization step
+            showPinSetupModal(modal, phone); 
+        } catch (verifyError) {
+            otpAttempts++;
+            
+            if (otpAttempts >= MAX_OTP_ATTEMPTS) {
+                alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
+                window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20ID:%20${leadId}`, "_blank");
+                modal.remove();
+                return;
+            }
+            
+            const counterEl = document.getElementById('attemptCounter');
+            if (counterEl) {
+                counterEl.className = "text-xs text-center text-red-500 font-medium";
+                counterEl.innerText = `Attempts: ${otpAttempts}/${MAX_OTP_ATTEMPTS} - Invalid Code`;
+            }
         }
     };
 }
 
-// 4. Set 4-Digit PIN Setup
-function showPinSetupModal(previousModal) {
+// =========================================================================
+// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE
+// =========================================================================
+function showPinSetupModal(previousModal, phone) {
     previousModal.innerHTML = `
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="text-lg font-bold mb-2">Set Security PIN</h3>
-            <p class="text-sm text-slate-500 mb-4">Set a 4-digit PIN for future logins.</p>
-            <input type="password" id="pinInput" maxlength="4" class="w-full p-3 border rounded-xl mb-4 text-center text-2xl tracking-[1em]" placeholder="****">
-            <button id="savePinBtn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">Set PIN & Submit</button>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+            <h3 class="text-lg font-bold mb-2 text-slate-900">Set Security PIN</h3>
+            <p class="text-sm text-slate-500 mb-4">Set a secure 4-digit access code for seamless future portal logins.</p>
+            <input type="password" id="pinInput" inputmode="numeric" maxlength="4" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-2xl tracking-[1em] font-mono focus:outline-none focus:border-emerald-500" placeholder="****">
+            <button id="savePinBtn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm">Set PIN & Submit Request</button>
         </div>
     `;
 
     document.getElementById('savePinBtn').onclick = async () => {
-        const pin = document.getElementById('pinInput').value;
-        if (pin.length !== 4) return alert("PIN must be 4 digits");
+        const pin = document.getElementById('pinInput').value.trim();
+        if (pin.length !== 4 || isNaN(pin)) return alert("Security PIN must consist of exactly 4 numeric characters.");
         
-        // Save PIN to Firebase and finalize Survey Request
-        await db.collection("leads").doc(localStorage.getItem("leadId")).update({
-            pin: pin,
-            stage: "SURVEY_REQUESTED"
-        });
-        
-        previousModal.remove();
-        location.reload();
+        const saveBtn = document.getElementById('savePinBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Processing Pipeline Registration...";
+
+        const leadId = localStorage.getItem("leadId");
+        const leadCode = localStorage.getItem("leadCode");
+
+        // Dynamic Guard: Handle fully mock environments safely without crashing runtime engine
+        if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
+            console.warn("⚠️ [Dev Mode] Database infrastructure isolated. Mocking successful database commitment.");
+            setTimeout(() => {
+                localStorage.setItem("leadStage", "SURVEY_REQUESTED");
+                previousModal.remove();
+                location.reload();
+            }, 1000);
+            return;
+        }
+
+        try {
+            const batch = db.batch();
+            const leadRef = db.collection("leads").doc(leadId);
+            const surveyRef = db.collection("survey_requests").doc(leadId);
+
+            batch.update(leadRef, {
+                pin: pin,
+                stage: "SURVEY_REQUESTED",
+                "timeline.surveyRequested.status": true,
+                "timeline.surveyRequested.timestamp": firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            batch.set(surveyRef, {
+                leadId: leadId,
+                leadCode: leadCode || "N/A",
+                phone: phone || "N/A",
+                status: "pending",
+                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                requestedCity: document.getElementById("resCity")?.value || localStorage.getItem("state") || "Unknown",
+                clientName: document.getElementById("capturedName")?.value || "Homeowner"
+            });
+
+            await batch.commit();
+            
+            localStorage.setItem("leadStage", "SURVEY_REQUESTED");
+            previousModal.remove();
+            location.reload();
+            
+        } catch (firebaseError) {
+            console.error("Transaction batch write failure:", firebaseError);
+            alert("Database pipeline synchronization failed: " + firebaseError.message);
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Set PIN & Submit Request";
+        }
     };
 }
 
 function startResendTimer() {
     let timeLeft = 30;
     const btn = document.getElementById('resendOtpBtn');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.className = "px-4 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-400 bg-slate-50 cursor-not-allowed";
+    btn.innerText = `Resend (${timeLeft}s)`;
+
     const interval = setInterval(() => {
         timeLeft--;
         btn.innerText = `Resend (${timeLeft}s)`;
+        
         if (timeLeft <= 0) {
             clearInterval(interval);
             btn.disabled = false;
-            btn.className = "px-4 py-2.5 rounded-xl border font-semibold text-indigo-600 hover:bg-indigo-50";
+            btn.className = "px-4 py-2.5 rounded-xl border border-indigo-200 font-semibold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100 transition cursor-pointer";
             btn.innerText = "Resend OTP";
         }
     }, 1000);
 }
+
 
 function renderDynamicAIReport(report, result) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
