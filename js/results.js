@@ -1173,19 +1173,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
 
     if (leadId) {
+        // 1. Setup real-time listeners for timeline updates
         if (typeof setupRealTimeTimeline === "function") {
             setupRealTimeTimeline(leadId);
-        } else {
-            console.warn("setupRealTimeTimeline framework utility is missing from viewport dependencies.");
         }
 
         try {
+            // 2. Fetch the master lead doc to verify current state
+            const leadDoc = await db.collection("leads").doc(leadId).get();
+            if (leadDoc.exists) {
+                const leadData = leadDoc.data();
+                
+                // 3. Lock out the AI Generation Form if already processed
+                const currentStage = leadData.stage || "INITIAL";
+                if (currentStage !== "INITIAL") {
+                    const formContainer = document.getElementById("leadForm");
+                    if (formContainer) {
+                        formContainer.classList.add("hidden"); // Hide form completely
+                    }
+                }
+                
+                // Keep local storage synced with DB truth
+                localStorage.setItem("leadStage", currentStage);
+                updateRoadmap(currentStage, leadData);
+            }
+
+            // 4. Fetch AI Report Cache
             const aiDoc = await db.collection("ai_reports").doc(leadId).get();
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
             }
         } catch (err) {
-            console.error("Error syncing static assets:", err);
+            console.error("Error syncing platform state:", err);
         }
     }
 
@@ -1200,8 +1219,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             localStorage.setItem("state", newState); 
             calculateSavings(); 
         }, initialState);
-    } else {
-        console.warn("LocationHandler component missing from runtime context.");
     }
 
     const initialResult = calculateSavings(); 
@@ -1209,6 +1226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
          renderDynamicAIReport(aiReportCache, initialResult);
     }
 });
+
 
 function calculateSavings() {
     const billInput = document.getElementById("capturedBill");
