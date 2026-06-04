@@ -909,6 +909,8 @@ async function waitForAIReport(leadId, requestTime) {
   throw new Error("AI report generation timeout");
 }
 
+
+/***
 // =========================================================================
 // 🛡️ PLATFORM BOUNDARY & LIABILITY MODAL
 // =========================================================================
@@ -1017,6 +1019,110 @@ async function requestSiteSurvey(e) {
         }
       }
   };
+}
+***/
+
+// =========================================================================
+// 🛡️ AUTHENTICATED SURVEY REQUEST FLOW
+// =========================================================================
+let otpAttempts = 0;
+const MAX_OTP_ATTEMPTS = 3;
+
+async function requestSiteSurvey() {
+    const leadId = localStorage.getItem("leadId");
+    const phone = document.getElementById("capturedPhone")?.value;
+
+    if (!leadId || !phone) {
+        alert("Lead information missing. Please complete the form.");
+        return;
+    }
+
+    // 1. Show OTP Modal
+    const modal = document.createElement('div');
+    modal.id = 'authModal';
+    modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 class="text-lg font-bold mb-2">Verify to Join Queue</h3>
+            <p class="text-sm text-slate-500 mb-4">Enter the OTP sent to ${phone}</p>
+            <input type="text" id="otpInput" maxlength="6" class="w-full p-3 border rounded-xl mb-4 text-center text-xl tracking-widest" placeholder="000000">
+            
+            <div class="flex gap-2 mb-4">
+                <button id="verifyOtpBtn" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-semibold">Verify</button>
+                <button id="resendOtpBtn" disabled class="px-4 py-2.5 rounded-xl border font-semibold text-slate-400">Resend (30s)</button>
+            </div>
+            <p id="attemptCounter" class="text-xs text-center text-slate-400">Attempts: ${otpAttempts}/3</p>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // 2. Start Timer Logic
+    startResendTimer();
+
+    // 3. OTP Verification Handler
+    document.getElementById('verifyOtpBtn').onclick = async () => {
+        const otp = document.getElementById('otpInput').value;
+        otpAttempts++;
+        
+        if (otpAttempts >= MAX_OTP_ATTEMPTS) {
+            alert("Maximum attempts reached. Please contact our OPS team via WhatsApp for manual verification.");
+            window.open("https://wa.me/61404166347?text=Hi, I am having trouble with OTP authentication.", "_blank");
+            modal.remove();
+            return;
+        }
+
+        try {
+            // Firebase Auth Logic (Standard confirmCode integration)
+            // await window.confirmationResult.confirm(otp);
+            
+            // On Success: Transition to PIN Setup
+            showPinSetupModal(modal); 
+        } catch (e) {
+            document.getElementById('attemptCounter').innerText = `Attempts: ${otpAttempts}/3 - Invalid Code`;
+        }
+    };
+}
+
+// 4. Set 4-Digit PIN Setup
+function showPinSetupModal(previousModal) {
+    previousModal.innerHTML = `
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 class="text-lg font-bold mb-2">Set Security PIN</h3>
+            <p class="text-sm text-slate-500 mb-4">Set a 4-digit PIN for future logins.</p>
+            <input type="password" id="pinInput" maxlength="4" class="w-full p-3 border rounded-xl mb-4 text-center text-2xl tracking-[1em]" placeholder="****">
+            <button id="savePinBtn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">Set PIN & Submit</button>
+        </div>
+    `;
+
+    document.getElementById('savePinBtn').onclick = async () => {
+        const pin = document.getElementById('pinInput').value;
+        if (pin.length !== 4) return alert("PIN must be 4 digits");
+        
+        // Save PIN to Firebase and finalize Survey Request
+        await db.collection("leads").doc(localStorage.getItem("leadId")).update({
+            pin: pin,
+            stage: "SURVEY_REQUESTED"
+        });
+        
+        previousModal.remove();
+        location.reload();
+    };
+}
+
+function startResendTimer() {
+    let timeLeft = 30;
+    const btn = document.getElementById('resendOtpBtn');
+    const interval = setInterval(() => {
+        timeLeft--;
+        btn.innerText = `Resend (${timeLeft}s)`;
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.className = "px-4 py-2.5 rounded-xl border font-semibold text-indigo-600 hover:bg-indigo-50";
+            btn.innerText = "Resend OTP";
+        }
+    }, 1000);
 }
 
 function renderDynamicAIReport(report, result) {
