@@ -242,42 +242,33 @@ async function submitLeadAndContinue(event) {
     return;
   }
   // -----------------------------------------------------
-
-  try {
-    const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
+    try {
+    // Look for ANY existing active lead for this user, not just 24 hours
     const snapshot = await db.collection("leads")
-    .where("normalizedPhone", "==", phone)
-    .where("createdAt", ">=", last24Hours)
-    .orderBy("createdAt", "desc")
-    .limit(1)
-    .get();
+        .where("normalizedPhone", "==", phone)
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get();
   
     if (!snapshot.empty) {
-      console.log("⚠️ Duplicate lead prevented");
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Show My Savings Report";
+        console.log("🔄 Existing user detected. Hydrating state and redirecting to portal...");
+        const existingLeadDoc = snapshot.docs[0];
+        const existingData = existingLeadDoc.data();
 
-      document.getElementById("leadPopup")?.classList.add("hidden");
+        // 1. Hydrate LocalStorage so results.js functions correctly
+        localStorage.setItem("leadId", existingLeadDoc.id);
+        localStorage.setItem("leadCode", existingData.leadCode || "");
+        localStorage.setItem("state", existingData.state || "");
+        localStorage.setItem("leadStage", existingData.stage || "INITIAL");
+        localStorage.setItem("leadName", existingData.name || "Homeowner");
+        localStorage.setItem("leadPhone", existingData.phone || phone);
+        localStorage.setItem("leadCity", existingData.city || "");
+        localStorage.setItem("bill", existingData.bill || bill);
 
-      const openWhatsAppNow = confirm(
-        "You have already submitted a solar request in the last 24 hours.\n\nOur solar advisor team will contact you shortly.\n\nWould you like to chat with us on WhatsApp now?"
-      );
-
-      if (openWhatsAppNow) {
-        const state = localStorage.getItem("state") || "";
-        const message =
-          `Hi, I already submitted a solar request.\n\n` +
-          `Name: ${name || "Homeowner"}\n` +
-          `Phone: ${phone}\n` +
-          `Pincode: ${pincode}\n` +
-          `State: ${state}\n` +
-          `Monthly Bill: ₹${bill}\n\n` +
-          `I would like to speak with your solar advisor team.`;
-
-        openWhatsAppChat(message);
-      }
-      return;
+        // 2. Route directly to their personalized dashboard
+        window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
+        return;
+    }
     }
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
