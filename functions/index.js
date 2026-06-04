@@ -479,7 +479,6 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated({ document: "leads/{leadI
 
   if (isNewlyAssigned) {
     if (!hasInstallerEmail) {
-      // ⚠️ Missing email warning check added here
       console.error(`[triggerLeadAssignmentEmail] CRITICAL ERROR: Lead ${event.params.leadId} switched status to 'assigned', but 'installerEmail' field is missing or empty!`);
       return null;
     }
@@ -489,7 +488,7 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated({ document: "leads/{leadI
       phone, 
       address, 
       city, 
-      bill, // 🤝 Updated from 'monthlyBill' to correctly access the 'bill' field
+      bill, 
       systemSizeKw, 
       netCost, 
       billUrl, 
@@ -571,4 +570,82 @@ exports.triggerLeadAssignmentEmail = onDocumentUpdated({ document: "leads/{leadI
     }
   }
   return null;
+});
+
+
+// =====================================================================
+// 🔒 HTTPS CALLABLE v2: SECURE PIN AUTHENTICATION ENGINE
+// =====================================================================
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+
+exports.verifyLeadPin = onCall({ region: "asia-south2" }, async (request) => {
+  const { phone, enteredHash } = request.data;
+  
+  if (!phone || !enteredHash) {
+    throw new HttpsError("invalid-argument", "Missing required authentication parameters.");
+  }
+
+  const snapshot = await admin.firestore().collection("leads")
+    .where("normalizedPhone", "==", phone)
+    .orderBy("createdAt", "desc")
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) {
+    throw new HttpsError("not-found", "No registered account found matching this mobile number.");
+  }
+
+  const leadDoc = snapshot.docs[0];
+  const secureRecord = leadDoc.data();
+
+  // 1. Enforce Server-Side Lockout Checks
+  if (secureRecord.lockoutUntil && secureRecord.lockoutUntil.toDate() > new Date()) {
+    const minutesRemaining = Math.ceil((secureRecord.lockoutUntil.toDate() - new Date()) / 60000);
+    throw new HttpsError(
+      "permission-denied", 
+      `This account is temporarily locked due to too many failed attempts. Please try again in ${minutesRemaining} minutes.`
+    );
+  }
+
+  // 2. Perform Isolated Server-Side Validation Hash Comparison
+  if (secureRecord.pinHash === enteredHash) {
+    // Clear failure logging structures upon a valid signature check
+    await leadDoc.ref.update({
+      failedPinAttempts: 0,
+      lockoutUntil: null
+    });
+    
+    return { 
+      success: true, 
+      leadId: leadDoc.id, 
+      profile: {
+        leadCode: secureRecord.leadCode || "",
+        state: secureRecord.state || "",
+        stage: secureRecord.stage || "INITIAL",
+        name: secureRecord.name || "Homeowner",
+        phone: secureRecord.phone || phone,
+        city: secureRecord.city || "",
+        bill: secureRecord.bill || "1500"
+      }
+    };
+  } else {
+    // 3. Increment Failure Vectors and Calculate Lockout Durations
+    const currentAttempts = (secureRecord.failedPinAttempts || 0) + 1;
+    const updates = { failedPinAttempts: currentAttempts };
+    
+    if (currentAttempts >= 5) {
+      // Establish a strict 15-minute backend penalty window
+      updates.lockoutUntil = admin.firestore.FieldValue.serverTimestamp(new Date(Date.now() + 15 * 60 * 1000));
+    }
+    
+    await leadDoc.ref.update(updates);
+    
+    const attemptsLeft = Math.max(0, 5 - currentAttempts);
+    throw new HttpsError(
+      "unauthenticated", 
+      attemptsLeft === 0 
+        ? "Too many incorrect attempts. Account locked out for 15 minutes." 
+        : `Incorrect PIN code. You have ${attemptsLeft} attempts remaining.`
+    );
+  }
 });
