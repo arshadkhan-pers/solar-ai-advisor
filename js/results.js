@@ -67,9 +67,19 @@ const stateNames = {
   "MP": "Madhya Pradesh"
 };
 
+
 // ===============================
 // 🔹 HELPERS
 // ===============================
+
+// Secure one-way cryptographic SHA-256 hashing engine
+async function hashPin(pin) {
+    const msgUint8 = new TextEncoder().encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function formatIndianCurrency(num) {
   if (num >= 10000000) {
     return "₹" + (num / 10000000).toFixed(1) + "Cr";
@@ -1042,7 +1052,7 @@ async function requestSiteSurvey() {
 }
 
 // =========================================================================
-// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE
+// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE (UPDATED WITH CRYPTO HASHING)
 // =========================================================================
 function showPinSetupModal(previousModal, phone) {
     previousModal.innerHTML = `
@@ -1065,24 +1075,27 @@ function showPinSetupModal(previousModal, phone) {
         const leadId = localStorage.getItem("leadId");
         const leadCode = localStorage.getItem("leadCode");
 
-        // Dynamic Guard: Handle fully mock environments safely without crashing runtime engine
-        if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
-            console.warn("⚠️ [Dev Mode] Database infrastructure isolated. Mocking successful database commitment.");
-            setTimeout(() => {
-                localStorage.setItem("leadStage", "SURVEY_REQUESTED");
-                previousModal.remove();
-                location.reload();
-            }, 1000);
-            return;
-        }
-
         try {
+            // Compute the one-way cryptographic hash
+            const hashedPin = await hashPin(pin);
+
+            if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
+                console.warn("⚠️ [Dev Mode] Database infrastructure isolated. Mocking successful submission.");
+                setTimeout(() => {
+                    localStorage.setItem("leadStage", "SURVEY_REQUESTED");
+                    previousModal.remove();
+                    location.reload();
+                }, 1000);
+                return;
+            }
+
             const batch = db.batch();
             const leadRef = db.collection("leads").doc(leadId);
             const surveyRef = db.collection("survey_requests").doc(leadId);
 
+            // Never save plaintext "pin: pin"
             batch.update(leadRef, {
-                pin: pin,
+                pinHash: hashedPin, 
                 stage: "SURVEY_REQUESTED",
                 "timeline.surveyRequested.status": true,
                 "timeline.surveyRequested.timestamp": firebase.firestore.FieldValue.serverTimestamp()
@@ -1112,6 +1125,7 @@ function showPinSetupModal(previousModal, phone) {
         }
     };
 }
+
 
 function startResendTimer() {
     let timeLeft = 30;
