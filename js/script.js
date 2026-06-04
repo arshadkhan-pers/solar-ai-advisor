@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const db = window.db;
 
-// Add cryptographic function to top of file if not globally shared
+// Secure one-way cryptographic SHA-256 hashing engine
 async function hashPin(pin) {
     const msgUint8 = new TextEncoder().encode(pin);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
@@ -9,16 +9,16 @@ async function hashPin(pin) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ==========================================
-// 1. PIN VERIFICATION PIPELINE & SECURITY GUARD
-// ==========================================
-let expectedPinHash = null;
-let pinSuccessCallback = null;
+// =====================================================================
+// 1. PIN VERIFICATION PIPELINE & SERVER-SIDE CALL ENGINE
+// =====================================================================
+let currentPhone = null;         // Tracks active phone context for backend validation
+let pinSuccessCallback = null;   // Stores redirect routine to fire on success
 const LOCKOUT_KEY = "pin_lockout_time";
 const ATTEMPTS_KEY = "pin_failed_attempts";
 
-function triggerPinVerification(phone, correctPinHash, callback) {
-  // Check brute-force lockout status before opening the UI
+function triggerPinVerification(phone, unusedHashParam, callback) {
+  // Check local device brute-force lockout status before opening UI elements
   const lockoutTime = localStorage.getItem(LOCKOUT_KEY);
   if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
     const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
@@ -27,7 +27,8 @@ function triggerPinVerification(phone, correctPinHash, callback) {
     return;
   }
 
-  expectedPinHash = correctPinHash;
+  // Set internal state context
+  currentPhone = phone;
   pinSuccessCallback = callback;
 
   const phoneDisplayEl = document.getElementById("otpPhoneDisplay");
@@ -47,7 +48,7 @@ function triggerPinVerification(phone, correctPinHash, callback) {
 function closeOTPModal() {
   document.getElementById('otpModal').classList.add('hidden');
   pinSuccessCallback = null;
-  expectedPinHash = null;
+  currentPhone = null;
 
   const leadSubmitBtn = document.querySelector("#leadPopup button");
   if (leadSubmitBtn) {
@@ -63,7 +64,7 @@ function closeOTPModal() {
 }
 
 function resendOTP() {
-  alert("Forgot your PIN? Please contact support desk to re-authenticate via live SMS OTP code verification.");
+  alert("Forgot your PIN? Please contact our support desk to manually re-verify your identity.");
 }
 
 async function verifyOTPCode() {
@@ -76,56 +77,55 @@ async function verifyOTPCode() {
   }
 
   const btn = document.getElementById("verifyOtpBtn");
-  btn.innerText = "Verifying...";
+  btn.innerText = "Verifying Credentials...";
   btn.disabled = true;
 
-  // Enforce brute-force structural guards
-  let failedAttempts = parseInt(localStorage.getItem(ATTEMPTS_KEY) || "0");
-
   try {
-    // Hash the entered pin using the cryptographic SHA-256 engine
+    // 1. Encrypt the entered digits locally 
     const enteredHash = await hashPin(code);
     
-    // Evaluate hashes (Universal emergency backdoor bypass token matches string '1234')
-    const isPinValid = (enteredHash === expectedPinHash) || (code === "1234");
+    // 2. Initialize regionalized secure interface matching deployment architecture
+    const verifyLeadPinFunction = firebase.app().functions('asia-south2').httpsCallable('verifyLeadPin');
 
-    if (isPinValid) {
-      // Clear security counter on successful clearance
+    // 3. Dispatch the verification request out to the backend function
+    const result = await verifyLeadPinFunction({ phone: currentPhone, enteredHash: enteredHash });
+    
+    if (result.data && result.data.success) {
+      // Clear security counter thresholds upon valid response clearance
       localStorage.removeItem(ATTEMPTS_KEY);
       localStorage.removeItem(LOCKOUT_KEY);
 
       document.getElementById('otpModal').classList.add('hidden');
       
       const callback = pinSuccessCallback;
-      pinSuccessCallback = null;
-      expectedPinHash = null;
-      
-      if (callback) callback(); 
-    } else {
-      failedAttempts++;
-      localStorage.setItem(ATTEMPTS_KEY, failedAttempts.toString());
+      const verifiedProfile = result.data.profile;
+      const verifiedLeadId = result.data.leadId;
 
-      if (failedAttempts >= 5) {
-        const structuralLockoutExpiry = Date.now() + (15 * 60 * 1000); // 15-Minute Lockout Window
-        localStorage.setItem(LOCKOUT_KEY, structuralLockoutExpiry.toString());
-        alert("Security Lockdown: 5 consecutive failed login attempts reached. Access is restricted for 15 minutes.");
-        closeOTPModal();
-      } else {
-        alert(`Invalid security PIN entry. Verification failed. (${5 - failedAttempts} attempts remaining)`);
-        btn.innerText = "Verify PIN & Login";
-        btn.disabled = false;
-      }
+      // Reset application validation memory hooks
+      pinSuccessCallback = null;
+      currentPhone = null;
+      
+      // Fire the success loop passing through pure data structures generated by the server
+      if (callback) callback(verifiedLeadId, verifiedProfile); 
     }
-  } catch (err) {
-    console.error("Crypto verification fault:", err);
+  } catch (serverError) {
+    // Gracefully handle server rejections (e.g., incorrect code or active server-side locks)
+    console.warn("Authentication channel transaction rejected:", serverError);
+    alert(serverError.message); 
+    
     btn.innerText = "Verify PIN & Login";
     btn.disabled = false;
+
+    // Synchronize local UI state if backend flags a hard lockout sequence
+    if (serverError.message.toLowerCase().includes("lock") || serverError.message.toLowerCase().includes("too many")) {
+      closeOTPModal();
+    }
   }
 }
 
-// ==========================================
-// 2. PIN-AUTHENTICATED USER SIGN-IN
-// ==========================================
+// =====================================================================
+// 2. PIN-AUTHENTICATED USER SIGN-IN ROUTING
+// =====================================================================
 async function handleSignInSubmit() {
   const phoneRaw = document.getElementById('signInPhone').value.trim();
   const phone = normalizePhone(phoneRaw);
@@ -136,7 +136,7 @@ async function handleSignInSubmit() {
     return;
   }
 
-  // Active Device Level Lockout Check Pre-flight evaluation
+  // Pre-flight check device level lockout metrics
   const lockoutTime = localStorage.getItem(LOCKOUT_KEY);
   if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
     const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
@@ -145,10 +145,11 @@ async function handleSignInSubmit() {
   }
 
   const btn = document.getElementById("signInBtn");
-  btn.innerText = "Please wait...";
+  btn.innerText = "Checking Record...";
   btn.disabled = true;
 
   try {
+    // Check if account target profile tracking maps correctly
     const snapshot = await db.collection("leads")
         .where("normalizedPhone", "==", phone)
         .orderBy("createdAt", "desc")
@@ -156,23 +157,23 @@ async function handleSignInSubmit() {
         .get();
 
     if (!snapshot.empty) {
-        const leadDoc = snapshot.docs[0];
-        const existingData = leadDoc.data();
-        
         document.getElementById('signInModal')?.classList.add('hidden');
 
-        // Pass the cryptographically secured hash field into validation wrapper
-        triggerPinVerification(phone, existingData.pinHash, () => {
-            localStorage.setItem("leadId", leadDoc.id);
-            localStorage.setItem("leadCode", existingData.leadCode || "");
-            localStorage.setItem("state", existingData.state || "");
-            localStorage.setItem("leadStage", existingData.stage || "INITIAL");
-            localStorage.setItem("leadName", existingData.name || "Homeowner");
-            localStorage.setItem("leadPhone", existingData.phone || phone);
-            localStorage.setItem("leadCity", existingData.city || "");
-            localStorage.setItem("bill", existingData.bill || "1500");
+        // Fire PIN entry screen. Browser handles zero validation formulas locally now.
+        triggerPinVerification(phone, null, (serverLeadId, serverProfile) => {
+            
+            // Hydrate local cache stores strictly from backend returned safe fields
+            localStorage.setItem("leadId", serverLeadId);
+            localStorage.setItem("leadCode", serverProfile.leadCode || "");
+            localStorage.setItem("state", serverProfile.state || "");
+            localStorage.setItem("leadStage", serverProfile.stage || "INITIAL");
+            localStorage.setItem("leadName", serverProfile.name || "Homeowner");
+            localStorage.setItem("leadPhone", serverProfile.phone || phone);
+            localStorage.setItem("leadCity", serverProfile.city || "");
+            localStorage.setItem("bill", serverProfile.bill || "1500");
 
-            window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
+            // Complete user session handoff 
+            window.location.href = `results.html?bill=${serverProfile.bill}&state=${serverProfile.state}&name=${encodeURIComponent(serverProfile.name)}&phone=${encodeURIComponent(serverProfile.phone)}&city=${encodeURIComponent(serverProfile.city || "")}`;
         });
     } else {
         alert("No account found for this number. Please calculate your savings first to generate a report.");
@@ -180,7 +181,7 @@ async function handleSignInSubmit() {
         btn.disabled = false;
     }
   } catch (e) {
-     console.error("Sign in infrastructure error:", e);
+     console.error("Sign-in infrastructure lookup exception:", e);
      alert("Unable to complete login sequence. Please try again.");
      btn.innerText = "Continue";
      btn.disabled = false;
