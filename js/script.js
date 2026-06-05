@@ -124,6 +124,40 @@ async function verifyOTPCode() {
 }
 
 // =====================================================================
+// 🔓 MODAL VISIBILITY TOGGLES
+// =====================================================================
+function openSignInModal(event) {
+  if (event) event.preventDefault(); // Prevents the '#' from jumping the page to the top
+  
+  const signInModal = document.getElementById('signInModal');
+  if (signInModal) {
+    signInModal.classList.remove('hidden');
+    
+    // Autofocus the phone input for a cleaner UX
+    const phoneInput = document.getElementById('signInPhone');
+    if (phoneInput) phoneInput.focus();
+  } else {
+    console.error("⚠️ UI Error: Element with ID 'signInModal' was not found in the DOM.");
+  }
+}
+
+function closeSignInModal(event) {
+  if (event) event.preventDefault();
+  
+  const signInModal = document.getElementById('signInModal');
+  if (signInModal) {
+    signInModal.classList.add('hidden');
+  }
+  
+  // Re-enable the primary call-to-action button if it was locked
+  const btn = document.getElementById("signInBtn");
+  if (btn) {
+    btn.innerText = "Continue";
+    btn.disabled = false;
+  }
+}
+
+// =====================================================================
 // 2. PIN-AUTHENTICATED USER SIGN-IN ROUTING
 // =====================================================================
 async function handleSignInSubmit() {
