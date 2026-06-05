@@ -535,6 +535,19 @@ function renderResults(data, bill) {
     document.getElementById("netMonthlyBenefit").innerText = data.netMonthlyBenefit.toLocaleString('en-IN');
     emiCard.classList.remove("hidden"); 
   }
+
+  // 🚀 FIX: Force immediate rendering repaint loop for iPad OS Safari Layer Invalidation
+  const elementsToRefresh = [
+    "systemSize", "totalCost", "subsidy", "finalCost", "monthlySavings", 
+    "payback", "panels", "area", "lifetimeSavings", "centralSubsidy", "stateSubsidy"
+  ];
+  elementsToRefresh.forEach(id => {
+    const metricEl = document.getElementById(id);
+    if (metricEl) {
+      const _ = metricEl.offsetHeight; // Triggers instant synchronous reflow calculation
+      metricEl.style.transform = 'translateZ(0)'; // Activates hardware composition layers
+    }
+  });
 }
 
 // ===============================
@@ -700,7 +713,8 @@ async function submitLead() {
 
   try {
     const aiReport = await waitForAIReport(leadId, requestTime);
-    renderDynamicAIReport(aiReport, result);
+    // 🚀 Pass true to allow auto-scrolling on initial manual generation routine
+    renderDynamicAIReport(aiReport, result, true);
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request"; 
   } catch (error) {
@@ -923,13 +937,6 @@ async function waitForAIReport(leadId, requestTime) {
 // =========================================================================
 // 🛠️ DEVELOPMENT & TESTING CONFIGURATION
 // =========================================================================
-/*
-How to use the Dev Controls:
- To test OTP interface layout locally without spending API costs: Set ⁠isDevMode: true⁠ and ⁠bypassOtpFlow: false⁠. Typing ⁠123456⁠ will pass validation seamlessly.
- To bypass authentication completely: Change ⁠bypassOtpFlow: true⁠. The script will instantly launch into the security 4-digit setup layout without prompt blocks.
- Safe-fallback configuration protection: Added protective checks (⁠typeof db === 'undefined'⁠) inside the submission transaction block. If Firestore components aren't initiated yet on your local dev host environment, it will safely emulate local state tracking inside ⁠localStorage⁠ and trigger a refresh loop simulation without breaking your layout.
-*/
-
 
 const DEV_CONFIG = {
     isDevMode: true,          // 🚨 Set to FALSE before deploying to production
@@ -952,10 +959,8 @@ async function requestSiteSurvey() {
         return;
     }
 
-    // Prevent duplicate modals from stacking
     if (document.getElementById('authModal')) return;
 
-    // MECHANISM: Complete Authentication Flow Bypass
     if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
         console.log("🛠️ [Dev Mode] Bypassing OTP entry screen completely.");
         const placeholderModal = document.createElement('div');
@@ -967,7 +972,6 @@ async function requestSiteSurvey() {
         return;
     }
 
-    // 1. Render OTP Verification Modal
     const modal = document.createElement('div');
     modal.id = 'authModal';
     modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
@@ -987,23 +991,18 @@ async function requestSiteSurvey() {
     `;
     document.body.appendChild(modal);
 
-    // 2. Initialize Resend Countdown Clock
     startResendTimer();
 
-    // 3. Bind Resend Click Event Listener
     document.getElementById('resendOtpBtn').onclick = async () => {
         try {
             document.getElementById('resendOtpBtn').disabled = true;
-            
             if (typeof firebase !== 'undefined' && window.confirmationResult) {
-                // window.confirmationResult = await firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier);
                 alert("A fresh OTP verification code has been dispatched.");
             } else if (DEV_CONFIG.isDevMode) {
                 alert(`[Dev Mode] SMS bypass active. Use test OTP code: ${DEV_CONFIG.testOtpCode}`);
             } else {
                 alert("Firebase Authentication context not found.");
             }
-            
             startResendTimer();
         } catch (resendError) {
             console.error("OTP Resend failed:", resendError);
@@ -1012,36 +1011,27 @@ async function requestSiteSurvey() {
         }
     };
 
-    // 4. OTP Verification Evaluator
     document.getElementById('verifyOtpBtn').onclick = async () => {
         const otp = document.getElementById('otpInput').value.trim();
         if (otp.length < 6) return alert("Please enter a valid 6-digit verification code.");
         
         try {
-            // Check if production Firebase Auth flow is configured
             if (typeof window !== 'undefined' && window.confirmationResult) {
                 await window.confirmationResult.confirm(otp);
-            } 
-            // Fallback checking logic for testing phase
-            else if (DEV_CONFIG.isDevMode && otp === DEV_CONFIG.testOtpCode) {
+            } else if (DEV_CONFIG.isDevMode && otp === DEV_CONFIG.testOtpCode) {
                 console.warn("🛠️ [Dev Mode] Firebase unconfigured or test pin matched. Bypassing network OTP call.");
-            } 
-            else {
+            } else {
                 throw new Error("Invalid Verification Code.");
             }
-            
-            // On Success: Advance directly to security PIN initialization step
             showPinSetupModal(modal, phone); 
         } catch (verifyError) {
             otpAttempts++;
-            
             if (otpAttempts >= MAX_OTP_ATTEMPTS) {
                 alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
                 window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20ID:%20${leadId}`, "_blank");
                 modal.remove();
                 return;
             }
-            
             const counterEl = document.getElementById('attemptCounter');
             if (counterEl) {
                 counterEl.className = "text-xs text-center text-red-500 font-medium";
@@ -1052,7 +1042,7 @@ async function requestSiteSurvey() {
 }
 
 // =========================================================================
-// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE (UPDATED WITH CRYPTO HASHING)
+// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE 
 // =========================================================================
 function showPinSetupModal(previousModal, phone) {
     previousModal.innerHTML = `
@@ -1076,7 +1066,6 @@ function showPinSetupModal(previousModal, phone) {
         const leadCode = localStorage.getItem("leadCode");
 
         try {
-            // Compute the one-way cryptographic hash
             const hashedPin = await hashPin(pin);
 
             if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
@@ -1093,7 +1082,6 @@ function showPinSetupModal(previousModal, phone) {
             const leadRef = db.collection("leads").doc(leadId);
             const surveyRef = db.collection("survey_requests").doc(leadId);
 
-            // Never save plaintext "pin: pin"
             batch.update(leadRef, {
                 pinHash: hashedPin, 
                 stage: "SURVEY_REQUESTED",
@@ -1149,8 +1137,8 @@ function startResendTimer() {
     }, 1000);
 }
 
-
-function renderDynamicAIReport(report, result) {
+// 🚀 FIX: Accept alternative shouldScroll argument to bypass jumping routines during stage adjustments
+function renderDynamicAIReport(report, result, shouldScroll = false) {
   document.getElementById("aiLoadingState")?.classList.add("hidden");
 
   const conciergeCard = document.getElementById("conciergeCard");
@@ -1279,11 +1267,12 @@ function renderDynamicAIReport(report, result) {
     `;
   });
  
-  if (currentStage === "INITIAL" || currentStage === "AI_GENERATED") {
+  // 🚀 FIX: Smooth scroll ONLY happens if explicitly flagged during a fresh creation event loop
+  if (shouldScroll && (currentStage === "INITIAL" || currentStage === "AI_GENERATED")) {
     requestAnimationFrame(() => {
-      const aiSection = document.getElementById("aiInsightsSection");
-      if (!aiSection) return;
-      const y = aiSection.getBoundingClientRect().top + window.pageYOffset - 24;
+      const aiSectionTarget = document.getElementById("aiInsightsSection");
+      if (!aiSectionTarget) return;
+      const y = aiSectionTarget.getBoundingClientRect().top + window.pageYOffset - 24;
       window.scrollTo({ top: y, behavior: "smooth" });
     });
   }
@@ -1297,6 +1286,55 @@ function renderDetailedTimelineLogs(data) {
     localStorage.setItem("previousObservedStage", data.stage || "INITIAL");
 }
 
+function showError(inputId, errorId, message) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+  if (errorEl) errorEl.innerText = message;
+  if (inputEl) {
+    inputEl.style.borderColor = "#ef4444"; 
+    inputEl.classList.add("bg-red-50");
+  }
+}
+
+// 🚀 FIX: Resolved critical undefined lookup bug ('input' token switched to correct 'inputId' scope)
+function clearError(inputId, errorId) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+  if (errorEl) errorEl.innerText = "";
+  if (inputEl) {
+    inputEl.style.borderColor = ""; 
+    inputEl.classList.remove("bg-red-50");
+  }
+}
+
+function getStateFromPin(pin) {
+  if (!pin || pin.length < 2) return "DL";
+  const prefix = parseInt(pin.substring(0, 2));
+  if (prefix === 11) return "DL";
+  if (prefix >= 12 && prefix <= 13) return "HR";
+  if (prefix >= 14 && prefix <= 16) return "PB";
+  if (prefix === 17) return "HP";
+  if (prefix >= 18 && prefix <= 19) return "JK";
+  if (prefix >= 20 && prefix <= 23) return "UP";
+  if (prefix >= 24 && prefix <= 28) return "UK"; 
+  if (prefix >= 30 && prefix <= 34) return "RJ";
+  if (prefix >= 36 && prefix <= 39) return "GJ";
+  if (prefix >= 40 && prefix <= 44) return "MH";
+  if (prefix >= 45 && prefix <= 48) return "MP";
+  if (prefix === 49) return "CG";
+  if (prefix === 50) return "TS";
+  if (prefix >= 51 && prefix <= 53) return "AP";
+  if (prefix >= 56 && prefix <= 59) return "KA";
+  if (prefix >= 60 && prefix <= 64) return "TN";
+  if (prefix >= 67 && prefix <= 69) return "KL";
+  if (prefix >= 70 && prefix <= 74) return "WB";
+  if (prefix >= 75 && prefix <= 77) return "OR";
+  if (prefix === 78) return "AS";
+  if (prefix === 79) return "AR"; 
+  if (prefix >= 80 && prefix <= 85) return "BR";
+  return "DL";
+}
+
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
@@ -1304,32 +1342,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     const leadId = localStorage.getItem("leadId");
 
     if (leadId) {
-        // 1. Setup real-time listeners for timeline updates
         if (typeof setupRealTimeTimeline === "function") {
             setupRealTimeTimeline(leadId);
         }
 
         try {
-            // 2. Fetch the master lead doc to verify current state
             const leadDoc = await db.collection("leads").doc(leadId).get();
             if (leadDoc.exists) {
                 const leadData = leadDoc.data();
                 
-                // 3. Lock out the AI Generation Form if already processed
                 const currentStage = leadData.stage || "INITIAL";
                 if (currentStage !== "INITIAL") {
                     const formContainer = document.getElementById("leadForm");
                     if (formContainer) {
-                        formContainer.classList.add("hidden"); // Hide form completely
+                        formContainer.classList.add("hidden"); 
                     }
                 }
                 
-                // Keep local storage synced with DB truth
                 localStorage.setItem("leadStage", currentStage);
                 updateRoadmap(currentStage, leadData);
             }
 
-            // 4. Fetch AI Report Cache
             const aiDoc = await db.collection("ai_reports").doc(leadId).get();
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
@@ -1354,7 +1387,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const initialResult = calculateSavings(); 
     if (aiReportCache && initialResult) {
-         renderDynamicAIReport(aiReportCache, initialResult);
+         // Default setup read parameter is false to prevent jumping metrics layout frames
+         renderDynamicAIReport(aiReportCache, initialResult, false);
     }
 });
 
@@ -1404,14 +1438,11 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
             [`timeline.${milestoneKey}.timestamp`]: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // If this step dictates a macro stage change (for your horizontal progress bar)
         if (macroStageToTrigger) {
             updatePayload.stage = macroStageToTrigger;
         }
 
         await db.collection("leads").doc(leadId).update(updatePayload);
-        
-        // Let the setupRealTimeTimeline listener handle the UI reload!
         console.log(`Milestone ${milestoneKey} advanced successfully.`);
 
     } catch (error) {
