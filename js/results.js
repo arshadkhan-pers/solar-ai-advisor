@@ -640,7 +640,7 @@ async function submitLead() {
   
   const submitBtn = document.querySelector("#leadForm button");
   submitBtn.disabled = true;
-  submitBtn.innerText = "Generating AI Analysis...";
+  submitBtn.innerText = "Uploading & Generating AI Analysis..."; // 🔄 Explicit UI feedback update
   
   const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
   const cityDropdown = document.getElementById("resCity");
@@ -685,6 +685,29 @@ async function submitLead() {
     return;
   }
 
+  // 🛑 10MB File Size Guardrail for Bill Upload
+  if (billFile && billFile.size > 10 * 1024 * 1024) {
+      alert("Maximum file size is 10MB. Please upload a compressed PDF or image.");
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Submit Request";
+      return;
+  }
+
+  let billUrl = null;
+
+  // 🚀 CORE FIX: Handle actual Firebase Storage upload mechanics before mutating Firestore
+  if (billFile) {
+      try {
+          const billStorageRef = firebase.storage().ref('bills/' + leadId);
+          await billStorageRef.put(billFile);
+          billUrl = await billStorageRef.getDownloadURL();
+          console.log("✅ Bill file successfully written to Storage array. Download URL:", billUrl);
+      } catch (storageError) {
+          console.error("❌ Firebase Storage operational fault during bill upload:", storageError);
+          alert("File sync failed, but we will continue calculating your report options.");
+      }
+  }
+
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
   
@@ -694,6 +717,7 @@ async function submitLead() {
   
   const result = calculateSolar(bill, selectedState);
   renderResults(result, bill);
+
   try {
      await db.collection("leads").doc(leadId).update({
       name,
@@ -703,10 +727,11 @@ async function submitLead() {
       roofType,
       rooftopOwnership,
       connectionType,
-      billUploaded: billFile? "Yes" : "No",
+      billUploaded: billFile ? "Yes" : "No",
+      billUrl: billUrl, // 🔥 CRUCIAL: Saves download path URL array structure directly for admin rendering engine
       leadType,
       stage: "AI_GENERATED",
-    timeline: {
+      timeline: {
         aiGenerated: { status: true, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
         surveyRequested: { status: false, timestamp: null },
         surveyCompleted: { status: false, timestamp: null },
@@ -716,7 +741,7 @@ async function submitLead() {
         netMetering: { status: false, timestamp: null },
         installation: { status: false, timestamp: null },
         subsidy: { status: false, timestamp: null }
-    },
+      },
       aiRegenerationRequired: true,
       systemSizeKw: result.systemSize,
       totalSubsidy: result.subsidy,
@@ -745,7 +770,6 @@ async function submitLead() {
 
   try {
     const aiReport = await waitForAIReport(leadId, requestTime);
-    // 🚀 Pass true to allow auto-scrolling on initial manual generation routine
     renderDynamicAIReport(aiReport, result, true);
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Request"; 
@@ -764,6 +788,7 @@ async function submitLead() {
     submitBtn.innerText = "Submit Request";
   }
 }
+
 
 function setupBillUpload() {
   const uploadArea = document.getElementById("billUploadArea");
