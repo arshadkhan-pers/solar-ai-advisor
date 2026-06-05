@@ -530,6 +530,18 @@ async function submitLeadAndContinue(event) {
 // ==========================================
 // 6. WHATSAPP & UI HELPERS
 // ==========================================
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+  
+  // Optional: Set focus to bill input for instant typing accessibility
+  setTimeout(() => {
+    document.getElementById("billInput")?.focus();
+  }, 400);
+}
+
 function openWhatsAppChat(customMessage = "") {
   const defaultMessage = "Hi, I’m interested in rooftop solar. Can your solar advisor help me?";
   const message = customMessage || defaultMessage;
