@@ -327,7 +327,7 @@ async function uploadQuote() {
     if (!file) return alert("Please select a file first");
     if (!leadId) return alert("Lead ID not found");
 
-    // 🛑 ISSUE #2: 10MB File Size Guardrail
+    // 🛑 ISSUE #2: 10MB File Size Guardrail for Quotes
     if (file.size > 10 * 1024 * 1024) {
         alert("Maximum file size is 10MB. Please upload a compressed PDF or image.");
         if (fileInput) fileInput.value = ""; // Reset the input field
@@ -685,12 +685,24 @@ async function submitLead() {
     return;
   }
 
-  // 🛑 10MB File Size Guardrail for Bill Upload
-  if (billFile && billFile.size > 10 * 1024 * 1024) {
-      alert("Maximum file size is 10MB. Please upload a compressed PDF or image.");
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Submit Request";
-      return;
+  // 🛑 HARDENED SECURITY GUARDRAILS FOR UN-AUTHENTICATED PATHWAY (OPTION B MATCH)
+  if (billFile) {
+      // 1. Enforce strict type validation filtering matching the storage rules
+      const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+      if (!allowedMimeTypes.includes(billFile.type) && !billFile.type.startsWith("image/")) {
+          alert("Invalid file type. Only standard PDFs and images are accepted for utility bills.");
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Submit Request";
+          return;
+      }
+      
+      // 2. Strict file size cap synchronization at 5MB to handle public edge traffic safely
+      if (billFile.size > 5 * 1024 * 1024) {
+          alert("Maximum file limit for unauthenticated uploads is 5MB. Please upload a compressed document.");
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Submit Request";
+          return;
+      }
   }
 
   let billUrl = null;
