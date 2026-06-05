@@ -327,7 +327,13 @@ async function uploadQuote() {
     if (!file) return alert("Please select a file first");
     if (!leadId) return alert("Lead ID not found");
 
-    // Lock button UI during upload process
+    // 🛑 ISSUE #2: 10MB File Size Guardrail
+    if (file.size > 10 * 1024 * 1024) {
+        alert("Maximum file size is 10MB. Please upload a compressed PDF or image.");
+        if (fileInput) fileInput.value = ""; // Reset the input field
+        return;
+    }
+
     if (uploadBtn) {
         uploadBtn.disabled = true;
         uploadBtn.innerText = "Uploading...";
@@ -338,7 +344,6 @@ async function uploadQuote() {
         await storageRef.put(file);
         const url = await storageRef.getDownloadURL();
         
-        // Nested attempt to update Firestore
         try {
             await db.collection("leads").doc(leadId).update({ 
                 quoteUrl: url,
@@ -346,25 +351,27 @@ async function uploadQuote() {
             });
         } catch (firestoreError) {
             console.error("Firestore update failed. Ejecting orphan storage file...", firestoreError);
-            // Delete file from Storage immediately if DB fails
             await storageRef.delete().catch((err) => console.error("Failed to delete orphan file:", err));
             throw new Error("Database link failed. Document cleaned up. Please try again.");
         }
         
         alert("Quote submitted for verification!");
+        
+        // 🚀 ISSUE #1: Reactive UI Update (No Reload)
         localStorage.setItem("leadStage", "OFFER_UNDER_REVIEW");
-        location.reload(); 
+        updateRoadmap("OFFER_UNDER_REVIEW"); 
+        
     } catch (error) {
         console.error("Upload workflow exception:", error);
         alert(error.message || "Upload failed. Please try again.");
         
-        // Reset button UI on error
         if (uploadBtn) {
             uploadBtn.disabled = false;
             uploadBtn.innerText = "Submit for Verification";
         }
     }
 }
+
 
 
 // ===============================
@@ -397,8 +404,9 @@ async function reportSurveyStatus(status) {
             await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
             localStorage.setItem("surveyIssueReported", "true");
             alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
-        }
-        location.reload(); 
+        const freshStage = localStorage.getItem("leadStage") || "INITIAL";
+        updateRoadmap(freshStage);
+
     } catch (error) {
         console.error("Error reporting survey status:", error);
         alert("Failed to update status: " + error.message); 
@@ -1126,10 +1134,9 @@ function showPinSetupModal(previousModal, phone) {
             });
 
             await batch.commit();
-            
             localStorage.setItem("leadStage", "SURVEY_REQUESTED");
             previousModal.remove();
-            location.reload();
+            updateRoadmap("SURVEY_REQUESTED");
             
         } catch (firebaseError) {
             console.error("Transaction batch write failure:", firebaseError);
