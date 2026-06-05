@@ -560,6 +560,9 @@ window.closeLeadPanel = function() {
 // =====================================
 // RENDER PANEL (UPDATED)
 // =====================================
+// =====================================
+// RENDER PANEL (UPDATED WITH PREMIUM BILL PREVIEW)
+// =====================================
 function renderLeadPanel(lead, aiReport) {
   const content = document.getElementById("leadPanelContent");
   if (!content) return;
@@ -578,7 +581,48 @@ function renderLeadPanel(lead, aiReport) {
       </div>
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-2 mt-4">
+      <h3 class="text-lg font-bold text-slate-900">Electricity Bill Verification</h3>
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
+        ${lead.billUrl ? `
+          <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3 transition-all duration-200 hover:border-slate-300">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                  ⚡
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">Uploaded Bill Statement</p>
+                  <p class="text-xs text-slate-400">Cross-reference consumption history</p>
+                </div>
+              </div>
+              <a href="${lead.billUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition-all duration-150 inline-flex items-center gap-1">
+                Open Full ↗
+              </a>
+            </div>
+            
+            <div class="relative group rounded-xl overflow-hidden border border-slate-100 bg-slate-50 aspect-[4/3] flex items-center justify-center max-h-[160px] shadow-inner">
+              <img src="${lead.billUrl}" 
+                   alt="Customer Bill Preview" 
+                   class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
+                   onerror="this.parentElement.innerHTML='<div class=\'text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2\'><span class=\'text-3xl\'>📄</span>PDF Document Format<span class=\'text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs\'>Click Open Full above to read</span></div>'"/>
+              <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                <a href="${lead.billUrl}" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100">
+                  Expand Document
+                </a>
+              </div>
+            </div>
+          </div>
+        ` : `
+          <div class="text-center py-6 bg-white border border-dashed border-slate-200 rounded-xl">
+            <p class="text-sm text-slate-400 font-medium">No utility bill uploaded yet</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Awaiting raw statement from customer flow</p>
+          </div>
+        `}
+      </div>
+    </div>
+
+    <div class="space-y-2 mt-4">
       <h3 class="text-lg font-bold text-slate-900">Solar Recommendation</h3>
       <div class="grid grid-cols-2 gap-3">
         <div class="bg-indigo-50 rounded-2xl p-4">
@@ -592,7 +636,7 @@ function renderLeadPanel(lead, aiReport) {
       </div>
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-2 mt-4">
       <h3 class="text-lg font-bold text-slate-900">AI Readiness Profile</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
         <p><span class="font-semibold">Persona:</span> ${aiReport ? aiReport?.personaV2?.primary || "-" : "AI analysis pending"}</p>
@@ -644,7 +688,7 @@ function renderLeadPanel(lead, aiReport) {
       <div class="bg-slate-50 rounded-2xl p-4 space-y-4">
         <div>
           <label class="text-sm font-semibold text-slate-700 block mb-2">Priority</label>
-          <select id="opsPriority" class="w-full border border-slate-200 rounded-xl px-3 py-3">
+          <select id="opsPriority" class="w-full border border-slate-200 rounded-xl px-3 py-3 bg-white focus:outline-none">
             <option value="LOW" ${lead.priority === "LOW" ? "selected" : ""}>LOW</option>
             <option value="MEDIUM" ${lead.priority === "MEDIUM" || !lead.priority ? "selected" : ""}>MEDIUM</option>
             <option value="HIGH" ${lead.priority === "HIGH" ? "selected" : ""}>HIGH</option>
@@ -654,10 +698,10 @@ function renderLeadPanel(lead, aiReport) {
 
         <div>
           <label class="text-sm font-semibold text-slate-700 block mb-2">Follow-up Date</label>
-          <input id="followUpDate" type="date" value="${lead.followUpDate || ''}" class="w-full border border-slate-200 rounded-xl px-3 py-3">
+          <input id="followUpDate" type="date" value="${lead.followUpDate || ''}" class="w-full border border-slate-200 rounded-xl px-3 py-3 bg-white focus:outline-none">
         </div>
         
-        <button onclick="saveOpsDetails('${lead.id}')" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold">
+        <button onclick="saveOpsDetails('${lead.id}')" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold shadow-sm transition">
           Save Ops Details
         </button>
       </div>
@@ -671,12 +715,12 @@ function renderLeadPanel(lead, aiReport) {
     <div class="space-y-3 mt-6">
       <h3 class="text-lg font-bold text-slate-900">Ops Notes</h3>
       <div id="leadNotesList" class="space-y-2"></div>
-      <textarea id="newLeadNote" rows="3" placeholder="Add internal ops note..." class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-      <button id="saveLeadNoteBtn" class="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-medium">Save Note</button>
+      <textarea id="newLeadNote" rows="3" placeholder="Add internal ops note..." class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"></textarea>
+      <button id="saveLeadNoteBtn" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl text-sm font-semibold transition shadow-sm">Save Note</button>
     </div>
   `;
   
-  // Restore user draft text if any existed before re-rendering
+  // Restore user draft text if any existed before real-time re-rendering
   if (unsavedNoteText) {
     const textarea = document.getElementById("newLeadNote");
     if (textarea) textarea.value = unsavedNoteText;
