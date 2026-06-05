@@ -406,7 +406,7 @@ async function reportSurveyStatus(status) {
             alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
         const freshStage = localStorage.getItem("leadStage") || "INITIAL";
         updateRoadmap(freshStage);
-
+}
     } catch (error) {
         console.error("Error reporting survey status:", error);
         alert("Failed to update status: " + error.message); 
