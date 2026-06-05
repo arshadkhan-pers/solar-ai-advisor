@@ -322,28 +322,50 @@ async function uploadQuote() {
     const fileInput = document.getElementById('quoteUpload');
     const file = fileInput?.files[0];
     const leadId = localStorage.getItem("leadId");
+    const uploadBtn = document.getElementById("uploadQuoteBtn");
     
     if (!file) return alert("Please select a file first");
     if (!leadId) return alert("Lead ID not found");
+
+    // Lock button UI during upload process
+    if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.innerText = "Uploading...";
+    }
 
     try {
         const storageRef = firebase.storage().ref('quotes/' + leadId);
         await storageRef.put(file);
         const url = await storageRef.getDownloadURL();
         
-        await db.collection("leads").doc(leadId).update({ 
-            quoteUrl: url,
-            stage: "OFFER_UNDER_REVIEW" 
-        });
+        // Nested attempt to update Firestore
+        try {
+            await db.collection("leads").doc(leadId).update({ 
+                quoteUrl: url,
+                stage: "OFFER_UNDER_REVIEW" 
+            });
+        } catch (firestoreError) {
+            console.error("Firestore update failed. Ejecting orphan storage file...", firestoreError);
+            // Delete file from Storage immediately if DB fails
+            await storageRef.delete().catch((err) => console.error("Failed to delete orphan file:", err));
+            throw new Error("Database link failed. Document cleaned up. Please try again.");
+        }
         
         alert("Quote submitted for verification!");
         localStorage.setItem("leadStage", "OFFER_UNDER_REVIEW");
         location.reload(); 
     } catch (error) {
-        console.error("Upload failed:", error);
-        alert("Upload failed. Please try again.");
+        console.error("Upload workflow exception:", error);
+        alert(error.message || "Upload failed. Please try again.");
+        
+        // Reset button UI on error
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.innerText = "Submit for Verification";
+        }
     }
 }
+
 
 // ===============================
 // 🔹 SURVEY FEEDBACK SYSTEM
@@ -650,6 +672,8 @@ async function submitLead() {
 
   if (typeof firebase === "undefined" || typeof db === "undefined") {
     alert("Database not initialized");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Request";
     return;
   }
 
@@ -1085,6 +1109,8 @@ function showPinSetupModal(previousModal, phone) {
             batch.update(leadRef, {
                 pinHash: hashedPin, 
                 stage: "SURVEY_REQUESTED",
+                phoneVerified: true,
+                phoneVerifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 "timeline.surveyRequested.status": true,
                 "timeline.surveyRequested.timestamp": firebase.firestore.FieldValue.serverTimestamp()
             });
