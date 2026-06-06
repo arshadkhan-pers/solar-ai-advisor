@@ -438,7 +438,7 @@ function calculateCentralSubsidy(systemSize, state) {
 }
 
 // ===============================
-// 🟢 STATE SUBSIDY ENGINE
+// 🌟 STATE SUBSIDY ENGINE
 // ===============================
 function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
   if (zeroTopUpStates.includes(state)) return 0;
@@ -630,6 +630,9 @@ function getLeadType(bill, propertyType, rooftopOwnership) {
   return "Basic";
 }
 
+// ===============================
+// 🔥 UPDATED SUBMIT LEAD ROUTINE
+// ===============================
 async function submitLead() {
   const currentStage = (localStorage.getItem("leadStage") || "").toUpperCase();
 
@@ -639,8 +642,10 @@ async function submitLead() {
   }
   
   const submitBtn = document.querySelector("#leadForm button");
-  submitBtn.disabled = true;
-  submitBtn.innerText = "Uploading & Generating AI Analysis..."; // 🔄 Explicit UI feedback update
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Uploading & Generating AI Analysis..."; 
+  }
   
   const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
   const cityDropdown = document.getElementById("resCity");
@@ -658,65 +663,71 @@ async function submitLead() {
 
   if (!city || city === "" || city === "Select City") { 
     alert("Please select your City from the dropdown to complete the dynamic feasibility analysis.");
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
     return;
   }
 
   if (!rooftopOwnership) {
     alert("Please select rooftop ownership");
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
     return;
   }
 
   const leadId = localStorage.getItem("leadId");
   if (!leadId) {
     alert("Lead ID not found");
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
     return;
   }
 
   if (typeof firebase === "undefined" || typeof db === "undefined") {
     alert("Database not initialized");
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
     return;
   }
 
   // 🛑 HARDENED SECURITY GUARDRAILS FOR UN-AUTHENTICATED PATHWAY (OPTION B MATCH)
   if (billFile) {
-      // 1. Enforce strict type validation filtering matching the storage rules
       const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
       if (!allowedMimeTypes.includes(billFile.type) && !billFile.type.startsWith("image/")) {
           alert("Invalid file type. Only standard PDFs and images are accepted for utility bills.");
-          submitBtn.disabled = false;
-          submitBtn.innerText = "Submit Request";
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
           return;
       }
       
-      // 2. Strict file size cap synchronization at 5MB to handle public edge traffic safely
       if (billFile.size > 5 * 1024 * 1024) {
           alert("Maximum file limit for unauthenticated uploads is 5MB. Please upload a compressed document.");
-          submitBtn.disabled = false;
-          submitBtn.innerText = "Submit Request";
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
           return;
       }
   }
 
+  // ⚡ VERIFY / FIX: Hide profile form and trigger the spinning AI loader state IMMEDIATELY upon execution
+  document.getElementById("leadForm")?.classList.add("hidden");
+  showAILoadingState();
+
   let billUrl = null;
 
-  // 🚀 CORE FIX: Handle actual Firebase Storage upload mechanics before mutating Firestore
+  // 🚀 CORE RULE CONFIGURATION FIX: Handle Firebase Storage upload mapping gracefully
   if (billFile) {
       try {
           const billStorageRef = firebase.storage().ref('bills/' + leadId);
           await billStorageRef.put(billFile);
-          billUrl = await billStorageRef.getDownloadURL();
-          console.log("✅ Bill file successfully written to Storage array. Download URL:", billUrl);
+          
+          // 🔒 HARDENED PROTECTION FALLBACK: Because rules restrict read access to authenticated entities,
+          // client-side .getDownloadURL() will fail for unauthenticated traffic. We catch this safely here
+          // to prevent sync exceptions, storing an absolute gs:// URI schema that administrators can load directly.
+          try {
+              billUrl = await billStorageRef.getDownloadURL();
+          } catch (ruleAuthError) {
+              console.log("ℹ️ Storage read restricted via Security Rules. Generating programmatic gs:// pointer reference mapping.");
+              const bucketName = firebase.storage().app.options.storageBucket;
+              billUrl = `gs://${bucketName}/bills/${leadId}`;
+          }
+          console.log("✅ Bill file written to Storage array successfully. Path reference registered:", billUrl);
       } catch (storageError) {
-          console.error("❌ Firebase Storage operational fault during bill upload:", storageError);
-          alert("File sync failed, but we will continue calculating your report options.");
+          console.error("❌ Firebase Storage operational failure during file write:", storageError);
+          // Let the execution chain continue so calculated metrics can still sync down
       }
   }
 
@@ -740,7 +751,7 @@ async function submitLead() {
       rooftopOwnership,
       connectionType,
       billUploaded: billFile ? "Yes" : "No",
-      billUrl: billUrl, // 🔥 CRUCIAL: Saves download path URL array structure directly for admin rendering engine
+      billUrl: billUrl, 
       leadType,
       stage: "AI_GENERATED",
       timeline: {
@@ -771,20 +782,19 @@ async function submitLead() {
     updateRoadmap("AI_GENERATED");
   } catch (error) {
     console.error("❌ Update failed:", error);
-    alert(error.message);
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    alert("Database update transaction sync failure: " + error.message);
+    
+    // Safety recovery layout loop if database commits fail
+    document.getElementById("leadForm")?.classList.remove("hidden");
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
     return;
   }
-  
-  document.getElementById("leadForm")?.classList.add("hidden");
-  showAILoadingState();
 
   try {
     const aiReport = await waitForAIReport(leadId, requestTime);
     renderDynamicAIReport(aiReport, result, true);
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request"; 
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
   } catch (error) {
     console.error(error);
     document.getElementById("aiLoadingState")?.classList.add("hidden");
@@ -796,8 +806,7 @@ async function submitLead() {
       rooftopOwnership,
       roofType
     });
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Request";
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
   }
 }
 
@@ -831,7 +840,7 @@ function setupBillUpload() {
 
   fileInput.addEventListener("change", (e) => {
     if (e.target.files.length > 0) {
-      fileNameDisplay.innerText = `✓ ${e.target.files[0].name}`;
+      fileNameDisplay.innerText = `✓ ${e.dataTransfer.files[0].name}`;
     }
   });
 }
