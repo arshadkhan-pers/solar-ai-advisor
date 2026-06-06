@@ -588,3 +588,47 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+// =====================================================================
+// 🚀 INJECTED LOOKUP PIPELINE FOR THE HOMEPAGE FIELD
+// =====================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Target the target input box where users type their postal code
+  const pinInputField = document.getElementById("homePincodeInput"); 
+  
+  if (!pinInputField) return;
+
+  pinInputField.addEventListener("input", async (e) => {
+    // Sanitize any non-digit values typed into the prompt stream
+    let pinValue = e.target.value.replace(/\D/g, ""); 
+    e.target.value = pinValue; 
+    
+    if (pinValue.length === 6) {
+      const locationData = await lookupPincodeData(pinValue);
+      
+      const feedbackContainer = document.getElementById("locationFeedbackMsg");
+      const hiddenCityInput = document.getElementById("leadCity");
+      const hiddenStateInput = document.getElementById("leadState");
+
+      if (locationData) {
+        const [district, fullStateName] = locationData;
+        const stateCode = normalizeStateToCode(fullStateName);
+
+        // Auto-populate underlying hidden inputs for clean data sync to Firestore
+        if (hiddenCityInput) hiddenCityInput.value = district;
+        if (hiddenStateInput) hiddenStateInput.value = stateCode || "UP";
+
+        // Display confirmation feedback directly under the text field
+        if (feedbackContainer) {
+          feedbackContainer.className = "text-xs mt-1 text-emerald-600 font-medium";
+          feedbackContainer.innerText = `📍 Verified Area: ${district}, ${fullStateName}`;
+        }
+      } else {
+        if (feedbackContainer) {
+          feedbackContainer.className = "text-xs mt-1 text-amber-600 font-medium";
+          feedbackContainer.innerText = "⚠️ Custom location mapping enabled.";
+        }
+      }
+    }
+  });
+});
