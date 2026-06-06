@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pincode Data Optimizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-6">
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+    <h1 class="text-xl font-bold text-slate-800 mb-2">Pincode Optimizer</h1>
+    <p class="text-sm text-slate-500 mb-6">Select the raw Government JSON file to compress it for your website.</p>
+
+    <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-colors bg-slate-50 cursor-pointer relative">
+      <input type="file" id="fileInput" accept=".json" class="absolute inset-0 opacity-0 cursor-pointer" />
+      <p class="text-sm font-semibold text-slate-600" id="uploadText">Click or Drag JSON File Here</p>
+    </div>
+
+    <div id="status" class="mt-6 p-4 rounded-xl text-sm font-medium bg-slate-100 text-slate-600 hidden">
+      Ready...
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('status');
+      const uploadTextEl = document.getElementById('uploadText');
+
+      statusEl.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+      statusEl.classList.add('bg-blue-100', 'text-blue-700');
+      statusEl.innerText = "Reading file into browser memory... (This might take a moment)";
+      uploadTextEl.innerText = file.name;
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        try {
+          statusEl.innerText = "Parsing JSON text... processing file details.";
+          
+          // Parse the large JSON payload
+          const rawData = JSON.parse(event.target.result);
+          const records = rawData.records || [];
+
+          if (records.length === 0) {
+            throw new Error("No records found in the 'records' array of this JSON.");
+          }
+
+          statusEl.innerText = `Processing ${records.length.toLocaleString()} rows... mapping districts and states.`;
+          
+          const optimizedMap = {};
+
+          for (let i = 0; i < records.length; i++) {
+            const row = records[i];
+            
+            // Clean up the pincode syntax
+            let pincode = String(row.pincode || '').trim();
+            if (pincode.includes('.')) {
+              pincode = pincode.split('.')[0]; // Handle float conversions if parsed as 504299.0
+            }
+
+            const district = String(row.district || '').trim().toUpperCase();
+            const state = String(row.statename || '').trim().toUpperCase();
+
+            // Store unique key-value combinations 
+            if (pincode && pincode !== 'NA' && pincode.length === 6) {
+              optimizedMap[pincode] = [district, state];
+            }
+          }
+
+          const uniquePincodesCount = Object.keys(optimizedMap).length;
+          
+          statusEl.classList.remove('bg-blue-100', 'text-blue-700');
+          statusEl.classList.add('bg-green-100', 'text-green-700');
+          statusEl.innerText = `Success! Compressed down to ${uniquePincodesCount.toLocaleString()} unique pincodes. Downloading file...`;
+
+          // Generate and trigger download for the streamlined output file
+          const blob = new Blob([JSON.stringify(optimizedMap)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          
+          const downloadAnchor = document.createElement('a');
+          downloadAnchor.href = url;
+          downloadAnchor.download = "pincode-map.json";
+          document.body.appendChild(downloadAnchor);
+          downloadAnchor.click();
+          
+          // Cleanup
+          document.body.removeChild(downloadAnchor);
+          URL.revokeObjectURL(url);
+
+        } catch (err) {
+          statusEl.classList.remove('bg-blue-100', 'text-blue-700');
+          statusEl.classList.add('bg-red-100', 'text-red-700');
+          statusEl.innerText = "Error: " + err.message;
+          console.error(err);
+        }
+      };
+
+      // Read file content as string
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
