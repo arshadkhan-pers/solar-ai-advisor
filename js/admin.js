@@ -65,6 +65,30 @@ function formatLeadTime(timestamp) {
 }
 
 // =====================================
+// STORAGE PATH RESOLVER (NEW UTILITY)
+// =====================================
+function formatStorageUrl(url) {
+  if (!url) return "";
+  // Dynamically translate cloud bucket native URIs to secure HTTPS endpoint paths
+  if (url.startsWith("gs://")) {
+    try {
+      const pathWithoutProtocol = url.substring(5);
+      const firstSlashIndex = pathWithoutProtocol.indexOf("/");
+      if (firstSlashIndex === -1) return url;
+      
+      const bucket = pathWithoutProtocol.substring(0, firstSlashIndex);
+      const filePath = pathWithoutProtocol.substring(firstSlashIndex + 1);
+      
+      return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(filePath)}?alt=media`;
+    } catch (e) {
+      console.error("Error parsing native gs:// path structure:", e);
+      return url;
+    }
+  }
+  return url;
+}
+
+// =====================================
 // SEARCH LEADS
 // =====================================
 window.searchLeads = function() {
@@ -299,6 +323,9 @@ function renderLeads(leads) {
       rowClass += " bg-yellow-50 border-l-4 border-yellow-500";
     }
 
+    // Defensive lookup for quote state inside grid row
+    const absoluteHasQuote = lead.quoteUrl || lead.quote;
+
     row.className = rowClass;
     row.innerHTML = `
       <td class="px-4 py-4">
@@ -310,7 +337,7 @@ function renderLeads(leads) {
           <p class="text-xs text-gray-500 mt-1">${lead.phone || ""}</p>
           <p class="text-xs text-gray-400 mt-1">${lead.leadCode || ""}</p>
           <p class="text-xs text-indigo-500 mt-1">${lead.createdAt ? formatLeadTime(lead.createdAt) : ""}</p>
-          ${lead.quoteUrl ? `
+          ${absoluteHasQuote ? `
             <div class="mt-1">
               <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200 shadow-sm">
                 📄 Offer Uploaded
@@ -451,10 +478,10 @@ window.updateLeadField = async function(id, field, value) {
 
 
 // =====================================
-// REAL-TIME ADMIN STREAM (UPDATED)
+// REAL-TIME ADMIN STREAM
 // =====================================
 window.leadUpdatesUnsubscribe = window.leadUpdatesUnsubscribe || null;
-let currentOpenLeadAiReport = null; // 🚀 Global tracker for open panel's AI data
+let currentOpenLeadAiReport = null;
 
 function setupRealTimeTimeline(explicitLeadId) {
     if (!explicitLeadId) return;
@@ -471,7 +498,6 @@ function setupRealTimeTimeline(explicitLeadId) {
                 const data = doc.data();
                 const refreshedLead = { id: explicitLeadId, ...data };
                 
-                // Update all cache states simultaneously to prevent grid drift
                 const idx = allLeads.findIndex(l => l.id === explicitLeadId);
                 if (idx > -1) allLeads[idx] = refreshedLead;
 
@@ -482,7 +508,6 @@ function setupRealTimeTimeline(explicitLeadId) {
                     updateMetrics(currentPageLeads);
                 }
                 
-                // 🚀 FIX: Fully re-render the open details panel layout with up-to-the-second data
                 if (currentOpenLeadId === explicitLeadId) {
                     renderLeadPanel(refreshedLead, currentOpenLeadAiReport);
                 }
@@ -493,12 +518,12 @@ function setupRealTimeTimeline(explicitLeadId) {
 }
 
 // =====================================
-// OPEN LEAD PANEL (UPDATED)
+// OPEN LEAD PANEL
 // =====================================
 window.viewLead = async function(id) {
   const requestId = ++currentLeadRequestId;
   currentOpenLeadId = id;
-  currentOpenLeadAiReport = null; // Reset context
+  currentOpenLeadAiReport = null;
 
   document.getElementById("leadPanelOverlay").classList.remove("hidden");
   const panel = document.getElementById("leadDetailsPanel");
@@ -508,7 +533,6 @@ window.viewLead = async function(id) {
     <div class="text-center py-10 text-slate-500">Loading lead details...</div>
   `;
 
-  // Pre-populate structural codes from local grid cache instantly
   const cachedLead = allLeads.find(l => l.id === id);
   if (cachedLead) {
     document.getElementById("panelLeadCode").innerText = cachedLead.leadCode || "";
@@ -528,7 +552,6 @@ window.viewLead = async function(id) {
 
     if (requestId !== currentLeadRequestId) return;
     
-    // Save AI report context globally and execute the stream loop
     currentOpenLeadAiReport = aiReport;
     setupRealTimeTimeline(id);
 
@@ -558,17 +581,20 @@ window.closeLeadPanel = function() {
 };
 
 // =====================================
-// RENDER PANEL (UPDATED)
-// =====================================
-// =====================================
-// RENDER PANEL (UPDATED WITH PREMIUM BILL PREVIEW)
+// RENDER PANEL (UPDATED WITH FIXES)
 // =====================================
 function renderLeadPanel(lead, aiReport) {
   const content = document.getElementById("leadPanelContent");
   if (!content) return;
 
-  // 🚀 PRESERVATION: Track active note input draft so text isn't lost during real-time loops
   const unsavedNoteText = document.getElementById("newLeadNote")?.value || "";
+
+  // 1. Resolve variable nomenclature and cross-convert native paths to web-safe HTTP download strings
+  const rawBillFile = lead.billUrl || lead.billFile;
+  const rawQuoteFile = lead.quoteUrl || lead.quote;
+
+  const resolvedBillUrl = formatStorageUrl(rawBillFile);
+  const resolvedQuoteUrl = formatStorageUrl(rawQuoteFile);
 
   content.innerHTML = `
     <div class="space-y-2">
@@ -584,7 +610,7 @@ function renderLeadPanel(lead, aiReport) {
     <div class="space-y-2 mt-4">
       <h3 class="text-lg font-bold text-slate-900">Electricity Bill Verification</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
-        ${lead.billUrl ? `
+        ${resolvedBillUrl ? `
           <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3 transition-all duration-200 hover:border-slate-300">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
@@ -596,18 +622,18 @@ function renderLeadPanel(lead, aiReport) {
                   <p class="text-xs text-slate-400">Cross-reference consumption history</p>
                 </div>
               </div>
-              <a href="${lead.billUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition-all duration-150 inline-flex items-center gap-1">
+              <a href="${resolvedBillUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition-all duration-150 inline-flex items-center gap-1">
                 Open Full ↗
               </a>
             </div>
             
             <div class="relative group rounded-xl overflow-hidden border border-slate-100 bg-slate-50 aspect-[4/3] flex items-center justify-center max-h-[160px] shadow-inner">
-              <img src="${lead.billUrl}" 
+              <img src="${resolvedBillUrl}" 
                    alt="Customer Bill Preview" 
                    class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
                    onerror="this.parentElement.innerHTML='<div class=\'text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2\'><span class=\'text-3xl\'>📄</span>PDF Document Format<span class=\'text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs\'>Click Open Full above to read</span></div>'"/>
               <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
-                <a href="${lead.billUrl}" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100">
+                <a href="${resolvedBillUrl}" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100">
                   Expand Document
                 </a>
               </div>
@@ -649,19 +675,31 @@ function renderLeadPanel(lead, aiReport) {
     <div class="space-y-2 mt-4">
       <h3 class="text-lg font-bold text-slate-900">Verification Desk (User Offer)</h3>
       <div class="bg-slate-50 rounded-2xl p-4 space-y-3">
-        ${lead.quoteUrl ? `
-          <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+        ${resolvedQuoteUrl ? `
+          <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3 transition-all duration-200 hover:border-slate-300">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl shrink-0">📄</div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl shrink-0 shadow-sm">📄</div>
                 <div>
                   <p class="text-sm font-semibold text-slate-800">Installer Quotation</p>
                   <p class="text-xs text-slate-400">Uploaded for tracking audit</p>
                 </div>
               </div>
-              <a href="${lead.quoteUrl}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition inline-block text-center whitespace-nowrap">
+              <a href="${resolvedQuoteUrl}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-xl font-semibold shadow-sm transition inline-block text-center whitespace-nowrap">
                 View Document ↗
               </a>
+            </div>
+
+            <div class="relative group rounded-xl overflow-hidden border border-slate-100 bg-slate-50 aspect-[4/3] flex items-center justify-center max-h-[160px] shadow-inner">
+              <img src="${resolvedQuoteUrl}" 
+                   alt="Quotation Document Preview" 
+                   class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
+                   onerror="this.parentElement.innerHTML='<div class=\'text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2\'><span class=\'text-3xl\'>📋</span>PDF Proposal Format<span class=\'text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs\'>Click View Document above to read</span></div>'"/>
+              <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                <a href="${resolvedQuoteUrl}" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100">
+                  Expand Document
+                </a>
+              </div>
             </div>
             
             <div class="border-t border-slate-100 pt-3">
@@ -720,7 +758,6 @@ function renderLeadPanel(lead, aiReport) {
     </div>
   `;
   
-  // Restore user draft text if any existed before real-time re-rendering
   if (unsavedNoteText) {
     const textarea = document.getElementById("newLeadNote");
     if (textarea) textarea.value = unsavedNoteText;
@@ -840,7 +877,6 @@ window.saveOpsDetails = async function(id) {
       createdAt: new Date().toISOString()
     };
 
-    // 🚀 FIX: Let real-time snapshot automatically handle array updates and rendering safely
     await db.collection("leads").doc(id).update({
       priority: priority,
       followUpDate: followUpDate,
@@ -877,7 +913,6 @@ document.addEventListener("click", async function(event) {
       createdAt: new Date().toISOString()
     };
 
-    // 🚀 FIX: Write cleanly to database; WebSocket handles real-time injection smoothly
     await db.collection("leads").doc(currentOpenLeadId).update({
       notes: firebase.firestore.FieldValue.arrayUnion(note),
       updatedAt: new Date(),
