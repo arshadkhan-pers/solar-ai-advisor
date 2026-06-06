@@ -17,9 +17,6 @@ let selectedLeadIds = [];
 const PAGE_SIZE = 20;
 const db = window.db;
 
-const PAGE_SIZE = 20;
-const db = window.db;
-
 // Pagination state variables
 let currentPage = 1;
 let totalPages = 1;
