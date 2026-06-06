@@ -190,19 +190,45 @@ function updateRoadmap(stage, leadData = null) {
         uploadSection.classList.toggle('hidden', !showUpload);
 
         if (showUpload) {
-            if (stage === "OFFER_UNDER_REVIEW") {
+                        if (stage === "OFFER_UNDER_REVIEW") {
+                // Determine whether we can offer a direct clickable review link
+                const currentQuoteUrl = localUploadedFiles.quote || leadData?.quoteUrl;
+                const isGsPath = currentQuoteUrl && currentQuoteUrl.startsWith("gs://");
+                
+                const viewLinkHtml = (currentQuoteUrl && !isGsPath)
+                    ? `<a href="${currentQuoteUrl}" target="_blank" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition no-underline shadow-sm shrink-0 flex items-center gap-1">
+                        View Submitted Quote 👁️
+                       </a>`
+                    : `<span class="text-[11px] font-semibold text-amber-700 bg-amber-100/60 px-2.5 py-1 rounded-lg border border-amber-200/40 shrink-0">
+                        🔒 Securely Stored in Cloud
+                       </span>`;
+
                 uploadSection.innerHTML = `
-                    <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">⏳</div>
-                            <div>
-                                <h3 class="text-base font-bold text-amber-900">Review in Progress</h3>
-                                <p class="text-xs text-amber-700 mt-0.5">Your uploaded quotation is currently under review by our technical team.</p>
+                    <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm space-y-4 animate-fade-in">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">⏳</div>
+                                <div>
+                                    <h3 class="text-base font-bold text-amber-900">Review in Progress</h3>
+                                    <p class="text-xs text-amber-700 mt-0.5">Your technical audit is underway. The operations team will verify your components shortly.</p>
+                                </div>
                             </div>
+                            <div class="flex items-center justify-end gap-2">
+                                ${viewLinkHtml}
+                            </div>
+                        </div>
+
+                        <!-- Interactive Modification Zone -->
+                        <div id="reviewActionZone" class="border-t border-amber-200/60 pt-3.5">
+                            <button onclick="revealQuoteRevisionInput()" 
+                                    class="text-xs text-amber-800 font-bold hover:text-amber-950 flex items-center gap-1.5 transition bg-amber-100 hover:bg-amber-200/70 px-3.5 py-2 rounded-xl border border-amber-200/40 shadow-sm">
+                                🔄 Upload a Different Quote / Fix Mistake
+                            </button>
                         </div>
                     </div>
                 `;
-            } else if (["OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage)) {
+            }
+            else if (["OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage)) {
                 
                 // 🚀 FIX: Map out logical timeline statuses from macro stage when leadData is missing on manual refresh
                 let timeline = leadData?.timeline || {};
@@ -431,6 +457,31 @@ function renderQuoteFeedbackState() {
     `;
 }
 
+/**
+ * Dynamic injector that reveals an upload field for revisions during the review phase
+ */
+function revealQuoteRevisionInput() {
+    const actionZone = document.getElementById("reviewActionZone");
+    if (!actionZone) return;
+
+    actionZone.innerHTML = `
+        <div class="bg-white border border-amber-200 rounded-xl p-4 mt-2 space-y-3 shadow-inner animate-fade-in">
+            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                Select New Quotation Document (Replaces Previous Upload)
+            </label>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
+                       onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
+                       class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                        class="bg-indigo-600 text-white text-xs px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                    Confirm Revision
+                </button>
+            </div>
+            <div id="quoteFileFeedbackBox"></div>
+        </div>
+    `;
+}
 
 // ===============================
 // 🔹 SURVEY FEEDBACK SYSTEM
