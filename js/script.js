@@ -590,45 +590,72 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // =====================================================================
-// 🚀 INJECTED LOOKUP PIPELINE FOR THE HOMEPAGE FIELD
+// 🚀 INJECTED LOOKUP PIPELINE FOR THE HOMEPAGE FIELD (UPDATED FIXES)
 // =====================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  // Target the target input box where users type their postal code
-  const pinInputField = document.getElementById("homePincodeInput"); 
+  // 1. Corrected to target 'pincodeInput' matching your index.html layout
+  const pinInputField = document.getElementById("pincodeInput"); 
   
   if (!pinInputField) return;
 
   pinInputField.addEventListener("input", async (e) => {
-    // Sanitize any non-digit values typed into the prompt stream
     let pinValue = e.target.value.replace(/\D/g, ""); 
     e.target.value = pinValue; 
     
     if (pinValue.length === 6) {
       const locationData = await lookupPincodeData(pinValue);
-      
       const feedbackContainer = document.getElementById("locationFeedbackMsg");
-      const hiddenCityInput = document.getElementById("leadCity");
-      const hiddenStateInput = document.getElementById("leadState");
 
       if (locationData) {
         const [district, fullStateName] = locationData;
-        const stateCode = normalizeStateToCode(fullStateName);
+        const stateCode = normalizeStateToCode(fullStateName) || "UP";
 
-        // Auto-populate underlying hidden inputs for clean data sync to Firestore
-        if (hiddenCityInput) hiddenCityInput.value = district;
-        if (hiddenStateInput) hiddenStateInput.value = stateCode || "UP";
+        // Save globally and locally across runtime processes
+        window.verifiedCity = district;
+        window.verifiedState = stateCode;
+        localStorage.setItem("verifiedCity", district);
+        localStorage.setItem("verifiedState", stateCode);
+        localStorage.setItem("state", stateCode);
+        localStorage.setItem("pincode", pinValue);
 
-        // Display confirmation feedback directly under the text field
         if (feedbackContainer) {
-          feedbackContainer.className = "text-xs mt-1 text-emerald-600 font-medium";
+          feedbackContainer.className = "text-xs mt-1 text-green-300 font-medium text-left ml-1";
           feedbackContainer.innerText = `📍 Verified Area: ${district}, ${fullStateName}`;
         }
       } else {
         if (feedbackContainer) {
-          feedbackContainer.className = "text-xs mt-1 text-amber-600 font-medium";
+          feedbackContainer.className = "text-xs mt-1 text-amber-300 font-medium text-left ml-1";
           feedbackContainer.innerText = "⚠️ Custom location mapping enabled.";
         }
       }
     }
   });
 });
+
+// 2. Gracefully intercept the old hardcoded state range function synchronously
+const originalGetStateFromPin = getStateFromPin;
+getStateFromPin = function(pin) {
+  const cachedState = window.verifiedState || localStorage.getItem("verifiedState");
+  if (cachedState) return cachedState;
+  return originalGetStateFromPin(pin);
+};
+
+// 3. Database Payload Interceptor: Overrides the Firestore layer to catch 
+// data additions and inject verified location models over hardcoded placeholders
+if (window.db) {
+  const originalCollection = window.db.collection;
+  window.db.collection = function(name) {
+    const collectionRef = originalCollection.apply(this, arguments);
+    if (name === "leads") {
+      const originalAdd = collectionRef.add;
+      collectionRef.add = function(data) {
+        const trueCity = window.verifiedCity || localStorage.getItem("verifiedCity");
+        const trueState = window.verifiedState || localStorage.getItem("verifiedState");
+        if (trueCity) data.city = trueCity;
+        if (trueState) data.state = trueState;
+        return originalAdd.apply(this, arguments);
+      };
+    }
+    return collectionRef;
+  };
+}
