@@ -14,7 +14,8 @@ async function lookupPincodeData(pincode) {
   if (!cachedPincodeMap) {
     try {
       // Fetches the compressed 674KB payload
-      const response = await fetch('./pincode-map.json');
+      // Safe, bulletproof path for multi-page apps
+      const response = await fetch('/data/pincode-map.json');
       cachedPincodeMap = await response.json();
     } catch (err) {
       console.error("❌ Pincode Registry Fail:", err);
