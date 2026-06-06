@@ -1771,3 +1771,19 @@ function renderDynamicSubsidyTeaserCard(stateCode, city) {
     container.classList.add("hidden");
   }
 }
+
+// =====================================================================
+// 🏎️ AUTOMATED HYDRATION EXECUTION ON RESULTS PAGE ENTRY
+// =====================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const currentUrlParams = new URLSearchParams(window.location.search);
+  const urlCity = currentUrlParams.get("city");
+  const storedPincode = localStorage.getItem("pincode");
+
+  // If the URL has an empty city parameter, resolve it instantly via local cache mapping
+  if ((!urlCity || urlCity === "") && storedPincode) {
+    if (typeof executeLiveLocationPivot === "function") {
+      executeLiveLocationPivot(storedPincode);
+    }
+  }
+});
