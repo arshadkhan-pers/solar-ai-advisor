@@ -269,6 +269,49 @@ window.shareSelectedLeadsWhatsApp = function() {
 };
 
 // =====================================
+// LOAD LEADS (Initial Page 1 Load)
+// =====================================
+window.loadLeads = async function() {
+  try {
+    currentPage = 1;
+
+    // Get the total size of the collection safely for the web compat SDK
+    const totalSnapshot = await db.collection("leads").get();
+    const totalLeads = totalSnapshot.size;
+    totalPages = Math.ceil(totalLeads / PAGE_SIZE) || 1;
+
+    // Optional: Sync the top right text element "0 Leads" if present in your HTML
+    const totalCounterEl = document.getElementById("totalLeadsCount");
+    if (totalCounterEl) {
+      totalCounterEl.innerText = `${totalLeads} Leads`;
+    }
+
+    // Fetch only the first page items
+    const snapshot = await db
+      .collection("leads")
+      .orderBy("createdAt", "desc")
+      .limit(PAGE_SIZE)
+      .get();
+
+    allLeads = [];
+    snapshot.forEach((docItem) => {
+      allLeads.push({ id: docItem.id, ...docItem.data() });
+    });
+
+    currentPageLeads = allLeads;
+    firstVisibleDoc = snapshot.docs[0] || null;
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+
+    renderLeads(allLeads);
+    updateMetrics(allLeads);
+    updatePaginationUI();
+  } catch (error) {
+    console.error("LOAD LEADS ERROR:", error);
+    showToast("Failed to load leads", true);
+  }
+};
+
+// =====================================
 // NEXT PAGE
 // =====================================
 window.loadNextPage = async function() {
@@ -287,6 +330,8 @@ window.loadNextPage = async function() {
       return;
     }
 
+    currentPage++;
+
     allLeads = [];
     snapshot.forEach((docItem) => {
       allLeads.push({ id: docItem.id, ...docItem.data() });
@@ -295,9 +340,6 @@ window.loadNextPage = async function() {
     currentPageLeads = allLeads;
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-
-    // Increment current tracking position safely
-    currentPage++;
 
     renderLeads(allLeads);
     updateMetrics(allLeads);
@@ -327,6 +369,8 @@ window.loadPreviousPage = async function() {
       return;
     }
 
+    currentPage--;
+
     allLeads = [];
     snapshot.forEach((docItem) => {
       allLeads.push({ id: docItem.id, ...docItem.data() });
@@ -335,9 +379,6 @@ window.loadPreviousPage = async function() {
     currentPageLeads = allLeads;
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-
-    // Decrement tracking position safely
-    currentPage--;
 
     renderLeads(allLeads);
     updateMetrics(allLeads);
@@ -349,41 +390,24 @@ window.loadPreviousPage = async function() {
 };
 
 // =====================================
-// LOAD LEADS
+// UPDATE PAGINATION UI STATE
 // =====================================
-window.loadLeads = async function() {
-  try {
-    // Run an optimized Firestore count aggregation on initial dashboard execution
-    const countSnapshot = await db.collection("leads").count().get();
-    const totalLeadsCount = countSnapshot.data().count;
-    
-    // Calculate total pages safely, default to minimum 1 page
-    totalPages = Math.ceil(totalLeadsCount / PAGE_SIZE) || 1;
-    currentPage = 1;
+function updatePaginationUI() {
+  const prevBtn = document.getElementById("prevPageBtn");
+  const nextBtn = document.getElementById("nextPageBtn");
+  const infoSpan = document.getElementById("paginationInfo");
 
-    const snapshot = await db
-      .collection("leads")
-      .orderBy("createdAt", "desc")
-      .limit(PAGE_SIZE)
-      .get();
-
-    allLeads = [];
-    snapshot.forEach((docItem) => {
-      allLeads.push({ id: docItem.id, ...docItem.data() });
-    });
-
-    currentPageLeads = allLeads;
-    firstVisibleDoc = snapshot.docs[0] || null;
-    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1] || null;
-
-    renderLeads(allLeads);
-    updateMetrics(allLeads);
-    updatePaginationUI();
-  } catch (error) {
-    console.error("LOAD LEADS ERROR:", error);
-    showToast("Failed to load leads", true);
+  if (infoSpan) {
+    infoSpan.innerText = `Page ${currentPage} of ${totalPages}`;
   }
-};
+  if (prevBtn) {
+    prevBtn.disabled = (currentPage === 1);
+  }
+  if (nextBtn) {
+    nextBtn.disabled = (currentPage >= totalPages);
+  }
+}
+
 // =====================================
 // METRICS
 // =====================================
