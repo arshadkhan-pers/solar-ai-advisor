@@ -302,21 +302,19 @@ function updateRoadmap(stage, leadData = null) {
                             </div>
                         </div>
 
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                           <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                             Upload Installer Quotation / Final Bill
-                        </label>
-                        // Inside updateRoadmap() -> under the layout block: uploadSection.innerHTML = `...`
-// Locate the following input group lines and match them up to look exactly like this:
+                            </label>
 
-<div class="flex flex-col sm:flex-row gap-3">
-    <input type="file" id="quoteUpload" accept="application/pdf,image/*" onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
-           class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
-    <button id="uploadQuoteBtn" onclick="uploadQuote()" 
-            class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
-        Submit for Verification
-    </button>
-</div>
-<div id="quoteFileFeedbackBox"></div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="file" id="quoteUpload" accept="application/pdf,image/*" onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
+                                   class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                            <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                                    class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                                Submit for Verification
+                            </button>
+                        </div>
+                        <div id="quoteFileFeedbackBox"></div>
                     </div>
                 `;
             }
