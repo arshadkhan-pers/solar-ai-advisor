@@ -73,18 +73,20 @@
       </div>
 
       <div class="w-full md:w-64 text-left">
-        <input
-          id="pincodeInput"
-          type="text"
-          pattern="[0-9]*"
-          inputmode="numeric"
-          maxlength="6"
-          placeholder="6-Digit PIN Code"
-          class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white"
-          oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
-        />
-        <p id="pincodeError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
-      </div>
+  <input
+    id="pincodeInput"
+    type="text"
+    pattern="[0-9]*"
+    inputmode="numeric"
+    maxlength="6"
+    placeholder="6-Digit PIN Code"
+    class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white"
+    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
+  />
+  <p id="pincodeError" class="text-red-400 text-[11px] mt-1.5 ml-1 font-medium min-h-[1rem]"></p>
+  
+  <p id="locationFeedbackMsg" class="min-h-[1rem] text-xs font-medium text-left ml-1"></p>
+</div>
 
       <button
         onclick="handleHeroCalculate()"
