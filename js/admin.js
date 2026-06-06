@@ -65,6 +65,28 @@ function formatLeadTime(timestamp) {
 }
 
 // =====================================
+// IMAGE ASSET ERROR FALLBACK HANDLING
+// =====================================
+window.handleImageLoadError = function(imgEl, type) {
+  if (!imgEl || !imgEl.parentElement) return;
+  
+  const isBill = type === 'bill';
+  const icon = isBill ? '📄' : '📋';
+  const title = isBill ? 'PDF Document Format' : 'PDF Proposal Format';
+  const instruction = isBill ? 'Click Open Full above to read' : 'Click View Document above to read';
+
+  imgEl.parentElement.innerHTML = `
+    <div class="text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2 w-full">
+      <span class="text-3xl">${icon}</span>
+      ${title}
+      <span class="text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs">
+        ${instruction}
+      </span>
+    </div>
+  `;
+};
+
+// =====================================
 // STORAGE ASSET RESOLVER (SECURED AGAINST RACE CONDITIONS & CRASHES)
 // =====================================
 function resolveStorageAsset(storageUrl, leadId, imgElementId, linkElementIds) {
@@ -666,7 +688,7 @@ function renderLeadPanel(lead, aiReport) {
               <img id="admin-bill-preview-img" src="" 
                    alt="Customer Bill Preview" 
                    class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
-                   onerror="this.parentElement.innerHTML='<div class=\'text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2\'><span class=\'text-3xl\'>📄</span>PDF Document Format<span class=\'text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs\'>Click Open Full above to read</span></div>'"/>
+                   onerror="handleImageLoadError(this, 'bill')"/>
               <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
                 <a id="admin-bill-expand-btn" href="#" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100 opacity-50 pointer-events-none">
                   Expand Document
@@ -729,7 +751,7 @@ function renderLeadPanel(lead, aiReport) {
               <img id="admin-quote-preview-img" src="" 
                    alt="Quotation Document Preview" 
                    class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" 
-                   onerror="this.parentElement.innerHTML='<div class=\'text-center py-6 text-slate-500 font-medium text-xs flex flex-col items-center gap-2\'><span class=\'text-3xl\'>📋</span>PDF Proposal Format<span class=\'text-[10px] text-slate-400 px-2 py-0.5 border rounded-md bg-white shadow-xs\'>Click View Document above to read</span></div>'"/>
+                   onerror="handleImageLoadError(this, 'quote')"/>
               <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
                 <a id="admin-quote-expand-btn" href="#" target="_blank" class="bg-white/95 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md transition transform scale-95 group-hover:scale-100 opacity-50 pointer-events-none">
                   Expand Document
