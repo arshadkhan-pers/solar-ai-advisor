@@ -72,6 +72,63 @@ const stateNames = {
 // 🔹 HELPERS
 // ===============================
 
+// Global store for active session local object URLs to allow viewing files immediately after upload
+const localUploadedFiles = {
+    bill: null,
+    quote: null
+};
+
+/**
+ * Unified file validation and storage upload pipe
+ * @param {File} file - The file object from input array
+ * @param {'bill' | 'quote'} type - Context token mapping limits and target paths
+ * @param {string} leadId - Unique reference identifier
+ */
+async function handleUnifiedUpload(file, type, leadId) {
+    if (!file) throw new Error("Please select a file to upload.");
+    if (!leadId) throw new Error("Tracking context missing. Lead ID reference unavailable.");
+
+    // 1. Strict File Type Validation
+    const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowedMimeTypes.includes(file.type) && !file.type.startsWith("image/")) {
+        throw new Error(`Unsupported file type (${file.type || "Unknown"}). Only official PDFs and image files are allowed.`);
+    }
+
+    // 2. Dynamic Size Threshold Enforcement
+    const sizeLimit = type === 'bill' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > sizeLimit) {
+        const readableLimit = type === 'bill' ? '5MB' : '10MB';
+        throw new Error(`File size limits exceeded. The maximum permissible size for a ${type} is ${readableLimit}.`);
+    }
+
+    // 3. Execution Path Mapping
+    const folderName = type === 'bill' ? 'bills' : 'quotes';
+    const storageRef = firebase.storage().ref(`${folderName}/${leadId}`);
+    
+    // Execute write sequence
+    await storageRef.put(file);
+
+    // 4. Secure Reader Fallback Strategy
+    let resolvedUrl = null;
+    try {
+        resolvedUrl = await storageRef.getDownloadURL();
+    } catch (ruleAuthError) {
+        console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
+        const bucketName = firebase.storage().app.options.storageBucket;
+        resolvedUrl = `gs://${bucketName}/${folderName}/${leadId}`;
+    }
+
+    // Capture and stash current session local viewer URL reference
+    localUploadedFiles[type] = URL.createObjectURL(file);
+
+    return {
+        remoteUrl: resolvedUrl,
+        localBlobUrl: localUploadedFiles[type],
+        name: file.name
+    };
+}
+
+
 // Secure one-way cryptographic SHA-256 hashing engine
 async function hashPin(pin) {
     const msgUint8 = new TextEncoder().encode(pin);
@@ -248,14 +305,18 @@ function updateRoadmap(stage, leadData = null) {
                         <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                             Upload Installer Quotation / Final Bill
                         </label>
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
-                                   class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
-                            <button id="uploadQuoteBtn" onclick="uploadQuote()" 
-                                    class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
-                                Submit for Verification
-                            </button>
-                        </div>
+                        // Inside updateRoadmap() -> under the layout block: uploadSection.innerHTML = `...`
+// Locate the following input group lines and match them up to look exactly like this:
+
+<div class="flex flex-col sm:flex-row gap-3">
+    <input type="file" id="quoteUpload" accept="application/pdf,image/*" onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
+           class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+    <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+            class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+        Submit for Verification
+    </button>
+</div>
+<div id="quoteFileFeedbackBox"></div>
                     </div>
                 `;
             }
@@ -324,46 +385,31 @@ async function uploadQuote() {
     const leadId = localStorage.getItem("leadId");
     const uploadBtn = document.getElementById("uploadQuoteBtn");
     
-    if (!file) return alert("Please select a file first");
-    if (!leadId) return alert("Lead ID not found");
-
-    // 🛑 ISSUE #2: 10MB File Size Guardrail for Quotes
-    if (file.size > 10 * 1024 * 1024) {
-        alert("Maximum file size is 10MB. Please upload a compressed PDF or image.");
-        if (fileInput) fileInput.value = ""; // Reset the input field
-        return;
-    }
+    if (!file) return alert("Please select an official installer quotation document to proceed.");
+    if (!leadId) return alert("System context identification error. Missing tracking token reference.");
 
     if (uploadBtn) {
         uploadBtn.disabled = true;
-        uploadBtn.innerText = "Uploading...";
+        uploadBtn.innerText = "Uploading Blueprint...";
     }
 
     try {
-        const storageRef = firebase.storage().ref('quotes/' + leadId);
-        await storageRef.put(file);
-        const url = await storageRef.getDownloadURL();
+        // Enforce validations and handle secure uploads using unified framework
+        const uploadResult = await handleUnifiedUpload(file, 'quote', leadId);
         
-        try {
-            await db.collection("leads").doc(leadId).update({ 
-                quoteUrl: url,
-                stage: "OFFER_UNDER_REVIEW" 
-            });
-        } catch (firestoreError) {
-            console.error("Firestore update failed. Ejecting orphan storage file...", firestoreError);
-            await storageRef.delete().catch((err) => console.error("Failed to delete orphan file:", err));
-            throw new Error("Database link failed. Document cleaned up. Please try again.");
-        }
+        await db.collection("leads").doc(leadId).update({ 
+            quoteUrl: uploadResult.remoteUrl,
+            stage: "OFFER_UNDER_REVIEW" 
+        });
         
-        alert("Quote submitted for verification!");
+        alert("Quotation file received and locked for verification tracking!");
         
-        // 🚀 ISSUE #1: Reactive UI Update (No Reload)
         localStorage.setItem("leadStage", "OFFER_UNDER_REVIEW");
         updateRoadmap("OFFER_UNDER_REVIEW"); 
         
     } catch (error) {
-        console.error("Upload workflow exception:", error);
-        alert(error.message || "Upload failed. Please try again.");
+        console.error("Upload workflow processing issue encountered:", error);
+        alert(error.message || "An exception occurred while staging your file. Please verify and retry.");
         
         if (uploadBtn) {
             uploadBtn.disabled = false;
@@ -372,6 +418,20 @@ async function uploadQuote() {
     }
 }
 
+// Inline helper to append a tracking attachment review module on state adjustments
+function renderQuoteFeedbackState() {
+    const statusContainer = document.getElementById("quoteFileFeedbackBox");
+    if (!statusContainer || !localUploadedFiles.quote) return;
+
+    statusContainer.innerHTML = `
+        <div class="mt-3 p-3 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between gap-2 text-xs">
+            <span class="text-indigo-900 truncate">Uploaded: <strong>${document.getElementById('quoteUpload')?.files?.[0]?.name || 'Quotation Document'}</strong></span>
+            <a href="${localUploadedFiles.quote}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold tracking-wide transition shrink-0 no-underline shadow-sm">
+                Open Uploaded Quote 👁️
+            </a>
+        </div>
+    `;
+}
 
 
 // ===============================
@@ -705,31 +765,24 @@ async function submitLead() {
   // ⚡ VERIFY / FIX: Hide profile form and trigger the spinning AI loader state IMMEDIATELY upon execution
   document.getElementById("leadForm")?.classList.add("hidden");
   showAILoadingState();
-
+  
   let billUrl = null;
 
-  // 🚀 CORE RULE CONFIGURATION FIX: Handle Firebase Storage upload mapping gracefully
   if (billFile) {
       try {
-          const billStorageRef = firebase.storage().ref('bills/' + leadId);
-          await billStorageRef.put(billFile);
-          
-          // 🔒 HARDENED PROTECTION FALLBACK: Because rules restrict read access to authenticated entities,
-          // client-side .getDownloadURL() will fail for unauthenticated traffic. We catch this safely here
-          // to prevent sync exceptions, storing an absolute gs:// URI schema that administrators can load directly.
-          try {
-              billUrl = await billStorageRef.getDownloadURL();
-          } catch (ruleAuthError) {
-              console.log("ℹ️ Storage read restricted via Security Rules. Generating programmatic gs:// pointer reference mapping.");
-              const bucketName = firebase.storage().app.options.storageBucket;
-              billUrl = `gs://${bucketName}/bills/${leadId}`;
-          }
-          console.log("✅ Bill file written to Storage array successfully. Path reference registered:", billUrl);
+          const uploadResult = await handleUnifiedUpload(billFile, 'bill', leadId);
+          billUrl = uploadResult.remoteUrl;
+          console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
       } catch (storageError) {
-          console.error("❌ Firebase Storage operational failure during file write:", storageError);
-          // Let the execution chain continue so calculated metrics can still sync down
+          console.error("❌ Unified Storage engine failure during execution:", storageError);
+          alert(storageError.message || "File validation processing failed.");
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+          document.getElementById("leadForm")?.classList.remove("hidden");
+          document.getElementById("aiLoadingState")?.classList.add("hidden");
+          return;
       }
   }
+
 
   const leadType = getLeadType(bill, propertyType, rooftopOwnership);
   const requestTime = Date.now();
@@ -816,7 +869,7 @@ function setupBillUpload() {
   const fileInput = document.getElementById("billUpload");
   const fileNameDisplay = document.getElementById("billFileName");
 
-  if (!uploadArea ||!fileInput ||!fileNameDisplay) return;
+  if (!uploadArea || !fileInput || !fileNameDisplay) return;
 
   uploadArea.addEventListener("click", () => fileInput.click());
 
@@ -829,21 +882,39 @@ function setupBillUpload() {
     uploadArea.style.backgroundColor = "";
   });
 
+  const renderSelectionUI = (file) => {
+    const localUrl = URL.createObjectURL(file);
+    localUploadedFiles.bill = localUrl; // Stash to active state cache
+    
+    fileNameDisplay.innerHTML = `
+        <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-medium flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+            <div class="flex items-center gap-2">
+                <span>📄</span>
+                <span class="truncate max-w-[180px] sm:max-w-[240px]">Staged: <strong>${file.name}</strong></span>
+            </div>
+            <a href="${localUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition no-underline shadow-sm">
+                Open Staged Bill 👁️
+            </a>
+        </div>
+    `;
+  };
+
   uploadArea.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadArea.style.backgroundColor = "";
     if (e.dataTransfer.files.length > 0) {
       fileInput.files = e.dataTransfer.files;
-      fileNameDisplay.innerText = `✓ ${e.dataTransfer.files[0].name}`;
+      renderSelectionUI(e.dataTransfer.files[0]);
     }
   });
 
   fileInput.addEventListener("change", (e) => {
     if (e.target.files.length > 0) {
-      fileNameDisplay.innerText = `✓ ${e.dataTransfer.files[0].name}`;
+      renderSelectionUI(e.target.files[0]);
     }
   });
 }
+
 
 function populateCapturedData() {
   const params = new URLSearchParams(window.location.search);
