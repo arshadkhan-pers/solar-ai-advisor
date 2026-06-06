@@ -1703,3 +1703,71 @@ function renderInstallerCards(installers) {
         container.appendChild(card);
     });
 }
+
+// =====================================================================
+// 🚀 INJECTED LIVE LOOKUP & RE-CALCULATION FOR RESULTS PAGE
+// =====================================================================
+async function executeLiveLocationPivot(newPincode) {
+  if (String(newPincode).length !== 6) return;
+
+  const resolvedMeta = await lookupPincodeData(newPincode);
+  if (!resolvedMeta) return;
+
+  const [targetDistrict, targetStateName] = resolvedMeta;
+  const standardStateKey = normalizeStateToCode(targetStateName);
+
+  if (!standardStateKey) return;
+
+  // 1. Instantly transition active local updates
+  localStorage.setItem("state", standardStateKey);
+  localStorage.setItem("leadCity", targetDistrict);
+
+  // 2. Refresh browser parameters silently without breaking state trackers
+  const activeParams = new URLSearchParams(window.location.search);
+  activeParams.set("state", standardStateKey);
+  activeParams.set("city", targetDistrict);
+  
+  const updatedUrlStructure = `${window.location.pathname}?${activeParams.toString()}`;
+  window.history.replaceState({}, '', updatedUrlStructure);
+
+  // 3. Fire the localized subsidy banner if state configuration entries apply
+  if (typeof renderDynamicSubsidyTeaserCard === "function") {
+    renderDynamicSubsidyTeaserCard(standardStateKey, targetDistrict);
+  }
+
+  // 4. Force calculation re-run loop
+  if (typeof initSolarReportCalculation === "function") {
+      initSolarReportCalculation();
+  } else {
+      // Fallback fallback mechanism if deep state arrays aren't bound in current viewport window
+      window.location.reload();
+  }
+}
+
+/**
+ * Injects a reactive banner matching standard template parameters inside stateSubsidyConfig
+ */
+function renderDynamicSubsidyTeaserCard(stateCode, city) {
+  const container = document.getElementById("regionalSubsidyBannerBox");
+  if (!container) return;
+
+  // Uses the master state configuration mappings from results configuration layers
+  const subsidyDetails = stateSubsidyConfig[stateCode]; 
+  const properName = stateNames[stateCode] || stateCode;
+
+  if (subsidyDetails) {
+    const formattedCap = formatIndianCurrency(subsidyDetails.cap || subsidyDetails.value); //
+    container.innerHTML = `
+      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex gap-3 text-xs text-indigo-900 animate-fade-in">
+        <span class="text-base">🎁</span>
+        <div>
+          <span class="font-bold block text-indigo-950 mb-0.5">Local State Top-Up Enabled for ${city}!</span>
+          Residents of <strong>${properName}</strong> qualify for an additional regional incentive capping at <strong>${formattedCap}</strong>.
+        </div>
+      </div>
+    `;
+    container.classList.remove("hidden");
+  } else {
+    container.classList.add("hidden");
+  }
+}
