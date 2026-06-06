@@ -1787,3 +1787,75 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+// =====================================================================
+// 🎯 AUTOMATED CITY DROPDOWN SYNC & INJECTION PIPELINE
+// =====================================================================
+function syncCityDropdownElement(cityName) {
+  if (!cityName || cityName === "Not Provided") return;
+
+  // 1. Target all common ID variations used for city selection dropdowns
+  const cityDropdown = document.getElementById("city") || 
+                       document.getElementById("leadCity") || 
+                       document.getElementById("citySelect") ||
+                       document.getElementById("calcCity");
+
+  if (!cityDropdown) return;
+
+  const targetCity = cityName.trim();
+  let optionFound = false;
+
+  // 2. Scan existing options to see if the city is already populated
+  for (let i = 0; i < cityDropdown.options.length; i++) {
+    if (cityDropdown.options[i].value.toLowerCase() === targetCity.toLowerCase()) {
+      cityDropdown.selectedIndex = i;
+      optionFound = true;
+      break;
+    }
+  }
+
+  // 3. Fallback: If options aren't loaded yet or city is missing, inject it dynamically
+  if (!optionFound) {
+    const freshOption = document.createElement("option");
+    freshOption.value = targetCity;
+    freshOption.text = targetCity;
+    freshOption.selected = true;
+    cityDropdown.add(freshOption);
+  }
+
+  // 4. Fire a change event so other reactive calculation blocks update instantly
+  cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+// =====================================================================
+// 🏎️ LIFECYCLE HOOKS FOR PAGE ENTRY & LIVE RE-CALCULATIONS
+// =====================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Read target city from URL parameters, falling back to local session records
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeCity = urlParams.get("city") || 
+                     localStorage.getItem("leadCity") || 
+                     localStorage.getItem("verifiedCity");
+
+  if (activeCity) {
+    // Delay slightly (250ms) to allow any master state-rendering frameworks to finish mounting
+    setTimeout(() => {
+      syncCityDropdownElement(activeCity);
+    }, 250);
+  }
+});
+
+// Intercept live pincode switches to update dropdown selections in real-time
+if (typeof executeLiveLocationPivot === "function") {
+  const originalExecuteLiveLocationPivot = executeLiveLocationPivot;
+  executeLiveLocationPivot = async function(newPincode) {
+    // Run the native state & caching routine first
+    await originalExecuteLiveLocationPivot(newPincode);
+    
+    // Immediately pull the updated city out of memory and apply to UI layout
+    const liveCity = localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity");
+    if (liveCity) {
+      syncCityDropdownElement(liveCity);
+    }
+  };
+}
