@@ -17,6 +17,29 @@ let selectedLeadIds = [];
 const PAGE_SIZE = 20;
 const db = window.db;
 
+const PAGE_SIZE = 20;
+const db = window.db;
+
+// Pagination state variables
+let currentPage = 1;
+let totalPages = 1;
+
+// Sync state changes smoothly to UI controls
+function updatePaginationUI() {
+  const prevBtn = document.getElementById("prevPageBtn");
+  const nextBtn = document.getElementById("nextPageBtn");
+  const infoSpan = document.getElementById("paginationInfo");
+
+  if (infoSpan) {
+    infoSpan.innerText = `Page ${currentPage} of ${totalPages}`;
+  }
+  if (prevBtn) {
+    prevBtn.disabled = (currentPage === 1);
+  }
+  if (nextBtn) {
+    nextBtn.disabled = (currentPage >= totalPages);
+  }
+}
 
 // =====================================
 // TOAST NOTIFICATIONS
@@ -252,7 +275,7 @@ window.shareSelectedLeadsWhatsApp = function() {
 // NEXT PAGE
 // =====================================
 window.loadNextPage = async function() {
-  if (!lastVisibleDoc) return;
+  if (!lastVisibleDoc || currentPage >= totalPages) return;
 
   try {
     const snapshot = await db
@@ -276,8 +299,12 @@ window.loadNextPage = async function() {
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
 
+    // Increment current tracking position safely
+    currentPage++;
+
     renderLeads(allLeads);
     updateMetrics(allLeads);
+    updatePaginationUI();
   } catch (error) {
     console.error(error);
     showToast("Failed loading next page", true);
@@ -288,7 +315,7 @@ window.loadNextPage = async function() {
 // PREVIOUS PAGE
 // =====================================
 window.loadPreviousPage = async function() {
-  if (!firstVisibleDoc) return;
+  if (!firstVisibleDoc || currentPage <= 1) return;
 
   try {
     const snapshot = await db
@@ -312,10 +339,12 @@ window.loadPreviousPage = async function() {
     firstVisibleDoc = snapshot.docs[0];
     lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
 
+    // Decrement tracking position safely
+    currentPage--;
+
     renderLeads(allLeads);
     updateMetrics(allLeads);
-    
-    document.getElementById("paginationInfo").innerText = `Showing previous page (${allLeads.length} leads)`;
+    updatePaginationUI();
   } catch (error) {
     console.error("Error loading previous page:", error);
     showToast("Failed to load previous page", true);
@@ -327,6 +356,14 @@ window.loadPreviousPage = async function() {
 // =====================================
 window.loadLeads = async function() {
   try {
+    // Run an optimized Firestore count aggregation on initial dashboard execution
+    const countSnapshot = await db.collection("leads").count().get();
+    const totalLeadsCount = countSnapshot.data().count;
+    
+    // Calculate total pages safely, default to minimum 1 page
+    totalPages = Math.ceil(totalLeadsCount / PAGE_SIZE) || 1;
+    currentPage = 1;
+
     const snapshot = await db
       .collection("leads")
       .orderBy("createdAt", "desc")
@@ -344,14 +381,12 @@ window.loadLeads = async function() {
 
     renderLeads(allLeads);
     updateMetrics(allLeads);
-
-    document.getElementById("paginationInfo").innerText = `Showing ${allLeads.length} latest leads`;
+    updatePaginationUI();
   } catch (error) {
     console.error("LOAD LEADS ERROR:", error);
     showToast("Failed to load leads", true);
   }
 };
-
 // =====================================
 // METRICS
 // =====================================
