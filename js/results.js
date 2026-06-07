@@ -1575,13 +1575,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateCapturedData();
     setupEditableInputs();
 
-    const initialState = localStorage.getItem("state") || "UP";
+   // 1. Capture the true State & City from the URL or Local Session
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetState = urlParams.get("state") || localStorage.getItem("leadState") || localStorage.getItem("state") || "UP";
+    const targetCity = urlParams.get("city") || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "";
     
     if (typeof LocationHandler !== "undefined" && LocationHandler.init) {
+        // 2. Await the native handler, but pass it our strict targetState
         await LocationHandler.init("resState", "resCity", (newState) => {
             localStorage.setItem("state", newState); 
             calculateSavings(); 
-        }, initialState);
+        }, targetState);
+
+        // 3. NATIVE SYNC: The moment LocationHandler finishes building the HTML, we set the City
+        const cityDropdown = document.getElementById("resCity");
+        if (cityDropdown && targetCity && targetCity !== "Not Provided") {
+            const searchCityLower = targetCity.toLowerCase();
+            let cityFound = false;
+
+            for (let i = 0; i < cityDropdown.options.length; i++) {
+                if (cityDropdown.options[i].value.toLowerCase() === searchCityLower || 
+                    cityDropdown.options[i].text.toLowerCase() === searchCityLower) {
+                    cityDropdown.selectedIndex = i;
+                    cityFound = true;
+                    break;
+                }
+            }
+
+            // 4. Fallback injection if the city isn't natively in the selected State's JSON array
+            if (!cityFound) {
+                const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
+                const freshOption = document.createElement("option");
+                freshOption.value = targetCity;
+                freshOption.text = formattedCity;
+                freshOption.selected = true;
+                cityDropdown.add(freshOption);
+                cityDropdown.selectedIndex = cityDropdown.options.length - 1;
+            }
+            
+            // 5. Force a native change event so the Subsidy logic & Charts pick up the new city
+            cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+        }
     }
 
     const initialResult = calculateSavings(); 
@@ -1826,130 +1860,3 @@ function syncCityDropdownElement(cityName) {
   // 4. Fire a change event so other reactive calculation blocks update instantly
   cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
 }
-
-// =====================================================================
-// ⚡ PRODUCTION DROPDOWN AUTO-SYNC ENGINE (STATE & CITY RESILIENT)
-// =====================================================================
-(function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlState = urlParams.get("state");
-  const urlCity = urlParams.get("city");
-  
-  const targetState = (urlState || localStorage.getItem("leadState") || "UP").trim();
-  const targetCity = (urlCity || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "").trim();
-
-  if (!targetCity || targetCity === "Not Provided") return;
-
-  let runCycles = 0;
-  let temporaryCityInjectionActive = false;
-  let temporaryStateInjectionActive = false;
-
-  const enforcementInterval = setInterval(() => {
-    runCycles++;
-    
-    // Safety lifecycle exit after ~4.5 seconds to fully release browser resources
-    if (runCycles > 30) {
-      clearInterval(enforcementInterval);
-      return;
-    }
-
-    const stateDropdown = document.getElementById("resState");
-    const cityDropdown = document.getElementById("resCity");
-
-    if (!stateDropdown || !cityDropdown) return;
-
-    // --- 1. REACTIVE STATE ENFORCEMENT ---
-    if (targetState) {
-      let stateFound = false;
-      const searchStateLower = targetState.toLowerCase();
-
-      for (let i = 0; i < stateDropdown.options.length; i++) {
-        const optionEl = stateDropdown.options[i];
-        if (temporaryStateInjectionActive && optionEl.dataset?.isFallback) continue;
-
-        if (optionEl.value.toLowerCase() === searchStateLower || 
-            optionEl.text.toLowerCase() === searchStateLower) {
-          
-          if (temporaryStateInjectionActive) {
-            // Clean up temporary state fallback option if native asset choice arrived
-            for (let j = 0; j < stateDropdown.options.length; j++) {
-              if (stateDropdown.options[j].dataset?.isFallback) {
-                stateDropdown.remove(j);
-                break;
-              }
-            }
-            temporaryStateInjectionActive = false;
-          }
-
-          // Change index ONLY if it doesn't match to prevent performance-heavy recalculation loops
-          if (stateDropdown.selectedIndex !== i) {
-            stateDropdown.selectedIndex = i;
-            stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
-          }
-          stateFound = true;
-          break;
-        }
-      }
-
-      // If state is completely wiped or missing from DOM options, inject placeholder immediately
-      if (!stateFound && !temporaryStateInjectionActive) {
-        const formattedState = targetState.toUpperCase();
-        const freshOption = document.createElement("option");
-        freshOption.value = targetState;
-        freshOption.text = formattedState;
-        freshOption.selected = true;
-        freshOption.dataset.isFallback = "true";
-        
-        stateDropdown.add(freshOption);
-        stateDropdown.selectedIndex = stateDropdown.options.length - 1;
-        stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
-        temporaryStateInjectionActive = true;
-      }
-    }
-
-    // --- 2. REACTIVE CITY ENFORCEMENT ---
-    let cityFound = false;
-    const searchCityLower = targetCity.toLowerCase();
-
-    for (let i = 0; i < cityDropdown.options.length; i++) {
-      const optionEl = cityDropdown.options[i];
-      if (temporaryCityInjectionActive && optionEl.dataset?.isFallback) continue;
-
-      if (optionEl.value.toLowerCase() === searchCityLower || 
-          optionEl.text.toLowerCase() === searchCityLower) {
-        
-        if (temporaryCityInjectionActive) {
-          // Clean up temporary city fallback option if native asset choice arrived
-          for (let j = 0; j < cityDropdown.options.length; j++) {
-            if (cityDropdown.options[j].dataset?.isFallback) {
-              cityDropdown.remove(j);
-              break;
-            }
-          }
-          temporaryCityInjectionActive = false;
-        }
-
-        if (cityDropdown.selectedIndex !== i) {
-          cityDropdown.selectedIndex = i;
-          cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-        cityFound = true;
-        break;
-      }
-    }
-
-    if (!cityFound && !temporaryCityInjectionActive) {
-      const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
-      const freshOption = document.createElement("option");
-      freshOption.value = targetCity;
-      freshOption.text = formattedCity;
-      freshOption.selected = true;
-      freshOption.dataset.isFallback = "true";
-      
-      cityDropdown.add(freshOption);
-      cityDropdown.selectedIndex = cityDropdown.options.length - 1;
-      cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
-      temporaryCityInjectionActive = true;
-    }
-  }, 150);
-})();
