@@ -1711,7 +1711,8 @@ function renderInstallerCards(installers) {
         const { installerAI, matchReasons, score, businessName, installerType } = installer;
         
         const card = document.createElement("div");
-        card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow";
+        card.className =
+        "bg-white border border-slate-200 rounded-2xl p-5 shadow-premium hover:shadow-xl transition-all";
         
         card.innerHTML = `
             <div class="flex justify-between items-start mb-4">
