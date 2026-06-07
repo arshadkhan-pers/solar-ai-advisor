@@ -1828,59 +1828,28 @@ function syncCityDropdownElement(cityName) {
 }
 
 // =====================================================================
-// 🩺 SOLAR-AI DEEP DIAGNOSTIC & FAILSAFE ENGINE
+// 🎯 FINAL CORRECTED RESULTS PAGE DROPDOWN AUTO-SYNC
 // =====================================================================
 (function() {
-  console.log("🚀 [Solar-AI-Diag] Diagnostic initialization started.");
-
   const urlParams = new URLSearchParams(window.location.search);
   const urlState = urlParams.get("state");
   const urlCity = urlParams.get("city");
   
-  console.log(`📋 [Solar-AI-Diag] URL Raw Parameters -> State: "${urlState}", City: "${urlCity}"`);
-  console.log(`💾 [Solar-AI-Diag] LocalStorage State -> State: "${localStorage.getItem("leadState")}", City: "${localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity")}"`);
-
-  const targetState = (urlState || localStorage.getItem("leadState") || "").trim();
+  const targetState = (urlState || localStorage.getItem("leadState") || "UP").trim();
   const targetCity = (urlCity || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "").trim();
 
-  let runCount = 0;
+  function syncActualDropdowns() {
+    // Target the precise IDs matching the results page implementation
+    const stateDropdown = document.getElementById("resState");
+    const cityDropdown = document.getElementById("resCity");
 
-  function runDiagnosticSync() {
-    runCount++;
-    
-    // 1. Scan the DOM for potential dropdown matches
-    const potentialStateIDs = ["state", "leadState", "stateSelect", "calcState"];
-    const potentialCityIDs = ["city", "leadCity", "citySelect", "calcCity"];
-
-    let stateDropdown = null;
-    let cityDropdown = null;
-
-    // Find active State Element
-    for (let id of potentialStateIDs) {
-      let el = document.getElementById(id);
-      if (el) { stateDropdown = el; break; }
-    }
-
-    // Find active City Element
-    for (let id of potentialCityIDs) {
-      let el = document.getElementById(id);
-      if (el) { cityDropdown = el; break; }
-    }
-
-    if (runCount === 1 || runCount % 5 === 0) {
-      console.log(`🔍 [Solar-AI-Diag] [Check #${runCount}] DOM Scan status:`);
-      console.log(`   - State element found: ${stateDropdown ? `YES (ID: ${stateDropdown.id})` : "NO"}`);
-      console.log(`   - City element found: ${cityDropdown ? `YES (ID: ${cityDropdown.id})` : "NO"}`);
-    }
-
-    // --- EXECUTE STATE ALIGNMENT ---
-    if (stateDropdown && targetState) {
-      const searchState = targetState.toLowerCase();
+    // --- 1. SYNC STATE FIELD ---
+    if (stateDropdown && targetState && targetState !== "Not Provided") {
+      const searchStateLower = targetState.toLowerCase();
       for (let i = 0; i < stateDropdown.options.length; i++) {
-        if (stateDropdown.options[i].value.toLowerCase() === searchState || 
-            stateDropdown.options[i].text.toLowerCase() === searchState) {
+        if (stateDropdown.options[i].value.toLowerCase() === searchStateLower || 
+            stateDropdown.options[i].text.toLowerCase() === searchStateLower) {
           if (stateDropdown.selectedIndex !== i) {
-            console.log(`🎯 [Solar-AI-Diag] Aligning State dropdown to index ${i} (${stateDropdown.options[i].text})`);
             stateDropdown.selectedIndex = i;
             stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
           }
@@ -1889,24 +1858,17 @@ function syncCityDropdownElement(cityName) {
       }
     }
 
-    // --- EXECUTE CITY ALIGNMENT & MONITORING ---
-    if (cityDropdown && targetCity) {
+    // --- 2. SYNC OR DYNAMICALLY INJECT CITY FIELD ---
+    if (cityDropdown && targetCity && targetCity !== "Not Provided") {
       let optionFound = false;
-      const searchCity = targetCity.toLowerCase();
-      
-      // Log current options list during key cycles to see if choices are being wiped out
-      if (runCount === 1 || runCount === 5 || runCount === 15) {
-        const currentOptions = Array.from(cityDropdown.options).map(o => `[val:${o.value}, text:${o.text}]`);
-        console.log(`📦 [Solar-AI-Diag] [Check #${runCount}] Current options inside <select id="${cityDropdown.id}">:`, currentOptions);
-      }
+      const searchCityLower = targetCity.toLowerCase();
 
-      // Scan options
+      // Check if option exists in current array list
       for (let i = 0; i < cityDropdown.options.length; i++) {
-        if (cityDropdown.options[i].value.toLowerCase() === searchCity || 
-            cityDropdown.options[i].text.toLowerCase() === searchCity) {
+        if (cityDropdown.options[i].value.toLowerCase() === searchCityLower || 
+            cityDropdown.options[i].text.toLowerCase() === searchCityLower) {
           
           if (cityDropdown.selectedIndex !== i) {
-            console.log(`🎯 [Solar-AI-Diag] Match found! Selecting City option index ${i} (${cityDropdown.options[i].text})`);
             cityDropdown.selectedIndex = i;
             cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
           }
@@ -1915,13 +1877,13 @@ function syncCityDropdownElement(cityName) {
         }
       }
 
-      // If missing, attempt immediate dynamic injection
+      // If missing from current JSON state payload array, force dynamic injection
       if (!optionFound) {
+        // Format string nicely for UI presentation (e.g., RAE BARELI -> Rae bareli)
         const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
-        console.warn(`⚠️ [Solar-AI-Diag] [Check #${runCount}] "${targetCity}" not found in options. Injecting custom <option value="${targetCity}">${formattedCity}</option>`);
         
         const freshOption = document.createElement("option");
-        freshOption.value = targetCity;
+        freshOption.value = targetCity; // Retains raw uppercase parameter (RAE BARELI) for calculations
         freshOption.text = formattedCity;
         freshOption.selected = true;
         
@@ -1932,13 +1894,11 @@ function syncCityDropdownElement(cityName) {
     }
   }
 
-  // Run immediately and pull continuous loops for 5 full seconds
-  runDiagnosticSync();
-  const diagInterval = setInterval(() => {
-    runDiagnosticSync();
-    if (runCount >= 30) {
-      clearInterval(diagInterval);
-      console.log("🏁 [Solar-AI-Diag] Continuous diagnostic sequence concluded.");
-    }
+  // Poll continuously for 4 seconds to override any asynchronous asset loading routines
+  let runCycles = 0;
+  const enforcementInterval = setInterval(() => {
+    syncActualDropdowns();
+    runCycles++;
+    if (runCycles > 25) clearInterval(enforcementInterval);
   }, 150);
 })();
