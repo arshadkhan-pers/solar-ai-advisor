@@ -661,6 +661,21 @@ function renderResults(data, bill) {
   document.getElementById("finalCost").innerText = data.finalCost.toLocaleString('en-IN');
   document.getElementById("monthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
   document.getElementById("payback").innerText = data.payback;
+        const paybackHero = document.getElementById("paybackHero");
+        if (paybackHero) {
+            paybackHero.innerText = `${data.payback}y`;
+        }
+        
+        const lifetimeSavingsHero = document.getElementById("lifetimeSavingsHero");
+        if (lifetimeSavingsHero) {
+            lifetimeSavingsHero.innerText =
+                data.lifetimeSavings.toLocaleString('en-IN');
+        }
+        
+        const panelsHero = document.getElementById("panelsHero");
+        if (panelsHero) {
+            panelsHero.innerText = data.panels;
+        }
   document.getElementById("panels").innerText = data.panels;
   document.getElementById("area").innerText = data.area;
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings.toLocaleString('en-IN');
