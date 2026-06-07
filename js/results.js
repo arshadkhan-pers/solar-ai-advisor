@@ -1828,40 +1828,60 @@ function syncCityDropdownElement(cityName) {
 }
 
 // =====================================================================
-// 👑 UNSTOPPABLE AGGRESSIVE STATE & CITY DROPDOWN SYNC OVERRIDE
+// 🩺 SOLAR-AI DEEP DIAGNOSTIC & FAILSAFE ENGINE
 // =====================================================================
 (function() {
+  console.log("🚀 [Solar-AI-Diag] Diagnostic initialization started.");
+
   const urlParams = new URLSearchParams(window.location.search);
-  
-  // Extract state and city from URL parameters
   const urlState = urlParams.get("state");
   const urlCity = urlParams.get("city");
   
+  console.log(`📋 [Solar-AI-Diag] URL Raw Parameters -> State: "${urlState}", City: "${urlCity}"`);
+  console.log(`💾 [Solar-AI-Diag] LocalStorage State -> State: "${localStorage.getItem("leadState")}", City: "${localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity")}"`);
+
   const targetState = (urlState || localStorage.getItem("leadState") || "").trim();
   const targetCity = (urlCity || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "").trim();
 
-  function forceDropdownSync() {
-    // 1. Locate State Dropdown
-    const stateDropdown = document.getElementById("state") || 
-                          document.getElementById("leadState") || 
-                          document.getElementById("stateSelect") || 
-                          document.getElementById("calcState");
+  let runCount = 0;
 
-    // 2. Locate City Dropdown
-    const cityDropdown = document.getElementById("city") || 
-                         document.getElementById("leadCity") || 
-                         document.getElementById("citySelect") ||
-                         document.getElementById("calcCity");
+  function runDiagnosticSync() {
+    runCount++;
+    
+    // 1. Scan the DOM for potential dropdown matches
+    const potentialStateIDs = ["state", "leadState", "stateSelect", "calcState"];
+    const potentialCityIDs = ["city", "leadCity", "citySelect", "calcCity"];
 
-    // --- STEP A: FORCE STATE SELECTION & TRIGGER NATIVE CITY LIST LOAD ---
-    if (stateDropdown && targetState && targetState !== "Not Provided") {
-      const searchStateLower = targetState.toLowerCase();
+    let stateDropdown = null;
+    let cityDropdown = null;
+
+    // Find active State Element
+    for (let id of potentialStateIDs) {
+      let el = document.getElementById(id);
+      if (el) { stateDropdown = el; break; }
+    }
+
+    // Find active City Element
+    for (let id of potentialCityIDs) {
+      let el = document.getElementById(id);
+      if (el) { cityDropdown = el; break; }
+    }
+
+    if (runCount === 1 || runCount % 5 === 0) {
+      console.log(`🔍 [Solar-AI-Diag] [Check #${runCount}] DOM Scan status:`);
+      console.log(`   - State element found: ${stateDropdown ? `YES (ID: ${stateDropdown.id})` : "NO"}`);
+      console.log(`   - City element found: ${cityDropdown ? `YES (ID: ${cityDropdown.id})` : "NO"}`);
+    }
+
+    // --- EXECUTE STATE ALIGNMENT ---
+    if (stateDropdown && targetState) {
+      const searchState = targetState.toLowerCase();
       for (let i = 0; i < stateDropdown.options.length; i++) {
-        if (stateDropdown.options[i].value.toLowerCase() === searchStateLower || 
-            stateDropdown.options[i].text.toLowerCase() === searchStateLower) {
+        if (stateDropdown.options[i].value.toLowerCase() === searchState || 
+            stateDropdown.options[i].text.toLowerCase() === searchState) {
           if (stateDropdown.selectedIndex !== i) {
+            console.log(`🎯 [Solar-AI-Diag] Aligning State dropdown to index ${i} (${stateDropdown.options[i].text})`);
             stateDropdown.selectedIndex = i;
-            // Crucial: Fire change event so native script populates this state's cities
             stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
           }
           break;
@@ -1869,17 +1889,24 @@ function syncCityDropdownElement(cityName) {
       }
     }
 
-    // --- STEP B: FORCE CITY SELECTION OR FORCE INJECT ---
-    if (cityDropdown && targetCity && targetCity !== "Not Provided") {
+    // --- EXECUTE CITY ALIGNMENT & MONITORING ---
+    if (cityDropdown && targetCity) {
       let optionFound = false;
-      const searchCityLower = targetCity.toLowerCase();
+      const searchCity = targetCity.toLowerCase();
+      
+      // Log current options list during key cycles to see if choices are being wiped out
+      if (runCount === 1 || runCount === 5 || runCount === 15) {
+        const currentOptions = Array.from(cityDropdown.options).map(o => `[val:${o.value}, text:${o.text}]`);
+        console.log(`📦 [Solar-AI-Diag] [Check #${runCount}] Current options inside <select id="${cityDropdown.id}">:`, currentOptions);
+      }
 
-      // Look through existing options
+      // Scan options
       for (let i = 0; i < cityDropdown.options.length; i++) {
-        if (cityDropdown.options[i].value.toLowerCase() === searchCityLower || 
-            cityDropdown.options[i].text.toLowerCase() === searchCityLower) {
+        if (cityDropdown.options[i].value.toLowerCase() === searchCity || 
+            cityDropdown.options[i].text.toLowerCase() === searchCity) {
           
           if (cityDropdown.selectedIndex !== i) {
+            console.log(`🎯 [Solar-AI-Diag] Match found! Selecting City option index ${i} (${cityDropdown.options[i].text})`);
             cityDropdown.selectedIndex = i;
             cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
           }
@@ -1888,13 +1915,13 @@ function syncCityDropdownElement(cityName) {
         }
       }
 
-      // FORCE INJECT: If city isn't found anywhere in the options list, add it instantly
+      // If missing, attempt immediate dynamic injection
       if (!optionFound) {
-        // Format nicely for presentation (e.g., LUCKNOW -> Lucknow)
         const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
+        console.warn(`⚠️ [Solar-AI-Diag] [Check #${runCount}] "${targetCity}" not found in options. Injecting custom <option value="${targetCity}">${formattedCity}</option>`);
         
         const freshOption = document.createElement("option");
-        freshOption.value = targetCity; // Keeps uppercase 'LUCKNOW' or original parameter string for backend sync
+        freshOption.value = targetCity;
         freshOption.text = formattedCity;
         freshOption.selected = true;
         
@@ -1905,21 +1932,13 @@ function syncCityDropdownElement(cityName) {
     }
   }
 
-  // Hook Pipeline 1: Run aggressively every 150ms for the first 4 seconds
-  // to continuously fight off any asynchronous database clear-outs or delayed resets
-  let checksCount = 0;
-  const syncInterval = setInterval(() => {
-    forceDropdownSync();
-    checksCount++;
-    if (checksCount > 25) clearInterval(syncInterval);
+  // Run immediately and pull continuous loops for 5 full seconds
+  runDiagnosticSync();
+  const diagInterval = setInterval(() => {
+    runDiagnosticSync();
+    if (runCount >= 30) {
+      clearInterval(diagInterval);
+      console.log("🏁 [Solar-AI-Diag] Continuous diagnostic sequence concluded.");
+    }
   }, 150);
-
-  // Hook Pipeline 2: Intercept master calculation routines right before processing form data
-  if (typeof initSolarReportCalculation === "function") {
-    const originalInitCalc = initSolarReportCalculation;
-    initSolarReportCalculation = function() {
-      forceDropdownSync(); 
-      return originalInitCalc.apply(this, arguments);
-    };
-  }
 })();
