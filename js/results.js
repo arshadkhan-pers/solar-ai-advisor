@@ -1828,7 +1828,7 @@ function syncCityDropdownElement(cityName) {
 }
 
 // =====================================================================
-// ⚡ OPTIMIZED PRODUCTION DROPDOWN AUTO-SYNC ENGINE
+// ⚡ PRODUCTION DROPDOWN AUTO-SYNC ENGINE (STATE & CITY RESILIENT)
 // =====================================================================
 (function() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -1841,13 +1841,13 @@ function syncCityDropdownElement(cityName) {
   if (!targetCity || targetCity === "Not Provided") return;
 
   let runCycles = 0;
-  let isStateSynced = false;
-  let temporaryInjectionActive = false;
+  let temporaryCityInjectionActive = false;
+  let temporaryStateInjectionActive = false;
 
   const enforcementInterval = setInterval(() => {
     runCycles++;
     
-    // Safety exit if the loop runs for too long (approx 4.5 seconds)
+    // Safety lifecycle exit after ~4.5 seconds to fully release browser resources
     if (runCycles > 30) {
       clearInterval(enforcementInterval);
       return;
@@ -1858,78 +1858,98 @@ function syncCityDropdownElement(cityName) {
 
     if (!stateDropdown || !cityDropdown) return;
 
-    // --- 1. OPTIMIZED STATE SYNC (Fires exactly once to prevent render loops) ---
-    if (!isStateSynced && targetState) {
+    // --- 1. REACTIVE STATE ENFORCEMENT ---
+    if (targetState) {
+      let stateFound = false;
       const searchStateLower = targetState.toLowerCase();
+
       for (let i = 0; i < stateDropdown.options.length; i++) {
-        if (stateDropdown.options[i].value.toLowerCase() === searchStateLower || 
-            stateDropdown.options[i].text.toLowerCase() === searchStateLower) {
+        const optionEl = stateDropdown.options[i];
+        if (temporaryStateInjectionActive && optionEl.dataset?.isFallback) continue;
+
+        if (optionEl.value.toLowerCase() === searchStateLower || 
+            optionEl.text.toLowerCase() === searchStateLower) {
           
+          if (temporaryStateInjectionActive) {
+            // Clean up temporary state fallback option if native asset choice arrived
+            for (let j = 0; j < stateDropdown.options.length; j++) {
+              if (stateDropdown.options[j].dataset?.isFallback) {
+                stateDropdown.remove(j);
+                break;
+              }
+            }
+            temporaryStateInjectionActive = false;
+          }
+
+          // Change index ONLY if it doesn't match to prevent performance-heavy recalculation loops
           if (stateDropdown.selectedIndex !== i) {
             stateDropdown.selectedIndex = i;
             stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
           }
-          isStateSynced = true; // Lock state setup so it doesn't interrupt native clearing cycles
+          stateFound = true;
           break;
         }
       }
+
+      // If state is completely wiped or missing from DOM options, inject placeholder immediately
+      if (!stateFound && !temporaryStateInjectionActive) {
+        const formattedState = targetState.toUpperCase();
+        const freshOption = document.createElement("option");
+        freshOption.value = targetState;
+        freshOption.text = formattedState;
+        freshOption.selected = true;
+        freshOption.dataset.isFallback = "true";
+        
+        stateDropdown.add(freshOption);
+        stateDropdown.selectedIndex = stateDropdown.options.length - 1;
+        stateDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+        temporaryStateInjectionActive = true;
+      }
     }
 
-    // --- 2. OPTIMIZED CITY SYNC & EARLY TERMINATION ---
-    let optionFound = false;
+    // --- 2. REACTIVE CITY ENFORCEMENT ---
+    let cityFound = false;
     const searchCityLower = targetCity.toLowerCase();
 
-    // Scan existing choices
     for (let i = 0; i < cityDropdown.options.length; i++) {
       const optionEl = cityDropdown.options[i];
-      
-      // If a native option from your JSON data loads and matches our temporary fallback, clean it up
-      if (temporaryInjectionActive && optionEl.dataset.isFallback) {
-        continue; 
-      }
+      if (temporaryCityInjectionActive && optionEl.dataset?.isFallback) continue;
 
       if (optionEl.value.toLowerCase() === searchCityLower || 
           optionEl.text.toLowerCase() === searchCityLower) {
         
-        // If the option is native and we previously injected a temporary placeholder, remove the placeholder
-        if (temporaryInjectionActive) {
+        if (temporaryCityInjectionActive) {
+          // Clean up temporary city fallback option if native asset choice arrived
           for (let j = 0; j < cityDropdown.options.length; j++) {
             if (cityDropdown.options[j].dataset?.isFallback) {
               cityDropdown.remove(j);
               break;
             }
           }
-          temporaryInjectionActive = false;
+          temporaryCityInjectionActive = false;
         }
 
         if (cityDropdown.selectedIndex !== i) {
           cityDropdown.selectedIndex = i;
           cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
         }
-        
-        // SUCCESS: Native data is present, selection is locked. Kill the loop early!
-        clearInterval(enforcementInterval);
-        optionFound = true;
+        cityFound = true;
         break;
       }
     }
 
-    // --- 3. SAFE TEMPORARY INJECTION ---
-    // If native database choices aren't ready yet, provide an initial placeholder option
-    if (!optionFound && !temporaryInjectionActive) {
+    if (!cityFound && !temporaryCityInjectionActive) {
       const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
-      
       const freshOption = document.createElement("option");
       freshOption.value = targetCity;
       freshOption.text = formattedCity;
       freshOption.selected = true;
-      freshOption.dataset.isFallback = "true"; // Tag it for identification later
+      freshOption.dataset.isFallback = "true";
       
       cityDropdown.add(freshOption);
       cityDropdown.selectedIndex = cityDropdown.options.length - 1;
       cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
-      
-      temporaryInjectionActive = true;
+      temporaryCityInjectionActive = true;
     }
   }, 150);
 })();
