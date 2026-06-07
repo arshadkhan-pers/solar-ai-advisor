@@ -27,20 +27,149 @@
       </span>
     </a>
 
-    <div class="flex items-center gap-6">
-      <a href="#how-it-works"
-        class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">
-        How it Works
-      </a>
+   <div class="flex items-center gap-4">
 
-      <button onclick="openConsultation()"
-        class="bg-[#171a20] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all shadow-md">
-        Free Consultation
-      </button>
-    </div>
+  <a href="#how-it-works"
+    class="hidden md:block text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">
+    How it Works
+  </a>
+
+  <button onclick="openConsultation()"
+    class="hidden md:block bg-[#171a20] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all shadow-md">
+    Free Consultation
+  </button>
+
+  <button onclick="openMenu()"
+    class="bg-white border border-slate-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-slate-50 transition">
+    ☰ Explore
+  </button>
+
+</div>
+
 
   </div>
 </nav>
+
+<!-- PREMIUM MENU DRAWER -->
+
+<div id="menuDrawer"
+     class="fixed top-0 right-0 h-full w-[340px] bg-white z-[200] shadow-2xl translate-x-full transition-transform duration-300 overflow-y-auto">
+
+  <div class="p-6">
+
+    <div class="flex justify-between items-center mb-8">
+
+      <h2 class="font-bold text-xl">
+        Solar AI Advisor
+      </h2>
+
+      <button onclick="closeMenu()"
+              class="text-3xl text-slate-500 hover:text-slate-900">
+        ×
+      </button>
+
+    </div>
+
+    <div class="space-y-6">
+
+      <div>
+
+        <h3 class="text-xs uppercase tracking-widest text-slate-400 mb-3">
+          Platform
+        </h3>
+
+        <div class="space-y-3">
+
+          <a href="index.html" class="block font-medium">
+            Home
+          </a>
+
+          <a href="#how-it-works" class="block font-medium">
+            How It Works
+          </a>
+
+          <a href="about.html" class="block font-medium">
+            About Us
+          </a>
+
+          <a href="trust.html" class="block font-medium">
+            Why Trust Us
+          </a>
+
+          <a href="contact.html" class="block font-medium">
+            Contact Us
+          </a>
+
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div>
+
+        <h3 class="text-xs uppercase tracking-widest text-slate-400 mb-3">
+          Learning Center
+        </h3>
+
+        <div class="space-y-3">
+
+          <a href="system-size.html" class="block font-medium">
+            Solar By System Size
+          </a>
+
+          <a href="best-panels.html" class="block font-medium">
+            10 Best Solar Panels
+          </a>
+
+          <a href="panel-sizes.html" class="block font-medium">
+            Solar Panel Sizes
+          </a>
+
+          <a href="maintenance.html" class="block font-medium">
+            Cleaning & Maintenance
+          </a>
+
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div>
+
+        <h3 class="text-xs uppercase tracking-widest text-slate-400 mb-3">
+          Partners
+        </h3>
+
+        <a href="installer.html"
+           class="block font-medium">
+          For Installers
+        </a>
+
+      </div>
+
+      <div class="pt-8">
+
+        <button onclick="openConsultation();closeMenu();"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold">
+          Free Consultation
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div id="menuOverlay"
+     onclick="closeMenu()"
+     class="hidden fixed inset-0 bg-black/50 z-[190] backdrop-blur-sm">
+</div>
+
+<!-- END MENU DRAWER -->
 
 <section class="relative min-h-[95vh] flex items-center justify-center text-center text-white overflow-hidden pt-24">
 
@@ -575,6 +704,28 @@
 </footer>
 
 <!-- END FOOTER -->
+
+<script>
+function openMenu() {
+  document
+    .getElementById("menuDrawer")
+    .classList.remove("translate-x-full");
+
+  document
+    .getElementById("menuOverlay")
+    .classList.remove("hidden");
+}
+
+function closeMenu() {
+  document
+    .getElementById("menuDrawer")
+    .classList.add("translate-x-full");
+
+  document
+    .getElementById("menuOverlay")
+    .classList.add("hidden");
+}
+</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script> 
