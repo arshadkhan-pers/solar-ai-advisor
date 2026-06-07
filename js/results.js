@@ -1828,34 +1828,80 @@ function syncCityDropdownElement(cityName) {
 }
 
 // =====================================================================
-// 🏎️ LIFECYCLE HOOKS FOR PAGE ENTRY & LIVE RE-CALCULATIONS
+// 👑 BULLETPROOF SELF-HEALING DROPDOWN SYNC OVERRIDE
 // =====================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  // Read target city from URL parameters, falling back to local session records
+(function() {
   const urlParams = new URLSearchParams(window.location.search);
-  const activeCity = urlParams.get("city") || 
-                     localStorage.getItem("leadCity") || 
-                     localStorage.getItem("verifiedCity");
+  const rawUrlCity = urlParams.get("city");
+  const targetCity = (rawUrlCity || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "").trim();
 
-  if (activeCity) {
-    // Delay slightly (250ms) to allow any master state-rendering frameworks to finish mounting
-    setTimeout(() => {
-      syncCityDropdownElement(activeCity);
-    }, 250);
-  }
-});
+  // Exit quietly if no valid city data context is found
+  if (!targetCity || targetCity === "Not Provided") return;
 
-// Intercept live pincode switches to update dropdown selections in real-time
-if (typeof executeLiveLocationPivot === "function") {
-  const originalExecuteLiveLocationPivot = executeLiveLocationPivot;
-  executeLiveLocationPivot = async function(newPincode) {
-    // Run the native state & caching routine first
-    await originalExecuteLiveLocationPivot(newPincode);
-    
-    // Immediately pull the updated city out of memory and apply to UI layout
-    const liveCity = localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity");
-    if (liveCity) {
-      syncCityDropdownElement(liveCity);
+  function forceCitySelection() {
+    // Target all potential city dropdown ID variations safely
+    const cityDropdown = document.getElementById("city") || 
+                         document.getElementById("leadCity") || 
+                         document.getElementById("citySelect") ||
+                         document.getElementById("calcCity");
+
+    if (!cityDropdown) return;
+
+    let optionFound = false;
+    const searchCityLower = targetCity.toLowerCase();
+
+    // 1. Scan options list using a case-insensitive check
+    for (let i = 0; i < cityDropdown.options.length; i++) {
+      if (cityDropdown.options[i].value.toLowerCase() === searchCityLower || 
+          cityDropdown.options[i].text.toLowerCase() === searchCityLower) {
+        
+        if (cityDropdown.selectedIndex !== i) {
+          cityDropdown.selectedIndex = i;
+          cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        optionFound = true;
+        break;
+      }
     }
-  };
-}
+
+    // 2. Fallback: If dropdown options exist but our city is missing, inject it cleanly
+    if (!optionFound && cityDropdown.options.length > 1) {
+      const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
+      
+      const freshOption = document.createElement("option");
+      freshOption.value = formattedCity;
+      freshOption.text = formattedCity;
+      freshOption.selected = true;
+      cityDropdown.add(freshOption);
+      cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+
+  // Hook Pipeline 1: Run an interval check every 200ms for the first 3 seconds 
+  // to override any delayed asynchronous DOM builds
+  let checksCount = 0;
+  const syncInterval = setInterval(() => {
+    forceCitySelection();
+    checksCount++;
+    if (checksCount > 15) clearInterval(syncInterval);
+  }, 200);
+
+  // Hook Pipeline 2: Intercept the master calculation routine to ensure 
+  // the city input is hard-locked right before values are processed
+  if (typeof initSolarReportCalculation === "function") {
+    const originalInitCalc = initSolarReportCalculation;
+    initSolarReportCalculation = function() {
+      forceCitySelection(); 
+      return originalInitCalc.apply(this, arguments);
+    };
+  }
+
+  // Hook Pipeline 3: Listen to state dropdown modifications to recapture 
+  // and re-apply city selection if options clear out dynamically
+  const stateDropdown = document.getElementById("state") || document.getElementById("leadState");
+  if (stateDropdown) {
+    stateDropdown.addEventListener("change", () => {
+      setTimeout(forceCitySelection, 50);
+    });
+  }
+})();
