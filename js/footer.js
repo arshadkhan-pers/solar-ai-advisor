@@ -1,6 +1,6 @@
 async function loadFooter() {
   try {
-    const response = await fetch("public/components/footer.html");
+    const response = await fetch("components/footer.html");
     const html = await response.text();
 
     document.getElementById("footer-container").innerHTML = html;
