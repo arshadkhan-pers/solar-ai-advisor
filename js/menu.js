@@ -1,6 +1,6 @@
 async function loadMenu() {
   try {
-    const response = await fetch("public/components/menu.html");
+    const response = await fetch("components/menu.html");
     const html = await response.text();
 
     document.getElementById("menu-container").innerHTML = html;
