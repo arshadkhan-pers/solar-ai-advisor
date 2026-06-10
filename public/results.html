@@ -572,6 +572,34 @@ class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white border bo
     and regional coverage.
   </p>
 </div>
+
+  <div id="privacyControlsCard"
+class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-red-100 mt-6">
+
+  <div class="flex items-start gap-3">
+    <div class="text-2xl">🔒</div>
+
+    <div class="flex-1">
+      <h3 class="font-bold text-slate-900">
+        Privacy & Consent Controls
+      </h3>
+
+      <p class="text-sm text-slate-600 mt-2">
+        You may withdraw your consent at any time.
+        This will permanently remove your account,
+        AI reports, installer matching records,
+        uploaded documents and future communications.
+      </p>
+
+      <button
+        onclick="confirmConsentWithdrawal()"
+        class="mt-4 border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl font-semibold transition">
+        Withdraw Consent & Delete Account
+      </button>
+    </div>
+  </div>
+
+</div>
   
 <div id="installerSection" class="mt-8 hidden">
     <h2 class="text-xl font-bold text-slate-900 mb-4">Recommended Installers</h2>
