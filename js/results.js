@@ -1563,14 +1563,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const leadDoc = await db.collection("leads").doc(leadId).get();
             if (leadDoc.exists) {
-                const privacyCard =
-document.getElementById(
-  "privacyControlsCard"
-);
-
-if (privacyCard) {
-  privacyCard.classList.remove("hidden");
-}
                 const leadData = leadDoc.data();
                 
                 const currentStage = leadData.stage || "INITIAL";
@@ -1933,17 +1925,20 @@ async function withdrawConsentAndDelete() {
   try {
 
     await db.collection(
-      "consent_withdrawals"
-    ).add({
+  "consent_withdrawals"
+).add({
 
-      leadId,
-      withdrawnAt:
-      firebase.firestore.FieldValue.serverTimestamp(),
+  leadId,
+  leadCode: leadData.leadCode || "",
+  phone: leadData.phone || "",
+  stage: leadData.stage || "",
 
-      source: "Results Page"
+  withdrawnAt:
+  firebase.firestore.FieldValue.serverTimestamp(),
 
-    });
-
+  source: "Results Page"
+});
+      
     await firebase.storage()
       .ref(`bills/${leadId}`)
       .delete()
@@ -1987,15 +1982,3 @@ async function withdrawConsentAndDelete() {
     );
   }
 }
-
-async function confirmConsentWithdrawal() {
-
-  const confirmed = confirm(
-    "This will permanently delete your account, AI reports, survey requests and login credentials. Continue?"
-  );
-
-  if (!confirmed) return;
-
-  await withdrawConsentAndDelete();
-}
-
