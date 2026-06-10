@@ -1921,9 +1921,16 @@ async function withdrawConsentAndDelete() {
     alert("Account not found.");
     return;
   }
-
+    
   try {
+ const leadDoc =
+  await db.collection("leads")
+    .doc(leadId)
+    .get();
 
+const leadData =
+  leadDoc.exists ? leadDoc.data() : {};
+      
     await db.collection(
   "consent_withdrawals"
 ).add({
