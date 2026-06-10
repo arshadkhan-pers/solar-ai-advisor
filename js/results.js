@@ -1563,9 +1563,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const leadDoc = await db.collection("leads").doc(leadId).get();
             if (leadDoc.exists) {
+                const privacyCard =
+document.getElementById(
+  "privacyControlsCard"
+);
+
+if (privacyCard) {
+  privacyCard.classList.remove("hidden");
+}
                 const leadData = leadDoc.data();
                 
                 const currentStage = leadData.stage || "INITIAL";
+            // Show consent withdrawal only for active customers
+
+                    const privacyCard =
+                    document.getElementById("privacyControlsCard");
+                    
+                    const eligibleStages = [
+                      "AI_GENERATED",
+                      "SURVEY_REQUESTED",
+                      "SURVEY_COMPLETED",
+                      "OFFER_UNDER_REVIEW",
+                      "OFFER_ACCEPTED",
+                      "AGREEMENT_SIGNED",
+                      "NET_METERING_APPLIED",
+                      "INSTALLATION_COMPLETED",
+                      "SUBSIDY_CREDITED"
+                    ];
+                    
+                    if (
+                        privacyCard &&
+                        eligibleStages.includes(currentStage)
+                    ) {
+                        privacyCard.classList.remove("hidden");
+                    }
+                
                 if (currentStage !== "INITIAL") {
                     const formContainer = document.getElementById("leadForm");
                     if (formContainer) {
@@ -1876,3 +1908,94 @@ function syncCityDropdownElement(cityName) {
   // 4. Fire a change event so other reactive calculation blocks update instantly
   cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
 }
+
+async function confirmConsentWithdrawal() {
+
+  const confirmed = confirm(
+    "This action will permanently delete your account, AI reports, uploaded documents and login credentials. Continue?"
+  );
+
+  if (!confirmed) return;
+
+  await withdrawConsentAndDelete();
+}
+
+async function withdrawConsentAndDelete() {
+
+  const leadId =
+    localStorage.getItem("leadId");
+
+  if (!leadId) {
+    alert("Account not found.");
+    return;
+  }
+
+  try {
+
+    await db.collection(
+      "consent_withdrawals"
+    ).add({
+
+      leadId,
+      withdrawnAt:
+      firebase.firestore.FieldValue.serverTimestamp(),
+
+      source: "Results Page"
+
+    });
+
+    await firebase.storage()
+      .ref(`bills/${leadId}`)
+      .delete()
+      .catch(() => {});
+
+    await firebase.storage()
+      .ref(`quotes/${leadId}`)
+      .delete()
+      .catch(() => {});
+
+    await db.collection("ai_reports")
+      .doc(leadId)
+      .delete()
+      .catch(() => {});
+
+    await db.collection("survey_requests")
+      .doc(leadId)
+      .delete()
+      .catch(() => {});
+
+    await db.collection("leads")
+      .doc(leadId)
+      .delete();
+
+    localStorage.clear();
+
+    alert(
+      "Your consent has been withdrawn and all account data has been deleted."
+    );
+
+    window.location.href =
+      "index.html";
+
+  }
+  catch(error) {
+
+    console.error(error);
+
+    alert(
+      "Unable to complete deletion. Please try again."
+    );
+  }
+}
+
+async function confirmConsentWithdrawal() {
+
+  const confirmed = confirm(
+    "This will permanently delete your account, AI reports, survey requests and login credentials. Continue?"
+  );
+
+  if (!confirmed) return;
+
+  await withdrawConsentAndDelete();
+}
+
