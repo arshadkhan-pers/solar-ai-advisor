@@ -1,5 +1,9 @@
 /* eslint-disable max-len */
 const db = window.db;
+// ==========================================
+// SOLAR INPUT MODE
+// ==========================================
+let calculationMode = "bill";
 
 // Secure one-way cryptographic SHA-256 hashing engine
 async function hashPin(pin) {
@@ -243,8 +247,52 @@ async function handleSignInSubmit() {
 }
 
 // ==========================================
+// INPUT MODE SWITCHER
+// ==========================================
+function switchCalculationMode(mode) {
+
+  calculationMode = mode;
+
+  const billContainer =
+    document.getElementById("billInputContainer");
+
+  const kwContainer =
+    document.getElementById("kwInputContainer");
+
+  const billBtn =
+    document.getElementById("billModeBtn");
+
+  const kwBtn =
+    document.getElementById("kwModeBtn");
+
+  if (mode === "bill") {
+
+    billContainer.classList.remove("hidden");
+    kwContainer.classList.add("hidden");
+
+    billBtn.classList.add("bg-white", "text-slate-900");
+    billBtn.classList.remove("text-white");
+
+    kwBtn.classList.remove("bg-white", "text-slate-900");
+    kwBtn.classList.add("text-white");
+
+  } else {
+
+    kwContainer.classList.remove("hidden");
+    billContainer.classList.add("hidden");
+
+    kwBtn.classList.add("bg-white", "text-slate-900");
+    kwBtn.classList.remove("text-white");
+
+    billBtn.classList.remove("bg-white", "text-slate-900");
+    billBtn.classList.add("text-white");
+  }
+}
+
+// ==========================================
 // 3. HELPERS & UTILITIES
 // ==========================================
+
 function getLeadType(bill) {
   if (bill >= 3000) return "Hot";
   if (bill >= 1500) return "Warm";
@@ -370,36 +418,115 @@ function validateForm(prefix, name, email, phone, city) {
 // 5. CORE FUNCTIONALITY & SUBMISSIONS
 // ==========================================
 function handleHeroCalculate() {
-  const billInput = document.getElementById("billInput");
-  const pincodeInput = document.getElementById("pincodeInput");
-  const billValue = billInput?.value;
-  const bill = parseFloat(billValue);
-  const pincodeValue = pincodeInput?.value?.trim();
+
+  const pincodeInput =
+    document.getElementById("pincodeInput");
+
+  const pincodeValue =
+    pincodeInput?.value?.trim();
 
   clearError("billInput", "billError");
   clearError("pincodeInput", "pincodeError");
 
   let isValid = true;
+  let calculatedBill = 0;
 
-  if (!billValue || isNaN(bill) || bill < 500) {
-    showError("billInput", "billError", "Min. bill ₹500 required");
-    isValid = false;
+  // =========================
+  // BILL MODE
+  // =========================
+
+  if (calculationMode === "bill") {
+
+    const billInput =
+      document.getElementById("billInput");
+
+    const billValue =
+      billInput?.value;
+
+    const bill =
+      parseFloat(billValue);
+
+    if (!billValue || isNaN(bill) || bill < 500) {
+      showError(
+        "billInput",
+        "billError",
+        "Min. bill ₹500 required"
+      );
+      isValid = false;
+    }
+
+    calculatedBill = bill;
   }
 
-  const pincodeRegex = /^[1-9][0-9]{5}$/; 
-  if (!pincodeValue ||!pincodeRegex.test(pincodeValue)) {
-    showError("pincodeInput", "pincodeError", "Enter valid 6-digit PIN code");
+  // =========================
+  // KW MODE
+  // =========================
+
+  else {
+
+    const kwInput =
+      document.getElementById("kwInput");
+
+    const kw =
+      parseFloat(kwInput?.value || 3);
+
+    if (!kw || kw <= 0) {
+
+      alert("Please select a valid system size.");
+
+      return;
+    }
+
+    // Approximate monthly bill equivalent
+
+    calculatedBill = kw * 1200;
+
+    localStorage.setItem("selectedKw", kw);
+  }
+
+  // =========================
+  // PINCODE VALIDATION
+  // =========================
+
+  const pincodeRegex = /^[1-9][0-9]{5}$/;
+
+  if (!pincodeValue || !pincodeRegex.test(pincodeValue)) {
+
+    showError(
+      "pincodeInput",
+      "pincodeError",
+      "Enter valid 6-digit PIN code"
+    );
+
     isValid = false;
   }
 
   if (isValid) {
-    const resolvedState = getStateFromPin(pincodeValue);
-    localStorage.setItem("pincode", pincodeValue);
-    localStorage.setItem("state", resolvedState);
-    window.currentBill = bill;
-    localStorage.setItem("bill", bill);
 
-    document.getElementById("leadPopup").classList.remove("hidden");
+    const resolvedState =
+      getStateFromPin(pincodeValue);
+
+    localStorage.setItem(
+      "pincode",
+      pincodeValue
+    );
+
+    localStorage.setItem(
+      "state",
+      resolvedState
+    );
+
+    localStorage.setItem(
+      "bill",
+      calculatedBill
+    );
+
+    window.currentBill =
+      calculatedBill;
+
+    document
+      .getElementById("leadPopup")
+      .classList.remove("hidden");
   }
 }
 
@@ -589,7 +716,7 @@ function closeConsultation() {
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("leadPopup")?.classList.add("hidden");
   document.getElementById("consultationPopup")?.classList.add("hidden");
-
+switchCalculationMode("bill");
   // Setup PIN Digit Input Auto-Advance behavior
   const otpInputs = document.querySelectorAll('.otp-digit');
   otpInputs.forEach((input, index) => {
