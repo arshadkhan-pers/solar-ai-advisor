@@ -1932,44 +1932,55 @@ async function withdrawConsentAndDelete() {
       leadDoc.exists ? leadDoc.data() : {};
 
     // Audit trail
-    await db.collection("consent_withdrawals").add({
+    await db.collection("consent_withdrawals").doc(leadId).set({
 
-      leadId,
-      leadCode: leadData.leadCode || "",
-      phone: leadData.phone || "",
-      stage: leadData.stage || "",
+  leadId,
+  leadCode: leadData.leadCode || "",
+  phone: leadData.phone || "",
+  stage: leadData.stage || "",
 
-      withdrawnAt:
-      firebase.firestore.FieldValue.serverTimestamp(),
+  withdrawnAt:
+    firebase.firestore.FieldValue.serverTimestamp(),
 
-      source: "Results Page"
+  deletionAfter:
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
 
-    });
+  deletionStatus: "PENDING",
+
+  source: "Results Page"
+});
 
     // Mark for deletion
     await db.collection("leads")
-      .doc(leadId)
-      .update({
+  .doc(leadId)
+  .update({
 
-        consentGiven: false,
-
-        consentWithdrawn: true,
-
-        deletionRequested: true,
-
-        deletionRequestedAt:
-          firebase.firestore.FieldValue.serverTimestamp(),
-
-        stage: "CONSENT_WITHDRAWN"
-
-      });
-
+    consentGiven: false,
+    consentWithdrawn: true,
+    processingDisabled: true,
+    installerSharingDisabled: true,
+    communicationsDisabled: true,
+    loginDisabled: true,
+    deletionRequested: true,
+    deletionRequestedAt:
+      firebase.firestore.FieldValue.serverTimestamp(),
+    scheduledDeletionAt:
+      new Date(Date.now() + 24 * 60 * 60 * 1000),
+    stage: "CONSENT_WITHDRAWN"
+});
+      
     localStorage.clear();
 
     alert(
       "Your consent has been withdrawn. Your account is scheduled for secure deletion."
     );
+    const privacyCard =
+    document.getElementById("privacyControlsCard");
 
+    if (privacyCard) {
+        privacyCard.classList.add("hidden");
+    }
+      
     window.location.href = "index.html";
 
   }
