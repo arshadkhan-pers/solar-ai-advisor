@@ -3,7 +3,7 @@ const db = window.db;
 // ==========================================
 // SOLAR INPUT MODE
 // ==========================================
-let calculationMode = "bill";
+window.calculationMode = "bill";
 
 // Secure one-way cryptographic SHA-256 hashing engine
 async function hashPin(pin) {
@@ -251,7 +251,7 @@ async function handleSignInSubmit() {
 // ==========================================
 function switchCalculationMode(mode) {
 
-  calculationMode = mode;
+  window.calculationMode = mode;
 
   const billContainer =
     document.getElementById("billInputContainer");
@@ -435,7 +435,7 @@ function handleHeroCalculate() {
   // BILL MODE
   // =========================
 
-  if (calculationMode === "bill") {
+  if (window.calculationMode === "bill") {
 
     const billInput =
       document.getElementById("billInput");
