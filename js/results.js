@@ -582,9 +582,33 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
 // 🔹 CORE CALCULATION
 // ===============================
 function calculateSolar(bill, stateOverride = null) {
-  const state = stateOverride || getStateFromURL() || "UP";
+  const state =
+    stateOverride || getStateFromURL() || "UP";
+
+  const calculationMode =
+    localStorage.getItem("calculationMode");
+
+  let systemSize;
+
+  if (calculationMode === "kw") {
+
+    systemSize =
+      parseFloat(
+        localStorage.getItem("selectedKw")
+      ) || 3;
+
+  } else {
+
+    const units = bill / 7;
+
+    systemSize =
+      Math.max(
+        1,
+        Math.round(units / 120)
+      );
+  }
+
   const units = bill / 7;
-  const systemSize = Math.max(1, Math.round(units / 120));
   const costPerKW = 55000;
   const totalCost = systemSize * costPerKW;
 
