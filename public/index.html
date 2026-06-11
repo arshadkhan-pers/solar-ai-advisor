@@ -307,10 +307,14 @@ Solar For Businesses
     id="systemSizeInput"
     class="w-full px-5 py-4 rounded-2xl text-black shadow-inner outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white">
 
-    <option value="">Select System Size</option>
     <option value="1">1 kW</option>
     <option value="2">2 kW</option>
-    <option value="3">3 kW</option>
+    <option value="3" selected>3 kW</option>
+    <option value="4">4 kW</option>
+    <option value="5">5 kW</option>
+    <option value="6">6 kW</option>
+    <option value="8">8 kW</option>
+    <option value="10">10 kW</option>
     <option value="4">4 kW</option>
     <option value="5">5 kW</option>
     <option value="6">6 kW</option>
@@ -804,21 +808,27 @@ function switchCalculationMode(mode) {
   const kwBtn =
     document.getElementById("kwModeBtn");
 
-  if(mode === "bill") {
+  if (mode === "bill") {
 
     billContainer.classList.remove("hidden");
     kwContainer.classList.add("hidden");
 
-    billBtn.classList.add("bg-white","text-slate-900");
-    kwBtn.classList.remove("bg-white","text-slate-900");
+    billBtn.classList.add("bg-white", "text-slate-900");
+    billBtn.classList.remove("text-white");
+
+    kwBtn.classList.remove("bg-white", "text-slate-900");
+    kwBtn.classList.add("text-white");
 
   } else {
 
     kwContainer.classList.remove("hidden");
     billContainer.classList.add("hidden");
 
-    kwBtn.classList.add("bg-white","text-slate-900");
-    billBtn.classList.remove("bg-white","text-slate-900");
+    kwBtn.classList.add("bg-white", "text-slate-900");
+    kwBtn.classList.remove("text-white");
+
+    billBtn.classList.remove("bg-white", "text-slate-900");
+    billBtn.classList.add("text-white");
   }
 }
 
