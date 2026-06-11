@@ -1914,78 +1914,71 @@ async function confirmConsentWithdrawal() {
 
 async function withdrawConsentAndDelete() {
 
-  const leadId =
-    localStorage.getItem("leadId");
+  const leadId = localStorage.getItem("leadId");
 
   if (!leadId) {
     alert("Account not found.");
     return;
   }
-    
+
   try {
- const leadDoc =
-  await db.collection("leads")
-    .doc(leadId)
-    .get();
 
-const leadData =
-  leadDoc.exists ? leadDoc.data() : {};
-      
-    await db.collection(
-  "consent_withdrawals"
-).add({
-
-  leadId,
-  leadCode: leadData.leadCode || "",
-  phone: leadData.phone || "",
-  stage: leadData.stage || "",
-
-  withdrawnAt:
-  firebase.firestore.FieldValue.serverTimestamp(),
-
-  source: "Results Page"
-});
-      
-    await firebase.storage()
-      .ref(`bills/${leadId}`)
-      .delete()
-      .catch(() => {});
-
-    await firebase.storage()
-      .ref(`quotes/${leadId}`)
-      .delete()
-      .catch(() => {});
-
-    await db.collection("ai_reports")
+    const leadDoc =
+      await db.collection("leads")
       .doc(leadId)
-      .delete()
-      .catch(() => {});
+      .get();
 
-    await db.collection("survey_requests")
-      .doc(leadId)
-      .delete()
-      .catch(() => {});
+    const leadData =
+      leadDoc.exists ? leadDoc.data() : {};
 
+    // Audit trail
+    await db.collection("consent_withdrawals").add({
+
+      leadId,
+      leadCode: leadData.leadCode || "",
+      phone: leadData.phone || "",
+      stage: leadData.stage || "",
+
+      withdrawnAt:
+      firebase.firestore.FieldValue.serverTimestamp(),
+
+      source: "Results Page"
+
+    });
+
+    // Mark for deletion
     await db.collection("leads")
       .doc(leadId)
-      .delete();
+      .update({
+
+        consentGiven: false,
+
+        consentWithdrawn: true,
+
+        deletionRequested: true,
+
+        deletionRequestedAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        stage: "CONSENT_WITHDRAWN"
+
+      });
 
     localStorage.clear();
 
     alert(
-      "Your consent has been withdrawn and all account data has been deleted."
+      "Your consent has been withdrawn. Your account is scheduled for secure deletion."
     );
 
-    window.location.href =
-      "index.html";
+    window.location.href = "index.html";
 
   }
-  catch(error) {
+  catch (error) {
 
     console.error(error);
 
     alert(
-      "Unable to complete deletion. Please try again."
+      "Unable to process withdrawal request."
     );
   }
 }
