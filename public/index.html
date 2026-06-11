@@ -573,11 +573,56 @@ Explore Solar System Sizes
         <p id="phoneError" class="text-red-500 text-[11px] mt-1 ml-1"></p>
       </div>
       <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-3 text-left my-4">
-        <input type="checkbox" id="leadConsentCheckbox" required class="w-5 h-5 mt-0.5 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer">
-        <label for="leadConsentCheckbox" class="text-xs text-slate-600 leading-relaxed cursor-pointer select-none">
-          I explicitly consent to <strong>Solar AI Advisor</strong> processing my energy profile and sharing my contact/bill details with matched, local installers solely for arranging a free physical site survey. I understand my data is protected under the <strong>DPDP Act, 2023</strong> and I can withdraw my consent at any time.
-        </label>
-      </div>
+
+  <input
+    type="checkbox"
+    id="leadConsentCheckbox"
+    required
+    class="w-5 h-5 mt-0.5 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer">
+
+  <label
+    for="leadConsentCheckbox"
+    class="text-xs text-slate-600 leading-relaxed cursor-pointer">
+
+    I explicitly consent to <strong>Solar AI Advisor</strong>
+    processing my energy profile and sharing my contact details,
+    energy usage information and submitted documents with matched
+    local solar installers solely for providing solar assessments,
+    quotations and arranging a free site survey.
+
+    By continuing, I acknowledge that I have read and agree to the
+
+    <a href="privacy-policy.html"
+       target="_blank"
+       class="text-indigo-600 font-semibold hover:underline">
+       Privacy Policy
+    </a>,
+
+    <a href="terms-of-service.html"
+       target="_blank"
+       class="text-indigo-600 font-semibold hover:underline">
+       Terms of Service
+    </a>,
+
+    <a href="disclaimer.html"
+       target="_blank"
+       class="text-indigo-600 font-semibold hover:underline">
+       Disclaimer
+    </a>
+
+    and
+
+    <a href="consent-policy.html"
+       target="_blank"
+       class="text-indigo-600 font-semibold hover:underline">
+       Consent Policy
+    </a>.
+
+    I understand that I may withdraw my consent at any time from my customer dashboard, after which my personal data will be deleted in accordance with Solar AI Advisor's data retention and consent withdrawal process.
+
+  </label>
+
+</div>
       <button onclick="submitLeadAndContinue(event)" class="w-full bg-green-600 text-white py-4 rounded-2xl mt-2 font-bold shadow-lg hover:bg-green-700 transition-all">Show My Savings Report</button>
     </div>
   </div>
