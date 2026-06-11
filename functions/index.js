@@ -598,6 +598,21 @@ exports.verifyLeadPin = onCall({ region: "asia-south2" }, async (request) => {
   const leadDoc = snapshot.docs[0];
   const secureRecord = leadDoc.data();
 
+  // =====================================
+// DPDP CONSENT WITHDRAWAL PROTECTION
+// =====================================
+
+if (
+  secureRecord.loginDisabled === true ||
+  secureRecord.consentWithdrawn === true ||
+  secureRecord.stage === "CONSENT_WITHDRAWN"
+) {
+  throw new HttpsError(
+    "permission-denied",
+    "This account has been deleted following consent withdrawal."
+  );
+}
+  
   // 1. Enforce Server-Side Lockout Checks
   if (secureRecord.lockoutUntil && secureRecord.lockoutUntil.toDate() > new Date()) {
     const minutesRemaining = Math.ceil((secureRecord.lockoutUntil.toDate() - new Date()) / 60000);
@@ -635,7 +650,10 @@ exports.verifyLeadPin = onCall({ region: "asia-south2" }, async (request) => {
     
     if (currentAttempts >= 5) {
       // Establish a strict 15-minute backend penalty window
-      updates.lockoutUntil = admin.firestore.FieldValue.serverTimestamp(new Date(Date.now() + 15 * 60 * 1000));
+      updates.lockoutUntil =
+  admin.firestore.Timestamp.fromDate(
+    new Date(Date.now() + 15 * 60 * 1000)
+  );
     }
     
     await leadDoc.ref.update(updates);
