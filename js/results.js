@@ -653,8 +653,22 @@ function renderResults(data, bill) {
     }
   }
 
-  document.getElementById("systemSize").innerText = `${data.systemSize} kW Solar System Recommended`;
-  document.getElementById("billInfo").innerText = `Based on your ₹${bill}/month bill`;
+  const calculationMode =
+  localStorage.getItem("calculationMode") || "bill";
+
+if (calculationMode === "kw") {
+  document.getElementById("systemSize").innerText =
+    `${data.systemSize} kW Solar System Selected`;
+
+  document.getElementById("billInfo").innerText =
+    "Savings calculated using your selected system size";
+} else {
+  document.getElementById("systemSize").innerText =
+    `${data.systemSize} kW Solar System Recommended`;
+
+  document.getElementById("billInfo").innerText =
+    `Based on your ₹${bill}/month bill`;
+}
 
   document.getElementById("totalCost").innerText = data.totalCost.toLocaleString('en-IN');
   document.getElementById("subsidy").innerText = data.subsidy.toLocaleString('en-IN');
