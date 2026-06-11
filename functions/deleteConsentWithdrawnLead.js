@@ -6,8 +6,8 @@ const db = admin.firestore();
 exports.deleteConsentWithdrawnLead =
 onSchedule(
 {
-  schedule: "every 60 minutes",
-  region: "asia-south2",
+  schedule: "0 3 * * *",
+  region: "asia-east1",
   timeZone: "Asia/Kolkata"
 },
 async (event) => {
