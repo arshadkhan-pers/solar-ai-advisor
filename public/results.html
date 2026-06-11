@@ -573,34 +573,6 @@ class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white border bo
   </p>
 </div>
 
-  <div id="privacyControlsCard"
-class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-red-100 mt-6">
-
-  <div class="flex items-start gap-3">
-    <div class="text-2xl">🔒</div>
-
-    <div class="flex-1">
-      <h3 class="font-bold text-slate-900">
-        Privacy & Consent Controls
-      </h3>
-
-      <p class="text-sm text-slate-600 mt-2">
-        You may withdraw your consent at any time.
-        This will permanently remove your account,
-        AI reports, installer matching records,
-        uploaded documents and future communications.
-      </p>
-
-      <button
-        onclick="confirmConsentWithdrawal()"
-        class="mt-4 border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl font-semibold transition">
-        Withdraw Consent & Delete Account
-      </button>
-    </div>
-  </div>
-
-</div>
-  
 <div id="installerSection" class="mt-8 hidden">
     <h2 class="text-xl font-bold text-slate-900 mb-4">Recommended Installers</h2>
     <div id="installerListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -633,32 +605,38 @@ class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border
   <button onclick="uploadQuote()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Upload Quote</button>
 </div>
 
+ <div id="privacyControlsCard"
+class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-red-100 mt-6">
+
+  <div class="flex items-start gap-3">
+    <div class="text-2xl">🔒</div>
+
+    <div class="flex-1">
+      <h3 class="font-bold text-slate-900">
+        Privacy & Consent Controls
+      </h3>
+
+      <p class="text-sm text-slate-600 mt-2">
+        You may withdraw your consent at any time.
+        This will permanently remove your account,
+        AI reports, installer matching records,
+        uploaded documents and future communications.
+      </p>
+
+      <button
+        onclick="confirmConsentWithdrawal()"
+        class="mt-4 border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl font-semibold transition">
+        Withdraw Consent & Delete Account
+      </button>
+    </div>
+  </div>
+
 
   <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Govt subsidy</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> 25-year warranty</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Verified installers</div>
   </div>
-
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
-    <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Frequently Asked Questions</h3>
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Will solar work in cloudy weather?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Yes, modern panels generate power even on cloudy days, though output reduces slightly.</p>
-      </div>
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Do I need batteries?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Not required for grid-tied systems. You can use the grid as your battery through net metering.</p>
-      </div>
-      <div>
-        <h4 class="font-semibold text-slate-900 text-sm">Is the subsidy guaranteed?</h4>
-        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Subsidies are available as per current government norms and subject to approval processes.</p>
-      </div>
-    </div>
-  </div>
-
-</div>
 
 <div id="footer-container"></div>
 
