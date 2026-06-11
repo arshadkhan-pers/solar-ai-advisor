@@ -456,6 +456,8 @@ function handleHeroCalculate() {
     }
 
     calculatedBill = bill;
+    localStorage.setItem("calculationMode", "bill");
+    localStorage.removeItem("selectedKw");
   }
 
   // =========================
@@ -477,11 +479,11 @@ function handleHeroCalculate() {
       return;
     }
 
-    // Approximate monthly bill equivalent
-
-    calculatedBill = kw * 1200;
+    // Residential rooftop approximation
+calculatedBill = Math.round(kw * 900);
 
     localStorage.setItem("selectedKw", kw);
+    localStorage.setItem("calculationMode", "kw");
   }
 
   // =========================
@@ -634,6 +636,8 @@ async function submitLeadAndContinue(event) {
       pincode: pincode,
       state: resolvedState,
       bill: parseFloat(bill),
+      systemSizeKw: localStorage.getItem("selectedKw") || "",
+      calculationMode: localStorage.getItem("calculationMode") || "bill",
       leadCode,
       customerId: phone,
       leadType,
