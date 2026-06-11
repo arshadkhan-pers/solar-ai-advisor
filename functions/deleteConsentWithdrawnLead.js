@@ -1,57 +1,114 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
+const db = admin.firestore();
+
 exports.deleteConsentWithdrawnLead =
-functions.firestore
-.document("leads/{leadId}")
-.onUpdate(async (change, context) => {
+functions.pubsub
+.schedule("every 60 minutes")
+.timeZone("Asia/Kolkata")
+.onRun(async () => {
 
-  const before = change.before.data();
-  const after = change.after.data();
+  const now = new Date();
 
-  if (
-    before.deletionRequested === after.deletionRequested
-  ) {
+  const snapshot =
+    await db.collection("consent_withdrawals")
+    .where("deletionStatus", "==", "PENDING")
+    .get();
+
+  if (snapshot.empty) {
+    console.log("No pending deletions.");
     return null;
   }
 
-  if (!after.deletionRequested) {
-    return null;
-  }
+  for (const doc of snapshot.docs) {
 
-  const leadId = context.params.leadId;
+    const withdrawal = doc.data();
 
-  const db = admin.firestore();
+    const deletionAfter =
+      withdrawal.deletionAfter?.toDate?.();
 
-  try {
+    if (!deletionAfter) continue;
 
-    await admin.storage().bucket().file(`bills/${leadId}`).delete()
-      .catch(() => {});
+    if (deletionAfter > now) continue;
 
-    await admin.storage().bucket().file(`quotes/${leadId}`).delete()
-      .catch(() => {});
+    const leadId = withdrawal.leadId;
 
-    await db.collection("ai_reports")
-      .doc(leadId)
-      .delete()
-      .catch(() => {});
+    try {
 
-    await db.collection("survey_requests")
-      .doc(leadId)
-      .delete()
-      .catch(() => {});
+      console.log(
+        `Deleting lead ${leadId}`
+      );
 
-    await db.collection("leads")
-      .doc(leadId)
-      .delete()
-      .catch(() => {});
+      // ----------------------------------
+      // Delete Firestore Documents
+      // ----------------------------------
 
-    console.log(`Deleted customer ${leadId}`);
+      await db.collection("leads")
+        .doc(leadId)
+        .delete()
+        .catch(() => {});
 
-  } catch (err) {
+      await db.collection("ai_reports")
+        .doc(leadId)
+        .delete()
+        .catch(() => {});
 
-    console.error(err);
+      await db.collection("survey_requests")
+        .doc(leadId)
+        .delete()
+        .catch(() => {});
 
+      // ----------------------------------
+      // Delete Uploaded Files
+      // ----------------------------------
+
+      const bucket =
+        admin.storage().bucket();
+
+      await bucket.file(
+        `bills/${leadId}`
+      ).delete().catch(() => {});
+
+      await bucket.file(
+        `quotes/${leadId}`
+      ).delete().catch(() => {});
+
+      // ----------------------------------
+      // Mark Completed
+      // ----------------------------------
+
+      await doc.ref.update({
+
+        deletionStatus: "COMPLETED",
+
+        deletedAt:
+          admin.firestore.FieldValue.serverTimestamp()
+
+      });
+
+      console.log(
+        `Successfully deleted ${leadId}`
+      );
+
+    } catch (err) {
+
+      console.error(
+        `Deletion failed for ${leadId}`,
+        err
+      );
+
+      await doc.ref.update({
+
+        deletionStatus: "FAILED",
+
+        failureReason: err.message,
+
+        lastAttemptAt:
+          admin.firestore.FieldValue.serverTimestamp()
+
+      });
+    }
   }
 
   return null;
