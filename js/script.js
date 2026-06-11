@@ -191,10 +191,30 @@ async function handleSignInSubmit() {
         .get();
 
     if (!snapshot.empty) {
-        document.getElementById('signInModal')?.classList.add('hidden');
 
-        // Fire PIN entry screen. Browser handles zero validation formulas locally now.
-        triggerPinVerification(phone, null, (serverLeadId, serverProfile) => {
+    const existingLeadDoc = snapshot.docs[0];
+    const existingData = existingLeadDoc.data();
+
+    // ====================================
+    // DPDP CONSENT WITHDRAWAL PROTECTION
+    // ====================================
+
+    if (existingData.loginDisabled === true) {
+
+    alert(
+      "This account has been permanently deleted because consent was withdrawn. Please create a new solar assessment."
+    );
+
+    btn.innerText = "Continue";
+    btn.disabled = false;
+
+    return;
+}
+
+    document.getElementById('signInModal')?.classList.add('hidden');
+
+    // Fire PIN entry screen
+    triggerPinVerification(phone, null, (serverLeadId, serverProfile) => {
             
             // Hydrate local cache stores strictly from backend returned safe fields
             localStorage.setItem("leadId", serverLeadId);
