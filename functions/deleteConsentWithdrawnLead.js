@@ -4,7 +4,9 @@ const admin = require("firebase-admin");
 const db = admin.firestore();
 
 exports.deleteConsentWithdrawnLead =
-functions.pubsub
+functions
+.region("asia-south2")
+.pubsub
 .schedule("every 60 minutes")
 .timeZone("Asia/Kolkata")
 .onRun(async () => {
