@@ -649,3 +649,10 @@ exports.verifyLeadPin = onCall({ region: "asia-south2" }, async (request) => {
     );
   }
 });
+
+// =====================================================================
+// Delete consent withdrawn data
+// =====================================================================
+exports.deleteConsentWithdrawnLead =
+require("./deleteConsentWithdrawnLead")
+.deleteConsentWithdrawnLead;
