@@ -1,14 +1,16 @@
-const functions = require("firebase-functions");
+const { onSchedule } =
+require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
 exports.deleteConsentWithdrawnLead =
-functions
-.region("asia-south2")
-.pubsub
-.schedule("every 60 minutes")
-.timeZone("Asia/Kolkata")
-.onRun(async () => {
+onSchedule(
+{
+  schedule: "every 60 minutes",
+  region: "asia-south2",
+  timeZone: "Asia/Kolkata"
+},
+async (event) => {
 
   const now = new Date();
 
@@ -112,5 +114,5 @@ functions
     }
   }
 
-  return null;
+  return;
 });
