@@ -1310,7 +1310,7 @@ function showPinSetupModal(previousModal, phone) {
                 phone: phone || "N/A",
                 status: "pending",
                 requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                requestedCity: document.getElementById("resCity")?.value || localStorage.getItem("state") || "Unknown",
+                requestedCity: document.getElementById("resCity")?.value || localStorage.getItem("leadCity") || "Unknown",
                 clientName: document.getElementById("capturedName")?.value || "Homeowner"
             });
 
