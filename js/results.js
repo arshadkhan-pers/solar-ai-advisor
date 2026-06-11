@@ -593,9 +593,18 @@ function calculateSolar(bill, stateOverride = null) {
   if (calculationMode === "kw") {
 
     systemSize =
-      parseFloat(
-        localStorage.getItem("selectedKw")
-      ) || 3;
+  parseFloat(
+    localStorage.getItem("selectedKw")
+  );
+
+if (!systemSize || systemSize <= 0) {
+  const units = bill / 7;
+  systemSize =
+    Math.max(
+      1,
+      Math.round(units / 120)
+    );
+}
 
   } else {
 
