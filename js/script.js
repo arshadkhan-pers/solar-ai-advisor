@@ -484,7 +484,7 @@ function handleHeroCalculate() {
   else {
 
     const kwInput =
-      document.getElementById("kwInput");
+      document.getElementById("systemSizeInput");
 
     const kw =
       parseFloat(kwInput?.value || 3);
