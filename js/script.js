@@ -229,6 +229,23 @@ async function handleSignInSubmit() {
             localStorage.setItem("leadPhone", serverProfile.phone || phone);
             localStorage.setItem("leadCity", serverProfile.city || "");
             localStorage.setItem("bill", serverProfile.bill || "1500");
+        // Restore original calculation mode
+            localStorage.setItem(
+              "calculationMode",
+              serverProfile.calculationMode || "bill"
+            );
+            
+            if (
+              serverProfile.calculationMode === "kw" &&
+              serverProfile.systemSizeKw
+            ) {
+              localStorage.setItem(
+                "selectedKw",
+                serverProfile.systemSizeKw
+              );
+            } else {
+              localStorage.removeItem("selectedKw");
+            }
 
             // Complete user session handoff 
             window.location.href = `results.html?bill=${serverProfile.bill}&state=${serverProfile.state}&name=${encodeURIComponent(serverProfile.name)}&phone=${encodeURIComponent(serverProfile.phone)}&city=${encodeURIComponent(serverProfile.city || "")}`;
@@ -616,7 +633,23 @@ async function submitLeadAndContinue(event) {
         localStorage.setItem("leadPhone", existingData.phone || phone);
         localStorage.setItem("leadCity", existingData.city || "");
         localStorage.setItem("bill", existingData.bill || bill);
-
+        // Restore original calculation mode
+        localStorage.setItem(
+          "calculationMode",
+          existingData.calculationMode || "bill"
+        );
+        
+        if (
+          existingData.calculationMode === "kw" &&
+          existingData.systemSizeKw
+        ) {
+          localStorage.setItem(
+            "selectedKw",
+            existingData.systemSizeKw
+          );
+        } else {
+          localStorage.removeItem("selectedKw");
+        }
         window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
         return;
     }
