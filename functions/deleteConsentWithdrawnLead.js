@@ -113,6 +113,4 @@ async (event) => {
       });
     }
   }
-
-  return;
 });
