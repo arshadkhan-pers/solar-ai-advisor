@@ -823,9 +823,33 @@ async function submitLead() {
   const cityInput = document.getElementById("capturedCity");
   const city = (cityDropdown && cityDropdown.value) ? cityDropdown.value : cityInput?.value?.trim();
 
-  const billValue = document.getElementById("capturedBill")?.value;
-  const bill = parseFloat(billValue || getBillFromURL());
-  
+  const calculationMode =
+  localStorage.getItem("calculationMode") || "bill";
+
+let bill;
+
+if (calculationMode === "kw") {
+
+  const selectedKw =
+    parseFloat(
+      document.getElementById("capturedKw")?.value ||
+      localStorage.getItem("selectedKw") ||
+      3
+    );
+
+  bill = selectedKw * 900;
+
+} else {
+
+  const billValue =
+    document.getElementById("capturedBill")?.value;
+
+  bill =
+    parseFloat(
+      billValue || getBillFromURL()
+    );
+}
+
   const propertyType = document.getElementById("propertyType")?.value;
   const roofType = document.getElementById("roofType")?.value;
   const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
@@ -1044,7 +1068,31 @@ function populateCapturedData() {
     city.value = (rawCity === "N/A" ||!rawCity)? "" : decodeURIComponent(rawCity);
     city.placeholder = "City (e.g., Lucknow)";
   }
-  if (bill) bill.value = params.get("bill") || "";
+  const mode = localStorage.getItem("calculationMode") || "bill";
+
+const kwField = document.getElementById("capturedKw");
+
+if (mode === "kw") {
+
+  if (bill) bill.classList.add("hidden");
+
+  if (kwField) {
+    kwField.classList.remove("hidden");
+    kwField.value =
+      localStorage.getItem("selectedKw") ||
+      params.get("systemSizeKw") ||
+      "3";
+  }
+
+} else {
+
+  if (kwField) kwField.classList.add("hidden");
+
+  if (bill) {
+    bill.classList.remove("hidden");
+    bill.value = params.get("bill") || "";
+  }
+}
 }
 
 function setupEditableInputs() {
@@ -1660,6 +1708,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupBillUpload();
     populateCapturedData();
     setupEditableInputs();
+
+// ======================================
+// kW Selector Recalculation Handler
+// ======================================
+
+const kwSelector = document.getElementById("capturedKw");
+
+if (kwSelector) {
+
+  kwSelector.addEventListener("change", () => {
+
+    const selectedKw = parseFloat(kwSelector.value);
+
+    localStorage.setItem("selectedKw", selectedKw);
+    localStorage.setItem("calculationMode", "kw");
+
+    // Keep existing bill-based engine alive
+    const equivalentBill = selectedKw * 900;
+
+    localStorage.setItem("bill", equivalentBill);
+
+    const result = calculateSolar(equivalentBill);
+    renderResults(result, equivalentBill);
+
+  });
+
+}
 
    // 1. Capture the true State & City from the URL or Local Session
     const urlParams = new URLSearchParams(window.location.search);
