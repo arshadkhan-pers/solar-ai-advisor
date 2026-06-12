@@ -691,13 +691,13 @@ function renderResults(data, bill) {
 
 if (calculationMode === "kw") {
   document.getElementById("systemSize").innerText =
-    `${data.systemSize} kW Solar System Selected`;
+    `${parseFloat(data.systemSize)} kW Solar System Selected`;
 
   document.getElementById("billInfo").innerText =
     "Savings calculated using your selected system size";
 } else {
   document.getElementById("systemSize").innerText =
-    `${data.systemSize} kW Solar System Recommended`;
+    `${parseFloat(data.systemSize)} kW Solar System Recommended`;
 
   document.getElementById("billInfo").innerText =
     `Based on your ₹${bill}/month bill`;
@@ -755,7 +755,25 @@ if (calculationMode === "kw") {
 // 🔹 WHATSAPP
 // ===============================
 function openWhatsApp() {
-  const bill = getBillFromURL();
+  let bill;
+
+const mode =
+  localStorage.getItem("calculationMode");
+
+if (mode === "kw") {
+
+  const kw =
+    parseFloat(
+      localStorage.getItem("selectedKw")
+    ) || 3;
+
+  bill = kw * 900;
+
+} else {
+
+  bill = getBillFromURL();
+}
+
   const result = calculateSolar(bill);
   const stateFullName = stateNames[result.state] || result.state;
 
@@ -1145,7 +1163,7 @@ function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback
 
 function getDynamicAISummary(data) {
   const summaries = [
-    `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${data.systemSize} kW system could significantly reduce long-term grid dependency.`,
+    `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${parseFloat(data.systemSize)} kW system could significantly reduce long-term grid dependency.`,
     `Based on your projected payback period of ${data.payback} years, this solar investment appears financially attractive for residential installation.`,
     `Your profile aligns well with subsidy-supported solar adoption, potentially improving long-term savings and installation ROI.`,
     `With estimated lifetime savings exceeding ${formatIndianCurrency(data.lifetimeSavings)}, rooftop solar may provide substantial financial benefits over time.`,
@@ -1722,6 +1740,16 @@ if (kwSelector) {
     const selectedKw = parseFloat(kwSelector.value);
 
     localStorage.setItem("selectedKw", selectedKw);
+    const params =
+  new URLSearchParams(window.location.search);
+
+params.set("systemSizeKw", selectedKw);
+
+history.replaceState(
+  {},
+  "",
+  `${window.location.pathname}?${params.toString()}`
+);
     localStorage.setItem("calculationMode", "kw");
 
     // Keep existing bill-based engine alive
@@ -1791,7 +1819,29 @@ function calculateSavings() {
     const billInput = document.getElementById("capturedBill");
     const stateEl = document.getElementById("resState");
     
-    let bill = parseFloat(billInput?.value) || parseFloat(localStorage.getItem("bill")) || getBillFromURL() || 0;
+    const mode =
+  localStorage.getItem("calculationMode") || "bill";
+
+let bill;
+
+if (mode === "kw") {
+
+  const kw =
+    parseFloat(
+      localStorage.getItem("selectedKw")
+    ) || 3;
+
+  bill = kw * 900;
+
+} else {
+
+  bill =
+    parseFloat(billInput?.value) ||
+    parseFloat(localStorage.getItem("bill")) ||
+    getBillFromURL() ||
+    0;
+}
+
     let state = stateEl?.value || localStorage.getItem("state") || "UP";
     
     if (bill > 0) {
