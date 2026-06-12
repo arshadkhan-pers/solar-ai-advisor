@@ -248,7 +248,14 @@ async function handleSignInSubmit() {
             }
 
             // Complete user session handoff 
-            window.location.href = `results.html?bill=${serverProfile.bill}&state=${serverProfile.state}&name=${encodeURIComponent(serverProfile.name)}&phone=${encodeURIComponent(serverProfile.phone)}&city=${encodeURIComponent(serverProfile.city || "")}`;
+            window.location.href =
+`results.html?bill=${serverProfile.bill}` +
+`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
+`&state=${serverProfile.state}` +
+`&name=${encodeURIComponent(serverProfile.name)}` +
+`&phone=${encodeURIComponent(serverProfile.phone)}` +
+`&city=${encodeURIComponent(serverProfile.city || "")}`;
+
         });
     } else {
         alert("No account found for this number. Please calculate your savings first to generate a report.");
@@ -650,7 +657,13 @@ async function submitLeadAndContinue(event) {
         } else {
           localStorage.removeItem("selectedKw");
         }
-        window.location.href = `results.html?bill=${existingData.bill}&state=${existingData.state}&name=${encodeURIComponent(existingData.name)}&phone=${encodeURIComponent(existingData.phone)}&city=${encodeURIComponent(existingData.city || "")}`;
+        window.location.href =
+`results.html?bill=${existingData.bill}` +
+`&systemSizeKw=${existingData.systemSizeKw || ""}` +
+`&state=${existingData.state}` +
+`&name=${encodeURIComponent(existingData.name)}` +
+`&phone=${encodeURIComponent(existingData.phone)}` +
+`&city=${encodeURIComponent(existingData.city || "")}`;
         return;
     }
 
@@ -701,7 +714,17 @@ async function submitLeadAndContinue(event) {
     localStorage.setItem("leadCity", resolvedCity);
     localStorage.setItem("leadBill", bill);
     
-    window.location.href = `results.html?bill=${bill}&state=${resolvedState}&name=${encodeURIComponent(name || "Homeowner")}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&city=`;
+    const selectedKw =
+  localStorage.getItem("selectedKw") || "";
+
+window.location.href =
+`results.html?bill=${bill}` +
+`&systemSizeKw=${selectedKw}` +
+`&state=${resolvedState}` +
+`&name=${encodeURIComponent(name || "Homeowner")}` +
+`&email=${encodeURIComponent(email)}` +
+`&phone=${encodeURIComponent(phone)}` +
+`&city=`;
 
   } catch (error) {
     console.error("Firestore Transaction Error:", error);
