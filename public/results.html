@@ -99,20 +99,13 @@
 
 </head>
 
-<body class="text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
+<body class="bg-gradient-to-b from-white to-slate-50 text-slate-900 font-sans relative min-h-screen overflow-x-hidden">
 
-<div class="fixed inset-0 z-[-3] bg-slate-50"></div>
-<div class="fixed inset-0 z-[-2] opacity-[0.3] pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px]"></div>
-
-<div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/30 mix-blend-multiply filter blur-[80px] animate-blob"></div>
-  <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-emerald-200/30 mix-blend-multiply filter blur-[80px] animate-blob" style="animation-delay: 2s"></div>
-  <div class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-200/30 mix-blend-multiply filter blur-[80px] animate-blob" style="animation-delay: 4s"></div>
-</div>
+<div class="fixed inset-0 z-[-3] bg-gradient-to-b from-white to-slate-50"></div>
 
 <div class="max-w-xl mx-auto space-y-8 px-4 py-8 relative z-10">
 
-  <div class="bg-gradient-to-br from-[#111827] to-[#1F2937] text-white rounded-[32px] p-8 shadow-premium">
+  <div class="bg-[#020617] text-white rounded-[32px] p-8 shadow-premium">
 
   <div class="text-xs uppercase tracking-[3px] text-white/60">
     Independent Solar Recommendation
@@ -176,7 +169,7 @@
 
 </div>
 
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
+  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-6 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Cost Breakdown</h3>
 
     <div class="space-y-4 text-base leading-relaxed">
@@ -242,7 +235,7 @@
     </div>
   </div>
 
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
+  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-5 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">Your Returns</h3>
     
     <div class="flex justify-between items-center">
@@ -261,7 +254,7 @@
     </div>
   </div>
 
-  <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-5 transition-all hover:shadow-lg">
+  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-5 transition-all hover:shadow-lg">
     <h3 class="font-semibold text-lg tracking-tight border-b border-slate-100 pb-4">System Details</h3>
     
     <div class="flex justify-between items-center">
@@ -281,7 +274,7 @@
 
   <div class="space-y-4 pt-2">
 <button id="unlockAiBtn" onclick="showForm()" 
-  class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
+  class="w-full bg-[#020617] hover:bg-slate-800 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">
   Get My Full AI Solar Assessment
 </button>
 
@@ -292,7 +285,7 @@
     </button>
   </div>
 
-  <div id="leadForm" class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6">
+  <div id="leadForm" class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-6">
     <h3 class="font-bold text-xl text-center tracking-tight text-slate-900">Complete Your Profile</h3>
 
     <div class="space-y-3">
@@ -379,7 +372,7 @@
       </select>
 
       <button onclick="submitLead()" 
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200">
+        class="w-full bg-[#020617] hover:bg-slate-800 text-white py-4 rounded-xl font-semibold shadow-premium transition-all duration-200">
         Submit Request
       </button>
     </div>
@@ -396,7 +389,7 @@
   </div>
 
   <div id="aiLoadingState"
-    class="hidden bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-center space-y-4">
+    class="hidden bg-white p-6 rounded-2xl shadow-premium border border-slate-100 text-center space-y-4">
     <div class="w-14 h-14 mx-auto border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
     <div>
       <h3 class="text-xl font-bold text-slate-900">Generating AI Solar Analysis</h3>
@@ -405,7 +398,7 @@
   </div>
 
   <div id="aiInsightsSection"
-    class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-200/75 space-y-6 transition-all hover:shadow-lg">
+    class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-6 transition-all hover:shadow-lg">
 
     <div class="flex items-center gap-4">
       <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl">🤖</div>
@@ -415,7 +408,7 @@
       </div>
     </div>
 
-    <div class="bg-gradient-to-r from-[#6366F1] to-[#7C3AED] rounded-2xl p-6 text-white shadow-lg">
+    <div class="bg-[#020617] rounded-2xl p-6 text-white shadow-lg">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm opacity-80 uppercase tracking-wider">AI Suitability Score</p>
@@ -473,7 +466,7 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-gradient-to-br from-[#111827] to-[#1F2937] text-white p-6">
+    <div class="rounded-2xl bg-[#020617] text-white p-6">
       <div class="flex items-start gap-4">
         <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">⚡</div>
         <div>
@@ -487,7 +480,7 @@
   </div>
   
   <div id="buyerProtectionSection"
-    class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-700 space-y-6 transition-all hover:shadow-lg">
+    class="hidden bg-[#020617] text-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-700 space-y-6 transition-all hover:shadow-lg">
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">🛡️</div>
       <div>
@@ -498,9 +491,9 @@
     <div id="buyerProtectionList" class="space-y-3"></div>
   </div>
 
-  <section id="personaSection" class="hidden" style="background:#ffffff; border-radius:16px; padding:24px; margin-top:24px; box-shadow:0 10px 30px rgba(15,23,42,0.06),0 2px 8px rgba(15,23,42,0.04);">
-    <div style="font-size:13px; font-weight:700; color:#003366; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">Your Solar Readiness Profile</div>
-    <h2 id="personaPrimary" style="margin:0; color:#003366; font-size:28px;">Balanced Buyer</h2>
+  <section id="personaSection" class="hidden" style="background:#ffffff;border:1px solid #f1f5f9;" border-radius:16px; padding:24px; margin-top:24px; box-shadow:0 10px 30px rgba(15,23,42,0.06),0 2px 8px rgba(15,23,42,0.04);">
+    <div style="font-size:13px; font-weight:700; color:#020617; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">Your Solar Readiness Profile</div>
+    <h2 id="personaPrimary" style="margin:0; color:#020617; font-size:28px;">Balanced Buyer</h2>
     <div id="personaSecondary" style="margin-top:6px; color:#666; font-size:15px;"></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
       <div class="metricCard"><div class="metricLabel">AI Confidence</div><div id="personaConfidence" class="metricValue">90%</div></div>
@@ -509,17 +502,17 @@
       <div class="metricCard"><div class="metricLabel">Urgency</div><div id="personaUrgency" class="metricValue">Normal</div></div>
     </div>
     <div style="margin-top:18px; padding:16px; background:#f7fafc; border-radius:12px;">
-      <div style="font-weight:700; margin-bottom:10px; color:#003366;">AI Persona Summary</div>
+      <div style="font-weight:700; margin-bottom:10px; color:#020617;">AI Persona Summary</div>
       <div id="personaSummary" style="color:#555; line-height:1.6;"></div>
     </div>
     <div style="margin-top:20px;">
-      <div style="font-weight:700; margin-bottom:10px; color:#003366;">Profile Characteristics</div>
+      <div style="font-weight:700; margin-bottom:10px; color:#020617;">Profile Characteristics</div>
       <ul id="personaTraits" style="padding-left:20px; color:#444; line-height:1.7;"></ul>
     </div>
   </section>
 
   <div id="pricingConfidenceSection"
-    class="hidden bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-5 transition-all hover:shadow-lg">
+    class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-premium border border-slate-100 space-y-5 transition-all hover:shadow-lg">
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-2xl">💰</div>
       <div>
@@ -547,12 +540,12 @@
     <div>4. Install</div>
   </div>
   <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-    <div id="roadmapProgress" class="bg-[#6366F1] h-full transition-all duration-500" style="width: 25%"></div>
+    <div id="roadmapProgress" class="bg-emerald-600 h-full transition-all duration-500" style="width: 25%"></div>
   </div>
 </div>
 
 <div id="conciergeCard"
-class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-700 p-6 rounded-2xl mt-6 shadow-premium">
+class="hidden bg-[#020617] text-white border border-slate-700 p-6 rounded-2xl mt-6 shadow-premium">
   <h3 class="text-xl font-bold text-white mb-2">Expert Site Assessment</h3>
   <p class="text-white/80 mb-4">
     Our technical team will review your data and assign a certified solar partner within 24 hours. You will receive an update via WhatsApp. 
@@ -574,7 +567,7 @@ class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white border bo
   </button>
 </div>
 
-  <div class="bg-gradient-to-br from-[#111827] via-[#1F2937] to-[#111827] rounded-[28px] p-6 mt-6 text-white shadow-premium border border-slate-700">
+  <div class="bg-[#020617] rounded-[28px] p-6 mt-6 text-white shadow-premium border border-slate-700">
 
   <div class="flex items-center gap-3 mb-4">
     <div class="text-2xl">⚖️</div>
@@ -622,11 +615,11 @@ class="hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white border bo
   <h4 class="font-bold text-sm text-slate-800">Upload Installer Quote</h4>
   <p class="text-xs text-slate-500 mb-3">Please upload the proposal for verification.</p>
   <input type="file" id="quoteFileInput" class="text-sm mb-2 block">
-  <button onclick="uploadQuote()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Upload Quote</button>
+  <button onclick="uploadQuote()" class="bg-[#020617] text-white px-4 py-2 rounded-lg text-sm font-semibold">Upload Quote</button>
 </div>
 
  <div id="privacyControlsCard"
-class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-red-100 mt-6">
+class="bg-white p-6 rounded-2xl shadow-premium border border-red-100 mt-6">
 
   <div class="flex items-start gap-3">
     <div class="text-2xl">🔒</div>
@@ -652,7 +645,7 @@ class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border
   </div>
 </div>
 
-  <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-premium border border-slate-200/75 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
+  <div class="bg-white p-6 rounded-2xl shadow-premium border border-slate-100 text-sm font-medium text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 transition-all hover:shadow-lg">
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Govt subsidy</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> 25-year warranty</div>
     <div class="flex items-center gap-2"><span class="text-emerald-500">✔</span> Verified installers</div>
