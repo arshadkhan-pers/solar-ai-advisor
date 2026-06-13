@@ -502,7 +502,13 @@ async function reportSurveyStatus(status) {
 
     try {
         if (status === 'completed') {
-            await db.collection("leads").doc(leadId).update({ stage: "SURVEY_COMPLETED" });
+            await db.collection("leads").doc(leadId).update({
+    stage: "SURVEY_COMPLETED",
+    "timeline.surveyCompleted.status": true,
+    "timeline.surveyCompleted.timestamp":
+        firebase.firestore.FieldValue.serverTimestamp()
+});
+            
             await db.collection("survey_requests").doc(leadId).update({ status: "completed" });
             
             localStorage.removeItem("surveyIssueReported");
