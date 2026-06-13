@@ -1991,11 +1991,13 @@ async function selectInstaller(installerId, installerName) {
                     firebase.firestore.FieldValue.serverTimestamp()
             });
 
-        alert(
-            `${installerName} selected successfully. Our team will coordinate the next steps.`
-        );
+        window.selectedInstallerId = installerId;
 
-        location.reload();
+alert(
+    `${installerName} selected. Please verify your mobile number to schedule your survey.`
+);
+
+requestSiteSurvey();
 
     } catch (error) {
 
@@ -2080,10 +2082,7 @@ installers.forEach(installer => {
     </button>
 `}
 
-    class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
-    Select ${businessName}
-            </button>
-
+    
         `;
         container.appendChild(card);
     });
