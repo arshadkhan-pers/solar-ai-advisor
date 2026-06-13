@@ -2136,7 +2136,7 @@ if (selectedInstallerId) {
                 <div class="text-xl">🔒</div>
                 <div>
                     <h3 class="font-bold text-emerald-900">
-                        Installer Allocation Confirmed
+                        Installer Successfully Assigned
                     </h3>
 
                     <p class="text-sm text-emerald-700 mt-1">
@@ -2169,13 +2169,25 @@ installers.forEach(installer => {
     
         
         const card = document.createElement("div");
-        card.className =
-        "bg-white border border-slate-200 rounded-2xl p-5 shadow-premium hover:shadow-xl transition-all";
+        card.className = isSelected
+  ? "bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-5 shadow-xl ring-4 ring-emerald-100 transition-all scale-[1.02]"
+  : "bg-white border border-slate-200 rounded-2xl p-5 shadow-premium hover:shadow-xl transition-all";
         
         card.innerHTML = `
+        ${isSelected ? `
+<div class="mb-4">
+    <span class="inline-flex items-center gap-2 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
+        🏆 AI Recommended Installer Selected
+    </span>
+</div>
+` : ""}
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="font-bold text-lg text-slate-900">${businessName}</h3>
+                    <h3 class="font-bold text-lg ${
+    isSelected
+        ? "text-emerald-900"
+        : "text-slate-900"
+}">${businessName}</h3>
                     <span class="inline-block mt-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
                         installerType === 'Premium' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
                     }">
@@ -2205,10 +2217,10 @@ installers.forEach(installer => {
 
             ${isSelected ? `
     <button
-        disabled
-        class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
-        ✓ Installer Selected
-    </button>
+    disabled
+    class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm cursor-not-allowed shadow-lg">
+    ✓ Installer Selected & Assigned
+</button>
 ` : installerLocked ? `
     <button
         disabled
