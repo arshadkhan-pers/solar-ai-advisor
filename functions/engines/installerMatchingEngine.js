@@ -46,7 +46,7 @@ async function calculateInstallerMatches({
 }
       // CITY MATCH
       const serviceAreas =
-        installer.serviceAreas || [];
+        installer.baseCity || [];
 
 if (
   serviceAreas.includes(city)
