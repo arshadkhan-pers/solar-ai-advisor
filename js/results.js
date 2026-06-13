@@ -1380,7 +1380,7 @@ const DEV_CONFIG = {
     isDevMode: true,
 
     // Master OTP Switch
-    otpEnabled: false,
+    otpEnabled: true,
 
     // Development shortcuts
     bypassOtpFlow: false,
@@ -1556,20 +1556,25 @@ function showPinSetupModal(previousModal, phone) {
     </p>
 
     <input
-        type="password"
-        id="pinInput"
-        inputmode="numeric"
-        maxlength="4"
+    type="password"
+    id="pinInput"
+    autofocus
+    pattern="[0-9]{4}"
+    maxlength="4"
+    inputmode="numeric"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
         class="w-full p-3 border border-slate-200 rounded-xl mb-3 text-center text-2xl tracking-[1em] font-mono"
         placeholder="****">
 
     <input
-        type="password"
-        id="confirmPinInput"
-        inputmode="numeric"
-        maxlength="4"
+    type="password"
+    id="confirmPinInput"
+    pattern="[0-9]{4}"
+    maxlength="4"
+    inputmode="numeric"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
         class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-2xl tracking-[1em] font-mono"
-        placeholder="Confirm PIN">
+        placeholder="****">
 
     <button
         id="savePinBtn"
@@ -1587,7 +1592,7 @@ function showPinSetupModal(previousModal, phone) {
         const confirmPin =
 document.getElementById('confirmPinInput')
 .value.trim();
-        if (
+       if (
     pin.length !== 4 ||
     isNaN(pin)
 ) {
@@ -1596,11 +1601,20 @@ document.getElementById('confirmPinInput')
     );
 }
 
+if (
+    confirmPin.length !== 4 ||
+    isNaN(confirmPin)
+) {
+    return alert(
+        "Please re-enter the same 4-digit PIN."
+    );
+}
+
 if (pin !== confirmPin) {
     return alert(
         "PIN and Confirm PIN do not match."
     );
-} return alert("Security PIN must consist of exactly 4 numeric characters.");
+}
         
         const saveBtn = document.getElementById('savePinBtn');
         saveBtn.disabled = true;
