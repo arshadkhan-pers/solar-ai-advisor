@@ -34,7 +34,11 @@ function setupRealTimeTimeline(explicitLeadId = null) {
         typeof renderInstallerCards === "function" &&
         window.installerCache?.length
     ) {
-
+console.log(
+    "REALTIME RE-RENDER",
+    window.selectedInstallerId,
+    window.installerCache
+);
         renderInstallerCards(
             window.installerCache
         );
