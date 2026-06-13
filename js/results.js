@@ -1377,9 +1377,16 @@ async function waitForAIReport(leadId, requestTime) {
 // =========================================================================
 
 const DEV_CONFIG = {
-    isDevMode: true,          // 🚨 Set to FALSE before deploying to production
-    bypassOtpFlow: false,     // Skip the OTP modal entirely and go directly to PIN creation
-    testOtpCode: "123456"     // Fallback OTP code when Firebase is unconfigured
+    isDevMode: true,
+
+    // Master OTP Switch
+    otpEnabled: false,
+
+    // Development shortcuts
+    bypassOtpFlow: false,
+
+    // Test OTP
+    testOtpCode: "123456"
 };
 
 // =========================================================================
@@ -1399,7 +1406,25 @@ async function requestSiteSurvey() {
 
     if (document.getElementById('authModal')) return;
 
-    if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
+        if (!DEV_CONFIG.otpEnabled) {
+    console.log("⚡ OTP Disabled. Moving directly to PIN setup.");
+
+    const placeholderModal = document.createElement('div');
+    placeholderModal.id = 'authModal';
+    placeholderModal.className =
+        'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+
+    document.body.appendChild(placeholderModal);
+
+    showPinSetupModal(
+        placeholderModal,
+        phone
+    );
+
+    return;
+}
+
+if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
         console.log("🛠️ [Dev Mode] Bypassing OTP entry screen completely.");
         const placeholderModal = document.createElement('div');
         placeholderModal.id = 'authModal';
@@ -1409,7 +1434,43 @@ async function requestSiteSurvey() {
         showPinSetupModal(placeholderModal, phone);
         return;
     }
+if (DEV_CONFIG.otpEnabled) {
 
+    try {
+
+        console.log(
+            "📲 Sending OTP..."
+        );
+
+        // Firebase Auth Integration Here
+
+        /*
+        const appVerifier =
+            new firebase.auth.RecaptchaVerifier(
+                'recaptcha-container',
+                { size: 'invisible' }
+            );
+
+        window.confirmationResult =
+            await firebase.auth()
+                .signInWithPhoneNumber(
+                    phone,
+                    appVerifier
+                );
+        */
+
+    }
+    catch(error) {
+
+        console.error(error);
+
+        alert(
+            "Failed to send OTP."
+        );
+
+        return;
+    }
+}
     const modal = document.createElement('div');
     modal.id = 'authModal';
     modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
@@ -1483,18 +1544,63 @@ async function requestSiteSurvey() {
 // 🔑 PIN SETUP MODAL & SECURE BATCH SAVE 
 // =========================================================================
 function showPinSetupModal(previousModal, phone) {
-    previousModal.innerHTML = `
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
-            <h3 class="text-lg font-bold mb-2 text-slate-900">Set Security PIN</h3>
-            <p class="text-sm text-slate-500 mb-4">Set a secure 4-digit access code for seamless future portal logins.</p>
-            <input type="password" id="pinInput" inputmode="numeric" maxlength="4" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-2xl tracking-[1em] font-mono focus:outline-none focus:border-emerald-500" placeholder="****">
-            <button id="savePinBtn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm">Set PIN & Submit Request</button>
-        </div>
-    `;
+  previousModal.innerHTML = `
+<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+
+    <h3 class="text-lg font-bold mb-2 text-slate-900">
+        Set Security PIN
+    </h3>
+
+    <p class="text-sm text-slate-500 mb-4">
+        Create a secure 4-digit PIN for future login.
+    </p>
+
+    <input
+        type="password"
+        id="pinInput"
+        inputmode="numeric"
+        maxlength="4"
+        class="w-full p-3 border border-slate-200 rounded-xl mb-3 text-center text-2xl tracking-[1em] font-mono"
+        placeholder="****">
+
+    <input
+        type="password"
+        id="confirmPinInput"
+        inputmode="numeric"
+        maxlength="4"
+        class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-2xl tracking-[1em] font-mono"
+        placeholder="Confirm PIN">
+
+    <button
+        id="savePinBtn"
+        class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm">
+
+        Set PIN & Submit Request
+
+    </button>
+
+</div>
+`;
 
     document.getElementById('savePinBtn').onclick = async () => {
         const pin = document.getElementById('pinInput').value.trim();
-        if (pin.length !== 4 || isNaN(pin)) return alert("Security PIN must consist of exactly 4 numeric characters.");
+        const confirmPin =
+document.getElementById('confirmPinInput')
+.value.trim();
+        if (
+    pin.length !== 4 ||
+    isNaN(pin)
+) {
+    return alert(
+        "Security PIN must consist of exactly 4 digits."
+    );
+}
+
+if (pin !== confirmPin) {
+    return alert(
+        "PIN and Confirm PIN do not match."
+    );
+} return alert("Security PIN must consist of exactly 4 numeric characters.");
         
         const saveBtn = document.getElementById('savePinBtn');
         saveBtn.disabled = true;
