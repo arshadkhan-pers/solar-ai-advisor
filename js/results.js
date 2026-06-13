@@ -2094,6 +2094,16 @@ if (window.selectedInstallerId) {
 
         window.selectedInstallerId = installerId;
 
+/* immediately refresh installer cards */
+if (
+    aiReportCache &&
+    aiReportCache.matchedInstallers
+) {
+    renderInstallerCards(
+        aiReportCache.matchedInstallers
+    );
+}
+
 alert(
     `${installerName} selected. Please verify your mobile number to schedule your survey.`
 );
@@ -2131,25 +2141,8 @@ const installerLocked =
 if (selectedInstallerId) {
 
     container.innerHTML = `
-        <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
-            <div class="flex items-start gap-3">
-                <div class="text-xl">🔒</div>
-                <div>
-                    <h3 class="font-bold text-emerald-900">
-                        Installer Successfully Assigned
-                    </h3>
-
-                    <p class="text-sm text-emerald-700 mt-1">
-                        Your installer has already been assigned and notified.
-                        To prevent duplicate survey requests and scheduling
-                        conflicts, installer selection is now locked.
-                    </p>
-
-                    <p class="text-xs text-slate-500 mt-2">
-                        Need assistance? Contact Solar AI Advisor Support on WhatsApp.
-                    </p>
-                </div>
-            </div>
+        <div class="mb-4 text-sm text-slate-500">
+            Need assistance? Contact Solar AI Advisor Support on WhatsApp.
         </div>
     `;
 }
@@ -2225,7 +2218,7 @@ installers.forEach(installer => {
     <button
         disabled
         class="w-full bg-slate-300 text-slate-500 py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
-        Installer Locked
+        Another Installer Selected
     </button>
 ` : `
     <button
