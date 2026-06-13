@@ -72,6 +72,23 @@ const stateNames = {
 // 🔹 HELPERS
 // ===============================
 
+function safeSetText(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.innerText = value;
+    } else {
+        console.warn(`Missing DOM element: ${id}`);
+    }
+}
+
+function safeSetHTML(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.innerHTML = value;
+    } else {
+        console.warn(`Missing DOM element: ${id}`);
+    }
+}
 // Global store for active session local object URLs to allow viewing files immediately after upload
 const localUploadedFiles = {
     bill: null,
@@ -1289,9 +1306,26 @@ function renderAIInsights({ bill, result, propertyType, rooftopOwnership, roofTy
   }
   document.getElementById("subsidyInsight").innerText = subsidyText;
 
-  document.getElementById("save5").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 5));
-  document.getElementById("save10").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 10));
-  document.getElementById("save25").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 25));
+  safeSetText(
+    "save5",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 5)
+    )
+);
+
+safeSetText(
+    "save10",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 10)
+    )
+);
+
+safeSetText(
+    "save25",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 25)
+    )
+);
   
   document.getElementById("aiSummary").innerText = getDynamicAISummary({
     bill,
@@ -1544,6 +1578,19 @@ function startResendTimer() {
 
 // 🚀 FIX: Accept alternative shouldScroll argument to bypass jumping routines during stage adjustments
 function renderDynamicAIReport(report, result, shouldScroll = false) {
+    if (!report) {
+    console.error(
+        "renderDynamicAIReport called without report"
+    );
+    return;
+}
+
+if (!result) {
+    console.error(
+        "renderDynamicAIReport called without result"
+    );
+    return;
+}
   document.getElementById("aiLoadingState")?.classList.add("hidden");
 
   const conciergeCard = document.getElementById("conciergeCard");
@@ -1580,20 +1627,48 @@ function renderDynamicAIReport(report, result, shouldScroll = false) {
     aiScoreEl.innerText = report.persona?.confidence || 85;
   }
 
-  document.getElementById("aiBadge").innerText = report.installerReadiness?.level || "Strong Match";
+  safeSetText(
+    "aiBadge",
+    report.installerReadiness?.level || "Strong Match"
+);
   document.getElementById("aiProgressBar").style.width = `${report.persona?.confidence || 85}%`;
-  document.getElementById("financialInsight").innerText = `Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`;
-  document.getElementById("roofInsight").innerText = report.installerReadiness?.message || "Your rooftop profile appears compatible with residential solar installation.";
+  safeSetText("financialInsight",`Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`);
+  safeSetText(
+    "roofInsight",
+    report.installerReadiness?.message ||
+    "Your rooftop profile appears compatible with residential solar installation.");
 
-  document.getElementById("subsidyInsight").innerText =
+  safeSetText(
+    "subsidyInsight",
     report.stateSubsidy > 0
-    ? "Your state currently offers additional subsidy support beyond central schemes."
-      : "Your location qualifies for central rooftop solar subsidy support.";
+        ? "Your state currently offers additional subsidy support beyond central schemes."
+        : "Your location qualifies for central rooftop solar subsidy support."
+);
 
-  document.getElementById("save5").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 5));
-  document.getElementById("save10").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 10));
-  document.getElementById("save25").innerText = formatIndianCurrency(Math.round(result.monthlySavings * 12 * 25));
-  document.getElementById("aiSummary").innerText = report.recommendationSummary || "";
+  safeSetText(
+    "save5",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 5)
+    )
+);
+
+safeSetText(
+    "save10",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 10)
+    )
+);
+
+safeSetText(
+    "save25",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 25)
+    )
+);
+  safeSetText(
+    "aiSummary",
+    report.recommendationSummary || ""
+);
 
   const personaPrimary = report.personaV2?.primary || "Balanced Buyer";
   const personaSecondary = report.personaV2?.secondary || "";
@@ -1659,9 +1734,20 @@ function renderDynamicAIReport(report, result, shouldScroll = false) {
   const buyerSection = document.getElementById("buyerProtectionSection");
   buyerSection?.classList.remove("hidden");
 
-  const protectionList = document.getElementById("buyerProtectionList");
-  const checklist = report.buyerProtectionChecklist || [];
-  protectionList.innerHTML = "";
+  const protectionList =
+    document.getElementById("buyerProtectionList");
+
+const checklist =
+    report.buyerProtectionChecklist || [];
+
+if (!protectionList) {
+    console.warn(
+        "buyerProtectionList container missing"
+    );
+    return;
+}
+
+protectionList.innerHTML = "";
 
   checklist.forEach((item) => {
     protectionList.innerHTML += `
@@ -2029,6 +2115,13 @@ requestSiteSurvey();
 
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
+
+    const selectedInstallerId =
+    window.selectedInstallerId || "";
+
+const installerLocked =
+    !!selectedInstallerId;
+    
     if (!container) {
         console.error("Target container 'installerListContainer' missing from DOM.");
         return;
@@ -2061,15 +2154,19 @@ if (selectedInstallerId) {
     `;
 }
 
-    const selectedInstallerId =
-    window.selectedInstallerId || "";
-
 installers.forEach(installer => {
 
     const isSelected =
         installer.installerId === selectedInstallerId;
         
-        const { installerAI, matchReasons, score, businessName, installerType } = installer;
+        const {
+    installerAI = {},
+    matchReasons = [],
+    score = 0,
+    businessName = "Installer",
+    installerType = "Standard"
+} = installer;
+    
         
         const card = document.createElement("div");
         card.className =
@@ -2100,10 +2197,10 @@ installers.forEach(installer => {
             </div>
 
             <div class="grid grid-cols-2 gap-3 mb-5">
-                ${renderMetric("Reliability", installerAI.reliabilityScore)}
-                ${renderMetric("Subsidy Exp.", installerAI.subsidyExpertise)}
-                ${renderMetric("Experience", installerAI.experienceScore)}
-                ${renderMetric("Response", installerAI.responseScore)}
+                ${renderMetric("Reliability", installerAI?.reliabilityScore || 0)}
+                ${renderMetric("Subsidy Exp.", installerAI?.subsidyExpertise || 0)}
+                ${renderMetric("Experience", installerAI?.experienceScore || 0)}
+                ${renderMetric("Response", installerAI?.responseScore || 0)}
             </div>
 
             ${isSelected ? `
@@ -2122,7 +2219,7 @@ installers.forEach(installer => {
     <button
         onclick="selectInstaller(
             '${installer.installerId}',
-            '${businessName.replace(/'/g, "\\'")}'
+            '${String(businessName || "Installer").replace(/'/g, "\\'")}'
         )"
         class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
         Select ${businessName}
