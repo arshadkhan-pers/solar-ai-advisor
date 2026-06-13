@@ -1722,6 +1722,23 @@ if (!result) {
     if (report.matchedInstallers && report.matchedInstallers.length > 0) {
       conciergeCard.classList.add("hidden");
       installerSection.classList.remove("hidden");
+
+        window.installerCache =
+    report.matchedInstallers || [];
+
+window.aiReportCache =
+    report;
+    
+console.log(
+    "INSTALLER CACHE LOADED",
+    window.installerCache
+);
+
+console.log(
+    "SELECTED INSTALLER",
+    window.selectedInstallerId
+);
+        
       renderInstallerCards(report.matchedInstallers);
     } else {
       if (currentStage === "AI_GENERATED" || currentStage === "INITIAL") {
@@ -1734,6 +1751,22 @@ if (!result) {
   } else {
     console.warn("Skipping layout toggle: 'conciergeCard' or 'installerSection' is missing from DOM.");
     if (report.matchedInstallers && report.matchedInstallers.length > 0) {
+        window.installerCache =
+    report.matchedInstallers || [];
+
+window.aiReportCache =
+    report;
+    
+console.log(
+    "INSTALLER CACHE LOADED",
+    window.installerCache
+);
+
+console.log(
+    "SELECTED INSTALLER",
+    window.selectedInstallerId
+);
+        
       renderInstallerCards(report.matchedInstallers);
     }
   }
@@ -2009,6 +2042,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 console.log(aiDoc.data());
 
 window.aiReportCache = aiDoc.data();
+
+            if (
+    window.aiReportCache?.matchedInstallers
+) {
+
+    window.installerCache =
+        window.aiReportCache.matchedInstallers;
+
+    console.log(
+        "FORCED INSTALLER RENDER"
+    );
+
+    renderInstallerCards(
+        window.installerCache
+    );
+}
         } catch (err) {
             console.error("Error syncing platform state:", err);
         }
