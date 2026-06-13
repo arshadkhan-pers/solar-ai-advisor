@@ -2005,6 +2005,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
             }
+            console.log("AI REPORT LOADED", aiDoc.exists);
+console.log(aiDoc.data());
+
+window.aiReportCache = aiDoc.data();
         } catch (err) {
             console.error("Error syncing platform state:", err);
         }
@@ -2222,14 +2226,13 @@ async function selectInstaller(installerId, installerName) {
 
         window.selectedInstallerId = installerId;
 
-        if (
-            aiReportCache &&
-            aiReportCache.matchedInstallers
-        ) {
-            renderInstallerCards(
-                aiReportCache.matchedInstallers
-            );
-        }
+       const installers =
+    window.aiReportCache?.matchedInstallers ||
+    aiReportCache?.matchedInstallers;
+
+if (installers) {
+    renderInstallerCards(installers);
+}
 
         alert(
             `${installerName} selected. Please verify your mobile number to schedule your survey.`
