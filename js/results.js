@@ -1728,11 +1728,6 @@ if (!result) {
 
 window.aiReportCache =
     report;
-    
-console.log(
-    "INSTALLER CACHE LOADED",
-    window.installerCache
-);
 
 console.log(
     "SELECTED INSTALLER",
@@ -1756,11 +1751,6 @@ console.log(
 
 window.aiReportCache =
     report;
-    
-console.log(
-    "INSTALLER CACHE LOADED",
-    window.installerCache
-);
 
 console.log(
     "SELECTED INSTALLER",
@@ -2038,8 +2028,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (aiDoc.exists) {
                 aiReportCache = aiDoc.data();
             }
-            console.log("AI REPORT LOADED", aiDoc.exists);
-console.log(aiDoc.data());
 
 window.aiReportCache = aiDoc.data();
 
