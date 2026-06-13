@@ -1587,6 +1587,7 @@ function showPinSetupModal(previousModal, phone) {
 </div>
 `;
 
+setTimeout(() => {document.getElementById("pinInput")?.focus();}, 100);
     document.getElementById('savePinBtn').onclick = async () => {
         const pin = document.getElementById('pinInput').value.trim();
         const confirmPin =
@@ -2214,14 +2215,25 @@ if (window.selectedInstallerId) {
 
         window.selectedInstallerId = installerId;
 
-/* immediately refresh installer cards */
-if (
-    aiReportCache &&
-    aiReportCache.matchedInstallers
-) {
-    renderInstallerCards(
-        aiReportCache.matchedInstallers
-    );
+const installerSection =
+    document.getElementById("installerSection");
+
+if (installerSection) {
+    installerSection.classList.add("hidden");
+
+    requestAnimationFrame(() => {
+
+        installerSection.classList.remove("hidden");
+
+        if (
+            aiReportCache &&
+            aiReportCache.matchedInstallers
+        ) {
+            renderInstallerCards(
+                aiReportCache.matchedInstallers
+            );
+        }
+    });
 }
 
 alert(
