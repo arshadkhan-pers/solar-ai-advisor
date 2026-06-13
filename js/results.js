@@ -1750,6 +1750,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (leadDoc.exists) {
                 const leadData = leadDoc.data();
                 
+                window.selectedInstallerId = leadData.assignedInstallerId || "";
+                
                 const currentStage = leadData.stage || "INITIAL";
             // Show consent withdrawal only for active customers
 
@@ -1967,6 +1969,47 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
     }
 }
 
+async function selectInstaller(installerId, installerName) {
+
+    const leadId = localStorage.getItem("leadId");
+
+    if (!leadId) {
+        alert("Lead not found.");
+        return;
+    }
+
+    try {
+
+        await db.collection("leads")
+            .doc(leadId)
+            .update({
+
+                assignedInstallerId: installerId,
+                sharedWithInstaller: true,
+
+                updatedAt:
+                    firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+        alert(
+            `${installerName} selected successfully. Our team will coordinate the next steps.`
+        );
+
+        location.reload();
+
+    } catch (error) {
+
+        console.error(
+            "Installer selection failed:",
+            error
+        );
+
+        alert(
+            "Unable to select installer. Please try again."
+        );
+    }
+}
+
 function renderInstallerCards(installers) {
     const container = document.getElementById("installerListContainer");
     if (!container) {
@@ -1975,7 +2018,14 @@ function renderInstallerCards(installers) {
     }
     container.innerHTML = ""; 
 
-    installers.forEach(installer => {
+    const selectedInstallerId =
+    window.selectedInstallerId || "";
+
+installers.forEach(installer => {
+
+    const isSelected =
+        installer.installerId === selectedInstallerId;
+        
         const { installerAI, matchReasons, score, businessName, installerType } = installer;
         
         const card = document.createElement("div");
@@ -2013,10 +2063,27 @@ function renderInstallerCards(installers) {
                 ${renderMetric("Response", installerAI.responseScore)}
             </div>
 
-            <button onclick="alert('Contacting ${businessName}...')" 
-                    class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
-                WhatsApp ${businessName}
+            ${isSelected ? `
+    <button
+        disabled
+        class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
+        ✓ Installer Selected
+    </button>
+` : `
+    <button
+        onclick="selectInstaller(
+            '${installer.installerId}',
+            '${businessName.replace(/'/g, "\\'")}'
+        )"
+        class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+        Select ${businessName}
+    </button>
+`}
+
+    class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+    Select ${businessName}
             </button>
+
         `;
         container.appendChild(card);
     });
