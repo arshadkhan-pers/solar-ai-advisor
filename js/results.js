@@ -2184,22 +2184,6 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
 
 async function selectInstaller(installerId, installerName) {
 
-const leadDoc =
-    await db.collection("leads")
-        .doc(leadId)
-        .get();
-
-const leadData = leadDoc.data();
-
-if (leadData.assignedInstallerId) {
-
-    alert(
-        "An installer has already been assigned."
-    );
-
-    return;
-}
-
     const leadId = localStorage.getItem("leadId");
 
     if (!leadId) {
@@ -2208,6 +2192,22 @@ if (leadData.assignedInstallerId) {
     }
 
     try {
+
+        // Backend protection against duplicate assignment
+        const leadDoc = await db.collection("leads")
+            .doc(leadId)
+            .get();
+
+        const leadData = leadDoc.data();
+
+        if (leadData?.assignedInstallerId) {
+
+            alert(
+                "An installer has already been assigned."
+            );
+
+            return;
+        }
 
         await db.collection("leads")
             .doc(leadId)
@@ -2222,16 +2222,6 @@ if (leadData.assignedInstallerId) {
 
         window.selectedInstallerId = installerId;
 
-const installerSection =
-    document.getElementById("installerSection");
-
-if (installerSection) {
-    installerSection.classList.add("hidden");
-
-    requestAnimationFrame(() => {
-
-        installerSection.classList.remove("hidden");
-
         if (
             aiReportCache &&
             aiReportCache.matchedInstallers
@@ -2240,14 +2230,12 @@ if (installerSection) {
                 aiReportCache.matchedInstallers
             );
         }
-    });
-}
 
-alert(
-    `${installerName} selected. Please verify your mobile number to schedule your survey.`
-);
+        alert(
+            `${installerName} selected. Please verify your mobile number to schedule your survey.`
+        );
 
-requestSiteSurvey();
+        requestSiteSurvey();
 
     } catch (error) {
 
@@ -2276,10 +2264,6 @@ const installerLocked =
         return;
     }
     container.innerHTML = ""; 
-
-if (selectedInstallerId) {
-    container.innerHTML = "";
-}
 
 installers.forEach(installer => {
 
