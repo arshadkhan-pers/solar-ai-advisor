@@ -2184,10 +2184,17 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
 
 async function selectInstaller(installerId, installerName) {
 
-if (window.selectedInstallerId) {
+const leadDoc =
+    await db.collection("leads")
+        .doc(leadId)
+        .get();
+
+const leadData = leadDoc.data();
+
+if (leadData.assignedInstallerId) {
 
     alert(
-        "An installer has already been assigned to this project."
+        "An installer has already been assigned."
     );
 
     return;
