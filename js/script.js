@@ -628,44 +628,96 @@ async function submitLeadAndContinue(event) {
         .get();
   
     if (!snapshot.empty) {
-        console.log("🔄 Existing user detected. Hydrating state and redirecting directly...");
-        const existingLeadDoc = snapshot.docs[0];
-        const existingData = existingLeadDoc.data();
 
-        localStorage.setItem("leadId", existingLeadDoc.id);
-        localStorage.setItem("leadCode", existingData.leadCode || "");
-        localStorage.setItem("state", existingData.state || "");
-        localStorage.setItem("leadStage", existingData.stage || "INITIAL");
-        localStorage.setItem("leadName", existingData.name || "Homeowner");
-        localStorage.setItem("leadPhone", existingData.phone || phone);
-        localStorage.setItem("leadCity", existingData.city || "");
-        localStorage.setItem("bill", existingData.bill || bill);
-        // Restore original calculation mode
-        localStorage.setItem(
-          "calculationMode",
-          existingData.calculationMode || "bill"
+    const existingLeadDoc =
+        snapshot.docs[0];
+
+    const existingData =
+        existingLeadDoc.data();
+
+    if (
+        existingData.loginDisabled === true
+    ) {
+
+        alert(
+          "This account has been permanently deleted because consent was withdrawn."
         );
-        
-        if (
-          existingData.calculationMode === "kw" &&
-          existingData.systemSizeKw
-        ) {
-          localStorage.setItem(
-            "selectedKw",
-            existingData.systemSizeKw
-          );
-        } else {
-          localStorage.removeItem("selectedKw");
-        }
-        window.location.href =
-`results.html?bill=${existingData.bill}` +
-`&systemSizeKw=${existingData.systemSizeKw || ""}` +
-`&state=${existingData.state}` +
-`&name=${encodeURIComponent(existingData.name)}` +
-`&phone=${encodeURIComponent(existingData.phone)}` +
-`&city=${encodeURIComponent(existingData.city || "")}`;
+
+        submitBtn.disabled = false;
+        submitBtn.innerText =
+            "Show My Savings Report";
+
         return;
     }
+
+    document
+        .getElementById("leadPopup")
+        ?.classList.add("hidden");
+
+    triggerPinVerification(
+        phone,
+        null,
+        (
+            serverLeadId,
+            serverProfile
+        ) => {
+
+            localStorage.setItem(
+                "leadId",
+                serverLeadId
+            );
+
+            localStorage.setItem(
+                "leadCode",
+                serverProfile.leadCode || ""
+            );
+
+            localStorage.setItem(
+                "state",
+                serverProfile.state || ""
+            );
+
+            localStorage.setItem(
+                "leadStage",
+                serverProfile.stage || "INITIAL"
+            );
+
+            localStorage.setItem(
+                "leadName",
+                serverProfile.name || "Homeowner"
+            );
+
+            localStorage.setItem(
+                "leadPhone",
+                serverProfile.phone || phone
+            );
+
+            localStorage.setItem(
+                "leadCity",
+                serverProfile.city || ""
+            );
+
+            localStorage.setItem(
+                "bill",
+                serverProfile.bill || bill
+            );
+
+            window.location.href =
+`results.html?bill=${serverProfile.bill}` +
+`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
+`&state=${serverProfile.state}` +
+`&name=${encodeURIComponent(serverProfile.name)}` +
+`&phone=${encodeURIComponent(serverProfile.phone)}` +
+`&city=${encodeURIComponent(serverProfile.city || "")}`;
+        }
+    );
+
+    submitBtn.disabled = false;
+    submitBtn.innerText =
+        "Show My Savings Report";
+
+    return;
+}
 
     // Process new database transaction entry records
     const leadType = getLeadType(parseFloat(bill));
