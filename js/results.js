@@ -2139,12 +2139,7 @@ const installerLocked =
     container.innerHTML = ""; 
 
 if (selectedInstallerId) {
-
-    container.innerHTML = `
-        <div class="mb-4 text-sm text-slate-500">
-            Need assistance? Contact Solar AI Advisor Support on WhatsApp.
-        </div>
-    `;
+    container.innerHTML = "";
 }
 
 installers.forEach(installer => {
@@ -2168,10 +2163,16 @@ installers.forEach(installer => {
         
         card.innerHTML = `
         ${isSelected ? `
-<div class="mb-4">
+<div class="mb-4 space-y-3">
+
     <span class="inline-flex items-center gap-2 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
         🏆 AI Recommended Installer Selected
     </span>
+
+    <div class="text-xs text-slate-500">
+        Need assistance? Contact Solar AI Advisor Support on WhatsApp.
+    </div>
+
 </div>
 ` : ""}
             <div class="flex justify-between items-start mb-4">
