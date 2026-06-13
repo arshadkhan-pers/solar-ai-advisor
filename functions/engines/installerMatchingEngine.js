@@ -17,9 +17,11 @@ async function calculateInstallerMatches({
   try {
 
     const installersSnapshot =
-      await db.collection("installers")
-        .where("status", "==", "approved")
-        .get();
+  await db.collection("installers")
+    .where("status", "==", "approved")
+    .where("state", "==", state)
+    .where("baseCity", "==", city)
+    .get();
 
     installersSnapshot.forEach((doc) => {
 
@@ -33,29 +35,37 @@ async function calculateInstallerMatches({
       let installerScore = 20;
       const matchReasons = [];
 
-      // STATE MATCH
-      if (
-  installer.state === state
-) {
-
-  installerScore += 15;
-
-  matchReasons.push(
-    "Strong regional presence"
-  );
-}
-      // CITY MATCH
-      const serviceAreas =
-        installer.baseCity || [];
+      // =======================
+// STATE MATCH
+// =======================
 
 if (
-  serviceAreas.includes(city)
+  installer.state &&
+  installer.state.toLowerCase().trim() ===
+  state.toLowerCase().trim()
 ) {
 
-  installerScore += 20;
+  installerScore += 10;
 
   matchReasons.push(
-    "Strong service coverage in your city"
+    "Operates in your state"
+  );
+}
+
+// =======================
+// CITY MATCH
+// =======================
+
+if (
+  installer.baseCity &&
+  installer.baseCity.toLowerCase().trim() ===
+  city.toLowerCase().trim()
+) {
+
+  installerScore += 25;
+
+  matchReasons.push(
+    "Located in your city"
   );
 }
       // FINANCING MATCH
