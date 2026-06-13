@@ -22,6 +22,25 @@ function setupRealTimeTimeline(explicitLeadId = null) {
         .onSnapshot((doc) => {
             if (doc.exists) {
                 const data = doc.data();
+                if (
+    typeof window !== "undefined" &&
+    data.assignedInstallerId
+) {
+
+    window.selectedInstallerId =
+        data.assignedInstallerId;
+
+    if (
+        typeof renderInstallerCards === "function" &&
+        window.installerCache?.length
+    ) {
+
+        renderInstallerCards(
+            window.installerCache
+        );
+
+    }
+}
                 const latestStage = data.stage || "INITIAL";
 
                 console.log("🔄 Real-time stage update detected:", latestStage);
