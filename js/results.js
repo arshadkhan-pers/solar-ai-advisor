@@ -360,7 +360,7 @@ function updateRoadmap(stage, leadData = null) {
             unlockBtn.classList.add("opacity-50", "cursor-not-allowed");
             unlockBtn.classList.remove("hover:bg-indigo-700", "hover:-translate-y-0.5");
         } else {
-            unlockBtn.innerText = "Unlock My AI Solar Analysis";
+            unlockBtn.innerText = "See Your AI Solar Analysis";
             unlockBtn.classList.remove("opacity-50", "cursor-not-allowed");
             unlockBtn.classList.add("hover:bg-indigo-700", "hover:-translate-y-0.5");
         }
