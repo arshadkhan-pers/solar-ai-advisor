@@ -1977,6 +1977,15 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
 
 async function selectInstaller(installerId, installerName) {
 
+if (window.selectedInstallerId) {
+
+    alert(
+        "An installer has already been assigned to this project."
+    );
+
+    return;
+}
+
     const leadId = localStorage.getItem("leadId");
 
     if (!leadId) {
@@ -2025,6 +2034,32 @@ function renderInstallerCards(installers) {
         return;
     }
     container.innerHTML = ""; 
+
+if (selectedInstallerId) {
+
+    container.innerHTML = `
+        <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+                <div class="text-xl">🔒</div>
+                <div>
+                    <h3 class="font-bold text-emerald-900">
+                        Installer Allocation Confirmed
+                    </h3>
+
+                    <p class="text-sm text-emerald-700 mt-1">
+                        Your installer has already been assigned and notified.
+                        To prevent duplicate survey requests and scheduling
+                        conflicts, installer selection is now locked.
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-2">
+                        Need assistance? Contact Solar AI Advisor Support on WhatsApp.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
     const selectedInstallerId =
     window.selectedInstallerId || "";
@@ -2076,6 +2111,12 @@ installers.forEach(installer => {
         disabled
         class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
         ✓ Installer Selected
+    </button>
+` : installerLocked ? `
+    <button
+        disabled
+        class="w-full bg-slate-300 text-slate-500 py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
+        Installer Locked
     </button>
 ` : `
     <button
