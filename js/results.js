@@ -48,8 +48,9 @@ async function validateSession() {
       result.data.leadId;
 
     const profile =
-  result.data.profile;
+  result.data.profile || {};
 
+// Core recovery data
 localStorage.setItem(
   "leadStage",
   profile.stage || "INITIAL"
@@ -64,6 +65,46 @@ localStorage.setItem(
   "bill",
   profile.bill || 1500
 );
+
+localStorage.setItem(
+  "leadName",
+  profile.name || "Homeowner"
+);
+
+localStorage.setItem(
+  "leadPhone",
+  profile.phone || ""
+);
+
+localStorage.setItem(
+  "leadCity",
+  profile.city || ""
+);
+
+localStorage.setItem(
+  "leadCode",
+  profile.leadCode || ""
+);
+
+// Calculation mode recovery
+localStorage.setItem(
+  "calculationMode",
+  profile.calculationMode || "bill"
+);
+
+if (
+  profile.calculationMode === "kw" &&
+  profile.systemSizeKw
+) {
+  localStorage.setItem(
+    "selectedKw",
+    profile.systemSizeKw
+  );
+} else {
+  localStorage.removeItem(
+    "selectedKw"
+  );
+}
     
     return true;
 
