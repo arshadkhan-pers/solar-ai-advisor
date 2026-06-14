@@ -199,25 +199,24 @@ async function handleSignInSubmit() {
     const existingLeadDoc = snapshot.docs[0];
     const existingData = existingLeadDoc.data();
 
-        if (
-    existingData.consentWithdrawn === true ||
-    existingData.processingDisabled === true ||
-    existingData.loginDisabled === true ||
-    existingData.stage === "CONSENT_WITHDRAWN"
-) {
+    if (
+        existingData.consentWithdrawn === true ||
+        existingData.processingDisabled === true ||
+        existingData.loginDisabled === true ||
+        existingData.stage === "CONSENT_WITHDRAWN"
+    ) {
 
-    alert(
-      "Your previous request was deleted after consent withdrawal. Please start a new solar assessment."
-    );
+        alert(
+          "Your previous request was deleted after consent withdrawal. Please start a new solar assessment."
+        );
 
-    btn.innerText = "Continue";
-    btn.disabled = false;
+        btn.innerText = "Continue";
+        btn.disabled = false;
 
-    return;
-}
-}
-        
-        if (!existingData.pinHash) {
+        return;
+    }
+
+    if (!existingData.pinHash) {
 
     localStorage.setItem("leadId", existingLeadDoc.id);
     localStorage.setItem("leadCode", existingData.leadCode || "");
@@ -910,12 +909,12 @@ console.log(
 );
         
       window.location.href =
-`results.html?bill=${existingData.bill || ""}` +
-`&systemSizeKw=${existingData.systemSizeKw || ""}` +
-`&state=${existingData.state || "UP"}` +
-`&name=${encodeURIComponent(existingData.name || "Homeowner")}` +
-`&phone=${encodeURIComponent(existingData.phone || phone)}` +
-`&city=${encodeURIComponent(existingData.city || "")}`;
+`results.html?bill=${serverProfile.bill || ""}` +
+`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
+`&state=${serverProfile.state || "UP"}` +
+`&name=${encodeURIComponent(serverProfile.name || "Homeowner")}` +
+`&phone=${encodeURIComponent(serverProfile.phone || phone)}` +
+`&city=${encodeURIComponent(serverProfile.city || "")}`;
     }
   );
 
@@ -982,7 +981,7 @@ window.location.href =
 `&name=${encodeURIComponent(name || "Homeowner")}` +
 `&email=${encodeURIComponent(email)}` +
 `&phone=${encodeURIComponent(phone)}` +
-`&city=`;
+`&city=${encodeURIComponent(resolvedCity)}`;
 
   } catch (error) {
     console.error("Firestore Transaction Error:", error);
