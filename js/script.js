@@ -218,7 +218,7 @@ async function handleSignInSubmit() {
     document.getElementById('signInModal')?.classList.add('hidden');
 
     // Fire PIN entry screen
-    triggerPinVerification(phone, null, (serverLeadId, serverProfile) => {
+    triggerPinVerification(phone, null, async (serverLeadId, serverProfile) => {
             
             // Hydrate local cache stores strictly from backend returned safe fields
             localStorage.setItem("leadId", serverLeadId);
@@ -685,6 +685,56 @@ async function submitLeadAndContinue(event) {
         "leadId",
         serverLeadId
       );
+
+    localStorage.setItem(
+        "leadCode",
+        serverProfile.leadCode || ""
+        );
+        
+    localStorage.setItem(
+        "leadName",
+        serverProfile.name || "Homeowner"
+        );
+
+        localStorage.setItem(
+                "leadPhone",
+                serverProfile.phone || phone
+            );
+        
+    localStorage.setItem(
+        "leadStage",
+        serverProfile.stage || "INITIAL"
+        );
+
+        localStorage.setItem(
+          "state",
+          serverProfile.state || "UP"
+        );
+
+    localStorage.setItem(
+      "bill",
+      serverProfile.bill || 1500
+    );
+    
+    localStorage.setItem(
+      "leadCity",
+      serverProfile.city || ""
+    );
+    
+    localStorage.setItem(
+      "calculationMode",
+      serverProfile.calculationMode || "bill"
+    );
+    
+    if (
+      serverProfile.calculationMode === "kw" &&
+      serverProfile.systemSizeKw
+    ) {
+      localStorage.setItem(
+        "selectedKw",
+        serverProfile.systemSizeKw
+      );
+    }
 
       window.location.href =
         `results.html`;
