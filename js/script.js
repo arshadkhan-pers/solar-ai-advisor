@@ -320,13 +320,15 @@ localStorage.setItem(
 );
         
             // Complete user session handoff 
-            window.location.href =
+/*            window.location.href =
 `results.html?bill=${serverProfile.bill}` +
 `&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
 `&state=${serverProfile.state}` +
 `&name=${encodeURIComponent(serverProfile.name)}` +
 `&phone=${encodeURIComponent(serverProfile.phone)}` +
-`&city=${encodeURIComponent(serverProfile.city || "")}`;
+`&city=${encodeURIComponent(serverProfile.city || "")}`; */
+
+        window.location.href = "results.html";
 
         });
     } else {
@@ -808,14 +810,15 @@ console.log(
   "inside submitLeadAndContinue SESSION TOKEN",
   sessionResult?.data?.sessionToken
 );
-        window.location.href =
+/*        window.location.href =
 `results.html?bill=${existingData.bill || ""}` +
 `&systemSizeKw=${existingData.systemSizeKw || ""}` +
 `&state=${existingData.state || "UP"}` +
 `&name=${encodeURIComponent(existingData.name || "Homeowner")}` +
 `&phone=${encodeURIComponent(existingData.phone || phone)}` +
 `&city=${encodeURIComponent(existingData.city || "")}`;
-
+*/
+window.location.href = "results.html";
         return;
     }
 
@@ -921,7 +924,7 @@ console.log(
   "USER HAS PIN SESSION TOKEN",
   sessionResult?.data?.sessionToken
 );
-        
+   /*    
       window.location.href =
 `results.html?bill=${serverProfile.bill || ""}` +
 `&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
@@ -929,6 +932,9 @@ console.log(
 `&name=${encodeURIComponent(serverProfile.name || "Homeowner")}` +
 `&phone=${encodeURIComponent(serverProfile.phone || phone)}` +
 `&city=${encodeURIComponent(serverProfile.city || "")}`;
+
+*/
+        window.location.href = "results.html";
     }
   );
 
@@ -1001,6 +1007,7 @@ console.log(
     const selectedKw =
   localStorage.getItem("selectedKw") || "";
 
+      /*
 window.location.href =
 `results.html?bill=${bill}` +
 `&systemSizeKw=${selectedKw}` +
@@ -1010,6 +1017,9 @@ window.location.href =
 `&phone=${encodeURIComponent(phone)}` +
 `&city=${encodeURIComponent(resolvedCity)}`;
 
+*/
+      window.location.href = "results.html";
+      
   } catch (error) {
     console.error("Firestore Transaction Error:", error);
     submitBtn.disabled = false;
