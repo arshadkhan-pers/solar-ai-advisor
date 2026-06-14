@@ -742,7 +742,15 @@ localStorage.setItem(
   "sessionToken",
   sessionResult.data.sessionToken
 );
-        
+        console.log(
+  "inside submitLeadAndContinue SESSION RESULT",
+  sessionResult
+);
+
+console.log(
+  "inside submitLeadAndContinue SESSION TOKEN",
+  sessionResult?.data?.sessionToken
+);
         window.location.href =
             "results.html";
 
@@ -842,6 +850,16 @@ localStorage.setItem(
       );
     }
 
+        console.log(
+  "USER HAS PIN SESSION RESULT",
+  sessionResult
+);
+
+console.log(
+  "USER HAS PIN SESSION TOKEN",
+  sessionResult?.data?.sessionToken
+);
+        
       window.location.href =
         `results.html`;
     }
