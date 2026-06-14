@@ -223,6 +223,7 @@ async function handleSignInSubmit() {
     localStorage.setItem("leadName", existingData.name || "Homeowner");
     localStorage.setItem("leadPhone", existingData.phone || phone);
     localStorage.setItem("leadStage", existingData.stage || "INITIAL");
+    localStorage.setItem("leadCity", existingData.city || "");
     localStorage.setItem("state", existingData.state || "UP");
     localStorage.setItem("bill", existingData.bill || 1500);
 
@@ -244,7 +245,20 @@ localStorage.setItem(
   sessionResult.data.sessionToken
 );
             
-    window.location.href = `results.html`;
+    localStorage.setItem("calculationMode",
+  existingData.calculationMode || "bill");
+
+if (
+  existingData.calculationMode === "kw" &&
+  existingData.systemSizeKw
+) {
+  localStorage.setItem(
+    "selectedKw",
+    existingData.systemSizeKw
+  );
+}
+
+window.location.href = "results.html";
     return;
 }
         
