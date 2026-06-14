@@ -247,6 +247,24 @@ async function handleSignInSubmit() {
               localStorage.removeItem("selectedKw");
             }
 
+        const createSession =
+firebase
+  .app()
+  .functions("asia-south2")
+  .httpsCallable(
+    "createLeadSession"
+  );
+
+const sessionResult =
+await createSession({
+  leadId: serverLeadId
+});
+
+localStorage.setItem(
+  "sessionToken",
+  sessionResult.data.sessionToken
+);
+        
             // Complete user session handoff 
             window.location.href =
 `results.html?bill=${serverProfile.bill}` +
