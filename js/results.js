@@ -6,6 +6,27 @@ async function validateSession() {
   const token = localStorage.getItem("sessionToken");
   const leadId = localStorage.getItem("leadId");
 
+  console.log("========== SESSION DEBUG ==========");
+console.log("LOCAL leadId:", leadId);
+console.log("LOCAL sessionToken:", token);
+
+try {
+  const leadDoc =
+    leadId
+      ? await db.collection("leads")
+          .doc(leadId)
+          .get()
+      : null;
+
+  console.log(
+    "LOCAL LEAD DOC:",
+    leadDoc?.data()
+  );
+} catch(e) {
+  console.error(e);
+}
+  
+
   // NEW USER FLOW
   if (!token && leadId) {
     return true;
@@ -30,6 +51,22 @@ async function validateSession() {
       await validate({
         sessionToken: token
       });
+
+    console.log(
+  "SESSION VALIDATION RESULT:",
+  result.data
+);
+
+console.log(
+  "SESSION leadId:",
+  result.data?.leadId
+);
+
+console.log(
+  "SESSION profile:",
+  result.data?.profile
+);
+    
 
     if (
       !result.data ||
