@@ -339,8 +339,7 @@ function formatIndianCurrency(num) {
 }
 
 function getStateFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("state") || "UP";
+  return localStorage.getItem("state") || "UP";
 }
 
 function getBill() {
@@ -2303,9 +2302,16 @@ if (kwSelector) {
 }
 
    // 1. Capture the true State & City from the URL or Local Session
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetState = urlParams.get("state") || localStorage.getItem("leadState") || localStorage.getItem("state") || "UP";
-    const targetCity = urlParams.get("city") || localStorage.getItem("leadCity") || localStorage.getItem("verifiedCity") || "";
+    
+    const targetState =
+    localStorage.getItem("leadState") ||
+    localStorage.getItem("state") ||
+    "UP";
+
+const targetCity =
+    localStorage.getItem("leadCity") ||
+    localStorage.getItem("verifiedCity") ||
+    "";
     
     if (typeof LocationHandler !== "undefined" && LocationHandler.init) {
         // 2. Await the native handler, but pass it our strict targetState
@@ -2628,14 +2634,6 @@ async function executeLiveLocationPivot(newPincode) {
   localStorage.setItem("state", standardStateKey);
   localStorage.setItem("leadCity", targetDistrict);
 
-  // 2. Refresh browser parameters silently without breaking state trackers
-  const activeParams = new URLSearchParams(window.location.search);
-  activeParams.set("state", standardStateKey);
-  activeParams.set("city", targetDistrict);
-  
-  const updatedUrlStructure = `${window.location.pathname}?${activeParams.toString()}`;
-  window.history.replaceState({}, '', updatedUrlStructure);
-
   // 3. Fire the localized subsidy banner if state configuration entries apply
   if (typeof renderDynamicSubsidyTeaserCard === "function") {
     renderDynamicSubsidyTeaserCard(standardStateKey, targetDistrict);
@@ -2682,8 +2680,8 @@ function renderDynamicSubsidyTeaserCard(stateCode, city) {
 // 🏎️ AUTOMATED HYDRATION EXECUTION ON RESULTS PAGE ENTRY
 // =====================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  const currentUrlParams = new URLSearchParams(window.location.search);
-  const urlCity = currentUrlParams.get("city");
+  const urlCity =
+    localStorage.getItem("leadCity");
   const storedPincode = localStorage.getItem("pincode");
 
   // If the URL has an empty city parameter, resolve it instantly via local cache mapping
