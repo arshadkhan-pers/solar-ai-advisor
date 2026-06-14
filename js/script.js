@@ -199,16 +199,22 @@ async function handleSignInSubmit() {
     const existingLeadDoc = snapshot.docs[0];
     const existingData = existingLeadDoc.data();
 
-        if (existingData.loginDisabled === true) {
+        if (
+    existingData.consentWithdrawn === true ||
+    existingData.processingDisabled === true ||
+    existingData.loginDisabled === true ||
+    existingData.stage === "CONSENT_WITHDRAWN"
+) {
 
     alert(
-      "This account has been permanently deleted because consent was withdrawn. Please create a new solar assessment."
+      "Your previous request was deleted after consent withdrawal. Please start a new solar assessment."
     );
 
     btn.innerText = "Continue";
     btn.disabled = false;
 
     return;
+}
 }
         
         if (!existingData.pinHash) {
@@ -684,6 +690,23 @@ async function submitLeadAndContinue(event) {
         const existingLeadDoc = snapshot.docs[0];
 
     const existingData = existingLeadDoc.data();
+    // ====================================
+// DPDP CONSENT WITHDRAWAL PROTECTION
+// ====================================
+
+if (
+    existingData.consentWithdrawn === true ||
+    existingData.processingDisabled === true ||
+    existingData.loginDisabled === true ||
+    existingData.stage === "CONSENT_WITHDRAWN"
+) {
+
+    console.log(
+        "Withdrawn lead detected. Creating fresh lead."
+    );
+
+} else {
+    
         // --------------------------------
     // USER HAS NO PIN YET
     // --------------------------------
@@ -898,12 +921,15 @@ console.log(
 
   return;
 }
-
+}
     // Process new database transaction entry records
     const leadType = getLeadType(parseFloat(bill));
     const leadCode = generateLeadCode(phone);
     const resolvedState = getStateFromPin(pincode);
-    const resolvedCity = "Not Provided"; 
+    const resolvedCity =
+    window.verifiedCity ||
+    localStorage.getItem("verifiedCity") ||
+    "Not Provided";
 
     const docRef = await db.collection("leads").add({
       name: name || "Homeowner", 
