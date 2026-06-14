@@ -2183,6 +2183,30 @@ window.aiReportCache =
     }
 
     setupBillUpload();
+    const params =
+new URLSearchParams(
+    window.location.search
+);
+
+const systemSizeKw =
+params.get("systemSizeKw");
+
+if (
+    systemSizeKw &&
+    parseFloat(systemSizeKw) > 0
+) {
+
+    localStorage.setItem(
+        "selectedKw",
+        systemSizeKw
+    );
+
+    localStorage.setItem(
+        "calculationMode",
+        "kw"
+    );
+}
+    
     populateCapturedData();
     setupEditableInputs();
 
