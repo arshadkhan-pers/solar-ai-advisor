@@ -2,6 +2,7 @@
 
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
@@ -666,6 +667,133 @@ if (
         : `Incorrect PIN code. You have ${attemptsLeft} attempts remaining.`
     );
   }
+});
+
+// =====================================================================
+// 🔒 CREATE SECURE LEAD SESSION
+// =====================================================================
+
+exports.createLeadSession = onCall(
+{
+  region: "asia-south2"
+},
+async (request) => {
+
+  const { leadId } = request.data;
+
+  if (!leadId) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Lead ID missing."
+    );
+  }
+
+  const leadDoc =
+    await admin.firestore()
+      .collection("leads")
+      .doc(leadId)
+      .get();
+
+  if (!leadDoc.exists) {
+    throw new HttpsError(
+      "not-found",
+      "Lead not found."
+    );
+  }
+
+  const sessionToken =
+    crypto.randomBytes(32).toString("hex");
+
+  const expiresAt =
+    admin.firestore.Timestamp.fromDate(
+      new Date(
+        Date.now() +
+        (30 * 24 * 60 * 60 * 1000)
+      )
+    );
+
+  await admin.firestore()
+    .collection("lead_sessions")
+    .doc(sessionToken)
+    .set({
+      leadId,
+      active: true,
+      createdAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt
+    });
+
+  return {
+    success: true,
+    sessionToken
+  };
+});
+
+// =====================================================================
+// 🔒 VALIDATE SESSION
+// =====================================================================
+
+exports.validateLeadSession = onCall(
+{
+  region: "asia-south2"
+},
+async (request) => {
+
+  const { sessionToken } =
+    request.data;
+
+  if (!sessionToken) {
+
+    return {
+      valid: false
+    };
+  }
+
+  const sessionDoc =
+    await admin.firestore()
+      .collection("lead_sessions")
+      .doc(sessionToken)
+      .get();
+
+  if (!sessionDoc.exists) {
+
+    return {
+      valid: false
+    };
+  }
+
+  const session =
+    sessionDoc.data();
+
+  if (
+    !session.active ||
+    !session.expiresAt ||
+    session.expiresAt.toDate() < new Date()
+  ) {
+
+    return {
+      valid: false
+    };
+  }
+
+  const leadDoc =
+    await admin.firestore()
+      .collection("leads")
+      .doc(session.leadId)
+      .get();
+
+  if (!leadDoc.exists) {
+
+    return {
+      valid: false
+    };
+  }
+
+  return {
+    valid: true,
+    leadId: session.leadId,
+    profile: leadDoc.data()
+  };
 });
 
 // =====================================================================
