@@ -291,9 +291,10 @@ function getStateFromURL() {
   return params.get("state") || "UP";
 }
 
-function getBillFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return parseFloat(params.get("bill")) || 0;
+function getBill() {
+  return parseFloat(
+    localStorage.getItem("bill")
+  ) || 0;
 }
 
 // ===============================
@@ -914,7 +915,7 @@ function openWhatsApp() {
 
   } else {
 
-    bill = getBillFromURL();
+    bill = getBill();
   }
 
   const result = calculateSolar(bill);
@@ -927,18 +928,17 @@ function openWhatsApp() {
 
   const customerName =
     document.getElementById("capturedName")?.value?.trim() ||
-    new URLSearchParams(window.location.search).get("name") ||
+    localStorage.getItem("leadName") ||
     "Homeowner";
-
+  
   const phone =
     document.getElementById("capturedPhone")?.value ||
     localStorage.getItem("billPhone") ||
     "N/A";
 
-  const city =
+ const city =
     document.getElementById("resCity")?.value ||
     localStorage.getItem("leadCity") ||
-    new URLSearchParams(window.location.search).get("city") ||
     "N/A";
 
   const pincode =
@@ -1077,9 +1077,9 @@ if (calculationMode === "kw") {
     document.getElementById("capturedBill")?.value;
 
   bill =
-    parseFloat(
-      billValue || getBillFromURL()
-    );
+  parseFloat(
+    billValue || getBill()
+  );
 }
 
   const propertyType = document.getElementById("propertyType")?.value;
@@ -1284,7 +1284,6 @@ function setupBillUpload() {
 
 
 function populateCapturedData() {
-  const params = new URLSearchParams(window.location.search);
 
   const name = document.getElementById("capturedName");
   const phone = document.getElementById("capturedPhone");
@@ -1292,19 +1291,18 @@ function populateCapturedData() {
   const bill = document.getElementById("capturedBill");
 
   const rawName =
-    params.get("name") ||
     localStorage.getItem("leadName") ||
     "";
+  
   if (name) name.value = (rawName === "Homeowner" ||!rawName)? "" : decodeURIComponent(rawName);
   if (phone) phone.value =
-    params.get("phone") ||
     localStorage.getItem("leadPhone") ||
     "";
   
   const rawCity =
-    params.get("city") ||
     localStorage.getItem("leadCity") ||
     "";
+  
   if (city) {
     city.value = (rawCity === "N/A" ||!rawCity)? "" : decodeURIComponent(rawCity);
     city.placeholder = "City (e.g., Lucknow)";
@@ -1323,7 +1321,6 @@ if (mode === "kw") {
 
   const restoredKw =
       localStorage.getItem("selectedKw") ||
-      params.get("systemSizeKw") ||
       "3";
 
   setTimeout(() => {
@@ -1341,7 +1338,6 @@ if (mode === "kw") {
   if (bill) {
     bill.classList.remove("hidden");
     bill.value =
-    params.get("bill") ||
     localStorage.getItem("bill") ||
     "";
   }
@@ -1362,12 +1358,21 @@ function setupEditableInputs() {
     const newName = nameInput?.value?.trim() || "";
     const currentState = document.getElementById("resState")?.value || "UP";
 
-    const params = new URLSearchParams(window.location.search);
-    params.set("bill", newBill);
-    params.set("state", currentState); 
-    if (newCity) params.set("city", newCity);
-    if (newName) params.set("name", newName);
-    history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+    localStorage.setItem("bill", newBill);
+
+if (newCity) {
+  localStorage.setItem(
+    "leadCity",
+    newCity
+  );
+}
+
+if (newName) {
+  localStorage.setItem(
+    "leadName",
+    newName
+  );
+}
 
     const result = calculateSolar(newBill, currentState); 
     renderResults(result, newBill);
@@ -2204,30 +2209,6 @@ window.aiReportCache =
     }
 
     setupBillUpload();
-    const params =
-new URLSearchParams(
-    window.location.search
-);
-
-const systemSizeKw =
-params.get("systemSizeKw");
-
-if (
-    systemSizeKw &&
-    parseFloat(systemSizeKw) > 0
-) {
-
-    localStorage.setItem(
-        "selectedKw",
-        systemSizeKw
-    );
-
-    localStorage.setItem(
-        "calculationMode",
-        "kw"
-    );
-}
-    
     populateCapturedData();
     console.log(
   "selectedKw=",
@@ -2254,16 +2235,7 @@ if (kwSelector) {
     const selectedKw = parseFloat(kwSelector.value);
 
     localStorage.setItem("selectedKw", selectedKw);
-    const params =
-  new URLSearchParams(window.location.search);
-
-params.set("systemSizeKw", selectedKw);
-
-history.replaceState(
-  {},
-  "",
-  `${window.location.pathname}?${params.toString()}`
-);
+    
     localStorage.setItem("calculationMode", "kw");
 
     // Keep existing bill-based engine alive
@@ -2352,7 +2324,6 @@ if (mode === "kw") {
   bill =
     parseFloat(billInput?.value) ||
     parseFloat(localStorage.getItem("bill")) ||
-    getBillFromURL() ||
     0;
 }
 
