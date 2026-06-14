@@ -199,11 +199,7 @@ async function handleSignInSubmit() {
     const existingLeadDoc = snapshot.docs[0];
     const existingData = existingLeadDoc.data();
 
-    // ====================================
-    // DPDP CONSENT WITHDRAWAL PROTECTION
-    // ====================================
-
-    if (existingData.loginDisabled === true) {
+        if (existingData.loginDisabled === true) {
 
     alert(
       "This account has been permanently deleted because consent was withdrawn. Please create a new solar assessment."
@@ -214,6 +210,45 @@ async function handleSignInSubmit() {
 
     return;
 }
+        
+        if (!existingData.pinHash) {
+
+    localStorage.setItem("leadId", existingLeadDoc.id);
+    localStorage.setItem("leadCode", existingData.leadCode || "");
+    localStorage.setItem("leadName", existingData.name || "Homeowner");
+    localStorage.setItem("leadPhone", existingData.phone || phone);
+    localStorage.setItem("leadStage", existingData.stage || "INITIAL");
+    localStorage.setItem("state", existingData.state || "UP");
+    localStorage.setItem("bill", existingData.bill || 1500);
+
+            const createSession =
+  firebase
+    .app()
+    .functions("asia-south2")
+    .httpsCallable(
+      "createLeadSession"
+    );
+
+const sessionResult =
+  await createSession({
+    leadId: existingLeadDoc.id
+  });
+
+localStorage.setItem(
+  "sessionToken",
+  sessionResult.data.sessionToken
+);
+            
+    window.location.href = `results.html`;
+    return;
+}
+        
+
+    // ====================================
+    // DPDP CONSENT WITHDRAWAL PROTECTION
+    // ====================================
+
+    
 
     document.getElementById('signInModal')?.classList.add('hidden');
 
@@ -646,6 +681,77 @@ async function submitLeadAndContinue(event) {
         .get();
   
     if (!snapshot.empty) {
+        const existingLeadDoc = snapshot.docs[0];
+
+    const existingData = existingLeadDoc.data();
+        // --------------------------------
+    // USER HAS NO PIN YET
+    // --------------------------------
+
+    if (!existingData.pinHash) {
+
+        localStorage.setItem(
+            "leadId",
+            existingLeadDoc.id
+        );
+
+        localStorage.setItem(
+            "leadCode",
+            existingData.leadCode || ""
+        );
+
+        localStorage.setItem(
+            "leadName",
+            existingData.name || "Homeowner"
+        );
+
+        localStorage.setItem(
+            "leadPhone",
+            existingData.phone || phone
+        );
+
+        localStorage.setItem(
+            "leadStage",
+            existingData.stage || "INITIAL"
+        );
+
+        localStorage.setItem(
+            "state",
+            existingData.state || "UP"
+        );
+
+        localStorage.setItem(
+            "bill",
+            existingData.bill || 1500
+        );
+
+        const createSession =
+  firebase
+    .app()
+    .functions("asia-south2")
+    .httpsCallable(
+      "createLeadSession"
+    );
+
+const sessionResult =
+  await createSession({
+    leadId: existingLeadDoc.id
+  });
+
+localStorage.setItem(
+  "sessionToken",
+  sessionResult.data.sessionToken
+);
+        
+        window.location.href =
+            "results.html";
+
+        return;
+    }
+
+    // --------------------------------
+    // USER HAS PIN
+    // --------------------------------
 
   submitBtn.disabled = false;
   submitBtn.innerText =
