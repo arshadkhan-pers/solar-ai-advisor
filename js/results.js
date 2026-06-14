@@ -1317,13 +1317,22 @@ if (mode === "kw") {
 
   if (bill) bill.classList.add("hidden");
 
-  if (kwField) {
-    kwField.classList.remove("hidden");
-    kwField.value =
+ if (kwField) {
+
+  kwField.classList.remove("hidden");
+
+  const restoredKw =
       localStorage.getItem("selectedKw") ||
       params.get("systemSizeKw") ||
       "3";
-  }
+
+  setTimeout(() => {
+      kwField.value = String(parseFloat(restoredKw));
+      kwField.dispatchEvent(
+          new Event("change", { bubbles: true })
+      );
+  }, 300);
+}
 
 } else {
 
@@ -2220,6 +2229,16 @@ if (
 }
     
     populateCapturedData();
+    console.log(
+  "selectedKw=",
+  localStorage.getItem("selectedKw")
+);
+
+console.log(
+  "dropdown value=",
+  document.getElementById("capturedKw")?.value
+);
+    
     setupEditableInputs();
 
 // ======================================
