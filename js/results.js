@@ -47,6 +47,24 @@ async function validateSession() {
     window.currentLeadId =
       result.data.leadId;
 
+    const profile =
+  result.data.profile;
+
+localStorage.setItem(
+  "leadStage",
+  profile.stage || "INITIAL"
+);
+
+localStorage.setItem(
+  "state",
+  profile.state || "UP"
+);
+
+localStorage.setItem(
+  "bill",
+  profile.bill || 1500
+);
+    
     return true;
 
   } catch (e) {
@@ -2101,7 +2119,10 @@ document.addEventListener(
                 aiReportCache = aiDoc.data();
             }
 
-window.aiReportCache = aiDoc.data();
+window.aiReportCache =
+  aiDoc.exists
+    ? aiDoc.data()
+    : null;
 
             if (
     window.aiReportCache?.matchedInstallers
