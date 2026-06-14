@@ -725,6 +725,27 @@ async function submitLeadAndContinue(event) {
             existingData.bill || 1500
         );
 
+        localStorage.setItem(
+  "leadCity",
+  existingData.city || ""
+);
+
+localStorage.setItem(
+  "calculationMode",
+  existingData.calculationMode || "bill"
+);
+
+if (
+  existingData.calculationMode === "kw" &&
+  existingData.systemSizeKw
+) {
+  localStorage.setItem(
+    "selectedKw",
+    existingData.systemSizeKw
+  );
+}
+        
+
         const createSession =
   firebase
     .app()
@@ -752,7 +773,12 @@ console.log(
   sessionResult?.data?.sessionToken
 );
         window.location.href =
-            "results.html";
+`results.html?bill=${existingData.bill || ""}` +
+`&systemSizeKw=${existingData.systemSizeKw || ""}` +
+`&state=${existingData.state || "UP"}` +
+`&name=${encodeURIComponent(existingData.name || "Homeowner")}` +
+`&phone=${encodeURIComponent(existingData.phone || phone)}` +
+`&city=${encodeURIComponent(existingData.city || "")}`;
 
         return;
     }
@@ -861,7 +887,12 @@ console.log(
 );
         
       window.location.href =
-        `results.html`;
+`results.html?bill=${existingData.bill || ""}` +
+`&systemSizeKw=${existingData.systemSizeKw || ""}` +
+`&state=${existingData.state || "UP"}` +
+`&name=${encodeURIComponent(existingData.name || "Homeowner")}` +
+`&phone=${encodeURIComponent(existingData.phone || phone)}` +
+`&city=${encodeURIComponent(existingData.city || "")}`;
     }
   );
 
