@@ -629,94 +629,51 @@ async function submitLeadAndContinue(event) {
   
     if (!snapshot.empty) {
 
-    const existingLeadDoc =
-        snapshot.docs[0];
+  submitBtn.disabled = false;
+  submitBtn.innerText =
+    "Show My Savings Report";
 
-    const existingData =
-        existingLeadDoc.data();
+  document
+    .getElementById("leadPopup")
+    ?.classList.add("hidden");
 
-    if (
-        existingData.loginDisabled === true
-    ) {
+  triggerPinVerification(
+    phone,
+    null,
+    async (
+      serverLeadId,
+      serverProfile
+    ) => {
 
-        alert(
-          "This account has been permanently deleted because consent was withdrawn."
-        );
+      const createSession =
+        firebase
+          .app()
+          .functions("asia-south2")
+          .httpsCallable(
+            "createLeadSession"
+          );
 
-        submitBtn.disabled = false;
-        submitBtn.innerText =
-            "Show My Savings Report";
+      const sessionResult =
+        await createSession({
+          leadId: serverLeadId
+        });
 
-        return;
+      localStorage.setItem(
+        "sessionToken",
+        sessionResult.data.sessionToken
+      );
+
+      localStorage.setItem(
+        "leadId",
+        serverLeadId
+      );
+
+      window.location.href =
+        `results.html`;
     }
+  );
 
-    document
-        .getElementById("leadPopup")
-        ?.classList.add("hidden");
-
-    triggerPinVerification(
-        phone,
-        null,
-        (
-            serverLeadId,
-            serverProfile
-        ) => {
-
-            localStorage.setItem(
-                "leadId",
-                serverLeadId
-            );
-
-            localStorage.setItem(
-                "leadCode",
-                serverProfile.leadCode || ""
-            );
-
-            localStorage.setItem(
-                "state",
-                serverProfile.state || ""
-            );
-
-            localStorage.setItem(
-                "leadStage",
-                serverProfile.stage || "INITIAL"
-            );
-
-            localStorage.setItem(
-                "leadName",
-                serverProfile.name || "Homeowner"
-            );
-
-            localStorage.setItem(
-                "leadPhone",
-                serverProfile.phone || phone
-            );
-
-            localStorage.setItem(
-                "leadCity",
-                serverProfile.city || ""
-            );
-
-            localStorage.setItem(
-                "bill",
-                serverProfile.bill || bill
-            );
-
-            window.location.href =
-`results.html?bill=${serverProfile.bill}` +
-`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
-`&state=${serverProfile.state}` +
-`&name=${encodeURIComponent(serverProfile.name)}` +
-`&phone=${encodeURIComponent(serverProfile.phone)}` +
-`&city=${encodeURIComponent(serverProfile.city || "")}`;
-        }
-    );
-
-    submitBtn.disabled = false;
-    submitBtn.innerText =
-        "Show My Savings Report";
-
-    return;
+  return;
 }
 
     // Process new database transaction entry records
