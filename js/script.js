@@ -944,6 +944,9 @@ console.log(
     localStorage.getItem("verifiedCity") ||
     "Not Provided";
 
+      localStorage.removeItem("sessionToken");
+localStorage.removeItem("leadId");
+      
     const docRef = await db.collection("leads").add({
       name: name || "Homeowner", 
       email: email || "",
@@ -978,6 +981,16 @@ console.log(
     });
     
     localStorage.setItem("leadId", docRef.id);
+      console.log(
+  "NEW LEAD CREATED:",
+  docRef.id
+);
+
+console.log(
+  "SESSION TOKEN AFTER CREATE:",
+  localStorage.getItem("sessionToken")
+);
+      
     localStorage.setItem("leadCode", leadCode); 
     localStorage.setItem("state", resolvedState);
     localStorage.setItem("leadName", name || "Homeowner");
