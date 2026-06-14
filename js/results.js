@@ -3,16 +3,16 @@
 //Validate Session
 async function validateSession() {
 
-  const token =
-    localStorage.getItem(
-      "sessionToken"
-    );
+  const token = localStorage.getItem("sessionToken");
+  const leadId = localStorage.getItem("leadId");
+
+  // NEW USER FLOW
+  if (!token && leadId) {
+    return true;
+  }
 
   if (!token) {
-
-    window.location.href =
-      "index.html";
-
+    window.location.href = "index.html";
     return false;
   }
 
