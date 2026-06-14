@@ -110,20 +110,13 @@ if (
 
   } catch (e) {
 
-    console.error(
-      "Session validation failed",
-      e
-    );
+  console.error(
+    "Session validation failed",
+    e
+  );
 
-    console.log(
-  "VALIDATE RESPONSE",
-  result.data
-);
-    window.location.href =
-      "index.html";
-
-    return false;
-  }
+  return false;
+}
 }
 
 // ===============================
