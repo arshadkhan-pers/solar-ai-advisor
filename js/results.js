@@ -115,6 +115,10 @@ if (
       e
     );
 
+    console.log(
+  "VALIDATE RESPONSE",
+  result.data
+);
     window.location.href =
       "index.html";
 
