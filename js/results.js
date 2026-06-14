@@ -1291,11 +1291,20 @@ function populateCapturedData() {
   const city = document.getElementById("capturedCity");
   const bill = document.getElementById("capturedBill");
 
-  const rawName = params.get("name") || "";
+  const rawName =
+    params.get("name") ||
+    localStorage.getItem("leadName") ||
+    "";
   if (name) name.value = (rawName === "Homeowner" ||!rawName)? "" : decodeURIComponent(rawName);
-  if (phone) phone.value = params.get("phone") || "";
+  if (phone) phone.value =
+    params.get("phone") ||
+    localStorage.getItem("leadPhone") ||
+    "";
   
-  const rawCity = params.get("city") || "";
+  const rawCity =
+    params.get("city") ||
+    localStorage.getItem("leadCity") ||
+    "";
   if (city) {
     city.value = (rawCity === "N/A" ||!rawCity)? "" : decodeURIComponent(rawCity);
     city.placeholder = "City (e.g., Lucknow)";
@@ -1322,7 +1331,10 @@ if (mode === "kw") {
 
   if (bill) {
     bill.classList.remove("hidden");
-    bill.value = params.get("bill") || "";
+    bill.value =
+    params.get("bill") ||
+    localStorage.getItem("bill") ||
+    "";
   }
 }
 }
