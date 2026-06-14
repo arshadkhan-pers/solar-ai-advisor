@@ -1,5 +1,68 @@
 /* eslint-disable max-len */
 
+//Validate Session
+async function validateSession() {
+
+  const token =
+    localStorage.getItem(
+      "sessionToken"
+    );
+
+  if (!token) {
+
+    window.location.href =
+      "index.html";
+
+    return false;
+  }
+
+  try {
+
+    const validate =
+      firebase
+        .app()
+        .functions("asia-south2")
+        .httpsCallable(
+          "validateLeadSession"
+        );
+
+    const result =
+      await validate({
+        sessionToken: token
+      });
+
+    if (
+      !result.data ||
+      !result.data.valid
+    ) {
+
+      localStorage.clear();
+
+      window.location.href =
+        "index.html";
+
+      return false;
+    }
+
+    window.currentLeadId =
+      result.data.leadId;
+
+    return true;
+
+  } catch (e) {
+
+    console.error(
+      "Session validation failed",
+      e
+    );
+
+    window.location.href =
+      "index.html";
+
+    return false;
+  }
+}
+
 // ===============================
 // ✅ CONFIGURATION
 // ===============================
@@ -1973,7 +2036,16 @@ function getStateFromPin(pin) {
 // ===============================
 // 🔹 INITIALIZATION
 // ===============================
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    const sessionOk =
+      await validateSession();
+
+    if (!sessionOk) {
+      return;
+    }
     const leadId = localStorage.getItem("leadId");
 
     if (leadId) {
