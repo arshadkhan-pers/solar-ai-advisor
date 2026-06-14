@@ -50,6 +50,21 @@ async function validateSession() {
     const profile =
   result.data.profile || {};
 
+    console.log(
+  "PROFILE FROM SESSION",
+  JSON.stringify(profile, null, 2)
+);
+
+console.log(
+  "profile.calculationMode =",
+  profile.calculationMode
+);
+
+console.log(
+  "profile.systemSizeKw =",
+  profile.systemSizeKw
+);
+
 // Core recovery data
 localStorage.setItem(
   "leadStage",
