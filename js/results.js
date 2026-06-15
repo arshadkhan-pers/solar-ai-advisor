@@ -904,9 +904,20 @@ const maxCostPerKW =
 
 const minMarketCost =
   Math.round(systemSize * minCostPerKW);
+  
+const avgMarketCost =
+  Math.round(systemSize * costPerKW);
 
 const maxMarketCost =
   Math.round(systemSize * maxCostPerKW);
+  
+  const pricingSpread =
+  Math.round(
+    (
+      (maxMarketCost - minMarketCost)
+      / avgMarketCost
+    ) * 100
+  );
 
   return {
     systemSize: systemSize.toFixed(1),
@@ -923,8 +934,11 @@ const maxMarketCost =
     state,
     solarEmi,
     netMonthlyBenefit,
+    avgMarketCost,
     minMarketCost,
-    maxMarketCost
+    maxMarketCost,
+    pricingSpread,
+    tariff
   };
 }
 
@@ -2122,9 +2136,29 @@ safeSetText(
   const pricingSection = document.getElementById("pricingConfidenceSection");
   pricingSection?.classList.remove("hidden");
 
-  const pricingLevel = report.pricingConfidence?.level || "Moderate";
+  let pricingLevel =
+  report.pricingConfidence?.level || "Moderate";
+
+if (result.pricingSpread <= 10) {
+  pricingLevel = "High";
+}
+else if (result.pricingSpread <= 20) {
+  pricingLevel = "Moderate";
+}
+else {
+  pricingLevel = "Low";
+}
+
   document.getElementById("pricingConfidenceLevel").innerText = pricingLevel;
-  document.getElementById("pricingConfidenceMessage").innerText = report.pricingConfidence?.message || "Estimated pricing appears aligned with expected market ranges.";
+  
+  document.getElementById(
+  "pricingConfidenceMessage"
+).innerText =
+  `Typical ${stateNames[result.state] || result.state}
+  installations currently range between
+  ₹${result.minMarketCost.toLocaleString('en-IN')}
+  and
+  ₹${result.maxMarketCost.toLocaleString('en-IN')}.`;
 
   const pricingBar = document.getElementById("pricingConfidenceBar");
   let pricingWidth = 65;
