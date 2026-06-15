@@ -1008,6 +1008,7 @@ if (calculationMode === "kw") {
   document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings.toLocaleString('en-IN');
   document.getElementById("centralSubsidy").innerText = data.centralSubsidy.toLocaleString('en-IN');
   document.getElementById("stateSubsidy").innerText = data.stateSubsidy.toLocaleString('en-IN');
+  
   const tariffEl =
   document.getElementById("stateTariff");
 
@@ -1016,17 +1017,14 @@ if (tariffEl) {
     `₹${data.tariff}/unit`;
 }
 
-const tariffLabelEl =
+const tariffStateEl =
   document.getElementById(
-    "stateTariffLabel"
+    "stateTariffState"
   );
 
-if (tariffLabelEl) {
-
-  tariffLabelEl.innerText =
-    data.tariff >= 8
-      ? "Higher tariffs improve solar ROI"
-      : "Tariff used for savings calculations";
+if (tariffStateEl) {
+  tariffStateEl.innerText =
+    stateNames[data.state] || data.state;
 }
 
   const emiCard = document.getElementById("dynamicEmiCard");
