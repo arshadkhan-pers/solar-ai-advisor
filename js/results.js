@@ -911,6 +911,18 @@ const avgMarketCost =
 const maxMarketCost =
   Math.round(systemSize * maxCostPerKW);
   
+const minFinalCost =
+  Math.max(
+    0,
+    minMarketCost - totalSubsidy
+  );
+
+const maxFinalCost =
+  Math.max(
+    0,
+    maxMarketCost - totalSubsidy
+  );
+  
   const pricingSpread =
   Math.round(
     (
@@ -937,6 +949,8 @@ const maxMarketCost =
     avgMarketCost,
     minMarketCost,
     maxMarketCost,
+    minFinalCost,
+    maxFinalCost,
     pricingSpread,
     tariff
   };
@@ -983,9 +997,18 @@ if (calculationMode === "kw") {
     `Based on your ₹${bill}/month bill`;
 }
 
-  document.getElementById("totalCost").innerText = data.totalCost.toLocaleString('en-IN');
   document.getElementById("subsidy").innerText = data.subsidy.toLocaleString('en-IN');
-  document.getElementById("finalCost").innerText = data.finalCost.toLocaleString('en-IN');
+  
+  document.getElementById("totalCost")
+  .innerText =
+  `₹${data.minMarketCost.toLocaleString('en-IN')}
+   - ₹${data.maxMarketCost.toLocaleString('en-IN')}`;
+
+document.getElementById("finalCost")
+  .innerText =
+  `₹${data.minFinalCost.toLocaleString('en-IN')}
+   - ₹${data.maxFinalCost.toLocaleString('en-IN')}`;
+  
   document.getElementById("monthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
   document.getElementById("payback").innerText = data.payback;
         const paybackHero = document.getElementById("paybackHero");
