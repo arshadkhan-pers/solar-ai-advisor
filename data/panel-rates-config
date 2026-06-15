@@ -1,0 +1,254 @@
+{
+  "UP": {
+    "state_name": "Uttar Pradesh",
+    "avg_cost_per_kw": 58000,
+    "min_cost_per_kw": 53000,
+    "max_cost_per_kw": 70000,
+    "state_topup_max": 30000
+  },
+  "MH": {
+    "state_name": "Maharashtra",
+    "avg_cost_per_kw": 60000,
+    "min_cost_per_kw": 55000,
+    "max_cost_per_kw": 75000,
+    "state_topup_max": 0
+  },
+  "DL": {
+    "state_name": "Delhi",
+    "avg_tariff": 65000,
+    "min_cost_per_kw": 58000,
+    "max_cost_per_kw": 78000,
+    "state_topup_max": 0
+  },
+  "KA": {
+    "state_name": "Karnataka",
+    "avg_cost_per_kw": 61000,
+    "min_cost_per_kw": 56000,
+    "max_cost_per_kw": 76000,
+    "state_topup_max": 0
+  },
+  "TN": {
+    "state_name": "Tamil Nadu",
+    "avg_cost_per_kw": 59000,
+    "min_cost_per_kw": 54000,
+    "max_cost_per_kw": 74000,
+    "state_topup_max": 0
+  },
+  "GJ": {
+    "state_name": "Gujarat",
+    "avg_cost_per_kw": 54000,
+    "min_cost_per_kw": 50000,
+    "max_cost_per_kw": 68000,
+    "state_topup_max": 0
+  },
+  "RJ": {
+    "state_name": "Rajasthan",
+    "avg_cost_per_kw": 55000,
+    "min_cost_per_kw": 51000,
+    "max_cost_per_kw": 69000,
+    "state_topup_max": 0
+  },
+  "PB": {
+    "state_name": "Punjab",
+    "avg_cost_per_kw": 59000,
+    "min_cost_per_kw": 54000,
+    "max_cost_per_kw": 72000,
+    "state_topup_max": 0
+  },
+  "HR": {
+    "state_name": "Haryana",
+    "avg_cost_per_kw": 58000,
+    "min_cost_per_kw": 53000,
+    "max_cost_per_kw": 71000,
+    "state_topup_max": 0
+  },
+  "WB": {
+    "state_name": "West Bengal",
+    "avg_cost_per_kw": 62000,
+    "min_cost_per_kw": 57000,
+    "max_cost_per_kw": 77000,
+    "state_topup_max": 0
+  },
+  "TS": {
+    "state_name": "Telangana",
+    "avg_cost_per_kw": 60000,
+    "min_cost_per_kw": 55000,
+    "max_cost_per_kw": 75000,
+    "state_topup_max": 0
+  },
+  "AP": {
+    "state_name": "Andhra Pradesh",
+    "avg_cost_per_kw": 59000,
+    "min_cost_per_kw": 54000,
+    "max_cost_per_kw": 73000,
+    "state_topup_max": 0
+  },
+  "KL": {
+    "state_name": "Kerala",
+    "avg_cost_per_kw": 64000,
+    "min_cost_per_kw": 59000,
+    "max_cost_per_kw": 79000,
+    "state_topup_max": 0
+  },
+  "MP": {
+    "state_name": "Madhya Pradesh",
+    "avg_cost_per_kw": 58000,
+    "min_cost_per_kw": 53000,
+    "max_cost_per_kw": 72000,
+    "state_topup_max": 0
+  },
+  "BR": {
+    "state_name": "Bihar",
+    "avg_cost_per_kw": 61000,
+    "min_cost_per_kw": 56000,
+    "max_cost_per_kw": 75000,
+    "state_topup_max": 0
+  },
+  "JH": {
+    "state_name": "Jharkhand",
+    "avg_cost_per_kw": 60000,
+    "min_cost_per_kw": 55000,
+    "max_cost_per_kw": 74000,
+    "state_topup_max": 0
+  },
+  "AS": {
+    "state_name": "Assam",
+    "avg_cost_per_kw": 65000,
+    "min_cost_per_kw": 59000,
+    "max_cost_per_kw": 80000,
+    "state_topup_max": 45000
+  },
+  "OR": {
+    "state_name": "Odisha",
+    "avg_cost_per_kw": 61000,
+    "min_cost_per_kw": 56000,
+    "max_cost_per_kw": 75000,
+    "state_topup_max": 0
+  },
+  "CG": {
+    "state_name": "Chhattisgarh",
+    "avg_cost_per_kw": 58000,
+    "min_cost_per_kw": 53000,
+    "max_cost_per_kw": 72000,
+    "state_topup_max": 0
+  },
+  "UK": {
+    "state_name": "Uttarakhand",
+    "avg_cost_per_kw": 63000,
+    "min_cost_per_kw": 57000,
+    "max_cost_per_kw": 78000,
+    "state_topup_max": 0
+  },
+  "HP": {
+    "state_name": "Himachal Pradesh",
+    "avg_cost_per_kw": 64000,
+    "min_cost_per_kw": 58000,
+    "max_cost_per_kw": 79000,
+    "state_topup_max": 0
+  },
+  "GA": {
+    "state_name": "Goa",
+    "avg_cost_per_kw": 61000,
+    "min_cost_per_kw": 56000,
+    "max_cost_per_kw": 76000,
+    "state_topup_max": 35000
+  },
+  "JK": {
+    "state_name": "Jammu & Kashmir",
+    "avg_cost_per_kw": 66000,
+    "min_cost_per_kw": 60000,
+    "max_cost_per_kw": 82000,
+    "state_topup_max": 10000
+  },
+  "LA": {
+    "state_name": "Ladakh",
+    "avg_cost_per_kw": 72000,
+    "min_cost_per_kw": 65000,
+    "max_cost_per_kw": 88000,
+    "state_topup_max": 0
+  },
+  "SK": {
+    "state_name": "Sikkim",
+    "avg_cost_per_kw": 68000,
+    "min_cost_per_kw": 62000,
+    "max_cost_per_kw": 84000,
+    "state_topup_max": 0
+  },
+  "AR": {
+    "state_name": "Arunachal Pradesh",
+    "avg_cost_per_kw": 70000,
+    "min_cost_per_kw": 64000,
+    "max_cost_per_kw": 86000,
+    "state_topup_max": 0
+  },
+  "MN": {
+    "state_name": "Manipur",
+    "avg_cost_per_kw": 69000,
+    "min_cost_per_kw": 63000,
+    "max_cost_per_kw": 85000,
+    "state_topup_max": 0
+  },
+  "ML": {
+    "state_name": "Meghalaya",
+    "avg_cost_per_kw": 68000,
+    "min_cost_per_kw": 62000,
+    "max_cost_per_kw": 84000,
+    "state_topup_max": 0
+  },
+  "MZ": {
+    "state_name": "Mizoram",
+    "avg_cost_per_kw": 69000,
+    "min_cost_per_kw": 63000,
+    "max_cost_per_kw": 85000,
+    "state_topup_max": 0
+  },
+  "NL": {
+    "state_name": "Nagaland",
+    "avg_cost_per_kw": 69000,
+    "min_cost_per_kw": 63000,
+    "max_cost_per_kw": 85000,
+    "state_topup_max": 0
+  },
+  "TR": {
+    "state_name": "Tripura",
+    "avg_cost_per_kw": 67000,
+    "min_cost_per_kw": 61000,
+    "max_cost_per_kw": 83000,
+    "state_topup_max": 0
+  },
+  "CH": {
+    "state_name": "Chandigarh",
+    "avg_cost_per_kw": 58000,
+    "min_cost_per_kw": 53000,
+    "max_cost_per_kw": 70000,
+    "state_topup_max": 0
+  },
+  "PY": {
+    "state_name": "Puducherry",
+    "avg_cost_per_kw": 59000,
+    "min_cost_per_kw": 54000,
+    "max_cost_per_kw": 72000,
+    "state_topup_max": 0
+  },
+  "AN": {
+    "state_name": "Andaman & Nicobar",
+    "avg_cost_per_kw": 75000,
+    "min_cost_per_kw": 68000,
+    "max_cost_per_kw": 92000,
+    "state_topup_max": 0
+  },
+  "LD": {
+    "state_name": "Lakshadweep",
+    "avg_cost_per_kw": 74000,
+    "min_cost_per_kw": 66000,
+    "max_cost_per_kw": 90000,
+    "state_topup_max": 0
+  },
+  "DN": {
+    "state_name": "Dadra & Nagar Haveli and Daman & Diu",
+    "avg_cost_per_kw": 56000,
+    "min_cost_per_kw": 51000,
+    "max_cost_per_kw": 70000,
+    "state_topup_max": 0
+  }
+}
