@@ -15,7 +15,7 @@
   },
   "DL": {
     "state_name": "Delhi",
-    "avg_tariff": 65000,
+    "avg_cost_per_kw": 65000,
     "min_cost_per_kw": 58000,
     "max_cost_per_kw": 78000,
     "state_topup_max": 0
