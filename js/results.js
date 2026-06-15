@@ -865,7 +865,7 @@ const units =
   
   const costPerKW =
   panelRatesConfig[state]
-    ?.avg_cost_per_kw || 60000;
+    ?.avg_cost_per_kw || 55000;
     
   const totalCost = systemSize * costPerKW;
 
