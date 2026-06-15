@@ -324,8 +324,8 @@ async function loadPricingConfigs() {
 
     const [utilityRes, panelRes] =
       await Promise.all([
-        fetch("./data/utility-rates-config.json"),
-        fetch("./data/panel-rates-config.json")
+        fetch("../data/utility-rates-config.json"),
+        fetch("../data/panel-rates-config.json")
       ]);
 
     utilityRatesConfig =
