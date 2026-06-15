@@ -238,6 +238,8 @@ const stateNames = {
   "MP": "Madhya Pradesh"
 };
 
+let utilityRatesConfig = {};
+let panelRatesConfig = {};
 
 // ===============================
 // 🔹 HELPERS
@@ -316,6 +318,34 @@ async function handleUnifiedUpload(file, type, leadId) {
     };
 }
 
+// Load panel and electricity config.jdon files
+async function loadPricingConfigs() {
+  try {
+
+    const [utilityRes, panelRes] =
+      await Promise.all([
+        fetch("./data/utility-rates-config.json"),
+        fetch("./data/panel-rates-config.json")
+      ]);
+
+    utilityRatesConfig =
+      await utilityRes.json();
+
+    panelRatesConfig =
+      await panelRes.json();
+
+    console.log(
+      "✅ Pricing configs loaded"
+    );
+
+  } catch (err) {
+
+    console.error(
+      "Failed loading pricing configs",
+      err
+    );
+  }
+}
 
 // Secure one-way cryptographic SHA-256 hashing engine
 async function hashPin(pin) {
@@ -749,7 +779,13 @@ function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsid
   if (!config) return 0;
 
   if (config.type === "goa_model") {
-    const units = bill / 7;
+    
+    const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
     if (units <= 400) {
       if (systemSize <= 5) {
         const required = totalCost - centralSubsidy;
@@ -792,7 +828,13 @@ function calculateSolar(bill, stateOverride = null) {
   );
 
 if (!systemSize || systemSize <= 0) {
-  const units = bill / 7;
+  
+  const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
   systemSize =
     Math.max(
       1,
@@ -802,7 +844,11 @@ if (!systemSize || systemSize <= 0) {
 
   } else {
 
-    const units = bill / 7;
+    const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
 
     systemSize =
       Math.max(
@@ -811,8 +857,16 @@ if (!systemSize || systemSize <= 0) {
       );
   }
 
-  const units = bill / 7;
-  const costPerKW = 55000;
+  const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
+  const costPerKW =
+  panelRatesConfig[state]
+    ?.avg_cost_per_kw || 55000;
+    
   const totalCost = systemSize * costPerKW;
 
   const centralSubsidy = calculateCentralSubsidy(systemSize, state);
@@ -839,6 +893,20 @@ if (!systemSize || systemSize <= 0) {
   );
 
   const netMonthlyBenefit = Math.round(monthlySavings - solarEmi);
+  
+  const minCostPerKW =
+  panelRatesConfig[state]
+    ?.min_cost_per_kw || costPerKW;
+
+const maxCostPerKW =
+  panelRatesConfig[state]
+    ?.max_cost_per_kw || costPerKW;
+
+const minMarketCost =
+  Math.round(systemSize * minCostPerKW);
+
+const maxMarketCost =
+  Math.round(systemSize * maxCostPerKW);
 
   return {
     systemSize: systemSize.toFixed(1),
@@ -854,10 +922,14 @@ if (!systemSize || systemSize <= 0) {
     lifetimeSavings,
     state,
     solarEmi,
-    netMonthlyBenefit
+    netMonthlyBenefit,
+    minMarketCost,
+    maxMarketCost
   };
 }
 
+
+  
 // ===============================
 // 🔹 RENDER
 // ===============================
@@ -2172,6 +2244,8 @@ function getStateFromPin(pin) {
 document.addEventListener(
   "DOMContentLoaded",
   async () => {
+
+    await loadPricingConfigs();
 
     const sessionOk =
       await validateSession();
