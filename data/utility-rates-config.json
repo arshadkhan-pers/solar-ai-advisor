@@ -1,0 +1,218 @@
+{
+  "UP": {
+    "state_name": "Uttar Pradesh",
+    "avg_tariff": 7.10,
+    "min_tariff": 3.35,
+    "max_tariff": 8.00
+  },
+  "MH": {
+    "state_name": "Maharashtra",
+    "avg_tariff": 9.80,
+    "min_tariff": 4.43,
+    "max_tariff": 14.33
+  },
+  "DL": {
+    "state_name": "Delhi",
+    "avg_tariff": 6.50,
+    "min_tariff": 3.00,
+    "max_tariff": 8.00
+  },
+  "KA": {
+    "state_name": "Karnataka",
+    "avg_tariff": 7.40,
+    "min_tariff": 4.35,
+    "max_tariff": 9.25
+  },
+  "TN": {
+    "state_name": "Tamil Nadu",
+    "avg_tariff": 5.80,
+    "min_tariff": 4.95,
+    "max_tariff": 11.05
+  },
+  "GJ": {
+    "state_name": "Gujarat",
+    "avg_tariff": 5.20,
+    "min_tariff": 3.60,
+    "max_tariff": 7.30
+  },
+  "RJ": {
+    "state_name": "Rajasthan",
+    "avg_tariff": 7.90,
+    "min_tariff": 4.75,
+    "max_tariff": 7.95
+  },
+  "PB": {
+    "state_name": "Punjab",
+    "avg_tariff": 8.60,
+    "min_tariff": 4.00,
+    "max_tariff": 7.50
+  },
+  "HR": {
+    "state_name": "Haryana",
+    "avg_tariff": 7.00,
+    "min_tariff": 2.95,
+    "max_tariff": 7.10
+  },
+  "WB": {
+    "state_name": "West Bengal",
+    "avg_tariff": 8.10,
+    "min_tariff": 4.00,
+    "max_tariff": 11.00
+  },
+  "TS": {
+    "state_name": "Telangana",
+    "avg_tariff": 7.20,
+    "min_tariff": 3.00,
+    "max_tariff": 9.50
+  },
+  "AP": {
+    "state_name": "Andhra Pradesh",
+    "avg_tariff": 5.80,
+    "min_tariff": 3.50,
+    "max_tariff": 8.50
+  },
+  "KL": {
+    "state_name": "Kerala",
+    "avg_tariff": 6.20,
+    "min_tariff": 3.20,
+    "max_tariff": 8.80
+  },
+  "MP": {
+    "state_name": "Madhya Pradesh",
+    "avg_tariff": 6.60,
+    "min_tariff": 3.25,
+    "max_tariff": 8.25
+  },
+  "BR": {
+    "state_name": "Bihar",
+    "avg_tariff": 6.50,
+    "min_tariff": 3.75,
+    "max_tariff": 8.00
+  },
+  "JH": {
+    "state_name": "Jharkhand",
+    "avg_tariff": 6.50,
+    "min_tariff": 3.50,
+    "max_tariff": 7.75
+  },
+  "AS": {
+    "state_name": "Assam",
+    "avg_tariff": 5.80,
+    "min_tariff": 4.50,
+    "max_tariff": 8.00
+  },
+  "OR": {
+    "state_name": "Odisha",
+    "avg_tariff": 5.20,
+    "min_tariff": 3.00,
+    "max_tariff": 7.20
+  },
+  "CG": {
+    "state_name": "Chhattisgarh",
+    "avg_tariff": 5.50,
+    "min_tariff": 3.20,
+    "max_tariff": 7.50
+  },
+  "UK": {
+    "state_name": "Uttarakhand",
+    "avg_tariff": 5.10,
+    "min_tariff": 2.85,
+    "max_tariff": 6.95
+  },
+  "HP": {
+    "state_name": "Himachal Pradesh",
+    "avg_tariff": 4.50,
+    "min_tariff": 0.00,
+    "max_tariff": 5.89
+  },
+  "GA": {
+    "state_name": "Goa",
+    "avg_tariff": 3.60,
+    "min_tariff": 1.50,
+    "max_tariff": 5.50
+  },
+  "JK": {
+    "state_name": "Jammu & Kashmir",
+    "avg_tariff": 4.80,
+    "min_tariff": 2.50,
+    "max_tariff": 6.80
+  },
+  "LA": {
+    "state_name": "Ladakh",
+    "avg_tariff": 4.50,
+    "min_tariff": 2.20,
+    "max_tariff": 6.50
+  },
+  "SK": {
+    "state_name": "Sikkim",
+    "avg_tariff": 4.20,
+    "min_tariff": 2.00,
+    "max_tariff": 6.00
+  },
+  "AR": {
+    "state_name": "Arunachal Pradesh",
+    "avg_tariff": 4.00,
+    "min_tariff": 2.50,
+    "max_tariff": 6.00
+  },
+  "MN": {
+    "state_name": "Manipur",
+    "avg_tariff": 5.80,
+    "min_tariff": 3.50,
+    "max_tariff": 7.50
+  },
+  "ML": {
+    "state_name": "Meghalaya",
+    "avg_tariff": 5.20,
+    "min_tariff": 3.80,
+    "max_tariff": 7.00
+  },
+  "MZ": {
+    "state_name": "Mizoram",
+    "avg_tariff": 5.60,
+    "min_tariff": 3.50,
+    "max_tariff": 7.20
+  },
+  "NL": {
+    "state_name": "Nagaland",
+    "avg_tariff": 5.40,
+    "min_tariff": 3.50,
+    "max_tariff": 7.00
+  },
+  "TR": {
+    "state_name": "Tripura",
+    "avg_tariff": 5.50,
+    "min_tariff": 3.30,
+    "max_tariff": 7.20
+  },
+  "CH": {
+    "state_name": "Chandigarh",
+    "avg_tariff": 4.80,
+    "min_tariff": 2.50,
+    "max_tariff": 6.00
+  },
+  "PY": {
+    "state_name": "Puducherry",
+    "avg_tariff": 4.50,
+    "min_tariff": 2.20,
+    "max_tariff": 7.00
+  },
+  "AN": {
+    "state_name": "Andaman & Nicobar",
+    "avg_tariff": 3.60,
+    "min_tariff": 2.50,
+    "max_tariff": 7.00
+  },
+  "LD": {
+    "state_name": "Lakshadweep",
+    "avg_tariff": 3.00,
+    "min_tariff": 1.50,
+    "max_tariff": 6.50
+  },
+  "DN": {
+    "state_name": "Dadra & Nagar Haveli and Daman & Diu",
+    "avg_tariff": 3.20,
+    "min_tariff": 1.80,
+    "max_tariff": 5.50
+  }
+}
