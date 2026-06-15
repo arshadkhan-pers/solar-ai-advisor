@@ -1000,14 +1000,10 @@ if (calculationMode === "kw") {
   document.getElementById("subsidy").innerText = data.subsidy.toLocaleString('en-IN');
   
   document.getElementById("totalCost")
-  .innerText =
-  `₹${data.minMarketCost.toLocaleString('en-IN')}
-   - ₹${data.maxMarketCost.toLocaleString('en-IN')}`;
+  .innerText = `₹${data.minMarketCost.toLocaleString('en-IN')} - ₹${data.maxMarketCost.toLocaleString('en-IN')}`;
 
 document.getElementById("finalCost")
-  .innerText =
-  `₹${data.minFinalCost.toLocaleString('en-IN')}
-   - ₹${data.maxFinalCost.toLocaleString('en-IN')}`;
+  .innerText = `₹${data.minFinalCost.toLocaleString('en-IN')} - ₹${data.maxFinalCost.toLocaleString('en-IN')}`;
   
   document.getElementById("monthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
   document.getElementById("payback").innerText = data.payback;
