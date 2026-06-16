@@ -710,11 +710,18 @@ class="sticky bottom-0 w-full bg-[#22c55e] text-white py-4 rounded-2xl mt-2 font
     <h2 class="text-2xl font-bold text-slate-900 mb-2">Enter Verification Code</h2>
      
     <div class="flex justify-center gap-3 mb-8 otp-container">
-      <input type="text" maxlength="1" class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
-      <input type="numeric" maxlength="1" class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
-      <input type="numeric" maxlength="1" class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
-      <input type="text" maxlength="1" class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
-    </div>
+  <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+         class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
+
+  <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+         class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
+
+  <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+         class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
+
+  <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+         class="otp-digit w-14 h-16 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition bg-slate-50">
+</div>
 
     <button onclick="verifyOTPCode()" id="verifyOtpBtn" class="w-full bg-[#22c55e] hover:bg-green-600 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-green-200 mb-4">
       Verify & Continue
