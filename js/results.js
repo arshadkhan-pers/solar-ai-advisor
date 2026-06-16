@@ -2169,50 +2169,8 @@ safeSetText(
   }
 
   document.getElementById("personaSection")?.classList.remove("hidden");
-  
-  const pricingSection = document.getElementById("pricingConfidenceSection");
-  pricingSection?.classList.remove("hidden");
 
-  let pricingLevel =
-  report.pricingConfidence?.level || "Moderate";
-
-if (result.pricingSpread <= 10) {
-  pricingLevel = "High";
-}
-else if (result.pricingSpread <= 20) {
-  pricingLevel = "Moderate";
-}
-else {
-  pricingLevel = "Low";
-}
-
-  document.getElementById("pricingConfidenceLevel").innerText = pricingLevel;
-  
-  document.getElementById(
-  "pricingConfidenceMessage"
-).innerText =
-  `Typical ${stateNames[result.state] || result.state}
-  installations currently range between
-  ₹${result.minMarketCost.toLocaleString('en-IN')}
-  and
-  ₹${result.maxMarketCost.toLocaleString('en-IN')}.`;
-
-  const pricingBar = document.getElementById("pricingConfidenceBar");
-  let pricingWidth = 65;
-  if (pricingBar) {
-    pricingBar.className = "h-full transition-all duration-700";
-    if (pricingLevel === "High") {
-      pricingWidth = 90;
-      pricingBar.classList.add("bg-emerald-500");
-    } else if (pricingLevel === "Moderate") {
-      pricingWidth = 70;
-      pricingBar.classList.add("bg-yellow-500");
-    } else {
-      pricingWidth = 50;
-      pricingBar.classList.add("bg-red-500");
-    }
-    pricingBar.style.width = `${pricingWidth}%`;
-  }
+  document.getElementById("pricingConfidenceSection")?.classList.add("hidden");
 
   const buyerSection = document.getElementById("buyerProtectionSection");
   buyerSection?.classList.remove("hidden");
