@@ -1,8 +1,8 @@
 {
   "UP": {
     "state_name": "Uttar Pradesh",
-    "avg_cost_per_kw": 58000,
-    "min_cost_per_kw": 53000,
+    "avg_cost_per_kw": 62000,
+    "min_cost_per_kw": 57000,
     "max_cost_per_kw": 70000,
     "state_topup_max": 30000
   },
