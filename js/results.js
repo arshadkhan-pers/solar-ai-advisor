@@ -1832,7 +1832,7 @@ if (DEV_CONFIG.otpEnabled) {
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
             <h3 class="text-lg font-bold mb-2 text-slate-900">Verify to Join Queue</h3>
             <p class="text-sm text-slate-500 mb-4">Enter the OTP sent to <span class="font-semibold text-slate-800">${phone}</span></p>
-            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="otpInput" maxlength="6" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-xl tracking-widest font-mono focus:outline-none focus:border-indigo-500" placeholder="000000">
+            <input type="tel" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" id="otpInput" maxlength="6" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-xl tracking-widest font-mono focus:outline-none focus:border-indigo-500" placeholder="000000">
             
             <div class="flex gap-2 mb-4">
                 <button id="verifyOtpBtn" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm">Verify</button>
