@@ -1696,7 +1696,7 @@ async function waitForAIReport(leadId, requestTime) {
 // =========================================================================
 
 const DEV_CONFIG = {
-    isDevMode: true,
+    isDevMode: false,
 
     // Master OTP Switch
     otpEnabled: true,
@@ -1705,14 +1705,34 @@ const DEV_CONFIG = {
     bypassOtpFlow: false,
 
     // Test OTP
-    testOtpCode: "123456"
+    testOtpCode: ""//123456
 };
+
+function normalizeIndianPhone(phone) {
+
+    let cleaned =
+        String(phone || "")
+        .replace(/\D/g, "");
+
+    if (cleaned.startsWith("91")) {
+        cleaned = cleaned.substring(2);
+    }
+
+    if (cleaned.length !== 10) {
+        throw new Error(
+            "Please enter a valid 10 digit mobile number."
+        );
+    }
+
+    return `+91${cleaned}`;
+}
 
 // =========================================================================
 // 🛡️ AUTHENTICATED SURVEY REQUEST FLOW
 // =========================================================================
 let otpAttempts = 0;
 const MAX_OTP_ATTEMPTS = 3;
+let recaptchaVerifier = null;
 
 async function requestSiteSurvey() {
     const leadId = localStorage.getItem("leadId");
@@ -1753,43 +1773,57 @@ if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
         showPinSetupModal(placeholderModal, phone);
         return;
     }
+
+
 if (DEV_CONFIG.otpEnabled) {
 
     try {
 
-        console.log(
-            "📲 Sending OTP..."
-        );
+        const normalizedPhone =
+            normalizeIndianPhone(phone);
 
-        // Firebase Auth Integration Here
+        if (!recaptchaVerifier) {
 
-        /*
-        const appVerifier =
-            new firebase.auth.RecaptchaVerifier(
-                'recaptcha-container',
-                { size: 'invisible' }
-            );
+            recaptchaVerifier =
+                new firebase.auth.RecaptchaVerifier(
+                    "recaptcha-container",
+                    {
+                        size: "invisible"
+                    }
+                );
+
+            await recaptchaVerifier.render();
+        }
 
         window.confirmationResult =
             await firebase.auth()
                 .signInWithPhoneNumber(
-                    phone,
-                    appVerifier
+                    normalizedPhone,
+                    recaptchaVerifier
                 );
-        */
+
+        console.log(
+            "✅ OTP sent successfully"
+        );
 
     }
     catch(error) {
 
-        console.error(error);
+        console.error(
+            "OTP Send Failed",
+            error
+        );
 
         alert(
-            "Failed to send OTP."
+            error.message ||
+            "Unable to send OTP."
         );
 
         return;
     }
 }
+
+
     const modal = document.createElement('div');
     modal.id = 'authModal';
     modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
@@ -1836,8 +1870,6 @@ if (DEV_CONFIG.otpEnabled) {
         try {
             if (typeof window !== 'undefined' && window.confirmationResult) {
                 await window.confirmationResult.confirm(otp);
-            } else if (DEV_CONFIG.isDevMode && otp === DEV_CONFIG.testOtpCode) {
-                console.warn("🛠️ [Dev Mode] Firebase unconfigured or test pin matched. Bypassing network OTP call.");
             } else {
                 throw new Error("Invalid Verification Code.");
             }
@@ -1854,6 +1886,11 @@ if (DEV_CONFIG.otpEnabled) {
             if (counterEl) {
                 counterEl.className = "text-xs text-center text-red-500 font-medium";
                 counterEl.innerText = `Attempts: ${otpAttempts}/${MAX_OTP_ATTEMPTS} - Invalid Code`;
+            }
+            
+            if (recaptchaVerifier) {
+                recaptchaVerifier.clear();
+                recaptchaVerifier = null;
             }
         }
     };
