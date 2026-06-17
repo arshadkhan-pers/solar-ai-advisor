@@ -802,3 +802,11 @@ async (request) => {
 exports.deleteConsentWithdrawnLead =
 require("./deleteConsentWithdrawnLead")
 .deleteConsentWithdrawnLead;
+
+// =====================================================================
+// move pinHash, surveyRequest creation, sessionToken generation to cloud
+// =====================================================================
+
+exports.createLeadSession =
+require("./createLeadSession")
+.createLeadSession;
