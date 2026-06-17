@@ -28,9 +28,61 @@ try {
   
 
   // NEW USER FLOW
-  if (!token && leadId) {
-    return true;
-  }
+  // New lead flow only before authentication is established
+if (!token && leadId) {
+
+    try {
+
+        const leadDoc =
+            await db.collection("leads")
+                .doc(leadId)
+                .get();
+
+        if (!leadDoc.exists) {
+
+            localStorage.clear();
+            window.location.href = "index.html";
+
+            return false;
+        }
+
+        const leadData = leadDoc.data();
+        const stage = leadData?.stage || "INITIAL";
+
+        // Only allow anonymous access for pre-auth stages
+        const allowedStages = [
+            "INITIAL",
+            "initial",
+            "AI_GENERATED"
+        ];
+
+        if (allowedStages.includes(stage)) {
+
+            window.currentLeadId = leadId;
+
+            return true;
+        }
+
+        localStorage.clear();
+
+        window.location.href =
+            "index.html";
+
+        return false;
+
+    } catch (e) {
+
+        console.error(
+            "Stage validation failed",
+            e
+        );
+
+        window.location.href =
+            "index.html";
+
+        return false;
+    }
+}
 
   if (!token) {
     window.location.href = "index.html";
@@ -1981,7 +2033,6 @@ if (pin !== confirmPin) {
         const leadCode = localStorage.getItem("leadCode");
 
         try {
-            const hashedPin = await hashPin(pin);
 
             if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
                 console.warn("⚠️ [Dev Mode] Database infrastructure isolated. Mocking successful submission.");
@@ -1993,30 +2044,37 @@ if (pin !== confirmPin) {
                 return;
             }
 
-            const batch = db.batch();
-            const leadRef = db.collection("leads").doc(leadId);
-            const surveyRef = db.collection("survey_requests").doc(leadId);
+            const createLeadSession =
+    firebase
+        .app()
+        .functions("asia-south2")
+        .httpsCallable(
+            "createLeadSession"
+        );
 
-            batch.update(leadRef, {
-                pinHash: hashedPin, 
-                stage: "SURVEY_REQUESTED",
-                phoneVerified: true,
-                phoneVerifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                "timeline.surveyRequested.status": true,
-                "timeline.surveyRequested.timestamp": firebase.firestore.FieldValue.serverTimestamp()
-            });
+const response =
+    await createLeadSession({
 
-            batch.set(surveyRef, {
-                leadId: leadId,
-                leadCode: leadCode || "N/A",
-                phone: phone || "N/A",
-                status: "pending",
-                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                requestedCity: document.getElementById("resCity")?.value || localStorage.getItem("leadCity") || "Unknown",
-                clientName: document.getElementById("capturedName")?.value || "Homeowner"
-            });
+        leadId,
 
-            await batch.commit();
+        phone,
+
+        pin
+    });
+    
+    if (
+    response.data &&
+    response.data.sessionToken
+) {
+
+    localStorage.setItem(
+        "sessionToken",
+        response.data.sessionToken
+    );
+}
+
+
+            
             localStorage.setItem("leadStage", "SURVEY_REQUESTED");
             previousModal.remove();
             updateRoadmap("SURVEY_REQUESTED");
