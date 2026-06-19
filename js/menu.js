@@ -5,7 +5,7 @@ async function loadMenu() {
 
     document.getElementById("menu-container").innerHTML = html;
   } catch (error) {
-    console.error("Menu load failed:");
+    console.error("Menu load failed");
   }
 }
 
