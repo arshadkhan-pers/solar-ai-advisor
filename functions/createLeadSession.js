@@ -3,7 +3,6 @@ const admin = require("firebase-admin");
 const crypto = require("crypto");
 
 const db = admin.firestore();
-
 exports.createLeadSession = onCall(
   {
     region: "asia-south2"
