@@ -7,8 +7,6 @@ async function validateSession() {
   const leadId = localStorage.getItem("leadId");
 
   console.log("========== SESSION DEBUG ==========");
-console.log("LOCAL leadId:", leadId);
-console.log("LOCAL sessionToken:", token);
 
 try {
   const leadDoc =
@@ -18,10 +16,7 @@ try {
           .get()
       : null;
 
-  console.log(
-    "LOCAL LEAD DOC:",
-    leadDoc?.data()
-  );
+  
 } catch(e) {
   console.error(e);
 }
@@ -103,21 +98,6 @@ if (!token && leadId) {
       await validate({
         sessionToken: token
       });
-
-    console.log(
-  "SESSION VALIDATION RESULT:",
-  result.data
-);
-
-console.log(
-  "SESSION leadId:",
-  result.data?.leadId
-);
-
-console.log(
-  "SESSION profile:",
-  result.data?.profile
-);
     
 
     if (
@@ -138,21 +118,6 @@ console.log(
 
     const profile =
   result.data.profile || {};
-
-    console.log(
-  "PROFILE FROM SESSION",
-  JSON.stringify(profile, null, 2)
-);
-
-console.log(
-  "profile.calculationMode =",
-  profile.calculationMode
-);
-
-console.log(
-  "profile.systemSizeKw =",
-  profile.systemSizeKw
-);
 
 // Core recovery data
 localStorage.setItem(
@@ -355,7 +320,7 @@ async function handleUnifiedUpload(file, type, leadId) {
     try {
         resolvedUrl = await storageRef.getDownloadURL();
     } catch (ruleAuthError) {
-        console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
+        //console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
         const bucketName = firebase.storage().app.options.storageBucket;
         resolvedUrl = `gs://${bucketName}/${folderName}/${leadId}`;
     }
@@ -393,8 +358,7 @@ async function loadPricingConfigs() {
   } catch (err) {
 
     console.error(
-      "Failed loading pricing configs",
-      err
+      "Failed loading pricing configs"
     );
   }
 }
@@ -1365,7 +1329,7 @@ if (calculationMode === "kw") {
       try {
           const uploadResult = await handleUnifiedUpload(billFile, 'bill', leadId);
           billUrl = uploadResult.remoteUrl;
-          console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
+          //console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
       } catch (storageError) {
           console.error("❌ Unified Storage engine failure during execution:", storageError);
           alert(storageError.message || "File validation processing failed.");
@@ -2142,11 +2106,6 @@ if (!result) {
 
 window.aiReportCache =
     report;
-
-console.log(
-    "SELECTED INSTALLER",
-    window.selectedInstallerId
-);
         
       renderInstallerCards(report.matchedInstallers);
     } else {
@@ -2165,11 +2124,6 @@ console.log(
 
 window.aiReportCache =
     report;
-
-console.log(
-    "SELECTED INSTALLER",
-    window.selectedInstallerId
-);
         
       renderInstallerCards(report.matchedInstallers);
     }
@@ -2459,16 +2413,6 @@ window.aiReportCache =
 
     setupBillUpload();
     populateCapturedData();
-    console.log(
-  "selectedKw=",
-  localStorage.getItem("selectedKw")
-);
-
-console.log(
-  "dropdown value=",
-  document.getElementById("capturedKw")?.value
-);
-    
     setupEditableInputs();
 
 // ======================================
@@ -2588,8 +2532,6 @@ if (mode === "kw") {
     if (bill > 0) {
         localStorage.setItem("bill", bill);
         localStorage.setItem("state", state);
-
-        console.log(`Rendering for: Bill ${bill}, State ${state}`);
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
         return result; 
@@ -2628,7 +2570,6 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
         }
 
         await db.collection("leads").doc(leadId).update(updatePayload);
-        console.log(`Milestone ${milestoneKey} advanced successfully.`);
 
     } catch (error) {
         console.error("Failed to update milestone:", error);
