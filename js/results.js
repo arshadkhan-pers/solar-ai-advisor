@@ -1707,17 +1707,28 @@ async function waitForAIReport(leadId, requestTime) {
 // 🛠️ DEVELOPMENT & TESTING CONFIGURATION
 // =========================================================================
 
+const PRODUCTION_DOMAINS = [
+    "solaraiadvisor.in",
+    "www.solaraiadvisor.in",
+    "solaraiadvisor.com",
+    "www.solaraiadvisor.com",
+    "solaraiadvisor.co.in",
+    "www.solaraiadvisor.co.in"
+];
+
+const IS_PRODUCTION =
+    PRODUCTION_DOMAINS.includes(location.hostname);
+
 const DEV_CONFIG = {
-    isDevMode: false,
+    isDevMode: !IS_PRODUCTION,
 
-    // Master OTP Switch
-    otpEnabled: true,
+    otpEnabled: IS_PRODUCTION,
 
-    // Development shortcuts
-    bypassOtpFlow: false,
+    bypassOtpFlow: !IS_PRODUCTION,
 
-    // Test OTP
-    testOtpCode: ""//123456
+    testOtpCode: !IS_PRODUCTION
+        ? "123456"
+        : ""
 };
 
 function normalizeIndianPhone(phone) {
