@@ -1888,11 +1888,14 @@ if (DEV_CONFIG.otpEnabled) {
         } catch (verifyError) {
             otpAttempts++;
             if (otpAttempts >= MAX_OTP_ATTEMPTS) {
-                alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
-                window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20ID:%20${leadCode}`, "_blank");
-                modal.remove();
-                return;
-            }
+    // Retrieve the leadCode from localStorage, fallback to leadId or "N/A" if not found
+    const currentLeadCode = localStorage.getItem("leadCode") || leadId || "N/A";
+
+    alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
+    window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20Code:%20${currentLeadCode}`, "_blank");
+    modal.remove();
+    return;
+}
             const counterEl = document.getElementById('attemptCounter');
             if (counterEl) {
                 counterEl.className = "text-xs text-center text-red-500 font-medium";
