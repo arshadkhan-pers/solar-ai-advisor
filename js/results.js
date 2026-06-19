@@ -1889,7 +1889,7 @@ if (DEV_CONFIG.otpEnabled) {
             otpAttempts++;
             if (otpAttempts >= MAX_OTP_ATTEMPTS) {
                 alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
-                window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20ID:%20${leadId}`, "_blank");
+                window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20ID:%20${leadCode}`, "_blank");
                 modal.remove();
                 return;
             }
