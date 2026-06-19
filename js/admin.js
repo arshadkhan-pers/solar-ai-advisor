@@ -115,7 +115,7 @@ function resolveStorageAsset(storageUrl, leadId, imgElementId, linkElementIds) {
   const applyUrls = (resolvedUrl) => {
     // 🛡️ Fix Issue 1: Guard against race conditions if user switches panels mid-flight
     if (currentOpenLeadId !== leadId) {
-      console.log(`⚠️ Aborted asset paint: Stale asset returned for Lead ${leadId}, but current view is ${currentOpenLeadId}`);
+      //console.log(`⚠️ Aborted asset paint: Stale asset returned for Lead ${leadId}, but current view is ${currentOpenLeadId}`);
       return;
     }
 
@@ -159,7 +159,7 @@ function resolveStorageAsset(storageUrl, leadId, imgElementId, linkElementIds) {
       applyUrls(downloadUrl);
     })
     .catch((error) => {
-      console.error(`Error resolving storage asset URL for ${imgElementId}:`, error);
+      console.error("Stitage asset load failed");
       if (currentOpenLeadId !== leadId) return; // Strict isolation on error paths too
       linkElementIds.forEach(id => {
         const linkEl = document.getElementById(id);
@@ -345,7 +345,7 @@ window.loadNextPage = async function() {
     updateMetrics(allLeads);
     updatePaginationUI();
   } catch (error) {
-    console.error(error);
+    console.error("Failed loading next page");
     showToast("Failed loading next page", true);
   }
 };
@@ -606,8 +606,6 @@ function setupRealTimeTimeline(explicitLeadId) {
         window.leadUpdatesUnsubscribe();
     }
 
-    console.log("⚡ Establishing admin real-time listener for Lead:", explicitLeadId);
-
     window.leadUpdatesUnsubscribe = db.collection("leads").doc(explicitLeadId)
         .onSnapshot((doc) => {
             if (doc.exists) {
@@ -672,7 +670,7 @@ window.viewLead = async function(id) {
     setupRealTimeTimeline(id);
 
   } catch (error) {
-    console.error(error);
+    console.error("Lead panel load failed");
     if (requestId !== currentLeadRequestId) return;
     document.getElementById("leadPanelContent").innerHTML = `
       <div class="text-red-600">Failed to load AI report</div>
@@ -1008,7 +1006,7 @@ window.saveOpsDetails = async function(id) {
 
     showToast("Ops details saved successfully");
   } catch (error) {
-    console.error(error);
+    console.error("Failed to save ops details");
     showToast("Failed to save ops details", true);
   }
 };
@@ -1043,7 +1041,7 @@ document.addEventListener("click", async function(event) {
     textarea.value = "";
     showToast("Note added successfully");
   } catch (error) {
-    console.error(error);
+    console.error("Failed to save notes");
     showToast("Failed to save note", true);
   }
 });
