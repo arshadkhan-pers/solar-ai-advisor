@@ -306,7 +306,7 @@ window.loadLeads = async function() {
     updateMetrics(allLeads);
     updatePaginationUI();
   } catch (error) {
-    console.error("LOAD LEADS ERROR:", error);
+    console.error("LOAD LEADS ERROR");
     showToast("Failed to load leads", true);
   }
 };
@@ -384,7 +384,7 @@ window.loadPreviousPage = async function() {
     updateMetrics(allLeads);
     updatePaginationUI();
   } catch (error) {
-    console.error("Error loading previous page:", error);
+    console.error("Error loading previous page");
     showToast("Failed to load previous page", true);
   }
 };
@@ -627,7 +627,7 @@ function setupRealTimeTimeline(explicitLeadId) {
                 }
             }
         }, (error) => {
-            console.error("Admin real-time timeline subscription failed:", error);
+            console.error("Admin real-time timeline subscription failed");
         });
 }
 
