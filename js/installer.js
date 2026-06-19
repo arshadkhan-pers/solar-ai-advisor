@@ -94,7 +94,7 @@ async function submitInstaller() {
         formSection.classList.add("hidden");
         successMsg.classList.remove("hidden");
     } catch (error) {
-        console.error("Submission Error:", error);
+        console.error("Submission Error");
         alert("Submission failed.");
         submitBtn.disabled = false;
         submitBtn.innerText = "Register as Installer";

@@ -6,10 +6,6 @@ async function validateSession() {
   const token = localStorage.getItem("sessionToken");
   const leadId = localStorage.getItem("leadId");
 
-  console.log("========== SESSION DEBUG ==========");
-console.log("LOCAL leadId:", leadId);
-console.log("LOCAL sessionToken:", token);
-
 try {
   const leadDoc =
     leadId
@@ -18,12 +14,9 @@ try {
           .get()
       : null;
 
-  console.log(
-    "LOCAL LEAD DOC:",
-    leadDoc?.data()
-  );
+  
 } catch(e) {
-  console.error(e);
+  console.log("Validate Session Failed");
 }
   
 
@@ -73,8 +66,7 @@ if (!token && leadId) {
     } catch (e) {
 
         console.error(
-            "Stage validation failed",
-            e
+            "Stage validation failed"
         );
 
         window.location.href =
@@ -103,21 +95,6 @@ if (!token && leadId) {
       await validate({
         sessionToken: token
       });
-
-    console.log(
-  "SESSION VALIDATION RESULT:",
-  result.data
-);
-
-console.log(
-  "SESSION leadId:",
-  result.data?.leadId
-);
-
-console.log(
-  "SESSION profile:",
-  result.data?.profile
-);
     
 
     if (
@@ -138,21 +115,6 @@ console.log(
 
     const profile =
   result.data.profile || {};
-
-    console.log(
-  "PROFILE FROM SESSION",
-  JSON.stringify(profile, null, 2)
-);
-
-console.log(
-  "profile.calculationMode =",
-  profile.calculationMode
-);
-
-console.log(
-  "profile.systemSizeKw =",
-  profile.systemSizeKw
-);
 
 // Core recovery data
 localStorage.setItem(
@@ -214,9 +176,8 @@ if (
 
   } catch (e) {
 
-  console.error(
-    "Session validation failed",
-    e
+  console.log(
+    "Session validation failed"
   );
 
   return false;
@@ -355,7 +316,7 @@ async function handleUnifiedUpload(file, type, leadId) {
     try {
         resolvedUrl = await storageRef.getDownloadURL();
     } catch (ruleAuthError) {
-        console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
+        //console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
         const bucketName = firebase.storage().app.options.storageBucket;
         resolvedUrl = `gs://${bucketName}/${folderName}/${leadId}`;
     }
@@ -393,8 +354,7 @@ async function loadPricingConfigs() {
   } catch (err) {
 
     console.error(
-      "Failed loading pricing configs",
-      err
+      "Failed loading pricing configs"
     );
   }
 }
@@ -702,7 +662,7 @@ async function uploadQuote() {
         updateRoadmap("OFFER_UNDER_REVIEW"); 
         
     } catch (error) {
-        console.error("Upload workflow processing issue encountered:", error);
+        console.error("Upload workflow processing issue encountered");
         alert(error.message || "An exception occurred while staging your file. Please verify and retry.");
         
         if (uploadBtn) {
@@ -793,7 +753,7 @@ async function reportSurveyStatus(status) {
         updateRoadmap(freshStage);
 }
     } catch (error) {
-        console.error("Error reporting survey status:", error);
+        console.error("Error reporting survey status");
         alert("Failed to update status: " + error.message); 
         if (btnYes) btnYes.disabled = false;
         if (btnNo) btnNo.disabled = false;
@@ -1365,9 +1325,9 @@ if (calculationMode === "kw") {
       try {
           const uploadResult = await handleUnifiedUpload(billFile, 'bill', leadId);
           billUrl = uploadResult.remoteUrl;
-          console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
+          //console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
       } catch (storageError) {
-          console.error("❌ Unified Storage engine failure during execution:", storageError);
+          console.error("❌ Unified Storage engine failure during execution");
           alert(storageError.message || "File validation processing failed.");
           if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
           document.getElementById("leadForm")?.classList.remove("hidden");
@@ -1427,7 +1387,7 @@ if (calculationMode === "kw") {
     localStorage.setItem("leadStage", "AI_GENERATED");
     updateRoadmap("AI_GENERATED");
   } catch (error) {
-    console.error("❌ Update failed:", error);
+    console.error("❌ Update failed");
     alert("Database update transaction sync failure: " + error.message);
     
     // Safety recovery layout loop if database commits fail
@@ -1442,7 +1402,7 @@ if (calculationMode === "kw") {
     renderDynamicAIReport(aiReport, result, true);
     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
   } catch (error) {
-    console.error(error);
+    console.error("error");
     document.getElementById("aiLoadingState")?.classList.add("hidden");
     
     renderAIInsights({
@@ -1735,7 +1695,7 @@ async function waitForAIReport(leadId, requestTime) {
         }
       }
     } catch (error) {
-      console.error("AI report fetch error:", error);
+      console.error("AI report fetch error:", error.message || error);
     }
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
@@ -1862,8 +1822,7 @@ if (DEV_CONFIG.otpEnabled) {
     catch(error) {
 
         console.error(
-            "OTP Send Failed",
-            error
+            "OTP Send Failed"
         );
 
         alert(
@@ -1909,7 +1868,7 @@ if (DEV_CONFIG.otpEnabled) {
             }
             startResendTimer();
         } catch (resendError) {
-            console.error("OTP Resend failed:", resendError);
+            console.error("OTP Resend failed");
             alert("Failed to resend verification code. Please try again.");
             document.getElementById('resendOtpBtn').disabled = false;
         }
@@ -2080,7 +2039,7 @@ const response =
             updateRoadmap("SURVEY_REQUESTED");
             
         } catch (firebaseError) {
-            console.error("Transaction batch write failure:", firebaseError);
+            console.error("Transaction batch write failure");
             alert("Database pipeline synchronization failed: " + firebaseError.message);
             saveBtn.disabled = false;
             saveBtn.innerText = "Set PIN & Submit Request";
@@ -2142,11 +2101,6 @@ if (!result) {
 
 window.aiReportCache =
     report;
-
-console.log(
-    "SELECTED INSTALLER",
-    window.selectedInstallerId
-);
         
       renderInstallerCards(report.matchedInstallers);
     } else {
@@ -2165,11 +2119,6 @@ console.log(
 
 window.aiReportCache =
     report;
-
-console.log(
-    "SELECTED INSTALLER",
-    window.selectedInstallerId
-);
         
       renderInstallerCards(report.matchedInstallers);
     }
@@ -2453,22 +2402,12 @@ window.aiReportCache =
     );
 }
         } catch (err) {
-            console.error("Error syncing platform state:", err);
+            console.error("Error syncing platform state");
         }
     }
 
     setupBillUpload();
     populateCapturedData();
-    console.log(
-  "selectedKw=",
-  localStorage.getItem("selectedKw")
-);
-
-console.log(
-  "dropdown value=",
-  document.getElementById("capturedKw")?.value
-);
-    
     setupEditableInputs();
 
 // ======================================
@@ -2588,8 +2527,6 @@ if (mode === "kw") {
     if (bill > 0) {
         localStorage.setItem("bill", bill);
         localStorage.setItem("state", state);
-
-        console.log(`Rendering for: Bill ${bill}, State ${state}`);
         const result = calculateSolar(bill, state);
         renderResults(result, bill);
         return result; 
@@ -2628,10 +2565,9 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
         }
 
         await db.collection("leads").doc(leadId).update(updatePayload);
-        console.log(`Milestone ${milestoneKey} advanced successfully.`);
 
     } catch (error) {
-        console.error("Failed to update milestone:", error);
+        console.error("Failed to update milestone");
         alert("Update failed. Please try again.");
     }
 }
@@ -2693,8 +2629,7 @@ if (installers) {
     } catch (error) {
 
         console.error(
-            "Installer selection failed:",
-            error
+            "Installer selection failed"
         );
 
         alert(
@@ -3014,7 +2949,7 @@ async function withdrawConsentAndDelete() {
   }
   catch (error) {
 
-    console.error(error);
+    console.error("error");
 
     alert(
       "Unable to process withdrawal request."

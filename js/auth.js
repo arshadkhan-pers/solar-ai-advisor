@@ -23,10 +23,8 @@ window.login = async function () {
   }
   catch (error) {
 
-    console.error(error);
+    console.error("Auth error");
 
-    errorBox.innerText =
-      error.message;
 
     errorBox.classList.remove("hidden");
 

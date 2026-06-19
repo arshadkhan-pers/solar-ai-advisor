@@ -114,7 +114,7 @@ async function verifyOTPCode() {
     }
   } catch (serverError) {
     // Gracefully handle server rejections (e.g., incorrect code or active server-side locks)
-    console.warn("Authentication channel transaction rejected:", serverError);
+    console.warn("PIN verification failed");
     alert(serverError.message); 
     
     btn.innerText = "Verify PIN & Login";
@@ -337,7 +337,7 @@ localStorage.setItem(
         btn.disabled = false;
     }
   } catch (e) {
-     console.error("Sign-in infrastructure lookup exception:", e);
+     console.error("Sign-in Application Error");
      alert("Unable to complete login sequence. Please try again.");
      btn.innerText = "Continue";
      btn.disabled = false;
@@ -660,7 +660,7 @@ async function handleConsultationSubmit() {
     setTimeout(closeConsultation, 3000);
 
   } catch (e) {
-    console.error("Error:", e);
+    console.error("Submission failed. Application Error");
     alert("Submission failed. Please try again.");
   } finally {
     submitBtn.disabled = false;
@@ -801,23 +801,7 @@ localStorage.setItem(
   "sessionToken",
   sessionResult.data.sessionToken
 );
-        console.log(
-  "inside submitLeadAndContinue SESSION RESULT",
-  sessionResult
-);
 
-console.log(
-  "inside submitLeadAndContinue SESSION TOKEN",
-  sessionResult?.data?.sessionToken
-);
-/*        window.location.href =
-`results.html?bill=${existingData.bill || ""}` +
-`&systemSizeKw=${existingData.systemSizeKw || ""}` +
-`&state=${existingData.state || "UP"}` +
-`&name=${encodeURIComponent(existingData.name || "Homeowner")}` +
-`&phone=${encodeURIComponent(existingData.phone || phone)}` +
-`&city=${encodeURIComponent(existingData.city || "")}`;
-*/
 window.location.href = "results.html";
         return;
     }
@@ -915,25 +899,6 @@ window.location.href = "results.html";
       );
     }
 
-        console.log(
-  "USER HAS PIN SESSION RESULT",
-  sessionResult
-);
-
-console.log(
-  "USER HAS PIN SESSION TOKEN",
-  sessionResult?.data?.sessionToken
-);
-   /*    
-      window.location.href =
-`results.html?bill=${serverProfile.bill || ""}` +
-`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
-`&state=${serverProfile.state || "UP"}` +
-`&name=${encodeURIComponent(serverProfile.name || "Homeowner")}` +
-`&phone=${encodeURIComponent(serverProfile.phone || phone)}` +
-`&city=${encodeURIComponent(serverProfile.city || "")}`;
-
-*/
         window.location.href = "results.html";
     }
   );
@@ -987,16 +952,6 @@ localStorage.removeItem("leadId");
     });
     
     localStorage.setItem("leadId", docRef.id);
-      console.log(
-  "NEW LEAD CREATED:",
-  docRef.id
-);
-
-console.log(
-  "SESSION TOKEN AFTER CREATE:",
-  localStorage.getItem("sessionToken")
-);
-      
     localStorage.setItem("leadCode", leadCode); 
     localStorage.setItem("state", resolvedState);
     localStorage.setItem("leadName", name || "Homeowner");
@@ -1021,7 +976,7 @@ window.location.href =
       window.location.href = "results.html";
       
   } catch (error) {
-    console.error("Firestore Transaction Error:", error);
+    console.error("Application Backend Error");
     submitBtn.disabled = false;
     submitBtn.innerText = "Show My Savings Report";
     alert("Submission failed. Please try again.");

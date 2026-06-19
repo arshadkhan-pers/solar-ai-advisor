@@ -8,9 +8,7 @@ auth.onAuthStateChanged(async (user) => {
   }
 
   console.log(
-    "Authenticated admin:",
-    user.email
-  );
+    "Authenticated admin");
 
   await validateAdminAccess(user.uid);
 
@@ -44,7 +42,7 @@ async function validateAdminAccess(uid) {
   }
   catch (error) {
 
-    console.error(error);
+    console.error("error");
 
     alert(
       "Admin validation failed"

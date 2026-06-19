@@ -5,7 +5,7 @@ async function loadFooter() {
 
     document.getElementById("footer-container").innerHTML = html;
   } catch (error) {
-    console.error("Footer load failed:", error);
+    console.error("Footer load failed");
   }
 }
 
