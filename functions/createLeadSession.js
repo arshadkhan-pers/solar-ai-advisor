@@ -14,7 +14,6 @@ exports.createLeadSession = onCall(
     if (!leadId) {
       throw new HttpsError("invalid-argument", "Missing leadId");
     }
-
     const sessionToken = crypto.randomUUID();
     const leadRef = db.collection("leads").doc(leadId);
     const batch = db.batch();
