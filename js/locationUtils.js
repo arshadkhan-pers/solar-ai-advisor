@@ -17,7 +17,7 @@ const LocationHandler = {
             const response = await fetch('../data/cities.json');
             this.data = await response.json();
         } catch (e) {
-            console.error("Could not load cities.json", e);
+            console.error("Could not load cities");
             return;
         }
 
