@@ -517,6 +517,9 @@ function validateForm(prefix, name, email, phone, city) {
 // ==========================================
 function handleHeroCalculate() {
 
+    console.error("console.error");
+    console.warn("console.warn");
+    console.log("console.log");
   const pincodeInput =
     document.getElementById("pincodeInput");
 
