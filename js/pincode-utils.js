@@ -18,7 +18,7 @@ async function lookupPincodeData(pincode) {
       const response = await fetch("../data/pincode-map.json");
       cachedPincodeMap = await response.json();
     } catch (err) {
-      console.error("❌ Pincode Registry Fail:", err);
+      console.error("❌ Pincode Registry Fail");
       return null;
     }
   }
