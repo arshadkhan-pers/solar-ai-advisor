@@ -6,8 +6,6 @@ async function validateSession() {
   const token = localStorage.getItem("sessionToken");
   const leadId = localStorage.getItem("leadId");
 
-  console.log("========== SESSION DEBUG ==========");
-
 try {
   const leadDoc =
     leadId
@@ -18,7 +16,7 @@ try {
 
   
 } catch(e) {
-  console.error(e);
+  console.log("Validate Session Failed");
 }
   
 
@@ -68,8 +66,7 @@ if (!token && leadId) {
     } catch (e) {
 
         console.error(
-            "Stage validation failed",
-            e
+            "Stage validation failed"
         );
 
         window.location.href =
@@ -179,9 +176,8 @@ if (
 
   } catch (e) {
 
-  console.error(
-    "Session validation failed",
-    e
+  console.log(
+    "Session validation failed"
   );
 
   return false;
@@ -666,7 +662,7 @@ async function uploadQuote() {
         updateRoadmap("OFFER_UNDER_REVIEW"); 
         
     } catch (error) {
-        console.error("Upload workflow processing issue encountered:", error);
+        console.error("Upload workflow processing issue encountered");
         alert(error.message || "An exception occurred while staging your file. Please verify and retry.");
         
         if (uploadBtn) {
@@ -757,7 +753,7 @@ async function reportSurveyStatus(status) {
         updateRoadmap(freshStage);
 }
     } catch (error) {
-        console.error("Error reporting survey status:", error);
+        console.error("Error reporting survey status");
         alert("Failed to update status: " + error.message); 
         if (btnYes) btnYes.disabled = false;
         if (btnNo) btnNo.disabled = false;
@@ -1331,7 +1327,7 @@ if (calculationMode === "kw") {
           billUrl = uploadResult.remoteUrl;
           //console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
       } catch (storageError) {
-          console.error("❌ Unified Storage engine failure during execution:", storageError);
+          console.error("❌ Unified Storage engine failure during execution");
           alert(storageError.message || "File validation processing failed.");
           if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
           document.getElementById("leadForm")?.classList.remove("hidden");
@@ -1391,7 +1387,7 @@ if (calculationMode === "kw") {
     localStorage.setItem("leadStage", "AI_GENERATED");
     updateRoadmap("AI_GENERATED");
   } catch (error) {
-    console.error("❌ Update failed:", error);
+    console.error("❌ Update failed");
     alert("Database update transaction sync failure: " + error.message);
     
     // Safety recovery layout loop if database commits fail
@@ -1406,7 +1402,7 @@ if (calculationMode === "kw") {
     renderDynamicAIReport(aiReport, result, true);
     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
   } catch (error) {
-    console.error(error);
+    console.error("error");
     document.getElementById("aiLoadingState")?.classList.add("hidden");
     
     renderAIInsights({
@@ -1699,7 +1695,7 @@ async function waitForAIReport(leadId, requestTime) {
         }
       }
     } catch (error) {
-      console.error("AI report fetch error:", error);
+      console.error("AI report fetch error:", error.message || error);
     }
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
@@ -1826,8 +1822,7 @@ if (DEV_CONFIG.otpEnabled) {
     catch(error) {
 
         console.error(
-            "OTP Send Failed",
-            error
+            "OTP Send Failed"
         );
 
         alert(
@@ -1873,7 +1868,7 @@ if (DEV_CONFIG.otpEnabled) {
             }
             startResendTimer();
         } catch (resendError) {
-            console.error("OTP Resend failed:", resendError);
+            console.error("OTP Resend failed");
             alert("Failed to resend verification code. Please try again.");
             document.getElementById('resendOtpBtn').disabled = false;
         }
@@ -2044,7 +2039,7 @@ const response =
             updateRoadmap("SURVEY_REQUESTED");
             
         } catch (firebaseError) {
-            console.error("Transaction batch write failure:", firebaseError);
+            console.error("Transaction batch write failure");
             alert("Database pipeline synchronization failed: " + firebaseError.message);
             saveBtn.disabled = false;
             saveBtn.innerText = "Set PIN & Submit Request";
@@ -2407,7 +2402,7 @@ window.aiReportCache =
     );
 }
         } catch (err) {
-            console.error("Error syncing platform state:", err);
+            console.error("Error syncing platform state");
         }
     }
 
@@ -2572,7 +2567,7 @@ async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null
         await db.collection("leads").doc(leadId).update(updatePayload);
 
     } catch (error) {
-        console.error("Failed to update milestone:", error);
+        console.error("Failed to update milestone");
         alert("Update failed. Please try again.");
     }
 }
@@ -2634,8 +2629,7 @@ if (installers) {
     } catch (error) {
 
         console.error(
-            "Installer selection failed:",
-            error
+            "Installer selection failed"
         );
 
         alert(
@@ -2955,7 +2949,7 @@ async function withdrawConsentAndDelete() {
   }
   catch (error) {
 
-    console.error(error);
+    console.error("error");
 
     alert(
       "Unable to process withdrawal request."
