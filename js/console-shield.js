@@ -1,7 +1,30 @@
 (function () {
-  const isProduction = window.location.hostname !== "localhost" && 
-                       window.location.hostname !== "127.0.0.1";
+
+  const PRODUCTION_DOMAINS = [
+    "solaraiadvisor.in",
+    "www.solaraiadvisor.in",
+    "solaraiadvisor.com",
+    "www.solaraiadvisor.com",
+    "solaraiadvisor.co.in",
+    "www.solaraiadvisor.co.in"
+  ];
+
+  const isProduction =
+    PRODUCTION_DOMAINS.includes(
+      window.location.hostname
+    );
+
   if (isProduction) {
-    console.log = console.warn = console.info = console.debug = function () {};
+
+    // Hide noisy logs in production
+
+    console.log = function () {};
+    console.info = function () {};
+    console.debug = function () {};
+
+    // Keep warnings & errors visible
+    // console.warn remains active
+    // console.error remains active
   }
+
 })();
