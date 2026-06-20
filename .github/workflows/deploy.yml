@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - 'functions/**' # 👈 This is the "Filter"
-      - '.github/workflows/deploy.yml' # Also trigger if the workflow itself changes
+      - '.github/workflows/deploy.yml' # Also trigger if the workflow itself  changes
 jobs:
   deploy:
     runs-on: ubuntu-latest
