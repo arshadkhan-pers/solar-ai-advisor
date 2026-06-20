@@ -272,65 +272,45 @@ window.location.href = "results.html";
     document.getElementById('signInModal')?.classList.add('hidden');
 
     // Fire PIN entry screen
+    // Fire PIN entry screen
     triggerPinVerification(phone, null, async (serverLeadId, serverProfile) => {
             
-            // Hydrate local cache stores strictly from backend returned safe fields
-            localStorage.setItem("leadId", serverLeadId);
-            localStorage.setItem("leadCode", serverProfile.leadCode || "");
-            localStorage.setItem("state", serverProfile.state || "");
-            localStorage.setItem("leadStage", serverProfile.stage || "INITIAL");
-            localStorage.setItem("leadName", serverProfile.name || "Homeowner");
-            localStorage.setItem("leadPhone", serverProfile.phone || phone);
-            localStorage.setItem("leadCity", serverProfile.city || "");
-            localStorage.setItem("bill", serverProfile.bill || "1500");
-        // Restore original calculation mode
-            localStorage.setItem(
-              "calculationMode",
-              serverProfile.calculationMode || "bill"
-            );
+        // 🚀 FIX: Fallback to the ID we just queried if the backend drops it
+        const safeLeadId = serverLeadId || existingLeadDoc.id;
             
-            if (
-              serverProfile.calculationMode === "kw" &&
-              serverProfile.systemSizeKw
-            ) {
-              localStorage.setItem(
-                "selectedKw",
-                serverProfile.systemSizeKw
-              );
-            } else {
-              localStorage.removeItem("selectedKw");
-            }
-
-        const createSession =
-firebase
-  .app()
-  .functions("asia-south2")
-  .httpsCallable(
-    "createLeadSession"
-  );
-
-const sessionResult =
-await createSession({
-  leadId: serverLeadId
-});
-
-localStorage.setItem(
-  "sessionToken",
-  sessionResult.data.sessionToken
-);
+        // Hydrate local cache stores strictly from backend returned safe fields
+        localStorage.setItem("leadId", safeLeadId);
+        localStorage.setItem("leadCode", serverProfile.leadCode || "");
+        localStorage.setItem("state", serverProfile.state || "");
+        localStorage.setItem("leadStage", serverProfile.stage || "INITIAL");
+        localStorage.setItem("leadName", serverProfile.name || "Homeowner");
+        localStorage.setItem("leadPhone", serverProfile.phone || phone);
+        localStorage.setItem("leadCity", serverProfile.city || "");
+        localStorage.setItem("bill", serverProfile.bill || "1500");
         
-            // Complete user session handoff 
-/*            window.location.href =
-`results.html?bill=${serverProfile.bill}` +
-`&systemSizeKw=${serverProfile.systemSizeKw || ""}` +
-`&state=${serverProfile.state}` +
-`&name=${encodeURIComponent(serverProfile.name)}` +
-`&phone=${encodeURIComponent(serverProfile.phone)}` +
-`&city=${encodeURIComponent(serverProfile.city || "")}`; */
+        // Restore original calculation mode
+        localStorage.setItem(
+          "calculationMode",
+          serverProfile.calculationMode || "bill"
+        );
+        
+        if (serverProfile.calculationMode === "kw" && serverProfile.systemSizeKw) {
+          localStorage.setItem("selectedKw", serverProfile.systemSizeKw);
+        } else {
+          localStorage.removeItem("selectedKw");
+        }
 
-        window.location.href = "results.html";
+        const createSession = firebase.app().functions("asia-south2").httpsCallable("createLeadSession");
 
+        const sessionResult = await createSession({
+          leadId: safeLeadId // 👈 Using the safe ID here
         });
+
+        localStorage.setItem("sessionToken", sessionResult.data.sessionToken);
+        
+        // Complete user session handoff 
+        window.location.href = "results.html";
+    });
     } else {
         alert("No account found for this number. Please calculate your savings first to generate a report.");
         btn.innerText = "Continue";
@@ -820,85 +800,33 @@ window.location.href = "results.html";
   triggerPinVerification(
     phone,
     null,
-    async (
-      serverLeadId,
-      serverProfile
-    ) => {
-
-      const createSession =
-        firebase
-          .app()
-          .functions("asia-south2")
-          .httpsCallable(
-            "createLeadSession"
-          );
-
-      const sessionResult =
-        await createSession({
-          leadId: serverLeadId
-        });
-
-      localStorage.setItem(
-        "sessionToken",
-        sessionResult.data.sessionToken
-      );
-
-      localStorage.setItem(
-        "leadId",
-        serverLeadId
-      );
-
-    localStorage.setItem(
-        "leadCode",
-        serverProfile.leadCode || ""
-        );
+    async (serverLeadId, serverProfile) => {
         
-    localStorage.setItem(
-        "leadName",
-        serverProfile.name || "Homeowner"
-        );
+      // 🚀 FIX: Fallback to the ID we just queried if the backend drops it
+      const safeLeadId = serverLeadId || existingLeadDoc.id;
 
-        localStorage.setItem(
-                "leadPhone",
-                serverProfile.phone || phone
-            );
-        
-    localStorage.setItem(
-        "leadStage",
-        serverProfile.stage || "INITIAL"
-        );
+      const createSession = firebase.app().functions("asia-south2").httpsCallable("createLeadSession");
 
-        localStorage.setItem(
-          "state",
-          serverProfile.state || "UP"
-        );
+      const sessionResult = await createSession({
+        leadId: safeLeadId // 👈 Using the safe ID here
+      });
 
-    localStorage.setItem(
-      "bill",
-      serverProfile.bill || 1500
-    );
+      localStorage.setItem("sessionToken", sessionResult.data.sessionToken);
+      localStorage.setItem("leadId", safeLeadId);
+      localStorage.setItem("leadCode", serverProfile.leadCode || "");
+      localStorage.setItem("leadName", serverProfile.name || "Homeowner");
+      localStorage.setItem("leadPhone", serverProfile.phone || phone);
+      localStorage.setItem("leadStage", serverProfile.stage || "INITIAL");
+      localStorage.setItem("state", serverProfile.state || "UP");
+      localStorage.setItem("bill", serverProfile.bill || 1500);
+      localStorage.setItem("leadCity", serverProfile.city || "");
+      localStorage.setItem("calculationMode", serverProfile.calculationMode || "bill");
     
-    localStorage.setItem(
-      "leadCity",
-      serverProfile.city || ""
-    );
-    
-    localStorage.setItem(
-      "calculationMode",
-      serverProfile.calculationMode || "bill"
-    );
-    
-    if (
-      serverProfile.calculationMode === "kw" &&
-      serverProfile.systemSizeKw
-    ) {
-      localStorage.setItem(
-        "selectedKw",
-        serverProfile.systemSizeKw
-      );
-    }
+      if (serverProfile.calculationMode === "kw" && serverProfile.systemSizeKw) {
+        localStorage.setItem("selectedKw", serverProfile.systemSizeKw);
+      }
 
-        window.location.href = "results.html";
+      window.location.href = "results.html";
     }
   );
 
