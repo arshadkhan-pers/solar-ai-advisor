@@ -9,31 +9,40 @@ exports.createLeadSession = onCall(
     region: "asia-south2"
   },
   async (request) => {
-    const { leadId, phone, pin } = request.data;
+    let { leadId, phone, pin } = request.data;
 
     // 1. Core Validation
     if (!leadId || leadId === "undefined") {
       throw new HttpsError("invalid-argument", "Missing leadId");
     }
-    
-    // 🚀 FIX: Swapped to randomBytes to prevent Node.js version incompatibilities
+
+    // 2. Fetch Phone from Database if it's missing from the request
+    if (!phone) {
+      const leadDoc = await db.collection("leads").doc(leadId).get();
+      if (leadDoc.exists) {
+        phone = leadDoc.data().phone;
+      }
+    }
+
+    // 3. If we still don't have a phone, we MUST stop (Critical for survey_requests)
+    if (!phone) {
+      throw new HttpsError("invalid-argument", "Missing phone number and could not be retrieved from database.");
+    }
+
+    // Proceed with session generation
     const sessionToken = crypto.randomBytes(16).toString("hex"); 
     
     const leadRef = db.collection("leads").doc(leadId);
     const batch = db.batch();
 
-    // 2. Base mutation payload applied to any session generation
     const leadUpdates = {
       sessionToken,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    // 3. Conditional Pipeline Processing
-    if (phone || pin) {
-      if (!phone) {
-        throw new HttpsError("invalid-argument", "Missing phone number for initialization.");
-      }
-      if (!pin || pin.length !== 4) {
+    // 4. Conditional Pipeline Processing (only if PIN is provided, typically during first-time or re-auth)
+    if (pin) {
+      if (pin.length !== 4) {
         throw new HttpsError("invalid-argument", "Invalid PIN. Code must be 4 digits.");
       }
 
@@ -55,7 +64,7 @@ exports.createLeadSession = onCall(
       });
     }
 
-    // 4. Commit atomic update
+    // 5. Commit atomic update
     batch.update(leadRef, leadUpdates);
     await batch.commit();
 
