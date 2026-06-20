@@ -16,7 +16,7 @@ exports.createLeadSession = onCall(
       throw new HttpsError("invalid-argument", "Missing leadId");
     }
 
-    // 2. Fetch Phone from Database if it's missing from the request
+    // 2. Fetch Phone from Database if it's missing  from the request
     if (!phone) {
       const leadDoc = await db.collection("leads").doc(leadId).get();
       if (leadDoc.exists) {
