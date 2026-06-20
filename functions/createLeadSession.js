@@ -35,6 +35,26 @@ exports.createLeadSession = onCall(
     const leadRef = db.collection("leads").doc(leadId);
     const batch = db.batch();
 
+    const sessionRef =
+  db.collection("lead_sessions")
+    .doc(sessionToken);
+
+batch.set(sessionRef, {
+  leadId,
+  active: true,
+  createdAt:
+    admin.firestore.FieldValue.serverTimestamp(),
+  expiresAt:
+    admin.firestore.Timestamp.fromDate(
+      new Date(
+        Date.now() +
+        (30 * 24 * 60 * 60 * 1000)
+      )
+    )
+});
+    await batch.commit();
+    
+
     const leadUpdates = {
       sessionToken,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
