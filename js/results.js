@@ -3,6 +3,10 @@
 //Validate Session
 async function validateSession() {
 
+  console.log("========== SESSION DEBUG ==========");
+console.log("leadId:", leadId);
+console.log("sessionToken:", token);
+console.log("localStorage:", {...localStorage});
   const token = localStorage.getItem("sessionToken");
   const leadId = localStorage.getItem("leadId");
 
