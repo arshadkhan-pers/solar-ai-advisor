@@ -22,3 +22,4 @@ jobs:
           args: deploy --only functions --force
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} # 👈 Updated from FIREBASE_TOKEN
+          PROJECT_ID: solar-ai-advisor-6e70c # 👈 Added explicit project binding
