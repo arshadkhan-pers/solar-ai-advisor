@@ -1,67 +1,2972 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const admin = require("firebase-admin");
-const crypto = require("crypto");
+/* eslint-disable max-len */
 
-const db = admin.firestore();
+//Validate Session
+async function validateSession() {
 
-exports.createLeadSession = onCall(
-  {
-    region: "asia-south2"
-  },
-  async (request) => {
-    const { leadId, phone, pin } = request.data;
+  const token = localStorage.getItem("sessionToken");
+  const leadId = localStorage.getItem("leadId");
 
-    // 1. Core Validation
-    if (!leadId || leadId === "undefined") {
-      throw new HttpsError("invalid-argument", "Missing leadId");
+try {
+  const leadDoc =
+    leadId
+      ? await db.collection("leads")
+          .doc(leadId)
+          .get()
+      : null;
+
+  
+} catch(e) {
+  console.log("Validate Session Failed");
+}
+  
+
+  // NEW USER FLOW
+  // New lead flow only before authentication is established
+if (!token && leadId) {
+
+    try {
+
+        const leadDoc =
+            await db.collection("leads")
+                .doc(leadId)
+                .get();
+
+        if (!leadDoc.exists) {
+
+            localStorage.clear();
+            window.location.href = "index.html";
+
+            return false;
+        }
+
+        const leadData = leadDoc.data();
+        const stage = leadData?.stage || "INITIAL";
+
+        // Only allow anonymous access for pre-auth stages
+        const allowedStages = [
+            "INITIAL",
+            "initial",
+            "AI_GENERATED"
+        ];
+
+        if (allowedStages.includes(stage)) {
+
+            window.currentLeadId = leadId;
+
+            return true;
+        }
+
+        localStorage.clear();
+
+        window.location.href =
+            "index.html";
+
+        return false;
+
+    } catch (e) {
+
+        console.error(
+            "Stage validation failed"
+        );
+
+        window.location.href =
+            "index.html";
+
+        return false;
     }
-    
-    // 🚀 FIX: Swapped to randomBytes to prevent Node.js version incompatibilities
-    const sessionToken = crypto.randomBytes(16).toString("hex"); 
-    
-    const leadRef = db.collection("leads").doc(leadId);
-    const batch = db.batch();
+}
 
-    // 2. Base mutation payload applied to any session generation
-    const leadUpdates = {
-      sessionToken,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    };
+  if (!token) {
+    window.location.href = "index.html";
+    return false;
+  }
 
-    // 3. Conditional Pipeline Processing
-    if (phone || pin) {
-      if (!phone) {
-        throw new HttpsError("invalid-argument", "Missing phone number for initialization.");
-      }
-      if (!pin || pin.length !== 4) {
-        throw new HttpsError("invalid-argument", "Invalid PIN. Code must be 4 digits.");
-      }
+  try {
 
-      const pinHash = crypto.createHash("sha256").update(pin).digest("hex");
-      const surveyRef = db.collection("survey_requests").doc(leadId);
+    const validate =
+      firebase
+        .app()
+        .functions("asia-south2")
+        .httpsCallable(
+          "validateLeadSession"
+        );
 
-      leadUpdates.pinHash = pinHash;
-      leadUpdates.stage = "SURVEY_REQUESTED";
-      leadUpdates.phoneVerified = true;
-      leadUpdates.phoneVerifiedAt = admin.firestore.FieldValue.serverTimestamp();
-      leadUpdates["timeline.surveyRequested.status"] = true;
-      leadUpdates["timeline.surveyRequested.timestamp"] = admin.firestore.FieldValue.serverTimestamp();
-
-      batch.set(surveyRef, {
-        leadId,
-        phone,
-        status: "pending",
-        requestedAt: admin.firestore.FieldValue.serverTimestamp()
+    const result =
+      await validate({
+        sessionToken: token
       });
+    
+
+    if (
+      !result.data ||
+      !result.data.valid
+    ) {
+
+      localStorage.clear();
+
+      window.location.href =
+        "index.html";
+
+      return false;
     }
 
-    // 4. Commit atomic update
-    batch.update(leadRef, leadUpdates);
-    await batch.commit();
+    window.currentLeadId =
+      result.data.leadId;
+
+    const profile =
+  result.data.profile || {};
+
+// Core recovery data
+localStorage.setItem(
+  "leadStage",
+  profile.stage || "INITIAL"
+);
+
+localStorage.setItem(
+  "state",
+  profile.state || "UP"
+);
+
+localStorage.setItem(
+  "bill",
+  profile.bill || 1500
+);
+
+localStorage.setItem(
+  "leadName",
+  profile.name || "Homeowner"
+);
+
+localStorage.setItem(
+  "leadPhone",
+  profile.phone || ""
+);
+
+localStorage.setItem(
+  "leadCity",
+  profile.city || ""
+);
+
+localStorage.setItem(
+  "leadCode",
+  profile.leadCode || ""
+);
+
+// Calculation mode recovery
+localStorage.setItem(
+  "calculationMode",
+  profile.calculationMode || "bill"
+);
+
+if (
+  profile.calculationMode === "kw" &&
+  profile.systemSizeKw
+) {
+  localStorage.setItem(
+    "selectedKw",
+    profile.systemSizeKw
+  );
+} else {
+  localStorage.removeItem(
+    "selectedKw"
+  );
+}
+    
+    return true;
+
+  } catch (e) {
+
+  console.log(
+    "Session validation failed"
+  );
+
+  return false;
+}
+}
+
+// ===============================
+// ✅ CONFIGURATION
+// ===============================
+
+// Master Journey Configuration
+const journeyMilestones = [
+    { id: "ai", dbKey: "aiGenerated", title: "AI Feasibility Analysis", desc: "Initial system sizing and ROI calculated." },
+    { id: "survey", dbKey: "surveyRequested", title: "Site Survey Requested", desc: "Awaiting physical assessment by the installer team." },
+    { id: "surveyDone", dbKey: "surveyCompleted", title: "Site Survey Completed", desc: "Rooftop structural integrity and shadow analysis done." },
+    { id: "offer", dbKey: "offerUploaded", title: "Quotation Uploaded", desc: "Awaiting Solar-AI technical audit." },
+    { id: "audit", dbKey: "offerAccepted", title: "Quotation Approved", desc: "Quote meets Tier-1 ALMM guidelines." },
+    
+    // --- USER / OPS INTERACTIVE STEPS BELOW ---
+    { id: "agreement", dbKey: "agreementSigned", title: "Commercial Agreement", desc: "Finalize terms and pay advance to your installer.", actionBtn: "Confirm Agreement Signed", triggersStage: "AGREEMENT_SIGNED" },
+    { id: "discom", dbKey: "netMetering", title: "Discom Net-Metering", desc: "Vendor has initiated the application on the PM Surya Ghar portal.", actionBtn: "Mark Application Submitted", triggersStage: "NET_METERING_APPLIED" },
+    { id: "install", dbKey: "installation", title: "Physical Installation", desc: "Rooftop deployment completed successfully.", actionBtn: "Log Installation Complete", triggersStage: "INSTALLATION_COMPLETED" },
+    { id: "subsidy", dbKey: "subsidy", title: "Subsidy Credited", desc: "Central subsidy disbursed to bank account.", actionBtn: "Confirm Subsidy Received", triggersStage: "SUBSIDY_CREDITED" }
+];
+
+// Global cache variable for holding AI report data safely across operations
+let aiReportCache = null; 
+
+// Special category states (10% higher central subsidy)
+const specialStates = ["AS", "UK", "HP", "JK", "LA", "SK"];
+
+// Zero top-up states
+const zeroTopUpStates = ["KL", "KA", "TN", "TS", "PB", "WB", "HR", "CG"];
+
+// State top-up configuration (UPDATED ACCURATE) [3]
+const stateSubsidyConfig = {
+  "UP": { type: "perKW", value: 15000, cap: 30000 },
+  "GJ": { type: "perKW", value: 10000, cap: 30000 },
+  "DL": { type: "perKW", value: 10000, cap: 30000 },
+  "RJ": { type: "perKW", value: 8000, cap: 24000 },
+  "MH": { type: "perKW", value: 22000, cap: 60000 },
+  "AS": { type: "perKW", value: 15000, cap: 45000 },
+  "OR": { type: "perKW", value: 10000, cap: 30000 },
+  "BR": { type: "perKW", value: 10000, cap: 30000 },
+  "MP": { type: "perKW", value: 5000, cap: 15000 },
+  "UK": { type: "flat", value: 15000 },
+  "GA": { type: "goa_model" }
+};
+
+// State names
+const stateNames = {
+  "UP": "Uttar Pradesh",
+  "MH": "Maharashtra",
+  "GJ": "Gujarat",
+  "DL": "Delhi",
+  "RJ": "Rajasthan",
+  "UK": "Uttarakhand",
+  "AS": "Assam",
+  "GA": "Goa",
+  "AP": "Andhra Pradesh",
+  "TS": "Telangana",
+  "TN": "Tamil Nadu",
+  "KA": "Karnataka",
+  "WB": "West Bengal",
+  "KL": "Kerala",
+  "PB": "Punjab",
+  "HR": "Haryana",
+  "CG": "Chhattisgarh",
+  "OR": "Odisha",
+  "BR": "Bihar",
+  "MP": "Madhya Pradesh"
+};
+
+let utilityRatesConfig = {};
+let panelRatesConfig = {};
+
+// ===============================
+// 🔹 HELPERS
+// ===============================
+
+function safeSetText(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.innerText = value;
+    } else {
+        console.warn(`Missing DOM element: ${id}`);
+    }
+}
+
+function safeSetHTML(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.innerHTML = value;
+    } else {
+        console.warn(`Missing DOM element: ${id}`);
+    }
+}
+// Global store for active session local object URLs to allow viewing files immediately after upload
+const localUploadedFiles = {
+    bill: null,
+    quote: null
+};
+
+/**
+ * Unified file validation and storage upload pipe
+ * @param {File} file - The file object from input array
+ * @param {'bill' | 'quote'} type - Context token mapping limits and target paths
+ * @param {string} leadId - Unique reference identifier
+ */
+async function handleUnifiedUpload(file, type, leadId) {
+    if (!file) throw new Error("Please select a file to upload.");
+    if (!leadId) throw new Error("Tracking context missing. Lead ID reference unavailable.");
+
+    // 1. Strict File Type Validation
+    const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowedMimeTypes.includes(file.type) && !file.type.startsWith("image/")) {
+        throw new Error(`Unsupported file type (${file.type || "Unknown"}). Only official PDFs and image files are allowed.`);
+    }
+
+    // 2. Dynamic Size Threshold Enforcement
+    const sizeLimit = type === 'bill' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > sizeLimit) {
+        const readableLimit = type === 'bill' ? '5MB' : '10MB';
+        throw new Error(`File size limits exceeded. The maximum permissible size for a ${type} is ${readableLimit}.`);
+    }
+
+    // 3. Execution Path Mapping
+    const folderName = type === 'bill' ? 'bills' : 'quotes';
+    const storageRef = firebase.storage().ref(`${folderName}/${leadId}`);
+    
+    // Execute write sequence
+    await storageRef.put(file);
+
+    // 4. Secure Reader Fallback Strategy
+    let resolvedUrl = null;
+    try {
+        resolvedUrl = await storageRef.getDownloadURL();
+    } catch (ruleAuthError) {
+        //console.log(`ℹ️ Storage token read restricted via Security Rules for ${type}. Mapping programmatic absolute fallback pointer.`);
+        const bucketName = firebase.storage().app.options.storageBucket;
+        resolvedUrl = `gs://${bucketName}/${folderName}/${leadId}`;
+    }
+
+    // Capture and stash current session local viewer URL reference
+    localUploadedFiles[type] = URL.createObjectURL(file);
 
     return {
-      success: true,
-      sessionToken
+        remoteUrl: resolvedUrl,
+        localBlobUrl: localUploadedFiles[type],
+        name: file.name
     };
+}
+
+// Load panel and electricity config.jdon files
+async function loadPricingConfigs() {
+  try {
+
+    const [utilityRes, panelRes] =
+      await Promise.all([
+        fetch("../data/utility-rates-config.json"),
+        fetch("../data/panel-rates-config.json")
+      ]);
+
+    utilityRatesConfig =
+      await utilityRes.json();
+
+    panelRatesConfig =
+      await panelRes.json();
+
+    console.log(
+      "✅ Pricing configs loaded"
+    );
+
+  } catch (err) {
+
+    console.error(
+      "Failed loading pricing configs"
+    );
   }
+}
+
+// Secure one-way cryptographic SHA-256 hashing engine
+async function hashPin(pin) {
+    const msgUint8 = new TextEncoder().encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function formatIndianCurrency(num) {
+  if (num >= 10000000) {
+    return "₹" + (num / 10000000).toFixed(1) + "Cr";
+  }
+  if (num >= 100000) {
+    return "₹" + (num / 100000).toFixed(1) + "L";
+  }
+  if (num >= 1000) {
+    return "₹" + (num / 1000).toFixed(1) + "K";
+  }
+  return "₹" + num;
+}
+
+function getStateFromURL() {
+  return localStorage.getItem("state") || "UP";
+}
+
+function getBill() {
+  return parseFloat(
+    localStorage.getItem("bill")
+  ) || 0;
+}
+
+// ===============================
+// 🔹 ROADMAP & UPLOAD HELPERS
+// ===============================
+function updateRoadmap(stage, leadData = null) {
+    const roadmapProgress = document.getElementById('roadmapProgress');
+    if (!roadmapProgress) return;
+
+    const widthMap = {
+        "INITIAL": "15%",
+        "AI_GENERATED": "25%",          
+        "SURVEY_REQUESTED": "40%",      
+        "SURVEY_COMPLETED": "55%",      
+        "OFFER_GIVEN": "70%",           
+        "OFFER_REJECTED": "70%",        
+        "OFFER_UNDER_REVIEW": "75%",    
+        "OFFER_ACCEPTED": "80%",        
+        "AGREEMENT_SIGNED": "85%",      
+        "NET_METERING_APPLIED": "90%",  
+        "INSTALLATION_COMPLETED": "100%",
+        "SUBSIDY_CREDITED": "100%"
+    };
+    
+    roadmapProgress.style.width = widthMap[stage] || "15%";
+    
+    const uploadSection = document.getElementById('quoteUploadSection');
+    if (uploadSection) {
+        const showUpload = ["SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage);
+        uploadSection.classList.toggle('hidden', !showUpload);
+
+        if (showUpload) {
+                        if (stage === "OFFER_UNDER_REVIEW") {
+                // Determine whether we can offer a direct clickable review link
+                const currentQuoteUrl = localUploadedFiles.quote || leadData?.quoteUrl;
+                const isGsPath = currentQuoteUrl && currentQuoteUrl.startsWith("gs://");
+                
+                const viewLinkHtml = (currentQuoteUrl && !isGsPath)
+                    ? `<a href="${currentQuoteUrl}" target="_blank" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition no-underline shadow-sm shrink-0 flex items-center gap-1">
+                        View Submitted Quote 👁️
+                       </a>`
+                    : `<span class="text-[11px] font-semibold text-amber-700 bg-amber-100/60 px-2.5 py-1 rounded-lg border border-amber-200/40 shrink-0">
+                        🔒 Securely Stored in Cloud
+                       </span>`;
+
+                uploadSection.innerHTML = `
+                    <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-5 shadow-sm space-y-4 animate-fade-in">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">⏳</div>
+                                <div>
+                                    <h3 class="text-base font-bold text-amber-900">Review in Progress</h3>
+                                    <p class="text-xs text-amber-700 mt-0.5">Your technical audit is underway. The operations team will verify your components shortly.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                ${viewLinkHtml}
+                            </div>
+                        </div>
+
+                        <!-- Interactive Modification Zone -->
+                        <div id="reviewActionZone" class="border-t border-amber-200/60 pt-3.5">
+                            <button onclick="revealQuoteRevisionInput()" 
+                                    class="text-xs text-amber-800 font-bold hover:text-amber-950 flex items-center gap-1.5 transition bg-amber-100 hover:bg-amber-200/70 px-3.5 py-2 rounded-xl border border-amber-200/40 shadow-sm">
+                                🔄 Upload a Different Quote / Fix Mistake
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (["OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage)) {
+                
+                // 🚀 FIX: Map out logical timeline statuses from macro stage when leadData is missing on manual refresh
+                let timeline = leadData?.timeline || {};
+                if (!leadData || !leadData.timeline) {
+                    timeline = {
+                        agreementSigned: { status: ["AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        netMetering: { status: ["NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        installation: { status: ["INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"].includes(stage) },
+                        subsidy: { status: ["SUBSIDY_CREDITED"].includes(stage) }
+                    };
+                }
+
+                let stepperHTML = `<div class="mt-5 space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">`;
+                const executionSteps = journeyMilestones.slice(5); 
+
+                executionSteps.forEach((step, index) => {
+                    const isComplete = timeline[step.dbKey]?.status === true;
+                    const isPrevComplete = index === 0 ? true : timeline[executionSteps[index - 1].dbKey]?.status === true;
+                    const isActive = !isComplete && isPrevComplete;
+
+                    stepperHTML += `
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group mb-6">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 ${isComplete ? 'border-emerald-500 bg-emerald-100 text-emerald-600' : isActive ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-200 bg-slate-50 text-slate-400'} shrink-0 z-10 shadow-sm transition-colors duration-300">
+                                ${isComplete ? '✓' : index + 1}
+                            </div>
+                            
+                            <div class="w-[calc(100%-4rem)] p-4 rounded-xl border ${isActive ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-100 bg-white'} shadow-sm transition-all duration-300">
+                                <h4 class="text-sm font-bold ${isActive ? 'text-indigo-900' : 'text-slate-800'}">${step.title}</h4>
+                                <p class="text-xs text-slate-500 mt-1">${step.desc}</p>
+                                
+                                ${isActive ? `
+                                    <button onclick="advanceTimelineMilestone('${step.dbKey}', '${step.triggersStage}')" 
+                                            class="mt-3 text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm">
+                                        ${step.actionBtn}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                stepperHTML += `</div>`;
+
+                uploadSection.innerHTML = `
+                    <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-xl shrink-0">✅</div>
+                            <div>
+                                <h3 class="text-base font-bold text-emerald-900">Quotation Approved</h3>
+                                <p class="text-xs text-emerald-700 mt-0.5">Your quotation has passed our technical audit. Track your deployment below.</p>
+                            </div>
+                        </div>
+                    </div>
+                    ${stepperHTML}
+                `;
+            } else {
+                // 🔵 UPLOAD / REJECTED STATE (SURVEY_COMPLETED, OFFER_GIVEN, OFFER_REJECTED)
+                const rejectionBanner = stage === "OFFER_REJECTED" ? `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 mb-5 flex gap-2.5">
+                        <span class="text-red-600 text-sm mt-0.5">❌</span>
+                        <div class="text-xs text-red-900">
+                            <strong class="font-bold">Quotation Rejected:</strong> The previously uploaded document did not pass our verification criteria. Please upload a revised or updated quotation from your installer.
+                        </div>
+                    </div>
+                ` : "";
+
+                uploadSection.innerHTML = `
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shrink-0">🛡️</div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Solar-AI-Advisor Verification Desk</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Track your installation safely through our platform.</p>
+                            </div>
+                        </div>
+                        
+                        ${rejectionBanner}
+
+                        <div class="space-y-2.5 mb-5 bg-white border border-slate-100 rounded-xl p-3.5">
+                            <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                                <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                                <span><strong>Quote & Component Review:</strong> Our team audits your official quotation to verify that the proposed components meet Tier-1 ALMM guidelines on paper, helping you avoid substandard equipment.</span>
+                            </div>
+                            <div class="flex items-start gap-2.5 text-xs text-slate-600">
+                                <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                                <span><strong>Subsidy Compliance Guidance:</strong> We provide paperwork checklists and guidance aligned with PM Surya Ghar portal requirements to help streamline your Discom application process.</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 mb-5">
+                            <div class="flex gap-2.5">
+                                <span class="text-amber-600 text-sm mt-0.5">⚠️</span>
+                                <div class="text-xs text-amber-900 leading-relaxed">
+                                    <strong class="font-bold text-amber-950">Important Notice:</strong> 
+                                    Upload your final quotation here to activate our platform tracking. If you choose to deal with platform-matched installers offline, <strong>Solar-AI-Advisor</strong> cannot provide vendor dispute resolution, escalation support, or backend subsidy assistance. 
+                                </div>
+                            </div>
+                        </div>
+
+                           <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                            Upload Installer Quotation / Final Bill
+                            </label>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="file" id="quoteUpload" accept="application/pdf,image/*" onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
+                                   class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                            <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                                    class="bg-indigo-600 text-white text-xs px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                                Submit for Verification
+                            </button>
+                        </div>
+                        <div id="quoteFileFeedbackBox"></div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // 🛠️ 3. Ensure the Unlock AI button stays locked during the new stages
+    const unlockBtn = document.getElementById('unlockAiBtn') || document.querySelector('button[onclick="showForm()"]');
+    if (unlockBtn) {
+        // Appended new stages to the lock array
+        const lockedStages = ["SURVEY_REQUESTED", "SURVEY_COMPLETED", "OFFER_GIVEN", "OFFER_REJECTED", "OFFER_UNDER_REVIEW", "OFFER_ACCEPTED", "AGREEMENT_SIGNED", "NET_METERING_APPLIED", "INSTALLATION_COMPLETED", "SUBSIDY_CREDITED"];
+        const isLocked = lockedStages.includes(stage);
+        
+        unlockBtn.disabled = isLocked;
+        if (isLocked) {
+            unlockBtn.innerText = "AI Analysis Locked";
+            unlockBtn.classList.add("opacity-50", "cursor-not-allowed");
+            unlockBtn.classList.remove("hover:bg-indigo-700", "hover:-translate-y-0.5");
+        } else {
+            unlockBtn.innerText = "See Your AI Solar Analysis";
+            unlockBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            unlockBtn.classList.add("hover:bg-indigo-700", "hover:-translate-y-0.5");
+        }
+    }
+
+    // Toggle Survey & Concierge UI based on stage
+    const conciergeCard = document.getElementById("conciergeCard");
+    const surveyFeedbackCard = document.getElementById("surveyFeedbackCard");
+    
+    if (conciergeCard && surveyFeedbackCard) {
+        if (stage === "AI_GENERATED" || stage === "INITIAL") {
+            conciergeCard.classList.remove("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        } else if (stage === "SURVEY_REQUESTED") {
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.remove("hidden");
+            
+            if (localStorage.getItem("surveyIssueReported") === "true") {
+                surveyFeedbackCard.innerHTML = `
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">⏳</div>
+                        <h3 class="text-xl font-bold text-slate-900">Survey Delayed</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        You reported a delay. Our support team is actively following up with the installer to expedite your site assessment.
+                    </p>
+                    <div class="border-t border-slate-100 pt-3 mt-2 flex items-center justify-between gap-4 flex-wrap">
+                        <span class="text-xs text-slate-500 font-medium">Did the installer arrive?</span>
+                        <button id="surveyResolveBtn" onclick="reportSurveyStatus('completed')" 
+                                class="bg-emerald-600 text-white text-xs px-3.5 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition shadow-sm">
+                            Yes, Survey Completed
+                        </button>
+                    </div>
+                `;
+            }
+        } else {
+            conciergeCard.classList.add("hidden");
+            surveyFeedbackCard.classList.add("hidden");
+        }
+    }
+}
+
+async function uploadQuote() {
+    const fileInput = document.getElementById('quoteUpload');
+    const file = fileInput?.files[0];
+    const leadId = localStorage.getItem("leadId");
+    const uploadBtn = document.getElementById("uploadQuoteBtn");
+    
+    if (!file) return alert("Please select an official installer quotation document to proceed.");
+    if (!leadId) return alert("System context identification error. Missing tracking token reference.");
+
+    if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.innerText = "Uploading Blueprint...";
+    }
+
+    try {
+        // Enforce validations and handle secure uploads using unified framework
+        const uploadResult = await handleUnifiedUpload(file, 'quote', leadId);
+        
+        await db.collection("leads").doc(leadId).update({ 
+            quoteUrl: uploadResult.remoteUrl,
+            stage: "OFFER_UNDER_REVIEW" 
+        });
+        
+        alert("Quotation file received and locked for verification tracking!");
+        
+        localStorage.setItem("leadStage", "OFFER_UNDER_REVIEW");
+        updateRoadmap("OFFER_UNDER_REVIEW"); 
+        
+    } catch (error) {
+        console.error("Upload workflow processing issue encountered");
+        alert(error.message || "An exception occurred while staging your file. Please verify and retry.");
+        
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.innerText = "Submit for Verification";
+        }
+    }
+}
+
+// Inline helper to append a tracking attachment review module on state adjustments
+function renderQuoteFeedbackState() {
+    const statusContainer = document.getElementById("quoteFileFeedbackBox");
+    if (!statusContainer || !localUploadedFiles.quote) return;
+
+    statusContainer.innerHTML = `
+        <div class="mt-3 p-3 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between gap-2 text-xs">
+            <span class="text-indigo-900 truncate">Uploaded: <strong>${document.getElementById('quoteUpload')?.files?.[0]?.name || 'Quotation Document'}</strong></span>
+            <a href="${localUploadedFiles.quote}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold tracking-wide transition shrink-0 no-underline shadow-sm">
+                Open Uploaded Quote 👁️
+            </a>
+        </div>
+    `;
+}
+
+/**
+ * Dynamic injector that reveals an upload field for revisions during the review phase
+ */
+function revealQuoteRevisionInput() {
+    const actionZone = document.getElementById("reviewActionZone");
+    if (!actionZone) return;
+
+    actionZone.innerHTML = `
+        <div class="bg-white border border-amber-200 rounded-xl p-4 mt-2 space-y-3 shadow-inner animate-fade-in">
+            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                Select New Quotation Document (Replaces Previous Upload)
+            </label>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="file" id="quoteUpload" accept="application/pdf,image/*" 
+                       onchange="if(this.files.length){ localUploadedFiles.quote=URL.createObjectURL(this.files[0]); renderQuoteFeedbackState(); }"
+                       class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-850 cursor-pointer border border-slate-200 rounded-xl bg-white focus:outline-none" />
+                <button id="uploadQuoteBtn" onclick="uploadQuote()" 
+                        class="bg-indigo-600 text-white text-xs px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm shrink-0">
+                    Confirm Revision
+                </button>
+            </div>
+            <div id="quoteFileFeedbackBox"></div>
+        </div>
+    `;
+}
+
+// ===============================
+// 🔹 SURVEY FEEDBACK SYSTEM
+// ===============================
+async function reportSurveyStatus(status) {
+    const leadId = localStorage.getItem("leadId");
+    if (!leadId) return;
+    
+    const btnYes = document.getElementById("surveyYesBtn");
+    const btnNo = document.getElementById("surveyNoBtn");
+    const btnResolve = document.getElementById("surveyResolveBtn");
+    if (btnYes) btnYes.disabled = true;
+    if (btnNo) btnNo.disabled = true;
+    if (btnResolve) {
+        btnResolve.disabled = true;
+        btnResolve.innerText = "Updating...";
+    }
+
+    try {
+        if (status === 'completed') {
+            await db.collection("leads").doc(leadId).update({
+    stage: "SURVEY_COMPLETED",
+    "timeline.surveyCompleted.status": true,
+    "timeline.surveyCompleted.timestamp":
+        firebase.firestore.FieldValue.serverTimestamp()
+});
+            
+            await db.collection("survey_requests").doc(leadId).update({ status: "completed" });
+            
+            localStorage.removeItem("surveyIssueReported");
+            localStorage.setItem("leadStage", "SURVEY_COMPLETED");
+            
+            alert("Thank you! Your survey is marked as complete. Please upload installer proposal for our review and confirmation.");
+        } else {
+            await db.collection("survey_requests").doc(leadId).update({ status: "issue_reported" });
+            localStorage.setItem("surveyIssueReported", "true");
+            alert("Thanks for letting us know. Our support team has been notified and will contact you to resolve the delay.");
+        const freshStage = localStorage.getItem("leadStage") || "INITIAL";
+        updateRoadmap(freshStage);
+}
+    } catch (error) {
+        console.error("Error reporting survey status");
+        alert("Failed to update status: " + error.message); 
+        if (btnYes) btnYes.disabled = false;
+        if (btnNo) btnNo.disabled = false;
+        if (btnResolve) {
+            btnResolve.disabled = false;
+            btnResolve.innerText = "Yes, Survey Completed";
+        }
+    }
+}
+
+// ===============================
+// 🔵 CENTRAL SUBSIDY (2026)
+// ===============================
+function calculateCentralSubsidy(systemSize, state) {
+  let subsidy = 0;
+  if (systemSize <= 2) {
+    subsidy = systemSize * 30000;
+  } else if (systemSize <= 3) {
+    subsidy = (2 * 30000) + ((systemSize - 2) * 18000);
+  } else {
+    subsidy = 78000;
+  }
+  if (specialStates.includes(state)) {
+    subsidy = subsidy * 1.1;
+  }
+  return Math.round(subsidy);
+}
+
+// ===============================
+// 🌟 STATE SUBSIDY ENGINE
+// ===============================
+function calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy) {
+  if (zeroTopUpStates.includes(state)) return 0;
+  const config = stateSubsidyConfig[state];
+  if (!config) return 0;
+
+  if (config.type === "goa_model") {
+    
+    const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
+    if (units <= 400) {
+      if (systemSize <= 5) {
+        const required = totalCost - centralSubsidy;
+        return Math.min(required, 250000);
+      }
+    }
+    let subsidy = systemSize * 23000;
+    subsidy = Math.min(subsidy, 250000);
+    return Math.round(subsidy);
+  }
+
+  let subsidy = 0;
+  if (config.type === "flat") {
+    subsidy = config.value;
+  }
+  if (config.type === "perKW") {
+    subsidy = systemSize * config.value;
+    subsidy = Math.min(subsidy, config.cap);
+  }
+  return Math.round(subsidy);
+}
+
+// ===============================
+// 🔹 CORE CALCULATION
+// ===============================
+function calculateSolar(bill, stateOverride = null) {
+  const state =
+    stateOverride || getStateFromURL() || "UP";
+
+  const calculationMode =
+    localStorage.getItem("calculationMode");
+
+  let systemSize;
+
+  if (calculationMode === "kw") {
+
+    systemSize =
+  parseFloat(
+    localStorage.getItem("selectedKw")
+  );
+
+if (!systemSize || systemSize <= 0) {
+  
+  const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
+  systemSize =
+    Math.max(
+      1,
+      Math.round(units / 120)
+    );
+}
+
+  } else {
+
+    const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+
+    systemSize =
+      Math.max(
+        1,
+        Math.round(units / 120)
+      );
+  }
+
+  const tariff =
+  utilityRatesConfig[state]?.avg_tariff || 7;
+
+const units =
+  bill / tariff;
+  
+  const costPerKW =
+  panelRatesConfig[state]
+    ?.avg_cost_per_kw || 55000;
+    
+  const totalCost = systemSize * costPerKW;
+
+  const centralSubsidy = calculateCentralSubsidy(systemSize, state);
+  const stateSubsidy = calculateStateSubsidy(systemSize, state, bill, totalCost, centralSubsidy);
+
+  const totalSubsidy = centralSubsidy + stateSubsidy;
+  const finalCost = totalCost - totalSubsidy;
+
+  const monthlySavings = units * 7;
+  const payback = finalCost / (monthlySavings * 12);
+
+  const panels = Math.ceil((systemSize * 1000) / 550);
+  const area = Math.round(systemSize * 80);
+  const lifetimeSavings = Math.round(monthlySavings * 12 * 25);
+
+  const principalLoan = Math.round(finalCost * 0.90);
+  const annualRate = 6.5; 
+  const monthlyRate = (annualRate / 12) / 100;
+  const months = 60; 
+
+  const solarEmi = Math.round(
+    (principalLoan * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+    (Math.pow(1 + monthlyRate, months) - 1)
+  );
+
+  const netMonthlyBenefit = Math.round(monthlySavings - solarEmi);
+  
+  const minCostPerKW =
+  panelRatesConfig[state]
+    ?.min_cost_per_kw || costPerKW;
+
+const maxCostPerKW =
+  panelRatesConfig[state]
+    ?.max_cost_per_kw || costPerKW;
+
+const minMarketCost =
+  Math.round(systemSize * minCostPerKW);
+  
+const avgMarketCost =
+  Math.round(systemSize * costPerKW);
+
+const maxMarketCost =
+  Math.round(systemSize * maxCostPerKW);
+  
+const minFinalCost =
+  Math.max(
+    0,
+    minMarketCost - totalSubsidy
+  );
+
+const maxFinalCost =
+  Math.max(
+    0,
+    maxMarketCost - totalSubsidy
+  );
+  
+  const pricingSpread =
+  Math.round(
+    (
+      (maxMarketCost - minMarketCost)
+      / avgMarketCost
+    ) * 100
+  );
+
+  return {
+    systemSize: systemSize.toFixed(1),
+    totalCost: Math.round(totalCost),
+    subsidy: Math.round(totalSubsidy),
+    centralSubsidy: Math.round(centralSubsidy),
+    stateSubsidy: Math.round(stateSubsidy),
+    finalCost: Math.round(finalCost),
+    monthlySavings: Math.round(monthlySavings),
+    payback: payback.toFixed(1),
+    panels,
+    area,
+    lifetimeSavings,
+    state,
+    solarEmi,
+    netMonthlyBenefit,
+    avgMarketCost,
+    minMarketCost,
+    maxMarketCost,
+    minFinalCost,
+    maxFinalCost,
+    pricingSpread,
+    tariff
+  };
+}
+
+
+  
+// ===============================
+// 🔹 RENDER
+// ===============================
+function renderResults(data, bill) {
+  const currentStage = localStorage.getItem("leadStage") || "INITIAL";
+  updateRoadmap(currentStage);
+  
+  const stateFullName = stateNames[data.state] || data.state;
+  const el = document.getElementById("stateInfo");
+
+  if (el) {
+    if (data.stateSubsidy > 0) {
+      if (data.state === "GA") {
+        el.innerText = `Includes Goa special subsidy (may be credited after installation)`;
+      } else {
+        el.innerText = `Includes central + ${stateFullName} state subsidy`;
+      }
+    } else {
+      el.innerText = `Only central subsidy applicable in ${stateFullName}`;
+    }
+  }
+
+  const calculationMode =
+  localStorage.getItem("calculationMode") || "bill";
+
+if (calculationMode === "kw") {
+  document.getElementById("systemSize").innerText =
+    `${parseFloat(data.systemSize)} kW Solar System Selected`;
+
+  document.getElementById("billInfo").innerText =
+    "Savings calculated using your selected system size";
+} else {
+  document.getElementById("systemSize").innerText =
+    `${parseFloat(data.systemSize)} kW Solar System Recommended`;
+
+  document.getElementById("billInfo").innerText =
+    `Based on your ₹${bill}/month bill`;
+}
+
+  document.getElementById("subsidy").innerText = data.subsidy.toLocaleString('en-IN');
+  
+  document.getElementById("totalCost")
+  .innerText = `₹${data.minMarketCost.toLocaleString('en-IN')} - ₹${data.maxMarketCost.toLocaleString('en-IN')}`;
+
+document.getElementById("finalCost")
+  .innerText = `₹${data.minFinalCost.toLocaleString('en-IN')} - ₹${data.maxFinalCost.toLocaleString('en-IN')}`;
+  
+  document.getElementById("monthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
+  document.getElementById("payback").innerText = data.payback;
+        const paybackHero = document.getElementById("paybackHero");
+        if (paybackHero) {
+            paybackHero.innerText = `${data.payback}y`;
+        }
+        
+        const lifetimeSavingsHero = document.getElementById("lifetimeSavingsHero");
+        if (lifetimeSavingsHero) {
+            lifetimeSavingsHero.innerText =
+                data.lifetimeSavings.toLocaleString('en-IN');
+        }
+        
+        const panelsHero = document.getElementById("panelsHero");
+        if (panelsHero) {
+            panelsHero.innerText = data.panels;
+        }
+  document.getElementById("panels").innerText = data.panels;
+  document.getElementById("area").innerText = data.area;
+  document.getElementById("lifetimeSavings").innerText = data.lifetimeSavings.toLocaleString('en-IN');
+  document.getElementById("centralSubsidy").innerText = data.centralSubsidy.toLocaleString('en-IN');
+  document.getElementById("stateSubsidy").innerText = data.stateSubsidy.toLocaleString('en-IN');
+  
+  const tariffEl =
+  document.getElementById("stateTariff");
+
+if (tariffEl) {
+  tariffEl.innerText =
+    `₹${data.tariff}/unit`;
+}
+
+const tariffStateEl =
+  document.getElementById(
+    "stateTariffState"
+  );
+
+if (tariffStateEl) {
+  tariffStateEl.innerText =
+    stateNames[data.state] || data.state;
+}
+
+  const emiCard = document.getElementById("dynamicEmiCard");
+  if (emiCard) {
+    document.getElementById("solarEmi").innerText = data.solarEmi.toLocaleString('en-IN');
+    document.getElementById("emiMonthlySavings").innerText = data.monthlySavings.toLocaleString('en-IN');
+    document.getElementById("netMonthlyBenefit").innerText = data.netMonthlyBenefit.toLocaleString('en-IN');
+    emiCard.classList.remove("hidden"); 
+  }
+
+  // 🚀 FIX: Force immediate rendering repaint loop for iPad OS Safari Layer Invalidation
+  const elementsToRefresh = [
+    "systemSize", "totalCost", "subsidy", "finalCost", "monthlySavings", 
+    "payback", "panels", "area", "lifetimeSavings", "centralSubsidy", "stateSubsidy"
+  ];
+  elementsToRefresh.forEach(id => {
+    const metricEl = document.getElementById(id);
+    if (metricEl) {
+      const _ = metricEl.offsetHeight; // Triggers instant synchronous reflow calculation
+      metricEl.style.transform = 'translateZ(0)'; // Activates hardware composition layers
+    }
+  });
+}
+
+// ===============================
+// 🔹 WHATSAPP
+// ===============================
+function openWhatsApp() {
+
+  const mode =
+    localStorage.getItem("calculationMode") || "bill";
+
+  let bill;
+
+  if (mode === "kw") {
+
+    const kw =
+      parseFloat(
+        localStorage.getItem("selectedKw")
+      ) || 3;
+
+    bill = kw * 900;
+
+  } else {
+
+    bill = getBill();
+  }
+
+  const result = calculateSolar(bill);
+  const stateFullName =
+    stateNames[result.state] || result.state;
+
+  // Lead Details
+  const leadCode =
+    localStorage.getItem("leadCode") || "N/A";
+
+  const customerName =
+    document.getElementById("capturedName")?.value?.trim() ||
+    localStorage.getItem("leadName") ||
+    "Homeowner";
+  
+  const phone =
+    document.getElementById("capturedPhone")?.value ||
+    localStorage.getItem("billPhone") ||
+    "N/A";
+
+ const city =
+    document.getElementById("resCity")?.value ||
+    localStorage.getItem("leadCity") ||
+    "N/A";
+
+  const pincode =
+    localStorage.getItem("pincode") || "N/A";
+
+  let message;
+
+  if (mode === "kw") {
+
+    message =
+`☀️ Solar Installation Enquiry
+
+Lead Code: ${leadCode}
+
+Customer Name: ${customerName}
+Mobile: ${phone}
+
+Location: ${city}, ${stateFullName}
+PIN Code: ${pincode}
+
+Selected System Size: ${parseFloat(result.systemSize)} kW
+
+Estimated System Cost: ₹${result.totalCost.toLocaleString('en-IN')}
+Estimated Subsidy: ₹${result.subsidy.toLocaleString('en-IN')}
+Net Investment: ₹${result.finalCost.toLocaleString('en-IN')}
+
+Estimated Monthly Savings: ₹${result.monthlySavings.toLocaleString('en-IN')}
+Estimated Payback Period: ${result.payback} years
+
+Generated by Solar AI Advisor`;
+
+  } else {
+
+    message =
+`☀️ Solar Installation Enquiry
+
+Lead Code: ${leadCode}
+
+Customer Name: ${customerName}
+Mobile: ${phone}
+
+Location: ${city}, ${stateFullName}
+PIN Code: ${pincode}
+
+Monthly Electricity Bill: ₹${bill.toLocaleString('en-IN')}
+Recommended Solar System: ${parseFloat(result.systemSize)} kW
+
+Estimated System Cost: ₹${result.totalCost.toLocaleString('en-IN')}
+Estimated Subsidy: ₹${result.subsidy.toLocaleString('en-IN')}
+Net Investment: ₹${result.finalCost.toLocaleString('en-IN')}
+
+Estimated Monthly Savings: ₹${result.monthlySavings.toLocaleString('en-IN')}
+Estimated Payback Period: ${result.payback} years
+
+Generated by Solar AI Advisor`;
+  }
+
+  const encodedMessage =
+    encodeURIComponent(message);
+
+  const number = "61404166347";
+
+  window.open(
+    `https://wa.me/${number}?text=${encodedMessage}`,"_blank");
+}
+
+// ===============================
+// 🔹 AUXILIARY FUNCTIONS
+// ===============================
+function showForm() {
+  const form = document.getElementById("leadForm");
+  if (form) {
+    form.classList.remove("hidden");
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    console.warn("leadForm not found");
+  }
+}
+
+function getLeadType(bill, propertyType, rooftopOwnership) {
+  let score = 0;
+  if (bill >= 3000) score += 2;
+  else if (bill >= 1500) score += 1;
+
+  if (propertyType === "Independent House") score += 2;
+  else score += 1;
+
+  if (rooftopOwnership === "Yes") score += 2;
+
+  if (score >= 5) return "Premium";
+  if (score >= 3) return "Hot";
+  return "Basic";
+}
+
+// ===============================
+// 🔥 UPDATED SUBMIT LEAD ROUTINE
+// ===============================
+async function submitLead() {
+  const currentStage = (localStorage.getItem("leadStage") || "").toUpperCase();
+
+  if (currentStage && currentStage !== "INITIAL" && currentStage !== "AI_GENERATED") {
+      alert("Analysis report is locked. You have already requested a site survey.");
+      return;
+  }
+  
+  const submitBtn = document.querySelector("#leadForm button");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Uploading & Generating AI Analysis..."; 
+  }
+  
+  const name = document.getElementById("capturedName")?.value.trim() || "Homeowner";
+  const cityDropdown = document.getElementById("resCity");
+  const cityInput = document.getElementById("capturedCity");
+  const city = (cityDropdown && cityDropdown.value) ? cityDropdown.value : cityInput?.value?.trim();
+
+  const calculationMode =
+  localStorage.getItem("calculationMode") || "bill";
+
+let bill;
+
+if (calculationMode === "kw") {
+
+  const selectedKw =
+    parseFloat(
+      document.getElementById("capturedKw")?.value ||
+      localStorage.getItem("selectedKw") ||
+      3
+    );
+
+  bill = selectedKw * 900;
+
+} else {
+
+  const billValue =
+    document.getElementById("capturedBill")?.value;
+
+  bill =
+  parseFloat(
+    billValue || getBill()
+  );
+}
+
+  const propertyType = document.getElementById("propertyType")?.value;
+  const roofType = document.getElementById("roofType")?.value;
+  const rooftopOwnership = document.getElementById("rooftopOwnership")?.value;
+  const connectionType = document.getElementById("connectionType")?.value;
+  const billFile = document.getElementById("billUpload")?.files?.[0];
+
+  if (!city || city === "" || city === "Select City") { 
+    alert("Please select your City from the dropdown to complete the dynamic feasibility analysis.");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+    return;
+  }
+
+  if (!rooftopOwnership) {
+    alert("Please select rooftop ownership");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+    return;
+  }
+
+  const leadId = localStorage.getItem("leadId");
+  if (!leadId) {
+    alert("Lead ID not found");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+    return;
+  }
+
+  if (typeof firebase === "undefined" || typeof db === "undefined") {
+    alert("Database not initialized");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+    return;
+  }
+
+  // 🛑 HARDENED SECURITY GUARDRAILS FOR UN-AUTHENTICATED PATHWAY (OPTION B MATCH)
+  if (billFile) {
+      const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+      if (!allowedMimeTypes.includes(billFile.type) && !billFile.type.startsWith("image/")) {
+          alert("Invalid file type. Only standard PDFs and images are accepted for utility bills.");
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+          return;
+      }
+      
+      if (billFile.size > 5 * 1024 * 1024) {
+          alert("Maximum file limit for unauthenticated uploads is 5MB. Please upload a compressed document.");
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+          return;
+      }
+  }
+
+  // ⚡ VERIFY / FIX: Hide profile form and trigger the spinning AI loader state IMMEDIATELY upon execution
+  document.getElementById("leadForm")?.classList.add("hidden");
+  showAILoadingState();
+  
+  let billUrl = null;
+
+  if (billFile) {
+      try {
+          const uploadResult = await handleUnifiedUpload(billFile, 'bill', leadId);
+          billUrl = uploadResult.remoteUrl;
+          //console.log("✅ Custom file written to platform array. Path context tracking schema mapped:", billUrl);
+      } catch (storageError) {
+          console.error("❌ Unified Storage engine failure during execution");
+          alert(storageError.message || "File validation processing failed.");
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+          document.getElementById("leadForm")?.classList.remove("hidden");
+          document.getElementById("aiLoadingState")?.classList.add("hidden");
+          return;
+      }
+  }
+
+
+  const leadType = getLeadType(bill, propertyType, rooftopOwnership);
+  const requestTime = Date.now();
+  
+  const selectedState = document.getElementById("resState")?.value || 
+                        localStorage.getItem("state") || 
+                        "UP";
+  
+  const result = calculateSolar(bill, selectedState);
+  renderResults(result, bill);
+
+  try {
+     await db.collection("leads").doc(leadId).update({
+      name,
+      city,
+      bill,
+      propertyType,
+      roofType,
+      rooftopOwnership,
+      connectionType,
+      billUploaded: billFile ? "Yes" : "No",
+      billUrl: billUrl, 
+      leadType,
+      stage: "AI_GENERATED",
+      timeline: {
+        aiGenerated: { status: true, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
+        surveyRequested: { status: false, timestamp: null },
+        surveyCompleted: { status: false, timestamp: null },
+        offerUploaded: { status: false, timestamp: null },
+        offerAccepted: { status: false, timestamp: null },
+        agreementSigned: { status: false, timestamp: null },
+        netMetering: { status: false, timestamp: null },
+        installation: { status: false, timestamp: null },
+        subsidy: { status: false, timestamp: null }
+      },
+      aiRegenerationRequired: true,
+      systemSizeKw: result.systemSize,
+      totalSubsidy: result.subsidy,
+      netCost: result.finalCost,
+      monthlySavings: result.monthlySavings,
+      paybackYears: result.payback,
+      panelsCount: result.panels,
+      areaRequired: result.area,
+      lifetimeSavings: result.lifetimeSavings,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    console.log("✅ Lead updated successfully");
+    localStorage.setItem("leadStage", "AI_GENERATED");
+    updateRoadmap("AI_GENERATED");
+  } catch (error) {
+    console.error("❌ Update failed");
+    alert("Database update transaction sync failure: " + error.message);
+    
+    // Safety recovery layout loop if database commits fail
+    document.getElementById("leadForm")?.classList.remove("hidden");
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+    return;
+  }
+
+  try {
+    const aiReport = await waitForAIReport(leadId, requestTime);
+    renderDynamicAIReport(aiReport, result, true);
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+  } catch (error) {
+    console.error("error");
+    document.getElementById("aiLoadingState")?.classList.add("hidden");
+    
+    renderAIInsights({
+      bill,
+      result,
+      propertyType,
+      rooftopOwnership,
+      roofType
+    });
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Submit Request"; }
+  }
+}
+
+
+function setupBillUpload() {
+  const uploadArea = document.getElementById("billUploadArea");
+  const fileInput = document.getElementById("billUpload");
+  const fileNameDisplay = document.getElementById("billFileName");
+
+  if (!uploadArea || !fileInput || !fileNameDisplay) return;
+
+  uploadArea.addEventListener("click", () => fileInput.click());
+
+  uploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadArea.style.backgroundColor = "#f0f9ff";
+  });
+
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.style.backgroundColor = "";
+  });
+
+  const renderSelectionUI = (file) => {
+    const localUrl = URL.createObjectURL(file);
+    localUploadedFiles.bill = localUrl; // Stash to active state cache
+    
+    fileNameDisplay.innerHTML = `
+        <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-medium flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+            <div class="flex items-center gap-2">
+                <span>📄</span>
+                <span class="truncate max-w-[180px] sm:max-w-[240px]">Staged: <strong>${file.name}</strong></span>
+            </div>
+            <a href="${localUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition no-underline shadow-sm">
+                Open Staged Bill 👁️
+            </a>
+        </div>
+    `;
+  };
+
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.style.backgroundColor = "";
+    if (e.dataTransfer.files.length > 0) {
+      fileInput.files = e.dataTransfer.files;
+      renderSelectionUI(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) {
+      renderSelectionUI(e.target.files[0]);
+    }
+  });
+}
+
+
+function populateCapturedData() {
+
+  const name = document.getElementById("capturedName");
+  const phone = document.getElementById("capturedPhone");
+  const city = document.getElementById("capturedCity");
+  const bill = document.getElementById("capturedBill");
+
+  const rawName =
+    localStorage.getItem("leadName") ||
+    "";
+  
+  if (name) name.value = (rawName === "Homeowner" ||!rawName)? "" : decodeURIComponent(rawName);
+  if (phone) phone.value =
+    localStorage.getItem("leadPhone") ||
+    "";
+  
+  const rawCity =
+    localStorage.getItem("leadCity") ||
+    "";
+  
+  if (city) {
+    city.value = (rawCity === "N/A" ||!rawCity)? "" : decodeURIComponent(rawCity);
+    city.placeholder = "City (e.g., Lucknow)";
+  }
+  const mode = localStorage.getItem("calculationMode") || "bill";
+
+const kwField = document.getElementById("capturedKw");
+
+if (mode === "kw") {
+
+  if (bill) bill.classList.add("hidden");
+
+ if (kwField) {
+
+  kwField.classList.remove("hidden");
+
+  const restoredKw =
+      localStorage.getItem("selectedKw") ||
+      "3";
+
+  setTimeout(() => {
+      kwField.value = String(parseFloat(restoredKw));
+      kwField.dispatchEvent(
+          new Event("change", { bubbles: true })
+      );
+  }, 300);
+}
+
+} else {
+
+  if (kwField) kwField.classList.add("hidden");
+
+  if (bill) {
+    bill.classList.remove("hidden");
+    bill.value =
+    localStorage.getItem("bill") ||
+    "";
+  }
+}
+}
+
+function setupEditableInputs() {
+  const billInput = document.getElementById("capturedBill");
+  const cityInput = document.getElementById("capturedCity");
+  const nameInput = document.getElementById("capturedName");
+  
+  if (!billInput) return;
+
+  function updateUIDisplay() {
+    const newBill = parseFloat(billInput.value) || 0;
+    const cityDropdown = document.getElementById("resCity");
+    const newCity = cityDropdown?.value || ""; 
+    const newName = nameInput?.value?.trim() || "";
+    const currentState = document.getElementById("resState")?.value || "UP";
+
+    localStorage.setItem("bill", newBill);
+
+if (newCity) {
+  localStorage.setItem(
+    "leadCity",
+    newCity
+  );
+}
+
+if (newName) {
+  localStorage.setItem(
+    "leadName",
+    newName
+  );
+}
+
+    const result = calculateSolar(newBill, currentState); 
+    renderResults(result, newBill);
+  }
+
+  billInput.addEventListener("input", updateUIDisplay);
+  cityInput?.addEventListener("input", updateUIDisplay);
+  nameInput?.addEventListener("input", updateUIDisplay);
+}
+
+// ===============================
+// 🤖 AI INSIGHTS ENGINE
+// ===============================
+function generateAIScore(bill, propertyType, rooftopOwnership, roofType, payback) {
+  let score = 50;
+  if (bill >= 3000) score += 20;
+  else if (bill >= 1500) score += 10;
+
+  if (propertyType === "Independent House") score += 15;
+  if (rooftopOwnership === "Yes") score += 10;
+  if (roofType === "Concrete") score += 10;
+
+  if (payback <= 4) score += 10;
+  else if (payback <= 6) score += 5;
+
+  return Math.min(score, 99);
+}
+
+function getDynamicAISummary(data) {
+  const summaries = [
+    `Your electricity usage pattern indicates strong suitability for rooftop solar adoption. A ${parseFloat(data.systemSize)} kW system could significantly reduce long-term grid dependency.`,
+    `Based on your projected payback period of ${data.payback} years, this solar investment appears financially attractive for residential installation.`,
+    `Your profile aligns well with subsidy-supported solar adoption, potentially improving long-term savings and installation ROI.`,
+    `With estimated lifetime savings exceeding ${formatIndianCurrency(data.lifetimeSavings)}, rooftop solar may provide substantial financial benefits over time.`,
+    `Our AI analysis indicates that your rooftop and electricity usage profile are compatible with high-efficiency residential solar deployment.`
+  ];
+
+  if (data.stateSubsidy > 0) {
+    summaries.push(`Additional state-level subsidy support currently improves your estimated solar return on investment.`);
+  }
+
+  const randomIndex = Math.floor(Math.random() * summaries.length);
+  return summaries[randomIndex];
+}
+
+function renderAIInsights({ bill, result, propertyType, rooftopOwnership, roofType }) {
+  const aiSection = document.getElementById("aiInsightsSection");
+  if (!aiSection) return;
+
+  const score = generateAIScore(bill, propertyType, rooftopOwnership, roofType, parseFloat(result.payback));
+  document.getElementById("aiScore").innerText = score;
+
+  let badge = "Moderate Match";
+  if (score >= 85) badge = "Excellent Match";
+  else if (score >= 70) badge = "Strong Match";
+  else if (score >= 55) badge = "Good Match";
+
+  document.getElementById("aiBadge").innerText = badge;
+  document.getElementById("aiProgressBar").style.width = score + "%";
+
+  let financialText = `Your estimated monthly savings of ₹${result.monthlySavings} and projected payback period of ${result.payback} years indicate favorable long-term solar economics.`;
+  if (parseFloat(result.payback) <= 4) {
+    financialText = `Your projected payback period is considered excellent for residential rooftop solar adoption.`;
+  }
+  document.getElementById("financialInsight").innerText = financialText;
+
+  let roofText = `Your rooftop profile appears compatible with standard residential solar installation requirements.`;
+  if (rooftopOwnership === "Yes" && roofType === "Concrete") {
+    roofText = `Concrete rooftop ownership significantly improves installation feasibility and installer readiness.`;
+  }
+  document.getElementById("roofInsight").innerText = roofText;
+
+  let subsidyText = `Your location currently qualifies for central government rooftop solar subsidy support.`;
+  if (result.stateSubsidy > 0) {
+    subsidyText = `Your state currently offers additional subsidy support beyond the central government scheme, improving overall ROI.`;
+  }
+  document.getElementById("subsidyInsight").innerText = subsidyText;
+
+  safeSetText(
+    "save5",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 5)
+    )
 );
+
+safeSetText(
+    "save10",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 10)
+    )
+);
+
+safeSetText(
+    "save25",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 25)
+    )
+);
+  
+  document.getElementById("aiSummary").innerText = getDynamicAISummary({
+    bill,
+    systemSize: result.systemSize,
+    payback: result.payback,
+    lifetimeSavings: result.lifetimeSavings,
+    stateSubsidy: result.stateSubsidy
+  });
+
+  aiSection.classList.remove("hidden");
+  aiSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showAILoadingState() {
+  document.getElementById("submitSuccess")?.classList.add("hidden");
+  document.getElementById("aiInsightsSection")?.classList.add("hidden");
+  document.getElementById("personaSection")?.classList.add("hidden");
+  document.getElementById("pricingConfidenceSection")?.classList.add("hidden");
+  document.getElementById("buyerProtectionSection")?.classList.add("hidden");
+  
+  const loadingEl = document.getElementById("aiLoadingState");
+  loadingEl?.classList.remove("hidden");
+  loadingEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function waitForAIReport(leadId, requestTime) {
+  const maxAttempts = 12;
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const doc = await db.collection("ai_reports").doc(leadId).get();
+      if (doc.exists) {
+        const data = doc.data();
+        const generatedAt = data.generatedAt?.toMillis?.() || 0;
+        if (generatedAt >= requestTime) {
+          return data;
+        }
+      }
+    } catch (error) {
+      console.error("AI report fetch error:", error.message || error);
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  throw new Error("AI report generation timeout");
+}
+
+
+// =========================================================================
+// 🛠️ DEVELOPMENT & TESTING CONFIGURATION
+// =========================================================================
+
+const PRODUCTION_DOMAINS = [
+    "solaraiadvisor.in",
+    "www.solaraiadvisor.in",
+    "solaraiadvisor.com",
+    "www.solaraiadvisor.com",
+    "solaraiadvisor.co.in",
+    "www.solaraiadvisor.co.in"
+];
+
+const IS_PRODUCTION =
+    PRODUCTION_DOMAINS.includes(location.hostname);
+
+const DEV_CONFIG = {
+    isDevMode: !IS_PRODUCTION,
+
+    otpEnabled: IS_PRODUCTION,
+
+    bypassOtpFlow: !IS_PRODUCTION,
+
+    testOtpCode: !IS_PRODUCTION
+        ? "123456"
+        : ""
+};
+
+function normalizeIndianPhone(phone) {
+
+    let cleaned =
+        String(phone || "")
+        .replace(/\D/g, "");
+
+    if (cleaned.startsWith("91")) {
+        cleaned = cleaned.substring(2);
+    }
+
+    if (cleaned.length !== 10) {
+        throw new Error(
+            "Please enter a valid 10 digit mobile number."
+        );
+    }
+
+    return `+91${cleaned}`;
+}
+
+// =========================================================================
+// 🛡️ AUTHENTICATED SURVEY REQUEST FLOW
+// =========================================================================
+let otpAttempts = 0;
+const MAX_OTP_ATTEMPTS = 3;
+let recaptchaVerifier = null;
+
+async function requestSiteSurvey() {
+    const leadId = localStorage.getItem("leadId");
+    const phone = document.getElementById("capturedPhone")?.value || localStorage.getItem("billPhone");
+
+    if (!leadId || !phone) {
+        alert("Lead information missing. Please complete the form or refresh the page.");
+        return;
+    }
+
+    if (document.getElementById('authModal')) return;
+
+        if (!DEV_CONFIG.otpEnabled) {
+    console.log("⚡ OTP Disabled. Moving directly to PIN setup.");
+
+    const placeholderModal = document.createElement('div');
+    placeholderModal.id = 'authModal';
+    placeholderModal.className =
+        'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+
+    document.body.appendChild(placeholderModal);
+
+    showPinSetupModal(
+        placeholderModal,
+        phone
+    );
+
+    return;
+}
+
+if (DEV_CONFIG.isDevMode && DEV_CONFIG.bypassOtpFlow) {
+        console.log("🛠️ [Dev Mode] Bypassing OTP entry screen completely.");
+        const placeholderModal = document.createElement('div');
+        placeholderModal.id = 'authModal';
+        placeholderModal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+        document.body.appendChild(placeholderModal);
+        
+        showPinSetupModal(placeholderModal, phone);
+        return;
+    }
+
+
+if (DEV_CONFIG.otpEnabled) {
+
+    try {
+
+        const normalizedPhone =
+            normalizeIndianPhone(phone);
+
+        if (!recaptchaVerifier) {
+
+            recaptchaVerifier =
+                new firebase.auth.RecaptchaVerifier(
+                    "recaptcha-container",
+                    {
+                        size: "invisible"
+                    }
+                );
+
+            await recaptchaVerifier.render();
+        }
+
+        window.confirmationResult =
+            await firebase.auth()
+                .signInWithPhoneNumber(
+                    normalizedPhone,
+                    recaptchaVerifier
+                );
+
+        console.log(
+            "✅ OTP sent successfully"
+        );
+
+    }
+    catch(error) {
+
+        console.error(
+            "OTP Send Failed"
+        );
+
+        alert(
+            error.message ||
+            "Unable to send OTP."
+        );
+
+        return;
+    }
+}
+
+
+    const modal = document.createElement('div');
+    modal.id = 'authModal';
+    modal.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+            <h3 class="text-lg font-bold mb-2 text-slate-900">Verify to Join Queue</h3>
+            <p class="text-sm text-slate-500 mb-4">Enter the OTP sent to <span class="font-semibold text-slate-800">${phone}</span></p>
+            <input type="tel" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" id="otpInput" maxlength="6" class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-xl tracking-widest font-mono focus:outline-none focus:border-indigo-500" placeholder="000000">
+            
+            <div class="flex gap-2 mb-4">
+                <button id="verifyOtpBtn" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-sm">Verify</button>
+                <button id="resendOtpBtn" disabled class="px-4 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-400 bg-slate-50 transition">Resend (30s)</button>
+            </div>
+            <p id="attemptCounter" class="text-xs text-center text-slate-400">Attempts: ${otpAttempts}/${MAX_OTP_ATTEMPTS}</p>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    startResendTimer();
+
+    document.getElementById('resendOtpBtn').onclick = async () => {
+        try {
+            document.getElementById('resendOtpBtn').disabled = true;
+            if (typeof firebase !== 'undefined' && window.confirmationResult) {
+                alert("A fresh OTP verification code has been dispatched.");
+            } else if (DEV_CONFIG.isDevMode) {
+                alert(`[Dev Mode] SMS bypass active. Use test OTP code: ${DEV_CONFIG.testOtpCode}`);
+            } else {
+                alert("Firebase Authentication context not found.");
+            }
+            startResendTimer();
+        } catch (resendError) {
+            console.error("OTP Resend failed");
+            alert("Failed to resend verification code. Please try again.");
+            document.getElementById('resendOtpBtn').disabled = false;
+        }
+    };
+
+    document.getElementById('verifyOtpBtn').onclick = async () => {
+        const otp = document.getElementById('otpInput').value.trim();
+        if (otp.length < 6) return alert("Please enter a valid 6-digit verification code.");
+        
+        try {
+            if (typeof window !== 'undefined' && window.confirmationResult) {
+                await window.confirmationResult.confirm(otp);
+            } else {
+                throw new Error("Invalid Verification Code.");
+            }
+            showPinSetupModal(modal, phone); 
+        } catch (verifyError) {
+            otpAttempts++;
+            if (otpAttempts >= MAX_OTP_ATTEMPTS) {
+    // Retrieve the leadCode from localStorage, fallback to leadId or "N/A" if not found
+    const currentLeadCode = localStorage.getItem("leadCode") || leadId || "N/A";
+
+    alert("Maximum verification attempts exceeded. Transitioning to manual assistance desk.");
+    window.open(`https://wa.me/61404166347?text=Hi,%20I%20need%20manual%20verification%20assistance%20for%20Lead%20Code:%20${currentLeadCode}`, "_blank");
+    modal.remove();
+    return;
+}
+            const counterEl = document.getElementById('attemptCounter');
+            if (counterEl) {
+                counterEl.className = "text-xs text-center text-red-500 font-medium";
+                counterEl.innerText = `Attempts: ${otpAttempts}/${MAX_OTP_ATTEMPTS} - Invalid Code`;
+            }
+            
+            if (recaptchaVerifier) {
+                recaptchaVerifier.clear();
+                recaptchaVerifier = null;
+            }
+        }
+    };
+}
+
+// =========================================================================
+// 🔑 PIN SETUP MODAL & SECURE BATCH SAVE 
+// =========================================================================
+function showPinSetupModal(previousModal, phone) {
+  previousModal.innerHTML = `
+<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+
+    <h3 class="text-lg font-bold mb-2 text-slate-900">
+        Set Security PIN
+    </h3>
+
+    <p class="text-sm text-slate-500 mb-4">
+        Create a secure 4-digit PIN for future login.
+    </p>
+
+    <input
+    type="password"
+    id="pinInput"
+    autofocus
+    pattern="[0-9]{4}"
+    maxlength="4"
+    inputmode="numeric"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+        class="w-full p-3 border border-slate-200 rounded-xl mb-3 text-center text-2xl tracking-[1em] font-mono"
+        placeholder="****">
+
+    <input
+    type="password"
+    id="confirmPinInput"
+    pattern="[0-9]{4}"
+    maxlength="4"
+    inputmode="numeric"
+    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+        class="w-full p-3 border border-slate-200 rounded-xl mb-4 text-center text-2xl tracking-[1em] font-mono"
+        placeholder="****">
+
+    <button
+        id="savePinBtn"
+        class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm">
+
+        Set PIN & Submit Request
+
+    </button>
+
+</div>
+`;
+
+setTimeout(() => {document.getElementById("pinInput")?.focus();}, 100);
+    document.getElementById('savePinBtn').onclick = async () => {
+        const pin = document.getElementById('pinInput').value.trim();
+        const confirmPin =
+document.getElementById('confirmPinInput')
+.value.trim();
+       if (
+    pin.length !== 4 ||
+    isNaN(pin)
+) {
+    return alert(
+        "Security PIN must consist of exactly 4 digits."
+    );
+}
+
+if (
+    confirmPin.length !== 4 ||
+    isNaN(confirmPin)
+) {
+    return alert(
+        "Please re-enter the same 4-digit PIN."
+    );
+}
+
+if (pin !== confirmPin) {
+    return alert(
+        "PIN and Confirm PIN do not match."
+    );
+}
+        
+        const saveBtn = document.getElementById('savePinBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Processing Pipeline Registration...";
+
+        const leadId = localStorage.getItem("leadId");
+        const leadCode = localStorage.getItem("leadCode");
+
+        try {
+
+            if (DEV_CONFIG.isDevMode && (typeof db === 'undefined' || typeof firebase === 'undefined')) {
+                console.warn("⚠️ [Dev Mode] Database infrastructure isolated. Mocking successful submission.");
+                setTimeout(() => {
+                    localStorage.setItem("leadStage", "SURVEY_REQUESTED");
+                    previousModal.remove();
+                    location.reload();
+                }, 1000);
+                return;
+            }
+
+            const createLeadSession =
+    firebase
+        .app()
+        .functions("asia-south2")
+        .httpsCallable(
+            "createLeadSession"
+        );
+
+const response =
+    await createLeadSession({
+
+        leadId,
+
+        phone,
+
+        pin
+    });
+    
+    if (
+    response.data &&
+    response.data.sessionToken
+) {
+
+    localStorage.setItem(
+        "sessionToken",
+        response.data.sessionToken
+    );
+}
+
+
+            
+            localStorage.setItem("leadStage", "SURVEY_REQUESTED");
+            previousModal.remove();
+            updateRoadmap("SURVEY_REQUESTED");
+            
+        } catch (firebaseError) {
+            console.error("Transaction batch write failure");
+            alert("Database pipeline synchronization failed: " + firebaseError.message);
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Set PIN & Submit Request";
+        }
+    };
+}
+
+
+function startResendTimer() {
+    let timeLeft = 30;
+    const btn = document.getElementById('resendOtpBtn');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.className = "px-4 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-400 bg-slate-50 cursor-not-allowed";
+    btn.innerText = `Resend (${timeLeft}s)`;
+
+    const interval = setInterval(() => {
+        timeLeft--;
+        btn.innerText = `Resend (${timeLeft}s)`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.className = "px-4 py-2.5 rounded-xl border border-indigo-200 font-semibold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100 transition cursor-pointer";
+            btn.innerText = "Resend OTP";
+        }
+    }, 1000);
+}
+
+// 🚀 FIX: Accept alternative shouldScroll argument to bypass jumping routines during stage adjustments
+function renderDynamicAIReport(report, result, shouldScroll = false) {
+    if (!report) {
+    console.error(
+        "renderDynamicAIReport called without report"
+    );
+    return;
+}
+
+if (!result) {
+    console.error(
+        "renderDynamicAIReport called without result"
+    );
+    return;
+}
+  document.getElementById("aiLoadingState")?.classList.add("hidden");
+
+  const conciergeCard = document.getElementById("conciergeCard");
+  const installerSection = document.getElementById("installerSection");
+  const currentStage = localStorage.getItem("leadStage") || "INITIAL";
+
+  if (conciergeCard && installerSection) {
+    if (report.matchedInstallers && report.matchedInstallers.length > 0) {
+      conciergeCard.classList.add("hidden");
+      installerSection.classList.remove("hidden");
+
+        window.installerCache =
+    report.matchedInstallers || [];
+
+window.aiReportCache =
+    report;
+        
+      renderInstallerCards(report.matchedInstallers);
+    } else {
+      if (currentStage === "AI_GENERATED" || currentStage === "INITIAL") {
+          conciergeCard.classList.remove("hidden");
+      } else {
+          conciergeCard.classList.add("hidden");
+      }
+      installerSection.classList.add("hidden");
+    }
+  } else {
+    console.warn("Skipping layout toggle: 'conciergeCard' or 'installerSection' is missing from DOM.");
+    if (report.matchedInstallers && report.matchedInstallers.length > 0) {
+        window.installerCache =
+    report.matchedInstallers || [];
+
+window.aiReportCache =
+    report;
+        
+      renderInstallerCards(report.matchedInstallers);
+    }
+  }
+  
+  const aiSection = document.getElementById("aiInsightsSection");
+  if (aiSection) {
+    aiSection.classList.remove("hidden");
+  }
+
+  const aiScoreEl = document.getElementById("aiScore");
+  if (aiScoreEl) {
+    aiScoreEl.innerText = report.persona?.confidence || 85;
+  }
+
+  safeSetText(
+    "aiBadge",
+    report.installerReadiness?.level || "Strong Match"
+);
+  document.getElementById("aiProgressBar").style.width = `${report.persona?.confidence || 85}%`;
+  safeSetText("financialInsight",`Estimated monthly savings of ₹${result.monthlySavings} with projected payback of ${result.payback} years indicate favorable long-term solar economics.`);
+  safeSetText(
+    "roofInsight",
+    report.installerReadiness?.message ||
+    "Your rooftop profile appears compatible with residential solar installation.");
+
+  safeSetText(
+    "subsidyInsight",
+    report.stateSubsidy > 0
+        ? "Your state currently offers additional subsidy support beyond central schemes."
+        : "Your location qualifies for central rooftop solar subsidy support."
+);
+
+  safeSetText(
+    "save5",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 5)
+    )
+);
+
+safeSetText(
+    "save10",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 10)
+    )
+);
+
+safeSetText(
+    "save25",
+    formatIndianCurrency(
+        Math.round(result.monthlySavings * 12 * 25)
+    )
+);
+  safeSetText(
+    "aiSummary",
+    report.recommendationSummary || ""
+);
+
+  const personaPrimary = report.personaV2?.primary || "Balanced Buyer";
+  const personaSecondary = report.personaV2?.secondary || "";
+  const personaConfidence = report.personaV2?.confidence || 85;
+  const personaUrgency = report.personaV2?.urgency || "Normal";
+  const financingLikelihood = report.personaV2?.financingLikelihood || "Low";
+  const installerFit = report.personaV2?.installerFit || "Moderate";
+  const personaCharacteristics = report.personaV2?.characteristics || [];
+  const personaSummary = report.personaV2?.summary || "";
+
+  const primaryEl = document.getElementById("personaPrimary");
+  if (primaryEl) primaryEl.innerText = personaPrimary;
+
+  const secondaryEl = document.getElementById("personaSecondary");
+  if (secondaryEl) secondaryEl.innerText = personaSecondary;
+
+  const confidenceEl = document.getElementById("personaConfidence");
+  if (confidenceEl) confidenceEl.innerText = `${personaConfidence}%`;
+
+  const urgencyEl = document.getElementById("personaUrgency");
+  if (urgencyEl) urgencyEl.innerText = personaUrgency;
+
+  const financingEl = document.getElementById("personaFinancing");
+  if (financingEl) financingEl.innerText = financingLikelihood;
+
+  const installerFitEl = document.getElementById("personaInstallerFit");
+  if (installerFitEl) installerFitEl.innerText = installerFit;
+
+  const summaryEl = document.getElementById("personaSummary");
+  if (summaryEl) summaryEl.innerText = personaSummary;
+
+  const traitsEl = document.getElementById("personaTraits");
+  if (traitsEl) {
+    traitsEl.innerHTML = personaCharacteristics.map(trait => `<li>${trait}</li>`).join("");
+  }
+
+  document.getElementById("personaSection")?.classList.remove("hidden");
+
+  document.getElementById("pricingConfidenceSection")?.classList.add("hidden");
+
+  const buyerSection = document.getElementById("buyerProtectionSection");
+  buyerSection?.classList.remove("hidden");
+
+  const protectionList =
+    document.getElementById("buyerProtectionList");
+
+const checklist =
+    report.buyerProtectionChecklist || [];
+
+if (!protectionList) {
+    console.warn(
+        "buyerProtectionList container missing"
+    );
+    return;
+}
+
+protectionList.innerHTML = "";
+
+  checklist.forEach((item) => {
+    protectionList.innerHTML += `
+      <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
+        <div class="text-emerald-600 text-lg mt-0.5">✔</div>
+        <p class="text-sm text-slate-700 leading-relaxed">${item}</p>
+      </div>
+    `;
+  });
+ 
+  // 🚀 FIX: Smooth scroll ONLY happens if explicitly flagged during a fresh creation event loop
+  if (shouldScroll && (currentStage === "INITIAL" || currentStage === "AI_GENERATED")) {
+    requestAnimationFrame(() => {
+      const aiSectionTarget = document.getElementById("aiInsightsSection");
+      if (!aiSectionTarget) return;
+      const y = aiSectionTarget.getBoundingClientRect().top + window.pageYOffset - 24;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    });
+  }
+}
+
+function renderDetailedTimelineLogs(data) {
+    const currentLocalStage = localStorage.getItem("previousObservedStage");
+    if (currentLocalStage === "OFFER_UNDER_REVIEW" && data.stage === "OFFER_ACCEPTED") {
+        document.getElementById('quoteUploadSection')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    localStorage.setItem("previousObservedStage", data.stage || "INITIAL");
+}
+
+function showError(inputId, errorId, message) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+  if (errorEl) errorEl.innerText = message;
+  if (inputEl) {
+    inputEl.style.borderColor = "#ef4444"; 
+    inputEl.classList.add("bg-red-50");
+  }
+}
+
+// 🚀 FIX: Resolved critical undefined lookup bug ('input' token switched to correct 'inputId' scope)
+function clearError(inputId, errorId) {
+  const errorEl = document.getElementById(errorId);
+  const inputEl = document.getElementById(inputId);
+  if (errorEl) errorEl.innerText = "";
+  if (inputEl) {
+    inputEl.style.borderColor = ""; 
+    inputEl.classList.remove("bg-red-50");
+  }
+}
+
+function getStateFromPin(pin) {
+  if (!pin || pin.length < 2) return "DL";
+  const prefix = parseInt(pin.substring(0, 2));
+  if (prefix === 11) return "DL";
+  if (prefix >= 12 && prefix <= 13) return "HR";
+  if (prefix >= 14 && prefix <= 16) return "PB";
+  if (prefix === 17) return "HP";
+  if (prefix >= 18 && prefix <= 19) return "JK";
+  if (prefix >= 20 && prefix <= 23) return "UP";
+  if (prefix >= 24 && prefix <= 28) return "UK"; 
+  if (prefix >= 30 && prefix <= 34) return "RJ";
+  if (prefix >= 36 && prefix <= 39) return "GJ";
+  if (prefix >= 40 && prefix <= 44) return "MH";
+  if (prefix >= 45 && prefix <= 48) return "MP";
+  if (prefix === 49) return "CG";
+  if (prefix === 50) return "TS";
+  if (prefix >= 51 && prefix <= 53) return "AP";
+  if (prefix >= 56 && prefix <= 59) return "KA";
+  if (prefix >= 60 && prefix <= 64) return "TN";
+  if (prefix >= 67 && prefix <= 69) return "KL";
+  if (prefix >= 70 && prefix <= 74) return "WB";
+  if (prefix >= 75 && prefix <= 77) return "OR";
+  if (prefix === 78) return "AS";
+  if (prefix === 79) return "AR"; 
+  if (prefix >= 80 && prefix <= 85) return "BR";
+  return "DL";
+}
+
+// ===============================
+// 🔹 INITIALIZATION
+// ===============================
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    await loadPricingConfigs();
+
+    const sessionOk =
+      await validateSession();
+
+    if (!sessionOk) {
+      return;
+    }
+    const leadId = localStorage.getItem("leadId");
+
+    if (leadId) {
+        if (typeof setupRealTimeTimeline === "function") {
+            setupRealTimeTimeline(leadId);
+        }
+
+        try {
+            const leadDoc = await db.collection("leads").doc(leadId).get();
+            if (leadDoc.exists) {
+                const leadData = leadDoc.data();
+                
+                window.selectedInstallerId = leadData.assignedInstallerId || "";
+                
+                const currentStage = leadData.stage || "INITIAL";
+            // Show consent withdrawal only for active customers
+
+                    const privacyCard =
+                    document.getElementById("privacyControlsCard");
+                    
+                    const eligibleStages = [
+                      "AI_GENERATED",
+                      "SURVEY_REQUESTED",
+                      "SURVEY_COMPLETED",
+                      "OFFER_UNDER_REVIEW",
+                      "OFFER_ACCEPTED",
+                      "AGREEMENT_SIGNED",
+                      "NET_METERING_APPLIED",
+                      "INSTALLATION_COMPLETED",
+                      "SUBSIDY_CREDITED"
+                    ];
+                    
+                    if (
+                        privacyCard &&
+                        eligibleStages.includes(currentStage)
+                    ) {
+                        privacyCard.classList.remove("hidden");
+                    }
+                
+                if (currentStage !== "INITIAL") {
+                    const formContainer = document.getElementById("leadForm");
+                    if (formContainer) {
+                        formContainer.classList.add("hidden"); 
+                    }
+                }
+                
+                localStorage.setItem("leadStage", currentStage);
+                updateRoadmap(currentStage, leadData);
+            }
+
+            const aiDoc = await db.collection("ai_reports").doc(leadId).get();
+            if (aiDoc.exists) {
+                aiReportCache = aiDoc.data();
+            }
+
+window.aiReportCache =
+  aiDoc.exists
+    ? aiDoc.data()
+    : null;
+
+            if (
+    window.aiReportCache?.matchedInstallers
+) {
+
+    window.installerCache =
+        window.aiReportCache.matchedInstallers;
+
+    console.log(
+        "FORCED INSTALLER RENDER"
+    );
+
+    renderInstallerCards(
+        window.installerCache
+    );
+}
+        } catch (err) {
+            console.error("Error syncing platform state");
+        }
+    }
+
+    setupBillUpload();
+    populateCapturedData();
+    setupEditableInputs();
+
+// ======================================
+// kW Selector Recalculation Handler
+// ======================================
+
+const kwSelector = document.getElementById("capturedKw");
+
+if (kwSelector) {
+
+  kwSelector.addEventListener("change", () => {
+
+    const selectedKw = parseFloat(kwSelector.value);
+
+    localStorage.setItem("selectedKw", selectedKw);
+    
+    localStorage.setItem("calculationMode", "kw");
+
+    // Keep existing bill-based engine alive
+    const equivalentBill = selectedKw * 900;
+
+    localStorage.setItem("bill", equivalentBill);
+
+    const result = calculateSolar(equivalentBill);
+    renderResults(result, equivalentBill);
+
+  });
+
+}
+
+   // 1. Capture the true State & City from the URL or Local Session
+    
+    const targetState =
+    localStorage.getItem("leadState") ||
+    localStorage.getItem("state") ||
+    "UP";
+
+const targetCity =
+    localStorage.getItem("leadCity") ||
+    localStorage.getItem("verifiedCity") ||
+    "";
+    
+    if (typeof LocationHandler !== "undefined" && LocationHandler.init) {
+        // 2. Await the native handler, but pass it our strict targetState
+        await LocationHandler.init("resState", "resCity", (newState) => {
+            localStorage.setItem("state", newState); 
+            calculateSavings(); 
+        }, targetState);
+
+        // 3. NATIVE SYNC: The moment LocationHandler finishes building the HTML, we set the City
+        const cityDropdown = document.getElementById("resCity");
+        if (cityDropdown && targetCity && targetCity !== "Not Provided") {
+            const searchCityLower = targetCity.toLowerCase();
+            let cityFound = false;
+
+            for (let i = 0; i < cityDropdown.options.length; i++) {
+                if (cityDropdown.options[i].value.toLowerCase() === searchCityLower || 
+                    cityDropdown.options[i].text.toLowerCase() === searchCityLower) {
+                    cityDropdown.selectedIndex = i;
+                    cityFound = true;
+                    break;
+                }
+            }
+
+            // 4. Fallback injection if the city isn't natively in the selected State's JSON array
+            if (!cityFound) {
+                const formattedCity = targetCity.charAt(0).toUpperCase() + targetCity.slice(1).toLowerCase();
+                const freshOption = document.createElement("option");
+                freshOption.value = targetCity;
+                freshOption.text = formattedCity;
+                freshOption.selected = true;
+                cityDropdown.add(freshOption);
+                cityDropdown.selectedIndex = cityDropdown.options.length - 1;
+            }
+            
+            // 5. Force a native change event so the Subsidy logic & Charts pick up the new city
+            cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+    }
+
+    const initialResult = calculateSavings(); 
+    if (aiReportCache && initialResult) {
+         // Default setup read parameter is false to prevent jumping metrics layout frames
+         renderDynamicAIReport(aiReportCache, initialResult, false);
+    }
+});
+
+
+function calculateSavings() {
+    const billInput = document.getElementById("capturedBill");
+    const stateEl = document.getElementById("resState");
+    
+    const mode =
+  localStorage.getItem("calculationMode") || "bill";
+
+let bill;
+
+if (mode === "kw") {
+
+  const kw =
+    parseFloat(
+      localStorage.getItem("selectedKw")
+    ) || 3;
+
+  bill = kw * 900;
+
+} else {
+
+  bill =
+    parseFloat(billInput?.value) ||
+    parseFloat(localStorage.getItem("bill")) ||
+    0;
+}
+
+    let state = stateEl?.value || localStorage.getItem("state") || "UP";
+    
+    if (bill > 0) {
+        localStorage.setItem("bill", bill);
+        localStorage.setItem("state", state);
+        const result = calculateSolar(bill, state);
+        renderResults(result, bill);
+        return result; 
+    } else {
+        console.log("Waiting for user input...");
+        return null;
+    }
+}
+
+function renderMetric(label, value) {
+    return `
+        <div class="text-xs">
+            <div class="flex justify-between mb-1">
+                <span class="text-slate-500">${label}</span>
+                <span class="font-semibold text-slate-800">${value}%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${value}%"></div>
+            </div>
+        </div>
+    `;
+}
+
+async function advanceTimelineMilestone(milestoneKey, macroStageToTrigger = null) {
+    const leadId = localStorage.getItem("leadId");
+    if (!leadId) return;
+
+    try {
+        const updatePayload = {
+            [`timeline.${milestoneKey}.status`]: true,
+            [`timeline.${milestoneKey}.timestamp`]: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (macroStageToTrigger) {
+            updatePayload.stage = macroStageToTrigger;
+        }
+
+        await db.collection("leads").doc(leadId).update(updatePayload);
+
+    } catch (error) {
+        console.error("Failed to update milestone");
+        alert("Update failed. Please try again.");
+    }
+}
+
+async function selectInstaller(installerId, installerName) {
+
+    const leadId = localStorage.getItem("leadId");
+
+    if (!leadId) {
+        alert("Lead not found.");
+        return;
+    }
+
+    try {
+
+        // Backend protection against duplicate assignment
+        const leadDoc = await db.collection("leads")
+            .doc(leadId)
+            .get();
+
+        const leadData = leadDoc.data();
+
+        if (leadData?.assignedInstallerId) {
+
+            alert(
+                "An installer has already been assigned."
+            );
+
+            return;
+        }
+
+        await db.collection("leads")
+            .doc(leadId)
+            .update({
+
+                assignedInstallerId: installerId,
+                sharedWithInstaller: true,
+
+                updatedAt:
+                    firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+        window.selectedInstallerId = installerId;
+
+       const installers =
+    window.aiReportCache?.matchedInstallers ||
+    aiReportCache?.matchedInstallers;
+
+if (installers) {
+    renderInstallerCards(installers);
+}
+
+        alert(
+            `${installerName} selected. Please verify your mobile number to schedule your survey.`
+        );
+
+        requestSiteSurvey();
+
+    } catch (error) {
+
+        console.error(
+            "Installer selection failed"
+        );
+
+        alert(
+            "Unable to select installer. Please try again."
+        );
+    }
+}
+
+function renderInstallerCards(installers) {
+    const container = document.getElementById("installerListContainer");
+
+    const selectedInstallerId =
+    window.selectedInstallerId || "";
+
+const installerLocked =
+    !!selectedInstallerId;
+    
+    if (!container) {
+        console.error("Target container 'installerListContainer' missing from DOM.");
+        return;
+    }
+    container.innerHTML = ""; 
+
+installers.forEach(installer => {
+
+    const isSelected =
+        installer.installerId === selectedInstallerId;
+        
+        const {
+    installerAI = {},
+    matchReasons = [],
+    score = 0,
+    businessName = "Installer",
+    installerType = "Standard"
+} = installer;
+    
+        
+        const card = document.createElement("div");
+        card.className = isSelected
+  ? "bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-5 shadow-xl ring-4 ring-emerald-100 transition-all scale-[1.02]"
+  : "bg-white border border-slate-200 rounded-2xl p-5 shadow-premium hover:shadow-xl transition-all";
+        
+        card.innerHTML = `
+        ${isSelected ? `
+<div class="mb-4 space-y-3">
+
+    <span class="inline-flex items-center gap-2 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
+        🏆 AI Recommended Installer Selected
+    </span>
+
+    <div class="text-xs text-slate-500">
+        Need assistance? Contact Solar AI Advisor Support on WhatsApp.
+    </div>
+
+</div>
+` : ""}
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg ${
+    isSelected
+        ? "text-emerald-900"
+        : "text-slate-900"
+}">${businessName}</h3>
+                    <span class="inline-block mt-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
+                        installerType === 'Premium' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                    }">
+                        ${installerType}
+                    </span>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-emerald-600">${score}%</div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Compatibility</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                ${matchReasons.map(reason => `
+                    <span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-1 rounded-full border border-emerald-100 font-medium">
+                        ${reason}
+                    </span>
+                `).join('')}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                ${renderMetric("Reliability", installerAI?.reliabilityScore || 0)}
+                ${renderMetric("Subsidy Exp.", installerAI?.subsidyExpertise || 0)}
+                ${renderMetric("Experience", installerAI?.experienceScore || 0)}
+                ${renderMetric("Response", installerAI?.responseScore || 0)}
+            </div>
+
+            ${isSelected ? `
+    <button
+    disabled
+    class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm cursor-not-allowed shadow-lg">
+    ✓ Installer Selected & Assigned
+</button>
+` : installerLocked ? `
+    <button
+        disabled
+        class="w-full bg-slate-300 text-slate-500 py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed">
+        Another Installer Selected
+    </button>
+` : `
+    <button
+        onclick="selectInstaller(
+            '${installer.installerId}',
+            '${String(businessName || "Installer").replace(/'/g, "\\'")}'
+        )"
+        class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+        Select ${businessName}
+    </button>
+`}
+
+    
+        `;
+        container.appendChild(card);
+    });
+}
+
+// =====================================================================
+// 🚀 INJECTED LIVE LOOKUP & RE-CALCULATION FOR RESULTS PAGE
+// =====================================================================
+async function executeLiveLocationPivot(newPincode) {
+  if (String(newPincode).length !== 6) return;
+
+  const resolvedMeta = await lookupPincodeData(newPincode);
+  if (!resolvedMeta) return;
+
+  const [targetDistrict, targetStateName] = resolvedMeta;
+  const standardStateKey = normalizeStateToCode(targetStateName);
+
+  if (!standardStateKey) return;
+
+  // 1. Instantly transition active local updates
+  localStorage.setItem("state", standardStateKey);
+  localStorage.setItem("leadCity", targetDistrict);
+
+  // 3. Fire the localized subsidy banner if state configuration entries apply
+  if (typeof renderDynamicSubsidyTeaserCard === "function") {
+    renderDynamicSubsidyTeaserCard(standardStateKey, targetDistrict);
+  }
+
+  // 4. Force calculation re-run loop
+  if (typeof initSolarReportCalculation === "function") {
+      initSolarReportCalculation();
+  } else {
+      // Fallback fallback mechanism if deep state arrays aren't bound in current viewport window
+      window.location.reload();
+  }
+}
+
+/**
+ * Injects a reactive banner matching standard template parameters inside stateSubsidyConfig
+ */
+function renderDynamicSubsidyTeaserCard(stateCode, city) {
+  const container = document.getElementById("regionalSubsidyBannerBox");
+  if (!container) return;
+
+  // Uses the master state configuration mappings from results configuration layers
+  const subsidyDetails = stateSubsidyConfig[stateCode]; 
+  const properName = stateNames[stateCode] || stateCode;
+
+  if (subsidyDetails) {
+    const formattedCap = formatIndianCurrency(subsidyDetails.cap || subsidyDetails.value); //
+    container.innerHTML = `
+      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex gap-3 text-xs text-indigo-900 animate-fade-in">
+        <span class="text-base">🎁</span>
+        <div>
+          <span class="font-bold block text-indigo-950 mb-0.5">Local State Top-Up Enabled for ${city}!</span>
+          Residents of <strong>${properName}</strong> qualify for an additional regional incentive capping at <strong>${formattedCap}</strong>.
+        </div>
+      </div>
+    `;
+    container.classList.remove("hidden");
+  } else {
+    container.classList.add("hidden");
+  }
+}
+
+// =====================================================================
+// 🏎️ AUTOMATED HYDRATION EXECUTION ON RESULTS PAGE ENTRY
+// =====================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const urlCity =
+    localStorage.getItem("leadCity");
+  const storedPincode = localStorage.getItem("pincode");
+
+  // If the URL has an empty city parameter, resolve it instantly via local cache mapping
+  if ((!urlCity || urlCity === "") && storedPincode) {
+    if (typeof executeLiveLocationPivot === "function") {
+      executeLiveLocationPivot(storedPincode);
+    }
+  }
+});
+
+// =====================================================================
+// 🎯 AUTOMATED CITY DROPDOWN SYNC & INJECTION PIPELINE
+// =====================================================================
+function syncCityDropdownElement(cityName) {
+  if (!cityName || cityName === "Not Provided") return;
+
+  // 1. Target all common ID variations used for city selection dropdowns
+  const cityDropdown = document.getElementById("city") || 
+                       document.getElementById("leadCity") || 
+                       document.getElementById("citySelect") ||
+                       document.getElementById("calcCity");
+
+  if (!cityDropdown) return;
+
+  const targetCity = cityName.trim();
+  let optionFound = false;
+
+  // 2. Scan existing options to see if the city is already populated
+  for (let i = 0; i < cityDropdown.options.length; i++) {
+    if (cityDropdown.options[i].value.toLowerCase() === targetCity.toLowerCase()) {
+      cityDropdown.selectedIndex = i;
+      optionFound = true;
+      break;
+    }
+  }
+
+  // 3. Fallback: If options aren't loaded yet or city is missing, inject it dynamically
+  if (!optionFound) {
+    const freshOption = document.createElement("option");
+    freshOption.value = targetCity;
+    freshOption.text = targetCity;
+    freshOption.selected = true;
+    cityDropdown.add(freshOption);
+  }
+
+  // 4. Fire a change event so other reactive calculation blocks update instantly
+  cityDropdown.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+async function confirmConsentWithdrawal() {
+
+  const confirmed = confirm(
+    "This action will permanently delete your account, AI reports, uploaded documents and login credentials. Continue?"
+  );
+
+  if (!confirmed) return;
+
+  await withdrawConsentAndDelete();
+}
+
+async function withdrawConsentAndDelete() {
+
+  const leadId = localStorage.getItem("leadId");
+
+  if (!leadId) {
+    alert("Account not found.");
+    return;
+  }
+
+  try {
+
+    const leadDoc =
+      await db.collection("leads")
+      .doc(leadId)
+      .get();
+
+    const leadData =
+      leadDoc.exists ? leadDoc.data() : {};
+
+    // Audit trail
+    await db.collection("consent_withdrawals").doc(leadId).set({
+
+  leadId,
+  leadCode: leadData.leadCode || "",
+  phone: leadData.phone || "",
+  stage: leadData.stage || "",
+
+  withdrawnAt:
+    firebase.firestore.FieldValue.serverTimestamp(),
+
+  deletionAfter:
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
+
+  deletionStatus: "PENDING",
+
+  source: "Results Page"
+});
+
+    // Mark for deletion
+    await db.collection("leads")
+  .doc(leadId)
+  .update({
+
+    consentGiven: false,
+    consentWithdrawn: true,
+    processingDisabled: true,
+    installerSharingDisabled: true,
+    communicationsDisabled: true,
+    loginDisabled: true,
+    deletionRequested: true,
+    deletionRequestedAt:
+      firebase.firestore.FieldValue.serverTimestamp(),
+    scheduledDeletionAt:
+      new Date(Date.now() + 24 * 60 * 60 * 1000),
+    stage: "CONSENT_WITHDRAWN"
+});
+      
+    localStorage.clear();
+
+    alert(
+      "Your consent has been withdrawn. Your account is scheduled for secure deletion."
+    );
+    const privacyCard =
+    document.getElementById("privacyControlsCard");
+
+    if (privacyCard) {
+        privacyCard.classList.add("hidden");
+    }
+      
+    window.location.href = "index.html";
+
+  }
+  catch (error) {
+
+    console.error("error");
+
+    alert(
+      "Unable to process withdrawal request."
+    );
+  }
+}
