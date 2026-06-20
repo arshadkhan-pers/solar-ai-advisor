@@ -6,10 +6,10 @@ async function validateSession() {
   const token = localStorage.getItem("sessionToken");
   const leadId = localStorage.getItem("leadId");
 
-  console.log("========== SESSION DEBUG ==========");
-console.log("leadId:", leadId);
-console.log("sessionToken:", token);
-console.log("localStorage:", {...localStorage});
+  console.error("========== SESSION DEBUG ==========");
+console.error("leadId:", leadId);
+console.error("sessionToken:", token);
+console.error("localStorage:", {...localStorage});
   
 try {
   const leadDoc =
@@ -102,7 +102,7 @@ if (!token && leadId) {
       });
     
 
-    console.log(
+    console.error(
   "VALIDATE RESPONSE:",
   JSON.stringify(result.data)
 );
