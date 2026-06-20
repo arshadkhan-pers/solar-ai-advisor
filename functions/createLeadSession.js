@@ -52,7 +52,6 @@ batch.set(sessionRef, {
       )
     )
 });
-    await batch.commit();
     
 
     const leadUpdates = {
