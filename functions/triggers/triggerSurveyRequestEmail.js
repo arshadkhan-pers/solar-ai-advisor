@@ -36,7 +36,7 @@ exports.triggerSurveyRequestEmail = onDocumentCreated(
     // configured in your mailer utility.
     await admin.firestore().collection("mail").add({
       to: leadData.email,
-      bcc: "ops-team@yourdomain.com", 
+      bcc: "hello@solaraiadvisor.com", 
       message: {
         subject: subject,
         text: `${body}\n\nDossier Summary: System Size ${aiData.systemSizeKw}kW, Net Cost: ${aiData.netCost}`,
