@@ -928,7 +928,7 @@ function scrollToTop() {
 function openWhatsAppChat(customMessage = "") {
   const defaultMessage = "Hi, I’m interested in rooftop solar. Can your solar advisor help me?";
   const message = customMessage || defaultMessage;
-  window.open(`https://wa.me/61404166347?text=${encodeURIComponent(message)}`, "_blank");
+  window.open(`https://wa.me/919235169031?text=${encodeURIComponent(message)}`, "_blank");
 }
 
 function openConsultation() {
