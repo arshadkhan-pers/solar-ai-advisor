@@ -50,7 +50,7 @@ async (event) => {
   buyerProtectionChecklist
 } = aiData;
 
-const supportNumber = "61404166347";
+const supportNumber = "919235169031";
 const leadIdentifier = leadCode || event.params.reportId;
 const waMessage =
   encodeURIComponent(
@@ -77,7 +77,7 @@ const checklistHtml =
         to: customerEmail,
 
         replyTo:
-          "arshad.khan8912@gmail.com",
+          "hello@solaraiadvisor.com",
 
         message: {
           subject:
@@ -253,7 +253,7 @@ if (!before.generatedAt) {
   // Prevent duplicate logic:
   // reuse existing mail payload generator
 
-  const supportNumber = "61404166347";
+  const supportNumber = "919235169031";
 
   if (!after.customerEmail) {
     console.warn(
@@ -308,7 +308,7 @@ if (!before.generatedAt) {
         to: customerEmail,
 
         replyTo:
-          "arshad.khan8912@gmail.com",
+          "hello@solaraiadvisor.com",
 
         message: {
 
