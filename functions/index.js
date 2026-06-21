@@ -53,9 +53,15 @@ async (event) => {
 const supportNumber = "919235169031";
 const leadIdentifier = leadCode || event.params.reportId;
 const waMessage =
-  encodeURIComponent(
-    `Hi Solar AI Advisor, I received my ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}.`
-  );
+encodeURIComponent(
+`Hi Solar AI Advisor,
+
+Reference ID: ${leadIdentifier}
+
+I have reviewed my solar assessment and would like assistance with the next steps.
+
+Thank you.`
+);
 
 const waLink =
   `https://wa.me/${supportNumber}?text=${waMessage}`;
@@ -193,11 +199,10 @@ text-align:center;
               <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
                 💬 Chat with Advisor on WhatsApp
               </a>
-              <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
-                Or Call Support directly: <br/>
-                <a href="tel:+919235169031" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 92351 69031</a> <br/>
-                <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
-              </p>
+              <p style="margin-top:15px;font-size:13px;color:#666;line-height:1.6;">
+  Questions about solar savings, subsidies, financing or installers?<br/>
+  Our support team is available via WhatsApp.
+</p>
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee;" />
@@ -284,9 +289,15 @@ if (!before.generatedAt) {
       leadCode || event.params.reportId;
 
     const waMessage =
-      encodeURIComponent(
-        `Hi Solar AI Advisor, I received my updated ${persona?.type || "Solar"} Report for ${city || "my city"}, ${state || "India"}.`
-      );
+encodeURIComponent(
+`Hi Solar AI Advisor,
+
+Reference ID: ${leadIdentifier}
+
+I have reviewed my solar assessment and would like assistance with the next steps.
+
+Thank you.`
+);
 
     const waLink =
       `https://wa.me/${supportNumber}?text=${waMessage}`;
@@ -424,11 +435,10 @@ text-align:center;
               <a href="${waLink}" style="background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);">
                 💬 Chat with Advisor on WhatsApp
               </a>
-              <p style="margin-top: 15px; font-size: 14px; color: #555; line-height: 1.5;">
-                Or Call Support directly: <br/>
-                <a href="tel:+919235169031" style="color: #003366; font-weight: bold; text-decoration: underline; font-size: 16px;">+91 92351 69031</a> <br/>
-                <span style="font-size: 11px; color: #777;">(Tap to call instantly / Long-press to copy)</span>
-              </p>
+              <p style="margin-top:15px;font-size:13px;color:#666;line-height:1.6;">
+  Questions about solar savings, subsidies, financing or installers?<br/>
+  Our support team is available via WhatsApp.
+</p>
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee;" />
