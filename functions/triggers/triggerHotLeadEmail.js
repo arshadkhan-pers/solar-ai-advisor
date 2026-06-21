@@ -18,7 +18,7 @@ exports.triggerHotLeadEmail = onDocumentCreated(
     if (billAmount >= 3000) {
       try {
         await admin.firestore().collection("mail").add({
-          to: "arshad.khan8912@gmail.com",
+          to: "hello@solaraiadvisor.com",
           template: {
             name: "hot_lead_alert",
             data: {
