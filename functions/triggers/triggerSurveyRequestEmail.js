@@ -29,7 +29,7 @@ exports.triggerSurveyRequestEmail = onDocumentCreated(
 
     const body = hasInstaller 
       ? `Hi ${leadData.name}, your request has been sent to our partner ${aiData.matchedInstallers[0].name}.`
-      : `Hi ${leadData.name}, we are vetting partners in your city. We will contact you when a partner is ready.`;
+      : `Hi ${leadData.name}, your survey request has been received and is currently being processed. Our team is identifying the most suitable installation partner for your project and will contact you shortly with the next update.`;
 
     // 3. Send Email
     // Note: Assuming you are using Nodemailer or a similar transport 
