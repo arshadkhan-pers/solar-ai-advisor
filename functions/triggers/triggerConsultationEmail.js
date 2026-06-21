@@ -17,7 +17,7 @@ exports.triggerConsultationEmail = onDocumentCreated(
     try {
 
       await admin.firestore().collection("mail").add({
-        to: "arshad.khan8912@gmail.com",
+        to: "hello@solaraiadvisor.com",
         template: {
           name: "new_consultation_alert",
           data: {
