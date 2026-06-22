@@ -102,7 +102,7 @@ if (!token && leadId) {
       });
     
 
-    console.error(
+    console.log(
   "VALIDATE RESPONSE:",
   JSON.stringify(result.data)
 );
@@ -2672,7 +2672,7 @@ const installerLocked =
     !!selectedInstallerId;
     
     if (!container) {
-        console.error("Target container 'installerListContainer' missing from DOM.");
+        console.error("Target container installerListContainer missing from DOM.");
         return;
     }
     container.innerHTML = ""; 
