@@ -2,7 +2,7 @@ auth.onAuthStateChanged(async (user) => {
 
   if (!user) {
 
-    window.location.href = "/solar-ai-advisor/login.html";
+    window.location.href = "login.html";
 
     return;
   }
@@ -34,7 +34,7 @@ async function validateAdminAccess(uid) {
 
       await auth.signOut();
 
-      window.location.href = "/solar-ai-advisor/login.html";
+      window.location.href = "login.html";
 
       return;
     }
@@ -48,6 +48,6 @@ async function validateAdminAccess(uid) {
       "Admin validation failed"
     );
 
-    window.location.href = "/solar-ai-advisor/login.html";
+    window.location.href = "login.html";
   }
 }
