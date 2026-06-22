@@ -18,7 +18,7 @@ window.login = async function () {
       password
     );
 
-    window.location.href = "/solar-ai-advisor/public/admin.html";
+    window.location.href = "/solar-ai-advisor/admin.html";
 
   }
   catch (error) {
