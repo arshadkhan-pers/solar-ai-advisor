@@ -1,0 +1,289 @@
+{
+  "site": {
+    "name": "Solar AI Advisor",
+    "baseUrl": "https://www.solaraiadvisor.com",
+    "defaultOgImage": "images/logo.webp",
+    "organization": {
+      "name": "Solar AI Advisor",
+      "url": "https://www.solaraiadvisor.com",
+      "logo": "https://www.solaraiadvisor.com/images/logo.webp",
+      "email": "hello@solaraiadvisor.com",
+      "description": "India's independent AI-powered solar advisory platform. Analyze savings, understand subsidies, compare options, and connect with verified solar installers."
+    }
+  },
+  "pages": {
+    "index.html": {
+      "path": "",
+      "isHome": true,
+      "title": "Solar AI Advisor",
+      "description": "Get a free AI-powered solar assessment for your home in 60 seconds — subsidy intelligence, savings estimates, and verified installer matching. No obligation.",
+      "ogType": "website",
+      "robots": "index,follow"
+    },
+    "about.html": {
+      "path": "about.html",
+      "title": "About Solar AI Advisor",
+      "description": "Solar AI Advisor helps Indian homeowners make smarter solar decisions with AI-powered analysis, transparent pricing, and installer-neutral recommendations.",
+      "ogType": "website",
+      "breadcrumbLabel": "About Us",
+      "robots": "index,follow"
+    },
+    "contact.html": {
+      "path": "contact.html",
+      "title": "Contact Solar AI Advisor",
+      "description": "Get in touch with Solar AI Advisor for questions about solar systems, subsidies, installers, financing, or your personalized solar savings report.",
+      "ogType": "website",
+      "breadcrumbLabel": "Contact Us",
+      "robots": "index,follow"
+    },
+    "buyer-protection.html": {
+      "path": "buyer-protection.html",
+      "title": "Solar Buyer Protection | Solar AI Advisor",
+      "description": "Independent solar buyer protection guidance to help Indian homeowners avoid costly mistakes and make informed, installer-neutral solar decisions.",
+      "ogType": "website",
+      "breadcrumbLabel": "Buyer Protection",
+      "robots": "index,follow"
+    },
+    "installer.html": {
+      "path": "installer.html",
+      "title": "Installer Signup | Solar AI Advisor",
+      "description": "Join Solar AI Advisor's verified installer network and connect with high-intent, verified homeowners actively looking for rooftop solar installation.",
+      "ogType": "website",
+      "breadcrumbLabel": "Installer Network",
+      "robots": "index,follow"
+    },
+    "privacy-policy.html": {
+      "path": "privacy-policy.html",
+      "title": "Privacy Policy | Solar AI Advisor",
+      "description": "Privacy Policy for Solar AI Advisor - India's AI-powered solar advisory platform.",
+      "ogType": "website",
+      "breadcrumbLabel": "Privacy Policy",
+      "robots": "index,follow"
+    },
+    "terms-of-service.html": {
+      "path": "terms-of-service.html",
+      "title": "Terms of Service | Solar AI Advisor",
+      "description": "Terms of Service governing the use of Solar AI Advisor, an independent solar advisory and installer matching platform.",
+      "ogType": "website",
+      "breadcrumbLabel": "Terms of Service",
+      "robots": "index,follow"
+    },
+    "disclaimer.html": {
+      "path": "disclaimer.html",
+      "title": "Disclaimer | Solar AI Advisor",
+      "description": "Important legal disclaimers regarding solar estimates, installer matching, financing information and AI-generated recommendations.",
+      "ogType": "website",
+      "breadcrumbLabel": "Disclaimer",
+      "robots": "index,follow"
+    },
+    "consent-policy.html": {
+      "path": "consent-policy.html",
+      "title": "Consent Policy | Solar AI Advisor",
+      "description": "Consent Policy explaining how Solar AI Advisor obtains, manages and processes user consent for solar assessments, installer matching and communications.",
+      "ogType": "website",
+      "breadcrumbLabel": "Consent Policy",
+      "robots": "index,follow"
+    },
+    "1kw-solar-system.html": {
+      "path": "1kw-solar-system.html",
+      "title": "1kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, annual generation, roof area and panel requirements for a 1kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "1kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 1kW solar system generate?", "answer": "A well-designed 1kW solar system typically generates approximately 1,400–1,600 units annually depending on location and weather conditions." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 80–120 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage depending on inverter compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "2kw-solar-system.html": {
+      "path": "2kw-solar-system.html",
+      "title": "2kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, annual generation, roof area and panel requirements for a 2kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "2kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 2kW solar system generate?", "answer": "A well-designed 2kW solar system typically generates approximately 2,800–3,200 units annually depending on location and weather conditions." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 160–220 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage depending on inverter compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "3kw-solar-system.html": {
+      "path": "3kw-solar-system.html",
+      "title": "3kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, roof area and panel requirements for a 3kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "3kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 3kW solar system generate?", "answer": "Generation depends on location, weather and installation quality. Actual output varies." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 240–300 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage, subject to technical compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "4kw-solar-system.html": {
+      "path": "4kw-solar-system.html",
+      "title": "4kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, annual generation, roof area and panel requirements for a 4kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "4kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 4kW solar system generate?", "answer": "A well-designed 4kW solar system typically generates approximately 5,600–6,400 units annually depending on location and weather conditions." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 320–400 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage depending on inverter compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "5kw-solar-system.html": {
+      "path": "5kw-solar-system.html",
+      "title": "5kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, roof area and panel requirements for a 5kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "5kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 5kW solar system generate?", "answer": "Generation depends on location, weather and installation quality. Actual output varies." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 400–500 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage, subject to technical compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "10kw-solar-system.html": {
+      "path": "10kw-solar-system.html",
+      "title": "10kW Solar System Price, Subsidy & Savings Guide (2026)",
+      "description": "Learn the cost, subsidy, savings, annual generation, roof area and panel requirements for a 10kW rooftop solar system in India.",
+      "ogType": "article",
+      "breadcrumbLabel": "10kW Solar System",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much electricity can a 10kW solar system generate?", "answer": "A well-designed 10kW solar system typically generates approximately 14,000–16,000 units annually depending on location and weather conditions." },
+        { "question": "How much roof space is required?", "answer": "Most installations require approximately 800–1,000 square feet of shadow-free roof area." },
+        { "question": "Can batteries be added later?", "answer": "Many systems can be upgraded later with battery storage depending on inverter compatibility." },
+        { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
+      ]
+    },
+    "solar-system-size.html": {
+      "path": "solar-system-size.html",
+      "title": "Solar System Size Guide India 2026 | Solar AI Advisor",
+      "description": "A complete guide to choosing the right solar system size for your home in India, covering energy needs, roof space, and budget considerations.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar System Size Guide",
+      "robots": "index,follow"
+    },
+    "solar-panel-sizes.html": {
+      "path": "solar-panel-sizes.html",
+      "title": "Solar Panel Sizes & Roof Space Guide India 2026 | Solar AI Advisor",
+      "description": "Understand solar panel dimensions, roof space requirements, and how many panels you need for your home with this India-specific sizing guide.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar Panel Sizes",
+      "robots": "index,follow"
+    },
+    "best-solar-panels-india.html": {
+      "path": "best-solar-panels-india.html",
+      "title": "Best Solar Panels in India 2026 | Solar AI Advisor",
+      "description": "Compare the best solar panel brands available in India in 2026 and learn what to check before choosing a panel for your rooftop system.",
+      "ogType": "article",
+      "breadcrumbLabel": "Best Solar Panels in India",
+      "robots": "index,follow"
+    },
+    "cleaning-maintenance.html": {
+      "path": "cleaning-maintenance.html",
+      "title": "Solar Panel Cleaning & Maintenance Guide India 2026 | Solar AI Advisor",
+      "description": "A complete guide to solar panel cleaning and maintenance in India — keep your rooftop system running efficiently and maximize long-term savings.",
+      "ogType": "article",
+      "breadcrumbLabel": "Cleaning & Maintenance",
+      "robots": "index,follow"
+    },
+    "solar-subsidy-india.html": {
+      "path": "solar-subsidy-india.html",
+      "title": "Solar Subsidy India 2026 | PM Surya Ghar Yojana Guide",
+      "description": "Complete guide to solar subsidy in India under PM Surya Ghar Muft Yojana. Learn eligibility, subsidy amounts, application process, savings and rooftop solar benefits.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar Subsidy India",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Can every homeowner receive solar subsidy?", "answer": "Eligibility depends on applicable government requirements and technical suitability." },
+        { "question": "Does subsidy guarantee approval?", "answer": "No. Applications are subject to verification, eligibility checks and prevailing government rules." },
+        { "question": "Can subsidy reduce solar system cost?", "answer": "Eligible subsidy programs can reduce the effective investment required for rooftop solar." },
+        { "question": "Should I rely only on subsidy when choosing solar?", "answer": "No. Consider total project cost, energy generation, financing options, equipment quality and long-term savings." }
+      ]
+    },
+    "solar-loan-financing.html": {
+      "path": "solar-loan-financing.html",
+      "title": "Solar Loan & Financing Guide India (2026) | Solar AI Advisor",
+      "description": "Learn how solar financing works in India including solar loans, EMI options, rooftop solar funding and zero upfront solar programs.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar Loan & Financing",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Can I finance an entire solar installation?", "answer": "Financing availability depends on lender policies, eligibility criteria and project requirements." },
+        { "question": "Will my electricity savings cover my EMI?", "answer": "Actual results vary depending on electricity usage, financing terms, solar generation and local tariffs." },
+        { "question": "Can I prepay a solar loan?", "answer": "Many lenders permit prepayment, although terms and charges may vary." },
+        { "question": "Does financing affect subsidy eligibility?", "answer": "Financing and subsidy eligibility are generally separate considerations, subject to applicable program requirements." }
+      ]
+    },
+    "net-metering-guide.html": {
+      "path": "net-metering-guide.html",
+      "title": "Net Metering Guide India (2026) | Solar AI Advisor",
+      "description": "Learn how net metering works in India for rooftop solar systems. Understand solar exports, electricity credits, billing and homeowner benefits.",
+      "ogType": "article",
+      "breadcrumbLabel": "Net Metering Guide",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "What happens when my solar system generates more electricity than I use?", "answer": "Surplus electricity may be exported to the grid through an approved net metering arrangement, subject to utility rules." },
+        { "question": "Do I need batteries if I have net metering?", "answer": "Many homeowners use net metering without batteries. The best option depends on individual requirements and local conditions." },
+        { "question": "Will net metering eliminate my electricity bill?", "answer": "Results vary depending on system size, electricity usage, export levels and applicable utility policies." },
+        { "question": "Is net metering available everywhere in India?", "answer": "Availability and rules vary between electricity distribution companies and state regulations." }
+      ]
+    },
+    "solar-for-homeowners.html": {
+      "path": "solar-for-homeowners.html",
+      "title": "Solar For Homeowners India (2026) | Solar AI Advisor",
+      "description": "Learn whether rooftop solar is right for your home. Understand costs, savings, subsidies, financing and key homeowner considerations before installing solar.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar for Homeowners",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How much roof space is needed for solar?", "answer": "Required roof area depends on system size, panel efficiency and installation layout." },
+        { "question": "Can solar work during cloudy weather?", "answer": "Yes. Solar panels continue generating electricity during cloudy conditions, although production may be lower." },
+        { "question": "Do I need batteries?", "answer": "Many residential solar systems operate without batteries. The best solution depends on your goals and local conditions." },
+        { "question": "How long do solar panels last?", "answer": "Modern solar panels are designed for long operational lifetimes and often carry performance warranties extending decades." }
+      ]
+    },
+    "solar-for-businesses.html": {
+      "path": "solar-for-businesses.html",
+      "title": "Commercial Solar For Businesses India (2026) | Solar AI Advisor",
+      "description": "Learn how businesses can reduce electricity costs with rooftop solar. Understand commercial solar benefits, financing, net metering and long-term savings.",
+      "ogType": "article",
+      "breadcrumbLabel": "Solar for Businesses",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Can businesses install rooftop solar?", "answer": "Many commercial properties can install rooftop solar, subject to technical and regulatory requirements." },
+        { "question": "Is solar suitable for small businesses?", "answer": "Suitability depends on electricity consumption, roof availability and financial objectives." },
+        { "question": "Can solar improve business profitability?", "answer": "Reducing electricity expenses may improve long-term operating margins, depending on project performance and energy usage." },
+        { "question": "How long do commercial solar systems last?", "answer": "Commercial solar systems are typically designed for long operating lifetimes and often include extensive manufacturer warranties." }
+      ]
+    },
+    "admin.html": {
+      "path": "admin.html",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
+    },
+    "login.html": {
+      "path": "login.html",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
+    },
+    "results.html": {
+      "path": "results.html",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
+    }
+  }
+}
