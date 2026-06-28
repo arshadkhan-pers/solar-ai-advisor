@@ -1,6 +1,7 @@
 ---
-// Only the "policy" variant (Pattern C nav: text logo + "Back Home") is implemented.
-// "home" and "guide" variants land in a later migration phase.
+// "policy" (Pattern C: text logo + "Back Home") and "guide" (Pattern B: text logo
+// + "Calculate Savings" CTA) are implemented. "home" (Pattern A: image logo + mobile
+// drawer menu) lands in a later migration phase.
 interface Props {
   variant?: "policy" | "home" | "guide";
 }
@@ -19,6 +20,23 @@ const { variant = "policy" } = Astro.props;
           class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
         >
           ← Back Home
+        </a>
+      </div>
+    </nav>
+  )
+}
+{
+  variant === "guide" && (
+    <nav class="bg-white border-b border-slate-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-xl">
+          Solar AI Advisor
+        </a>
+        <a
+          href="index.html"
+          class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition"
+        >
+          Calculate Savings
         </a>
       </div>
     </nav>

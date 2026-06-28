@@ -5,9 +5,10 @@ import Footer from "../components/Footer.astro";
 
 interface Props {
   pageKey: string;
+  headerVariant?: "policy" | "home" | "guide";
 }
 
-const { pageKey } = Astro.props;
+const { pageKey, headerVariant = "policy" } = Astro.props;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +33,7 @@ font-family:'Inter',sans-serif;
 
 <body class="bg-slate-50 text-slate-900">
 
-<Header variant="policy" />
+<Header variant={headerVariant} />
 
 <slot />
 
