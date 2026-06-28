@@ -1,0 +1,86 @@
+---
+// "policy" (Pattern C: text logo + "Back Home"), "guide" (Pattern B: text logo +
+// "Calculate Savings" CTA), and "home" (Pattern A: image logo + nav links) are
+// implemented. The mobile drawer itself is page-specific body content on
+// index.html, not part of this component.
+interface Props {
+  variant?: "policy" | "home" | "guide";
+}
+
+const { variant = "policy" } = Astro.props;
+---
+{
+  variant === "policy" && (
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-xl text-slate-900">
+          Solar AI Advisor
+        </a>
+        <a
+          href="index.html"
+          class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+        >
+          ← Back Home
+        </a>
+      </div>
+    </nav>
+  )
+}
+{
+  variant === "guide" && (
+    <nav class="bg-white border-b border-slate-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-xl">
+          Solar AI Advisor
+        </a>
+        <a
+          href="index.html"
+          class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition"
+        >
+          Calculate Savings
+        </a>
+      </div>
+    </nav>
+  )
+}
+{
+  variant === "home" && (
+    <nav class="fixed top-0 left-0 w-full z-[110] bg-white border-b border-slate-100 px-4 md:px-8 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="index.html" class="flex items-center">
+          <img
+            src="images/logo.webp"
+            alt="Solar AI Advisor"
+            width="1536"
+            height="1024"
+            decoding="async"
+            class="h-16 md:h-20 w-auto"
+          />
+        </a>
+
+        <div class="flex items-center gap-4">
+          <a
+            href="#how-it-works"
+            class="hidden md:block text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+          >
+            How it Works
+          </a>
+
+          <button
+            onclick="openConsultation()"
+            class="hidden md:block bg-[#171a20] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#393c41] transition-all shadow-md"
+          >
+            Free Consultation
+          </button>
+
+          <button
+            onclick="openMenu()"
+            class="bg-white border border-slate-200 px-4 py-2 rounded-full text-sm font-semibold hover:bg-slate-50 transition"
+          >
+            ☰ Explore
+          </button>
+        </div>
+      </div>
+    </nav>
+  )
+}
