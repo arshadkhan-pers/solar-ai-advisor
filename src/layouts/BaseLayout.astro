@@ -8,6 +8,7 @@ interface Props {
   headerVariant?: "policy" | "home" | "guide" | "none";
   includeFooter?: boolean;
   bodyClass?: string;
+  includeConsoleShield?: boolean;
 }
 
 const {
@@ -15,6 +16,7 @@ const {
   headerVariant = "policy",
   includeFooter = true,
   bodyClass = "bg-slate-50 text-slate-900",
+  includeConsoleShield = false,
 } = Astro.props;
 ---
 <!DOCTYPE html>
@@ -25,6 +27,8 @@ const {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <SEOHead pageKey={pageKey} />
+
+{includeConsoleShield && <script src="js/console-shield.js" is:inline></script>}
 
 <script src="https://cdn.tailwindcss.com" is:inline></script>
 
