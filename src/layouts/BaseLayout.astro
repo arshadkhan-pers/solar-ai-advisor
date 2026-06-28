@@ -5,10 +5,17 @@ import Footer from "../components/Footer.astro";
 
 interface Props {
   pageKey: string;
-  headerVariant?: "policy" | "home" | "guide";
+  headerVariant?: "policy" | "home" | "guide" | "none";
+  includeFooter?: boolean;
+  bodyClass?: string;
 }
 
-const { pageKey, headerVariant = "policy" } = Astro.props;
+const {
+  pageKey,
+  headerVariant = "policy",
+  includeFooter = true,
+  bodyClass = "bg-slate-50 text-slate-900",
+} = Astro.props;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -31,13 +38,13 @@ font-family:'Inter',sans-serif;
 
 </head>
 
-<body class="bg-slate-50 text-slate-900">
+<body class={bodyClass}>
 
 <Header variant={headerVariant} />
 
 <slot />
 
-<Footer />
+{includeFooter && <Footer />}
 
 </body>
 </html>

@@ -272,16 +272,19 @@
     },
     "admin.html": {
       "path": "admin.html",
+      "title": "Solar AI Admin",
       "robots": "noindex,nofollow",
       "skipFullSeo": true
     },
     "login.html": {
       "path": "login.html",
+      "title": "Solar AI Admin Login",
       "robots": "noindex,nofollow",
       "skipFullSeo": true
     },
     "results.html": {
       "path": "results.html",
+      "title": "Solar Recommendation",
       "robots": "noindex,nofollow",
       "skipFullSeo": true
     }
