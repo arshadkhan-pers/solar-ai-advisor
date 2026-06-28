@@ -403,9 +403,52 @@ Sprint 2
 
 Reusable Layouts (Astro)
 
-Sprint 3
+Sprint 3 — Google Indexing & Authority
+Technical SEO
+Canonical URLs on every page.
+Optimized titles and descriptions.
+Open Graph and Twitter metadata.
+JSON-LD schemas (Organization, Website, Breadcrumb, FAQ where applicable).
+XML sitemap validation.
+robots.txt review.
+Custom 404 page.
+Proper redirects where needed.
+Crawlability
+Strong internal linking.
+Breadcrumb navigation.
+Clean URL structure.
+No orphan pages.
+Verify no broken links.
+Performance
+Replace any remaining CDN dependencies if applicable.
+Image optimization (WebP/AVIF).
+Lazy loading.
+Critical CSS.
+JavaScript optimization.
+Core Web Vitals improvements.
+Search Console
+Submit updated sitemap.
+Request indexing for priority pages.
+Monitor crawl statistics.
+Resolve indexing warnings.
+Monitor coverage reports.
+Authority
+Strengthen About, Contact, Privacy, Terms, Disclaimer, Buyer Protection pages.
+Add Organization schema.
+Ensure consistent branding and business information.
+Success Criteria for Sprint 3
 
-SEO Infrastructure
+I would define measurable goals rather than "SEO completed":
+
+✅ All important pages indexed.
+✅ No critical Search Console issues.
+✅ Lighthouse SEO: 100.
+✅ Performance: ≥95.
+✅ Core Web Vitals pass.
+✅ No broken internal links.
+✅ Structured data validates successfully.
+✅ Rich Results Test passes.
+✅ First meaningful Google impressions begin increasing.
 
 Sprint 4
 
