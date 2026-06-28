@@ -1,0 +1,8 @@
+# Astro build output and cache (new Astro toolchain, scaffolded in feature/astro-foundation)
+dist/
+.astro/
+
+# Prevents *new* node_modules entries (e.g. astro and its deps) from being committed.
+# Note: the pre-existing root node_modules/ (firebase) is already tracked in git from
+# before this .gitignore existed — untracking it is a separate, out-of-scope cleanup.
+node_modules/
