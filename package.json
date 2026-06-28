@@ -1,5 +1,17 @@
 {
+  "name": "solar-ai-advisor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "inject-seo": "node scripts/inject-seo-metadata.mjs"
+  },
   "dependencies": {
     "firebase": "^12.12.1"
+  },
+  "devDependencies": {
+    "astro": "^7.0.3"
   }
 }

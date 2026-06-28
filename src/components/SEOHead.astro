@@ -1,0 +1,93 @@
+---
+// Renders the same tag set as scripts/inject-seo-metadata.mjs's buildBlock(),
+// reading the same data/seo-metadata.json — keep the two in parity if either changes.
+import seoData from "../../data/seo-metadata.json";
+
+interface Props {
+  pageKey: string;
+}
+
+const { pageKey } = Astro.props;
+const page = seoData.pages[pageKey];
+if (!page) {
+  throw new Error(`No SEO metadata found for pageKey "${pageKey}" in data/seo-metadata.json`);
+}
+
+const site = seoData.site;
+
+function absoluteUrl(path) {
+  return path ? `${site.baseUrl}/${path}` : `${site.baseUrl}/`;
+}
+
+const url = page.skipFullSeo ? null : absoluteUrl(page.path);
+const ogImage = page.skipFullSeo ? null : absoluteUrl(page.ogImage || site.defaultOgImage);
+
+const jsonLdBlocks = [];
+if (!page.skipFullSeo) {
+  if (page.isHome) {
+    jsonLdBlocks.push({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${site.baseUrl}/#organization`,
+          name: site.organization.name,
+          url: site.organization.url,
+          logo: site.organization.logo,
+          email: site.organization.email,
+          description: site.organization.description,
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${site.baseUrl}/#website`,
+          name: site.name,
+          url: site.baseUrl,
+          publisher: { "@id": `${site.baseUrl}/#organization` },
+        },
+      ],
+    });
+  } else if (page.breadcrumbLabel) {
+    jsonLdBlocks.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${site.baseUrl}/` },
+        { "@type": "ListItem", position: 2, name: page.breadcrumbLabel, item: url },
+      ],
+    });
+  }
+
+  if (page.faq && page.faq.length) {
+    jsonLdBlocks.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: page.faq.map((qa) => ({
+        "@type": "Question",
+        name: qa.question,
+        acceptedAnswer: { "@type": "Answer", text: qa.answer },
+      })),
+    });
+  }
+}
+---
+{!page.skipFullSeo && <title>{page.title}</title>}
+<meta name="robots" content={page.robots} />
+{!page.skipFullSeo && (
+  <>
+    <meta name="description" content={page.description} />
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content={page.ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={page.title} />
+    <meta property="og:description" content={page.description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={page.title} />
+    <meta name="twitter:description" content={page.description} />
+    <meta name="twitter:image" content={ogImage} />
+    {jsonLdBlocks.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
+  </>
+)}
