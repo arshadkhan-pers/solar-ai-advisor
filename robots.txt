@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://solaraiadvisor.com/sitemap.xml
+Sitemap: https://www.solaraiadvisor.com/sitemap.xml
