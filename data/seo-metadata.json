@@ -282,6 +282,12 @@
       "robots": "noindex,nofollow",
       "skipFullSeo": true
     },
+    "404.html": {
+      "path": "404.html",
+      "title": "Page Not Found | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
+    },
     "results.html": {
       "path": "results.html",
       "title": "Solar Recommendation",
