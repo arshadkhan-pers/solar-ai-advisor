@@ -35,6 +35,10 @@ if (!page.skipFullSeo) {
           logo: site.organization.logo,
           email: site.organization.email,
           description: site.organization.description,
+          address: {
+            "@type": "PostalAddress",
+            ...site.organization.address,
+          },
         },
         {
           "@type": "WebSite",

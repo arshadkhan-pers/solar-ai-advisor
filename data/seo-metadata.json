@@ -8,7 +8,12 @@
       "url": "https://www.solaraiadvisor.com",
       "logo": "https://www.solaraiadvisor.com/images/logo.webp",
       "email": "hello@solaraiadvisor.com",
-      "description": "India's independent AI-powered solar advisory platform. Analyze savings, understand subsidies, compare options, and connect with verified solar installers."
+      "description": "India's independent AI-powered solar advisory platform. Analyze savings, understand subsidies, compare options, and connect with verified solar installers.",
+      "address": {
+        "addressLocality": "Lucknow",
+        "addressRegion": "Uttar Pradesh",
+        "addressCountry": "IN"
+      }
     }
   },
   "pages": {
