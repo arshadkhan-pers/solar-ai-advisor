@@ -4,9 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/generate-sitemap.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "inject-seo": "node scripts/inject-seo-metadata.mjs"
+    "generate-sitemap": "node scripts/generate-sitemap.mjs",
+    "validate-jsonld": "node scripts/validate-jsonld.mjs"
   },
   "dependencies": {
     "firebase": "^12.12.1"
