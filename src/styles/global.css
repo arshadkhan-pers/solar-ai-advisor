@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Only two pages need anything beyond Tailwind's stock defaults: results.astro
+   and installer.astro each had a per-page tailwind.config with conflicting
+   custom color overrides (lost during the Astro migration, not reintroduced -
+   the other 26 pages never had any override and have always rendered Tailwind's
+   real defaults). Only the two genuinely custom, no-default-equivalent pieces
+   are reintroduced here: the "premium" shadow and the "blob" animation. */
+@theme {
+  --shadow-premium: 0 10px 30px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
+  --animate-blob: blob 10s infinite;
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
