@@ -92,3 +92,42 @@ The key is executing well: choosing a reliable empanelled installer, understandi
 If upfront cost is a concern, solar loans and EMI programs can help bridge the gap before the subsidy arrives — see the [solar financing guide](/learn/solar-loan-and-financing.html).
 
 Use [Solar AI Advisor's calculator](/index.html) to get a personalized savings estimate for your home before you begin the application process.
+
+## PM Surya Ghar in Uttar Pradesh
+
+Uttar Pradesh is one of the largest states in India for PM Surya Ghar uptake. The scheme is administered through four separate DISCOMs under UPPCL — your city determines which DISCOM you apply through, and which empanelled installer list to use.
+
+### Which DISCOM Handles Your City?
+
+| DISCOM | Cities Covered |
+|--------|---------------|
+| MVVNL (Madhyanchal) | Lucknow, Ayodhya, Raebareli and surrounding districts |
+| PUVVNL (Purvanchal) | Prayagraj, Varanasi, Pratapgarh and eastern UP |
+| DVVNL (Dakshinanchal) | Kanpur and southern UP |
+| PVVNL (Paschimanchal) | Western UP (Agra, Meerut region) |
+
+When you register at pmsuryaghar.gov.in, use your exact DISCOM consumer number. The portal uses this to show you the correct empanelled installer list for your city.
+
+### Applying Through pmsuryaghar.gov.in in UP
+
+The application process is identical across all four UP DISCOMs:
+
+1. Register at pmsuryaghar.gov.in with your DISCOM consumer number
+2. Select an empanelled installer from your DISCOM's approved list
+3. Get the system installed and net metering connection processed
+4. Complete the subsidy disbursement claim on the portal
+5. Subsidy credited to your bank account after commissioning is confirmed
+
+Net metering timelines in UP typically run two to six weeks after installation, depending on DISCOM workload in your city.
+
+### City-Specific Guides for UP Homeowners
+
+For detailed DISCOM-specific guidance, subsidy application steps, and local installer context, see the city guides:
+
+- [PM Surya Ghar in Lucknow (MVVNL)](/rooftop-solar-lucknow.html)
+- [PM Surya Ghar in Ayodhya (MVVNL)](/rooftop-solar-ayodhya.html)
+- [PM Surya Ghar in Raebareli (MVVNL)](/rooftop-solar-raebareli.html)
+- [PM Surya Ghar in Prayagraj (PUVVNL)](/rooftop-solar-prayagraj.html)
+- [PM Surya Ghar in Varanasi (PUVVNL)](/rooftop-solar-varanasi.html)
+- [PM Surya Ghar in Pratapgarh (PUVVNL)](/rooftop-solar-pratapgarh.html)
+- [PM Surya Ghar in Kanpur (DVVNL)](/rooftop-solar-kanpur.html)
