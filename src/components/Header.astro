@@ -11,36 +11,114 @@ const { variant = "policy" } = Astro.props;
 ---
 {
   variant === "policy" && (
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="index.html" class="font-bold text-xl text-slate-900">
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200">
+      {/* Top bar */}
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-lg text-slate-900">
           Solar AI Advisor
         </a>
         <a
           href="index.html"
-          class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          class="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
         >
-          ← Back Home
+          ← Home
         </a>
       </div>
-    </nav>
+      {/* Knowledge nav strip — scrollable on mobile, inline on desktop */}
+      <div class="border-t border-slate-100 bg-slate-50 overflow-x-auto scrollbar-none">
+        <nav class="flex gap-1 px-4 py-2 min-w-max md:min-w-0 md:max-w-7xl md:mx-auto">
+          <a href="learn.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Knowledge Center
+          </a>
+          <a href="faq.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Solar FAQ
+          </a>
+          <a href="solar-glossary.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Glossary
+          </a>
+          <span class="text-slate-200 px-1 hidden md:inline">|</span>
+          <a href="1kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            1kW
+          </a>
+          <a href="2kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            2kW
+          </a>
+          <a href="3kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            3kW
+          </a>
+          <a href="5kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            5kW
+          </a>
+          <a href="10kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            10kW
+          </a>
+        </nav>
+      </div>
+    </header>
   )
 }
 {
   variant === "guide" && (
-    <nav class="bg-white border-b border-slate-200">
-      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="index.html" class="font-bold text-xl">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      {/* Top bar */}
+      <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-lg text-slate-900">
           Solar AI Advisor
         </a>
         <a
           href="index.html"
-          class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition"
+          class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition"
         >
           Calculate Savings
         </a>
       </div>
-    </nav>
+      {/* Knowledge nav strip */}
+      <div class="border-t border-slate-100 bg-slate-50 overflow-x-auto scrollbar-none">
+        <nav class="flex gap-1 px-4 py-2 min-w-max md:min-w-0 md:max-w-6xl md:mx-auto">
+          <a href="learn.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Knowledge Center
+          </a>
+          <a href="faq.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Solar FAQ
+          </a>
+          <a href="solar-glossary.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap">
+            Glossary
+          </a>
+          <span class="text-slate-200 px-1 hidden md:inline">|</span>
+          <a href="1kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            1kW
+          </a>
+          <a href="2kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            2kW
+          </a>
+          <a href="3kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            3kW
+          </a>
+          <a href="5kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            5kW
+          </a>
+          <a href="10kw-solar-system.html"
+             class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors whitespace-nowrap hidden md:inline-block">
+            10kW
+          </a>
+        </nav>
+      </div>
+    </header>
   )
 }
 {
