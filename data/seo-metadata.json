@@ -189,27 +189,21 @@
     },
     "solar-panel-sizes.html": {
       "path": "solar-panel-sizes.html",
-      "title": "Solar Panel Sizes & Roof Space Guide India 2026 | Solar AI Advisor",
-      "description": "Understand solar panel dimensions, roof space requirements, and how many panels you need for your home with this India-specific sizing guide.",
-      "ogType": "article",
-      "breadcrumbLabel": "Solar Panel Sizes",
-      "robots": "index,follow"
+      "title": "Solar Panel Sizes Guide | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "best-solar-panels-india.html": {
       "path": "best-solar-panels-india.html",
-      "title": "Best Solar Panels in India 2026 | Solar AI Advisor",
-      "description": "Compare the best solar panel brands available in India in 2026 and learn what to check before choosing a panel for your rooftop system.",
-      "ogType": "article",
-      "breadcrumbLabel": "Best Solar Panels in India",
-      "robots": "index,follow"
+      "title": "Best Solar Panels in India | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "cleaning-maintenance.html": {
       "path": "cleaning-maintenance.html",
-      "title": "Solar Panel Cleaning & Maintenance Guide India 2026 | Solar AI Advisor",
-      "description": "A complete guide to solar panel cleaning and maintenance in India — keep your rooftop system running efficiently and maximize long-term savings.",
-      "ogType": "article",
-      "breadcrumbLabel": "Cleaning & Maintenance",
-      "robots": "index,follow"
+      "title": "Solar Panel Cleaning & Maintenance | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "solar-subsidy-india.html": {
       "path": "solar-subsidy-india.html",
@@ -219,17 +213,9 @@
     },
     "solar-loan-financing.html": {
       "path": "solar-loan-financing.html",
-      "title": "Solar Loan & Financing Guide India (2026) | Solar AI Advisor",
-      "description": "Learn how solar financing works in India including solar loans, EMI options, rooftop solar funding and zero upfront solar programs.",
-      "ogType": "article",
-      "breadcrumbLabel": "Solar Loan & Financing",
-      "robots": "index,follow",
-      "faq": [
-        { "question": "Can I finance an entire solar installation?", "answer": "Financing availability depends on lender policies, eligibility criteria and project requirements." },
-        { "question": "Will my electricity savings cover my EMI?", "answer": "Actual results vary depending on electricity usage, financing terms, solar generation and local tariffs." },
-        { "question": "Can I prepay a solar loan?", "answer": "Many lenders permit prepayment, although terms and charges may vary." },
-        { "question": "Does financing affect subsidy eligibility?", "answer": "Financing and subsidy eligibility are generally separate considerations, subject to applicable program requirements." }
-      ]
+      "title": "Solar Loans & Financing | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "net-metering-guide.html": {
       "path": "net-metering-guide.html",
@@ -239,17 +225,9 @@
     },
     "solar-for-homeowners.html": {
       "path": "solar-for-homeowners.html",
-      "title": "Solar For Homeowners India (2026) | Solar AI Advisor",
-      "description": "Learn whether rooftop solar is right for your home. Understand costs, savings, subsidies, financing and key homeowner considerations before installing solar.",
-      "ogType": "article",
-      "breadcrumbLabel": "Solar for Homeowners",
-      "robots": "index,follow",
-      "faq": [
-        { "question": "How much roof space is needed for solar?", "answer": "Required roof area depends on system size, panel efficiency and installation layout." },
-        { "question": "Can solar work during cloudy weather?", "answer": "Yes. Solar panels continue generating electricity during cloudy conditions, although production may be lower." },
-        { "question": "Do I need batteries?", "answer": "Many residential solar systems operate without batteries. The best solution depends on your goals and local conditions." },
-        { "question": "How long do solar panels last?", "answer": "Modern solar panels are designed for long operational lifetimes and often carry performance warranties extending decades." }
-      ]
+      "title": "Rooftop Solar for Homeowners | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "solar-for-businesses.html": {
       "path": "solar-for-businesses.html",
