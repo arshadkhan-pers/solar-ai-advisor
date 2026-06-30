@@ -210,6 +210,22 @@
       "breadcrumbLabel": "Solar Glossary",
       "robots": "index,follow"
     },
+    "rooftop-solar-lucknow.html": {
+      "path": "rooftop-solar-lucknow.html",
+      "title": "Rooftop Solar in Lucknow — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Lucknow homeowners — MVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Lucknow, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Lucknow",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Lucknow?", "answer": "Lucknow falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Lucknow homeowners are processed through MVVNL." },
+        { "question": "How do I apply for net metering with MVVNL in Lucknow?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL then inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Lucknow." },
+        { "question": "Is PM Surya Ghar subsidy available for Lucknow homeowners?", "answer": "Yes. Lucknow homeowners with an MVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use an MVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and current fund availability." },
+        { "question": "What solar system size suits most Lucknow homes?", "answer": "For typical Lucknow residential homes with monthly MVVNL bills of ₹2,000–₹5,000, a 2kW to 3kW on-grid system covers a significant portion of electricity needs. Larger homes or those with air conditioning running through summer may benefit from a 4kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Lucknow?", "answer": "Approximate pre-subsidy cost for a quality on-grid rooftop solar system in Lucknow ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter type, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for a 3kW system), the net cost is significantly lower. Verify current pricing from at least two MVVNL-empanelled installers before deciding." },
+        { "question": "Is Lucknow a good location for rooftop solar?", "answer": "Yes. Lucknow receives approximately 5 to 5.5 peak sun hours per day on average, which is well above the threshold for financially viable rooftop solar. Long hot summers mean high electricity demand coincides with high solar generation — making solar particularly cost-effective for Lucknow homeowners with significant air conditioning use." }
+      ]
+    },
     "solar-system-size.html": {
       "path": "solar-system-size.html",
       "title": "Solar System Size Guide | Solar AI Advisor",
