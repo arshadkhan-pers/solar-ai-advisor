@@ -210,6 +210,22 @@
       "breadcrumbLabel": "Solar Glossary",
       "robots": "index,follow"
     },
+    "rooftop-solar-raebareli.html": {
+      "path": "rooftop-solar-raebareli.html",
+      "title": "Rooftop Solar in Raebareli — Cost, Subsidy & Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Raebareli homeowners — net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Raebareli, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Raebareli",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Raebareli?", "answer": "Raebareli falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Raebareli homeowners are processed through MVVNL." },
+        { "question": "How do I apply for net metering in Raebareli?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks." },
+        { "question": "Is PM Surya Ghar subsidy available for Raebareli homeowners?", "answer": "Yes. Raebareli homeowners with an MVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use an MVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and current fund availability." },
+        { "question": "What solar system size suits most Raebareli homes?", "answer": "For typical Raebareli residential homes with monthly bills of ₹1,500–₹4,000, a 2kW to 3kW on-grid system is most common. Larger homes or households with air conditioning through summer may benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Raebareli?", "answer": "Approximate pre-subsidy cost for a quality on-grid rooftop solar system in Raebareli ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter type, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two MVVNL-empanelled installers before deciding." },
+        { "question": "Is Raebareli a good location for solar?", "answer": "Yes. Raebareli is located at a similar latitude to Lucknow and receives approximately 5 to 5.5 peak sun hours per day on average — well suited for rooftop solar. Long, sunny summers mean high solar output coincides with peak electricity demand, making solar financially effective for most Raebareli homeowners." }
+      ]
+    },
     "rooftop-solar-lucknow.html": {
       "path": "rooftop-solar-lucknow.html",
       "title": "Rooftop Solar in Lucknow — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
