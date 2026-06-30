@@ -65,7 +65,7 @@ Exact document requirements may vary slightly by DISCOM and state. Check the pms
 
 **3. Select an empanelled installer.** The portal lists DISCOM-approved installers in your area. You must use one of these — a non-empanelled installer disqualifies your subsidy claim.
 
-**4. Get a site assessment and quotation.** The installer will assess your rooftop, recommend system size, and provide a quotation. Compare quotes from at least two empanelled installers.
+**4. Get a site assessment and quotation.** The installer will assess your rooftop, recommend system size, and provide a quotation. Compare quotes from at least two empanelled installers. See our [guide to choosing a solar installer](/learn/how-to-choose-solar-installer.html) for what to check before signing.
 
 **5. Complete the installation.** Once you agree on terms, the installer proceeds with installation and arranges a net metering connection with your DISCOM.
 
@@ -88,5 +88,7 @@ Exact document requirements may vary slightly by DISCOM and state. Check the pms
 For most Indian homeowners with monthly electricity bills above ₹1,000 and adequate roof space, the combination of subsidy, net metering credits, and long-term savings makes rooftop solar a strong financial case — especially at 2–3 kW where the central subsidy coverage is highest.
 
 The key is executing well: choosing a reliable empanelled installer, understanding the actual system cost after subsidy, and knowing the net metering terms from your DISCOM.
+
+If upfront cost is a concern, solar loans and EMI programs can help bridge the gap before the subsidy arrives — see the [solar financing guide](/learn/solar-loan-and-financing.html).
 
 Use [Solar AI Advisor's calculator](/index.html) to get a personalized savings estimate for your home before you begin the application process.
