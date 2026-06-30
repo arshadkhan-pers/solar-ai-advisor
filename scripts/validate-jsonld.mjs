@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const distDir = join(rootDir, "dist");
-const files = globSync(join(distDir, "*.html"));
+const files = globSync(join(distDir, "**/*.html"));
 
 if (files.length === 0) {
   throw new Error(`No HTML files found in ${distDir} — run "npm run build" first.`);
@@ -19,6 +19,7 @@ const requiredFields = {
   WebSite: ["name", "url"],
   BreadcrumbList: ["itemListElement"],
   FAQPage: ["mainEntity"],
+  Article: ["headline"],
 };
 
 let totalBlocks = 0;

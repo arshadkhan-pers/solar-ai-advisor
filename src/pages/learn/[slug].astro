@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from "astro:content";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("learn");
+  return articles.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, description, publishedDate, modifiedDate, breadcrumbLabel, faq } =
+  entry.data;
+---
+<ArticleLayout
+  title={title}
+  description={description}
+  slug={entry.id}
+  publishedDate={publishedDate}
+  modifiedDate={modifiedDate}
+  breadcrumbLabel={breadcrumbLabel}
+  faq={faq}
+>
+
+<article class="max-w-3xl mx-auto px-6 py-16 prose prose-slate prose-lg">
+  <Content />
+</article>
+
+<section class="bg-slate-900 text-white py-20 text-center">
+  <div class="max-w-3xl mx-auto px-6">
+    <h2 class="text-3xl font-bold mb-4">Ready to Explore Your Solar Potential?</h2>
+    <p class="text-slate-300 mb-8">
+      Get a personalized solar savings estimate for your home in under 60 seconds.
+    </p>
+    <a
+      href="index.html"
+      class="inline-block bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-2xl font-bold transition-colors"
+    >
+      Calculate My Savings
+    </a>
+  </div>
+</section>
+
+</ArticleLayout>

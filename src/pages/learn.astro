@@ -1,0 +1,78 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const articles = (await getCollection("learn")).sort(
+  (a, b) =>
+    new Date(b.data.publishedDate).getTime() -
+    new Date(a.data.publishedDate).getTime()
+);
+---
+<BaseLayout pageKey="learn.html" headerVariant="policy">
+
+<section class="py-24 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <div class="uppercase tracking-widest text-sm text-indigo-300 mb-4">KNOWLEDGE CENTER</div>
+    <h1 class="text-5xl font-bold mb-6">Solar Learning Hub</h1>
+    <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+      Guides and resources to help Indian homeowners understand solar systems,
+      subsidies, and savings — before you commit to anything.
+    </p>
+  </div>
+</section>
+
+<section class="py-20">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <div class="grid md:grid-cols-2 gap-8">
+      {articles.map((article) => (
+        <a
+          href={`learn/${article.id}.html`}
+          class="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow group block"
+        >
+          <h2 class="text-xl font-bold mb-3 group-hover:text-emerald-600 transition-colors leading-snug">
+            {article.data.title}
+          </h2>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {article.data.description}
+          </p>
+          <p class="mt-5 text-emerald-600 text-sm font-semibold">
+            Read guide →
+          </p>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-16 text-center">
+      <p class="text-slate-500 text-sm mb-4">
+        Also explore our in-depth system guides:
+      </p>
+      <div class="flex flex-wrap justify-center gap-3 text-sm">
+        <a href="1kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">1kW System</a>
+        <a href="2kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">2kW System</a>
+        <a href="3kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">3kW System</a>
+        <a href="4kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">4kW System</a>
+        <a href="5kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">5kW System</a>
+        <a href="10kw-solar-system.html" class="bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-400 transition">10kW System</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="bg-slate-900 text-white py-24 text-center">
+  <div class="max-w-3xl mx-auto px-6">
+    <h2 class="text-4xl font-bold mb-6">Ready to Find Out How Much You Can Save?</h2>
+    <p class="text-slate-300 mb-8">
+      Get a personalized solar savings estimate for your home in under 60 seconds.
+    </p>
+    <a
+      href="index.html"
+      class="inline-block bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-2xl font-bold transition-colors"
+    >
+      Calculate My Savings
+    </a>
+  </div>
+</section>
+
+</BaseLayout>
