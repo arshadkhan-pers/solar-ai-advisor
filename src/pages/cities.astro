@@ -1,0 +1,224 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const states = [
+  {
+    name: "Uttar Pradesh",
+    discomNote: "UP has four distribution companies under UPPCL — MVVNL, PUVVNL, DVVNL, and PVVNL. Net metering and PM Surya Ghar applications are handled by the DISCOM for your city.",
+    cities: [
+      {
+        name: "Lucknow",
+        discom: "MVVNL",
+        description: "Capital city guide — MVVNL net metering, PM Surya Ghar subsidy, and installer guidance for Lucknow homeowners.",
+        url: "rooftop-solar-lucknow.html",
+        badge: "Most visited",
+      },
+      {
+        name: "Ayodhya",
+        discom: "MVVNL",
+        description: "Growing city guide — MVVNL net metering process, PM Surya Ghar eligibility, and solar savings for Ayodhya homeowners.",
+        url: "rooftop-solar-ayodhya.html",
+        badge: null,
+      },
+      {
+        name: "Raebareli",
+        discom: "MVVNL",
+        description: "Raebareli homeowner guide — net metering with MVVNL, subsidy application, and system sizing advice.",
+        url: "rooftop-solar-raebareli.html",
+        badge: null,
+      },
+      {
+        name: "Prayagraj",
+        discom: "PUVVNL",
+        description: "Prayagraj solar guide — PUVVNL net metering, PM Surya Ghar subsidy, and installer guidance.",
+        url: "rooftop-solar-prayagraj.html",
+        badge: null,
+      },
+      {
+        name: "Pratapgarh",
+        discom: "PUVVNL",
+        description: "Pratapgarh homeowner guide — PUVVNL net metering process and solar savings.",
+        url: "rooftop-solar-pratapgarh.html",
+        badge: null,
+      },
+      {
+        name: "Varanasi",
+        discom: "PUVVNL",
+        description: "Varanasi solar guide — PUVVNL net metering, subsidy eligibility, and local installer guidance.",
+        url: "rooftop-solar-varanasi.html",
+        badge: null,
+      },
+      {
+        name: "Kanpur",
+        discom: "DVVNL",
+        description: "Kanpur homeowner guide — DVVNL net metering, PM Surya Ghar subsidy, and system sizing.",
+        url: "rooftop-solar-kanpur.html",
+        badge: null,
+      },
+    ],
+  },
+];
+---
+<BaseLayout pageKey="cities.html" headerVariant="policy">
+
+<!-- HERO -->
+
+<section class="py-16 bg-white border-b border-slate-100">
+<div class="max-w-5xl mx-auto px-6">
+
+<div class="inline-block bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+Solar by City
+</div>
+
+<h1 class="text-4xl md:text-5xl font-bold mb-4">
+Solar Guides for Cities Across India
+</h1>
+
+<p class="text-slate-600 text-lg max-w-3xl">
+Find rooftop solar guidance for your city — DISCOM net metering rules, PM Surya Ghar subsidy details,
+installer guidance, and savings estimates tailored to your local electricity provider.
+</p>
+
+</div>
+</section>
+
+<!-- WHY LOCAL MATTERS -->
+
+<section class="py-12 bg-slate-50">
+<div class="max-w-5xl mx-auto px-6">
+
+<div class="grid md:grid-cols-3 gap-6">
+
+<div class="bg-white p-6 rounded-2xl border">
+<h3 class="font-bold mb-2">DISCOM Rules Vary by City</h3>
+<p class="text-slate-600 text-sm">Net metering application process, timelines, and meter fees differ between MVVNL, PUVVNL, DVVNL and other DISCOMs. City guides explain exactly what to expect in your area.</p>
+</div>
+
+<div class="bg-white p-6 rounded-2xl border">
+<h3 class="font-bold mb-2">PM Surya Ghar — Local Installer Lists</h3>
+<p class="text-slate-600 text-sm">The subsidy requires a DISCOM-empanelled installer. Empanelment lists are maintained by each DISCOM separately. City guides link to the correct portal for your city.</p>
+</div>
+
+<div class="bg-white p-6 rounded-2xl border">
+<h3 class="font-bold mb-2">Solar Suitability Differs</h3>
+<p class="text-slate-600 text-sm">Sun hours, seasonal patterns, and local electricity tariffs all affect solar ROI. City guides factor in local conditions so your savings estimate is relevant to where you actually live.</p>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- CITY LISTINGS BY STATE -->
+
+{states.map(state => (
+<section class="py-14">
+<div class="max-w-5xl mx-auto px-6">
+
+<div class="flex items-center gap-4 mb-2">
+<h2 class="text-2xl font-bold">{state.name}</h2>
+</div>
+<p class="text-slate-500 text-sm mb-8">{state.discomNote}</p>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+{state.cities.map(city => (
+  city.badge === "Coming soon" ? (
+    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl p-6 opacity-60">
+      <div class="absolute top-4 right-4">
+        <span class="text-xs bg-slate-200 text-slate-500 px-2 py-1 rounded-full font-medium">Coming soon</span>
+      </div>
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{city.discom}</div>
+      <div class="font-bold text-lg mb-2 text-slate-500">Solar in {city.name}</div>
+      <p class="text-slate-400 text-sm">{city.description}</p>
+    </div>
+  ) : (
+    <a href={city.url}
+       class="relative block bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md hover:border-indigo-200 transition group">
+      {city.badge && (
+        <div class="absolute top-4 right-4">
+          <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full font-medium">{city.badge}</span>
+        </div>
+      )}
+      <div class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">{city.discom}</div>
+      <div class="font-bold text-lg mb-2 group-hover:text-indigo-700 transition">Solar in {city.name}</div>
+      <p class="text-slate-500 text-sm mb-4">{city.description}</p>
+      <div class="text-indigo-600 text-sm font-semibold">Read guide →</div>
+    </a>
+  )
+))}
+</div>
+
+</div>
+</section>
+))}
+
+<!-- MORE STATES COMING -->
+
+<section class="py-12 bg-slate-50">
+<div class="max-w-5xl mx-auto px-6">
+
+<h2 class="text-xl font-bold mb-4">More States Coming Soon</h2>
+<p class="text-slate-600 text-sm mb-6">
+We are expanding city guides across India. States in the pipeline include Maharashtra, Rajasthan,
+Gujarat, Karnataka, and Tamil Nadu — each with state-specific DISCOM guidance, subsidy information,
+and local installer context.
+</p>
+
+<a href="contact.html" class="inline-block border border-slate-300 px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 transition">
+Request your city →
+</a>
+
+</div>
+</section>
+
+<!-- RELATED RESOURCES -->
+
+<section class="py-12">
+<div class="max-w-5xl mx-auto px-6">
+
+<h2 class="text-xl font-bold mb-6">Guides That Apply Everywhere in India</h2>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+<a href="learn/pm-surya-ghar-guide.html" class="block bg-white p-5 rounded-2xl border hover:shadow-md transition">
+<div class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">Subsidies</div>
+<div class="font-semibold text-sm">PM Surya Ghar Guide</div>
+</a>
+
+<a href="learn/net-metering-india.html" class="block bg-white p-5 rounded-2xl border hover:shadow-md transition">
+<div class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">Billing</div>
+<div class="font-semibold text-sm">Net Metering Guide</div>
+</a>
+
+<a href="learn/how-to-choose-solar-installer.html" class="block bg-white p-5 rounded-2xl border hover:shadow-md transition">
+<div class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">Installers</div>
+<div class="font-semibold text-sm">How to Choose an Installer</div>
+</a>
+
+<a href="learn/solar-system-sizing-guide.html" class="block bg-white p-5 rounded-2xl border hover:shadow-md transition">
+<div class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">Sizing</div>
+<div class="font-semibold text-sm">Solar System Sizing Guide</div>
+</a>
+
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+
+<section class="py-16">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<div class="bg-slate-900 text-white rounded-[2rem] p-10">
+<h2 class="text-3xl font-bold mb-4">Not Sure About Your City?</h2>
+<p class="text-slate-300 mb-8">
+Our AI-powered calculator gives you a personalised solar assessment based on your bill —
+wherever you are in India.
+</p>
+<a href="index.html" class="inline-block bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-bold transition">
+Calculate My Solar Savings
+</a>
+</div>
+</div>
+</section>
+
+</BaseLayout>

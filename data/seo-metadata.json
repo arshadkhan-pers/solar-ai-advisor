@@ -210,6 +210,110 @@
       "breadcrumbLabel": "Solar Glossary",
       "robots": "index,follow"
     },
+    "rooftop-solar-prayagraj.html": {
+      "path": "rooftop-solar-prayagraj.html",
+      "title": "Rooftop Solar in Prayagraj — Cost, Subsidy & PUVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Prayagraj homeowners — PUVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Prayagraj, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Prayagraj",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Prayagraj?", "answer": "Prayagraj falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL covering eastern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Prayagraj homeowners are processed through PUVVNL." },
+        { "question": "How do I apply for net metering with PUVVNL in Prayagraj?", "answer": "After your rooftop solar system is installed by a PUVVNL-empanelled installer, your installer submits a net metering application to PUVVNL on your behalf. PUVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Prayagraj." },
+        { "question": "Is PM Surya Ghar subsidy available for Prayagraj homeowners?", "answer": "Yes. Prayagraj homeowners with a PUVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use a PUVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and fund availability." },
+        { "question": "What solar system size suits most Prayagraj homes?", "answer": "For typical Prayagraj residential homes with monthly PUVVNL bills of ₹1,500–₹4,000, a 2kW to 3kW on-grid system covers a significant portion of electricity needs. Homes with heavy summer air conditioning use may benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Prayagraj?", "answer": "Pre-subsidy cost for a quality on-grid system in Prayagraj typically ranges from ₹60,000 to ₹80,000 per kW. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two PUVVNL-empanelled installers before deciding." },
+        { "question": "Is Prayagraj a good location for rooftop solar?", "answer": "Yes. Prayagraj receives approximately 5 to 5.5 peak sun hours per day on average — well suited for rooftop solar. Long, hot summers mean high solar generation coincides with peak electricity demand, making solar financially effective for most Prayagraj homeowners." }
+      ]
+    },
+    "rooftop-solar-pratapgarh.html": {
+      "path": "rooftop-solar-pratapgarh.html",
+      "title": "Rooftop Solar in Pratapgarh — Cost, Subsidy & PUVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Pratapgarh homeowners — PUVVNL net metering process, PM Surya Ghar subsidy, system costs, and installer guidance in Pratapgarh, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Pratapgarh",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Pratapgarh?", "answer": "Pratapgarh falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering eastern Uttar Pradesh. All net metering applications and solar scheme empanelment for Pratapgarh homeowners are processed through PUVVNL." },
+        { "question": "How do I apply for net metering in Pratapgarh?", "answer": "After installation by a PUVVNL-empanelled installer, your installer submits the net metering application to PUVVNL on your behalf. PUVVNL inspects the system and installs a bi-directional meter. The process typically takes two to six weeks." },
+        { "question": "Is PM Surya Ghar subsidy available in Pratapgarh?", "answer": "Yes. Pratapgarh homeowners with a PUVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. Use a PUVVNL-empanelled installer and apply at pmsuryaghar.gov.in. Verify current amounts before applying." },
+        { "question": "What solar system size suits most Pratapgarh homes?", "answer": "For typical Pratapgarh residential homes with monthly bills of ₹1,000–₹3,500, a 1kW to 3kW on-grid system is most common. Homes with air conditioning needs through summer often benefit from a 2kW or 3kW system." },
+        { "question": "How much does rooftop solar cost in Pratapgarh?", "answer": "Pre-subsidy cost typically ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Compare quotes from at least two PUVVNL-empanelled installers." },
+        { "question": "Is Pratapgarh a good location for solar?", "answer": "Yes. Pratapgarh receives approximately 5 to 5.5 peak sun hours daily — well suited for rooftop solar. Hot summers mean high solar output coincides with peak electricity demand, delivering strong financial returns." }
+      ]
+    },
+    "rooftop-solar-varanasi.html": {
+      "path": "rooftop-solar-varanasi.html",
+      "title": "Rooftop Solar in Varanasi — Cost, Subsidy & PUVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Varanasi homeowners — PUVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Varanasi, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Varanasi",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Varanasi?", "answer": "Varanasi falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering eastern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Varanasi homeowners are processed through PUVVNL." },
+        { "question": "How do I apply for net metering with PUVVNL in Varanasi?", "answer": "After your rooftop solar system is installed by a PUVVNL-empanelled installer, your installer submits the net metering application to PUVVNL. PUVVNL inspects the system and replaces your meter with a bi-directional net meter. The process typically takes two to six weeks in Varanasi." },
+        { "question": "Is PM Surya Ghar subsidy available for Varanasi homeowners?", "answer": "Yes. Varanasi homeowners with a PUVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. Use a PUVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Verify current rates before applying." },
+        { "question": "What solar system size suits most Varanasi homes?", "answer": "For typical Varanasi residential homes with monthly PUVVNL bills of ₹1,500–₹4,500, a 2kW to 3kW on-grid system covers a significant share of electricity needs. Larger homes or those with heavy AC use through summer may benefit from 3kW to 5kW." },
+        { "question": "How much does rooftop solar cost in Varanasi?", "answer": "Pre-subsidy cost for a quality on-grid system in Varanasi typically ranges from ₹60,000 to ₹80,000 per kW. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Always get quotes from at least two PUVVNL-empanelled installers." },
+        { "question": "Is Varanasi a good location for rooftop solar?", "answer": "Yes. Varanasi receives approximately 5 to 5.5 peak sun hours per day on average. Long summers with high solar irradiance mean panels generate most strongly precisely when electricity demand and PUVVNL bills are highest — making solar financially effective for most Varanasi homeowners." }
+      ]
+    },
+    "rooftop-solar-kanpur.html": {
+      "path": "rooftop-solar-kanpur.html",
+      "title": "Rooftop Solar in Kanpur — Cost, Subsidy & DVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Kanpur homeowners — DVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Kanpur, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Kanpur",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Kanpur?", "answer": "Kanpur falls under DVVNL (Dakshinanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering southern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Kanpur homeowners are processed through DVVNL." },
+        { "question": "How do I apply for net metering with DVVNL in Kanpur?", "answer": "After your rooftop solar system is installed by a DVVNL-empanelled installer, your installer submits the net metering application to DVVNL on your behalf. DVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Kanpur." },
+        { "question": "Is PM Surya Ghar subsidy available for Kanpur homeowners?", "answer": "Yes. Kanpur homeowners with a DVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use a DVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and fund availability." },
+        { "question": "What solar system size suits most Kanpur homes?", "answer": "For typical Kanpur residential homes with monthly DVVNL bills of ₹2,000–₹5,000, a 2kW to 3kW on-grid system is most popular. Larger homes, or those with significant industrial-area electricity demand, may benefit from 3kW to 5kW systems." },
+        { "question": "How much does rooftop solar cost in Kanpur?", "answer": "Pre-subsidy cost for a quality on-grid system in Kanpur ranges from ₹60,000 to ₹80,000 per kW depending on equipment and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two DVVNL-empanelled installers before deciding." },
+        { "question": "Is Kanpur a good location for rooftop solar?", "answer": "Yes. Kanpur receives approximately 5 to 5.5 peak sun hours per day on average. Long hot summers — when DVVNL bills are highest — coincide with peak solar generation, making rooftop solar financially effective for most Kanpur homeowners." }
+      ]
+    },
+    "cities.html": {
+      "path": "cities.html",
+      "title": "Solar Guides by City — Rooftop Solar Across India | Solar AI Advisor",
+      "description": "Find rooftop solar guides for your city — DISCOM net metering rules, PM Surya Ghar subsidy details, installer guidance, and savings estimates. Currently covering Uttar Pradesh with more states coming soon.",
+      "ogType": "website",
+      "breadcrumbLabel": "Solar by City",
+      "robots": "index,follow"
+    },
+    "rooftop-solar-ayodhya.html": {
+      "path": "rooftop-solar-ayodhya.html",
+      "title": "Rooftop Solar in Ayodhya — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Ayodhya homeowners — MVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Ayodhya, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Ayodhya",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Ayodhya?", "answer": "Ayodhya falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Ayodhya homeowners are processed through MVVNL." },
+        { "question": "How do I apply for net metering with MVVNL in Ayodhya?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Ayodhya." },
+        { "question": "Is PM Surya Ghar subsidy available for Ayodhya homeowners?", "answer": "Yes. Ayodhya homeowners with an MVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use an MVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and fund availability." },
+        { "question": "What solar system size suits most Ayodhya homes?", "answer": "For typical Ayodhya residential homes with monthly MVVNL bills of ₹1,500–₹4,000, a 2kW to 3kW on-grid system covers a significant portion of electricity needs. Larger homes or those with significant air conditioning use may benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Ayodhya?", "answer": "Approximate pre-subsidy cost for a quality on-grid system in Ayodhya ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter type, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two MVVNL-empanelled installers." },
+        { "question": "Is Ayodhya a good location for rooftop solar?", "answer": "Yes. Ayodhya receives approximately 5 to 5.5 peak sun hours per day on average, making it well suited for rooftop solar. The region's hot summers mean high solar output coincides with peak electricity demand, delivering strong financial returns for homeowners." }
+      ]
+    },
+    "rooftop-solar-raebareli.html": {
+      "path": "rooftop-solar-raebareli.html",
+      "title": "Rooftop Solar in Raebareli — Cost, Subsidy & Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Raebareli homeowners — net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Raebareli, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Raebareli",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Raebareli?", "answer": "Raebareli falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Raebareli homeowners are processed through MVVNL." },
+        { "question": "How do I apply for net metering in Raebareli?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks." },
+        { "question": "Is PM Surya Ghar subsidy available for Raebareli homeowners?", "answer": "Yes. Raebareli homeowners with an MVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use an MVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and current fund availability." },
+        { "question": "What solar system size suits most Raebareli homes?", "answer": "For typical Raebareli residential homes with monthly bills of ₹1,500–₹4,000, a 2kW to 3kW on-grid system is most common. Larger homes or households with air conditioning through summer may benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Raebareli?", "answer": "Approximate pre-subsidy cost for a quality on-grid rooftop solar system in Raebareli ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter type, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two MVVNL-empanelled installers before deciding." },
+        { "question": "Is Raebareli a good location for solar?", "answer": "Yes. Raebareli is located at a similar latitude to Lucknow and receives approximately 5 to 5.5 peak sun hours per day on average — well suited for rooftop solar. Long, sunny summers mean high solar output coincides with peak electricity demand, making solar financially effective for most Raebareli homeowners." }
+      ]
+    },
     "rooftop-solar-lucknow.html": {
       "path": "rooftop-solar-lucknow.html",
       "title": "Rooftop Solar in Lucknow — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
