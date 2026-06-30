@@ -24,22 +24,33 @@ const ogImage = page.skipFullSeo ? null : absoluteUrl(page.ogImage || site.defau
 const jsonLdBlocks = [];
 if (!page.skipFullSeo) {
   if (page.isHome) {
+    const orgNode: Record<string, unknown> = {
+      "@type": "LocalBusiness",
+      "@id": `${site.baseUrl}/#organization`,
+      name: site.organization.name,
+      url: site.organization.url,
+      logo: site.organization.logo,
+      email: site.organization.email,
+      description: site.organization.description,
+      address: {
+        "@type": "PostalAddress",
+        ...site.organization.address,
+      },
+    };
+    if (site.organization.areaServed) {
+      orgNode.areaServed = site.organization.areaServed;
+    }
+    if (site.organization.geo) {
+      orgNode.geo = {
+        "@type": "GeoCoordinates",
+        latitude: site.organization.geo.latitude,
+        longitude: site.organization.geo.longitude,
+      };
+    }
     jsonLdBlocks.push({
       "@context": "https://schema.org",
       "@graph": [
-        {
-          "@type": "Organization",
-          "@id": `${site.baseUrl}/#organization`,
-          name: site.organization.name,
-          url: site.organization.url,
-          logo: site.organization.logo,
-          email: site.organization.email,
-          description: site.organization.description,
-          address: {
-            "@type": "PostalAddress",
-            ...site.organization.address,
-          },
-        },
+        orgNode,
         {
           "@type": "WebSite",
           "@id": `${site.baseUrl}/#website`,
