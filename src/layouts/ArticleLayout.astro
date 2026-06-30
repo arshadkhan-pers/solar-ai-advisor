@@ -1,0 +1,109 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  publishedDate: string;
+  modifiedDate?: string;
+  breadcrumbLabel: string;
+  faq?: Array<{ question: string; answer: string }>;
+}
+
+const {
+  title,
+  description,
+  slug,
+  publishedDate,
+  modifiedDate,
+  breadcrumbLabel,
+  faq,
+} = Astro.props;
+
+const siteBaseUrl = "https://www.solaraiadvisor.com";
+const canonical = `${siteBaseUrl}/learn/${slug}.html`;
+const ogImage = `${siteBaseUrl}/images/logo.webp`;
+
+const jsonLdBlocks: object[] = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description: description,
+    datePublished: publishedDate,
+    dateModified: modifiedDate || publishedDate,
+    publisher: { "@id": `${siteBaseUrl}/#organization` },
+    mainEntityOfPage: canonical,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${siteBaseUrl}/` },
+      { "@type": "ListItem", position: 2, name: "Learn", item: `${siteBaseUrl}/learn.html` },
+      { "@type": "ListItem", position: 3, name: breadcrumbLabel, item: canonical },
+    ],
+  },
+];
+
+if (faq && faq.length) {
+  jsonLdBlocks.push({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((qa) => ({
+      "@type": "Question",
+      name: qa.question,
+      acceptedAnswer: { "@type": "Answer", text: qa.answer },
+    })),
+  });
+}
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/">
+<title>{title}</title>
+<meta name="robots" content="index, follow" />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Solar AI Advisor" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+{jsonLdBlocks.map((block) => (
+  <script type="application/ld+json" set:html={JSON.stringify(block)} />
+))}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<Header variant="guide" />
+
+<nav aria-label="Breadcrumb" class="bg-slate-50 border-b border-slate-100 px-4 md:px-8 py-3">
+  <ol class="max-w-7xl mx-auto flex items-center gap-2 text-sm text-slate-500">
+    <li><a href="index.html" class="hover:text-slate-900 transition-colors">Home</a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href="learn.html" class="hover:text-slate-900 transition-colors">Learn</a></li>
+    <li aria-hidden="true">/</li>
+    <li class="text-slate-900 font-medium" aria-current="page">{breadcrumbLabel}</li>
+  </ol>
+</nav>
+
+<slot />
+
+<Footer />
+
+</body>
+</html>

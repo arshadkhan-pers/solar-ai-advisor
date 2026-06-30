@@ -173,6 +173,14 @@
         { "question": "Is subsidy guaranteed?", "answer": "No. Subsidies are subject to government policies, eligibility criteria and approval processes." }
       ]
     },
+    "learn.html": {
+      "path": "learn.html",
+      "title": "Solar Knowledge Center | Solar AI Advisor",
+      "description": "Free guides and resources to help Indian homeowners understand solar systems, subsidies, net metering, installers, and savings — from India's independent solar advisor.",
+      "ogType": "website",
+      "breadcrumbLabel": "Knowledge Center",
+      "robots": "index,follow"
+    },
     "solar-system-size.html": {
       "path": "solar-system-size.html",
       "title": "Solar System Size Guide India 2026 | Solar AI Advisor",
