@@ -181,6 +181,30 @@
       "breadcrumbLabel": "Knowledge Center",
       "robots": "index,follow"
     },
+    "faq.html": {
+      "path": "faq.html",
+      "title": "Solar FAQ — Common Questions About Rooftop Solar in India | Solar AI Advisor",
+      "description": "Answers to common questions about rooftop solar in India — subsidies, costs, savings, net metering, installer selection, and how Solar AI Advisor works.",
+      "ogType": "website",
+      "breadcrumbLabel": "Solar FAQ",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "How does rooftop solar work?", "answer": "Solar panels convert sunlight into DC electricity. An inverter converts this to AC power for your home. Surplus generation is exported to the grid via net metering, earning credits on future bills." },
+        { "question": "Do solar panels work during cloudy weather?", "answer": "Yes. Panels generate electricity from diffuse light, not only direct sunlight. Output is reduced on cloudy days but does not stop." },
+        { "question": "Do I need batteries with rooftop solar?", "answer": "Most on-grid residential systems in India operate without batteries. The grid connection and net metering serve as effective storage for most homeowners." },
+        { "question": "How long does it take to recover the solar investment?", "answer": "Typical payback is 4–7 years for well-sized on-grid systems in India, after which the system continues generating for 20+ more years." },
+        { "question": "Is the PM Surya Ghar subsidy guaranteed?", "answer": "No. Subsidies are subject to government policy, fund availability, and eligibility criteria including use of empanelled installers and ALMM-listed panels." },
+        { "question": "What is MNRE empanelment?", "answer": "MNRE empanelment certifies solar installers to carry out installations under government schemes. It is mandatory for subsidy eligibility but is not a guarantee of quality — always verify installer experience independently." }
+      ]
+    },
+    "solar-glossary.html": {
+      "path": "solar-glossary.html",
+      "title": "Solar Glossary — Key Solar Energy Terms Explained | Solar AI Advisor",
+      "description": "Plain-language definitions of 25 solar energy terms used in India — from ALMM and DISCOM to net metering, TOPCon, kWp, CUF, and PM Surya Ghar.",
+      "ogType": "website",
+      "breadcrumbLabel": "Solar Glossary",
+      "robots": "index,follow"
+    },
     "solar-system-size.html": {
       "path": "solar-system-size.html",
       "title": "Solar System Size Guide | Solar AI Advisor",
