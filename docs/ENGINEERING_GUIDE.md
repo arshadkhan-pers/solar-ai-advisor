@@ -500,9 +500,243 @@ All new pages in sitemap.xml.
 No regression on existing 28 pages.
 Rich Results Test passes for at least one article (Article + FAQPage).
 
-Sprint 6
+Sprint 6 — Local SEO Dominance: Lucknow & Raebareli
 
-City Landing Pages
+Goal: Rank at the top of Google search results for solar-related queries in Lucknow and
+Raebareli, Uttar Pradesh. This sprint combines city-specific landing pages, LocalBusiness
+structured data, UPPCL-localised content, and site-wide geographic signals to make
+Solar AI Advisor the dominant rooftop solar resource for these two cities.
+
+Target queries (illustrative, not exhaustive):
+- "rooftop solar Lucknow"
+- "solar panel price Lucknow 2026"
+- "solar installation Lucknow"
+- "PM Surya Ghar Lucknow"
+- "UPPCL net metering Lucknow"
+- "solar subsidy UP 2026"
+- "solar panel Raebareli"
+- "solar installer Raebareli"
+- "solar subsidy Raebareli"
+- "best solar company Lucknow"
+
+Identity & constraint reminders (must be respected across all Sprint 6 work):
+- No founder name, photo, or personal identity anywhere
+- No GSTIN — not GST-registered, pre-revenue
+- Location: Lucknow, Uttar Pradesh, India — city-level only, no street address
+- No fabricated customer stats, testimonials, or unverified claims
+
+---
+
+PR A — LocalBusiness Schema + Organisation areaServed
+
+Files: data/seo-metadata.json, src/pages/index.astro
+
+Changes:
+1. Organisation schema (seo-metadata.json site.organization):
+   - Add "areaServed": ["Lucknow", "Raebareli", "Uttar Pradesh"] to the organization block.
+   - This propagates to every page that renders the Organisation JSON-LD.
+
+2. LocalBusiness JSON-LD on homepage (index.astro):
+   - Emit a second JSON-LD block of @type LocalBusiness alongside the existing
+     Organisation/Website blocks.
+   - Include: name, url, logo, email, description, areaServed, address
+     (addressLocality: Lucknow, addressRegion: Uttar Pradesh, addressCountry: IN),
+     and geo (@type: GeoCoordinates, latitude: 26.8467, longitude: 80.9462).
+   - @type should be "LocalBusiness" with additionalType pointing to solar advisory.
+
+3. Meta description updates (seo-metadata.json):
+   - Homepage: include "Lucknow & Uttar Pradesh" in description.
+   - about.html, contact.html: add "Lucknow, Uttar Pradesh" where natural.
+   - Key kW pages: append "in Uttar Pradesh" or similar to descriptions.
+
+Success criteria:
+- Rich Results Test shows LocalBusiness block on homepage.
+- validate-jsonld passes with new block.
+- Organisation areaServed present in all page JSON-LD.
+
+---
+
+PR B — Lucknow City Landing Page
+
+File: src/pages/rooftop-solar-lucknow.astro
+seo-metadata.json entry: rooftop-solar-lucknow.html
+
+Target URL: /rooftop-solar-lucknow.html
+
+Target queries:
+- rooftop solar Lucknow / solar panels Lucknow
+- solar panel price Lucknow 2026
+- solar installation Lucknow
+- PM Surya Ghar Lucknow / solar subsidy Lucknow
+- UPPCL net metering Lucknow
+- best solar company Lucknow
+- solar for home Lucknow
+
+Page structure (sections):
+1. Hero — "Rooftop Solar in Lucknow" with city-specific H1, bill range CTA
+2. Why Solar Makes Sense in Lucknow — local solar irradiance context (high sun hours
+   in UP), rising UPPCL tariffs, PM Surya Ghar eligibility
+3. How It Works for Lucknow Homeowners — UPPCL-specific net metering process
+   (application to UPPCL/MVVNL, inspection, bi-directional meter, timeline)
+4. Popular System Sizes for Lucknow — cards linking to 2kW/3kW/5kW pages with
+   Lucknow-specific bill range context
+5. PM Surya Ghar in Lucknow — UP-specific subsidy walkthrough, pmsuryaghar.gov.in
+   portal, MVVNL empanelled installers
+6. Neighbourhoods We Serve — Gomti Nagar, Hazratganj, Indira Nagar, Aliganj,
+   Alambagh, Mahanagar, Vikas Nagar, Chinhat, Sultanpur Road, Faizabad Road
+   (signals local relevance to Google; no fabricated claims about past installations)
+7. FAQ — 6 Q&As specific to Lucknow (UPPCL process, UP subsidy, Lucknow climate,
+   local installer what to check)
+8. CTA — calculator with Lucknow framing
+
+Schema on this page:
+- BreadcrumbList (Home → Lucknow Solar)
+- FAQPage (from the 6 local Q&As)
+- LocalBusiness with geo for Lucknow
+
+Internal links TO this page from:
+- index.astro (add "Lucknow" city card in a new "Cities We Serve" section)
+- All 6 kW system pages (add Lucknow card to Helpful Guides section)
+- Footer (add Cities column or link under Learn)
+- about.html, contact.html
+
+Internal links FROM this page to:
+- learn/pm-surya-ghar-guide.html
+- learn/net-metering-india.html
+- learn/how-to-choose-solar-installer.html
+- 3kw-solar-system.html, 5kw-solar-system.html
+- faq.html
+
+---
+
+PR C — Raebareli City Landing Page
+
+File: src/pages/rooftop-solar-raebareli.astro
+seo-metadata.json entry: rooftop-solar-raebareli.html
+
+Target URL: /rooftop-solar-raebareli.html
+
+Target queries:
+- rooftop solar Raebareli / solar panels Raebareli
+- solar installer Raebareli
+- solar subsidy Raebareli / PM Surya Ghar Raebareli
+- solar panel price Raebareli 2026
+- PVVNL net metering Raebareli
+
+Note: Raebareli falls under PVVNL (Paschimanchal Vidyut Vitran Nigam Ltd) or
+MVVNL (Madhyanchal Vidyut Vitran Nigam Ltd) — verify the correct DISCOM and
+use the accurate name throughout. Do NOT guess — look up or ask before publishing.
+
+Page structure (similar to Lucknow):
+1. Hero — "Rooftop Solar in Raebareli"
+2. Why Solar in Raebareli — local context, grid reliability, PM Surya Ghar opportunity
+3. DISCOM net metering process for Raebareli
+4. Popular system sizes for Raebareli households
+5. PM Surya Ghar in Raebareli — portal, empanelled installers, process
+6. Areas in Raebareli — Civil Lines, Dalmau Road, Lalganj Road, Salon, Unchahar
+7. FAQ — 5 Q&As specific to Raebareli
+8. CTA
+
+Schema: BreadcrumbList + FAQPage + LocalBusiness (areaServed: Raebareli)
+
+Internal links TO this page from:
+- index.astro Cities section
+- rooftop-solar-lucknow.html (nearby city link)
+- Footer
+
+Internal links FROM this page to:
+- learn/pm-surya-ghar-guide.html
+- learn/net-metering-india.html
+- rooftop-solar-lucknow.html
+
+---
+
+PR D — UPPCL Content Localisation Pass
+
+Files: src/content/learn/net-metering-india.md,
+       src/content/learn/pm-surya-ghar-guide.md,
+       src/pages/about.astro, src/pages/contact.astro,
+       src/pages/index.astro
+
+Changes:
+1. net-metering-india.md:
+   - Add a "Net Metering in Uttar Pradesh" subsection covering:
+     UPPCL / MVVNL / PVVNL as the relevant DISCOMs for UP consumers,
+     the UP SERC net metering regulations, typical timelines in UP,
+     and the UP-specific portal/application process.
+   - Internal link to /rooftop-solar-lucknow.html.
+
+2. pm-surya-ghar-guide.md:
+   - Add UP-specific context: state component top-up (if applicable),
+     MVVNL empanelment portal, Lucknow/UP application experience note.
+   - Internal links to city pages.
+
+3. index.astro:
+   - Add a "Cities We Serve" section with Lucknow + Raebareli cards linking
+     to the city landing pages. Keep it concise — 2 cards for now, expandable later.
+
+4. about.astro + contact.astro:
+   - Add "Serving homeowners in Lucknow, Raebareli and across Uttar Pradesh"
+     in the body copy naturally (not forced).
+
+5. seo-metadata.json:
+   - Update key page descriptions to include UP/Lucknow signal where natural
+     (homepage, about, contact, learn hub).
+
+---
+
+Off-Site Actions (outside codebase — product owner must complete)
+
+These are not code changes but are critical for Sprint 6 goals:
+
+1. Google Business Profile (HIGHEST PRIORITY — must be done before any page
+   ships for maximum impact):
+   - Create at business.google.com
+   - Type: Service Area Business (no storefront)
+   - Business name: Solar AI Advisor
+   - Primary category: Solar Energy Equipment Supplier
+   - Service areas: Lucknow, Raebareli, and surrounding UP districts
+   - Website: https://www.solaraiadvisor.com
+   - Description: consistent with site copy
+   - Add logo image
+   - No street address required for SAB model
+   - This feeds the Google local pack (3-box above organic results) and Google Maps
+
+2. Google Search Console:
+   - Submit updated sitemap after Sprint 6 deploys
+   - Request indexing for both city landing pages immediately on launch
+   - Set up performance tracking for Lucknow + Raebareli query filters
+
+3. Local backlinks (ongoing — not blocked on code):
+   - Get listed on Justdial, Sulekha, IndiaMART as solar advisor/consultant
+   - Request mentions from local Lucknow solar-adjacent blogs or news sites
+   - These strengthen domain prominence for local queries
+
+---
+
+Git Workflow
+
+Same pattern as all prior sprints:
+- feature/sprint6-localbusiness-schema      → develop PR (PR A)
+- feature/sprint6-lucknow-landing-page      → develop PR (PR B)
+- feature/sprint6-raebareli-landing-page    → develop PR (PR C)
+- feature/sprint6-uppcl-localisation        → develop PR (PR D)
+Each develop merge → deploy PR → main
+
+---
+
+Success Criteria for Sprint 6
+
+Build: zero errors, all new pages resolve, no broken links.
+validate-jsonld: LocalBusiness, FAQPage, BreadcrumbList blocks all valid.
+Lighthouse SEO = 100 on both city landing pages.
+Both city pages in sitemap.xml.
+Organisation JSON-LD areaServed present on all pages.
+Rich Results Test: FAQPage and LocalBusiness pass for city pages.
+Google Business Profile live with Lucknow + Raebareli service areas.
+Both city pages indexed in Google Search Console within 2 weeks of launch.
+First impressions for "[solar] + [Lucknow/Raebareli]" queries visible in
+Search Console within 4 weeks of launch.
 
 Sprint 7
 
