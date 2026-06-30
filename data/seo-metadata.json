@@ -210,6 +210,22 @@
       "breadcrumbLabel": "Solar Glossary",
       "robots": "index,follow"
     },
+    "rooftop-solar-ayodhya.html": {
+      "path": "rooftop-solar-ayodhya.html",
+      "title": "Rooftop Solar in Ayodhya — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Ayodhya homeowners — MVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Ayodhya, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Ayodhya",
+      "robots": "index,follow",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Ayodhya?", "answer": "Ayodhya falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Ayodhya homeowners are processed through MVVNL." },
+        { "question": "How do I apply for net metering with MVVNL in Ayodhya?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Ayodhya." },
+        { "question": "Is PM Surya Ghar subsidy available for Ayodhya homeowners?", "answer": "Yes. Ayodhya homeowners with an MVVNL electricity connection are eligible for the PM Surya Ghar Muft Bijli Yojana central subsidy. You must use an MVVNL-empanelled installer and apply through pmsuryaghar.gov.in. Subsidy amounts are subject to government policy and fund availability." },
+        { "question": "What solar system size suits most Ayodhya homes?", "answer": "For typical Ayodhya residential homes with monthly MVVNL bills of ₹1,500–₹4,000, a 2kW to 3kW on-grid system covers a significant portion of electricity needs. Larger homes or those with significant air conditioning use may benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Ayodhya?", "answer": "Approximate pre-subsidy cost for a quality on-grid system in Ayodhya ranges from ₹60,000 to ₹80,000 per kW depending on panel brand, inverter type, and installer. After the PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), the net cost is significantly lower. Get quotes from at least two MVVNL-empanelled installers." },
+        { "question": "Is Ayodhya a good location for rooftop solar?", "answer": "Yes. Ayodhya receives approximately 5 to 5.5 peak sun hours per day on average, making it well suited for rooftop solar. The region's hot summers mean high solar output coincides with peak electricity demand, delivering strong financial returns for homeowners." }
+      ]
+    },
     "rooftop-solar-raebareli.html": {
       "path": "rooftop-solar-raebareli.html",
       "title": "Rooftop Solar in Raebareli — Cost, Subsidy & Net Metering Guide (2026)",
