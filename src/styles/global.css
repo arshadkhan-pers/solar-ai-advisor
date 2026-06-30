@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Only two pages need anything beyond Tailwind's stock defaults: results.astro
    and installer.astro each had a per-page tailwind.config with conflicting

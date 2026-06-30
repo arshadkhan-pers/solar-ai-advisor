@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// Generates sitemap.xml from data/seo-metadata.json — same file, same URL,
-// same <url><loc>...</loc></url> shape as before, just data-driven instead of
-// hand-maintained, so it can never drift from the actual page set. Re-running
-// is safe and idempotent.
-import { readFileSync, writeFileSync } from "fs";
+// Generates sitemap.xml from data/seo-metadata.json plus any markdown articles
+// in src/content/learn/ — keeps the sitemap in sync with both data sources
+// without manual maintenance. Re-running is safe and idempotent.
+import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
@@ -15,13 +14,25 @@ function absoluteUrl(path) {
   return path ? `${baseUrl}/${path}` : `${baseUrl}/`;
 }
 
-const urls = Object.values(meta.pages)
+const pageUrls = Object.values(meta.pages)
   .filter((page) => !page.skipFullSeo)
   .map((page) => absoluteUrl(page.path));
 
+// Add article URLs from src/content/learn/*.md
+const learnDir = join(rootDir, "src/content/learn");
+let articleUrls = [];
+try {
+  articleUrls = readdirSync(learnDir)
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => `${baseUrl}/learn/${f.replace(".md", "")}.html`);
+} catch {
+  // Directory does not exist yet — skip silently
+}
+
+const urls = [...pageUrls, ...articleUrls];
 const body = urls.map((url) => `\n<url>\n<loc>${url}</loc>\n</url>\n`).join("");
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 
 writeFileSync(join(rootDir, "sitemap.xml"), xml, "utf8");
-console.log(`Generated sitemap.xml with ${urls.length} URLs`);
+console.log(`Generated sitemap.xml with ${urls.length} URLs (${pageUrls.length} pages + ${articleUrls.length} articles)`);

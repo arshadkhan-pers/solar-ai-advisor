@@ -454,9 +454,51 @@ Sprint 4
 
 Performance Optimization
 
-Sprint 5
+Sprint 5 — Knowledge Center
 
-Knowledge Center
+Goal: Build a scalable content infrastructure that drives organic search traffic, builds
+topical authority for solar advisory, and creates internal linking paths that strengthen
+crawlability of existing pages. Lays the content scaffolding that Sprint 6 City Landing
+Pages will reuse.
+
+Infrastructure
+Astro Content Collections (src/content/learn/) with Zod schema for articles.
+ArticleLayout.astro for article-specific SEO, breadcrumbs, and structured data.
+@tailwindcss/typography for styled markdown rendering.
+Updated generate-sitemap.mjs to include content collection article URLs.
+Updated validate-jsonld.mjs to scan dist/**/*.html (not just root).
+
+Hub & Pages
+/learn.html — Knowledge Center hub page listing all articles (uses seo-metadata.json).
+/faq.html — Consolidated FAQ hub with FAQPage JSON-LD (20+ Q&As across topics).
+/solar-glossary.html — 25-term solar glossary with DefinedTermSet JSON-LD.
+
+Articles (src/content/learn/)
+pm-surya-ghar-guide — PM Surya Ghar Muft Bijli Yojana: Complete Guide for Indian Homeowners.
+how-to-choose-solar-installer — How to Choose a Solar Installer in India.
+net-metering-india — Net Metering in India: How It Works and Why It Matters.
+on-grid-vs-off-grid-solar — On-Grid vs Off-Grid Solar: Which Is Right for You?
+solar-system-sizing-guide — Solar System Sizing: How Many kW Do You Actually Need?
+
+Internal Linking
+System-size guide pages → solar-system-sizing-guide article.
+buyer-protection.astro → how-to-choose-solar-installer article.
+Footer Learn section → /learn.html hub + /faq.html + /solar-glossary.html.
+All articles → CTA linking back to main calculator (index.html).
+
+Structured Data Per Article Page
+Article schema (headline, datePublished, dateModified, publisher).
+BreadcrumbList (Home → Learn → Article title).
+FAQPage (where frontmatter faq array is defined).
+
+Success Criteria for Sprint 5
+
+Build zero errors, all article slugs resolve.
+validate-jsonld passes for all pages including dist/learn/*.html.
+Lighthouse SEO = 100 on /learn.html, a sample article, /faq.html, /solar-glossary.html.
+All new pages in sitemap.xml.
+No regression on existing 28 pages.
+Rich Results Test passes for at least one article (Article + FAQPage).
 
 Sprint 6
 
