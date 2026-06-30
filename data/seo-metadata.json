@@ -13,6 +13,11 @@
         "addressLocality": "Lucknow",
         "addressRegion": "Uttar Pradesh",
         "addressCountry": "IN"
+      },
+      "areaServed": ["Lucknow", "Raebareli", "Uttar Pradesh"],
+      "geo": {
+        "latitude": 26.8467,
+        "longitude": 80.9462
       }
     }
   },
@@ -21,14 +26,14 @@
       "path": "",
       "isHome": true,
       "title": "Solar AI Advisor",
-      "description": "Get a free AI-powered solar assessment for your home in 60 seconds — subsidy intelligence, savings estimates, and verified installer matching. No obligation.",
+      "description": "Get a free AI-powered solar assessment in 60 seconds — serving homeowners in Lucknow, Raebareli and across India with subsidy intelligence, savings estimates, and verified installer matching.",
       "ogType": "website",
       "robots": "index,follow"
     },
     "about.html": {
       "path": "about.html",
       "title": "About Solar AI Advisor",
-      "description": "Solar AI Advisor helps Indian homeowners make smarter solar decisions with AI-powered analysis, transparent pricing, and installer-neutral recommendations.",
+      "description": "Solar AI Advisor helps homeowners in Lucknow, Raebareli and across India make smarter solar decisions with AI-powered analysis, transparent pricing, and installer-neutral recommendations.",
       "ogType": "website",
       "breadcrumbLabel": "About Us",
       "robots": "index,follow"
@@ -36,7 +41,7 @@
     "contact.html": {
       "path": "contact.html",
       "title": "Contact Solar AI Advisor",
-      "description": "Get in touch with Solar AI Advisor for questions about solar systems, subsidies, installers, financing, or your personalized solar savings report.",
+      "description": "Get in touch with Solar AI Advisor. Serving homeowners in Lucknow, Raebareli and across Uttar Pradesh with questions about solar systems, subsidies, installers, and savings.",
       "ogType": "website",
       "breadcrumbLabel": "Contact Us",
       "robots": "index,follow"
