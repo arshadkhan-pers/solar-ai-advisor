@@ -82,3 +82,33 @@ Net metering is the financial backbone of grid-tied solar in India. Understandin
 To understand whether an on-grid, hybrid, or off-grid system is right for your situation, see the [on-grid vs off-grid comparison guide](/learn/on-grid-vs-off-grid-solar.html).
 
 Use our [savings calculator](/index.html) to see how net metering credits factor into your estimated savings.
+
+## Net Metering in Uttar Pradesh
+
+Uttar Pradesh operates four separate distribution companies under UPPCL (Uttar Pradesh Power Corporation Limited). Net metering applications, technical inspections, and bi-directional meter installations are all handled by your city's specific DISCOM — not by UPPCL centrally.
+
+### MVVNL — Madhyanchal Vidyut Vitran Nigam Limited
+
+MVVNL covers central UP including **Lucknow**, **Ayodhya**, and **Raebareli**. Net metering applications for these cities go through MVVNL. After an empanelled installer submits your application, an MVVNL engineer inspects the installation before replacing your meter with a bi-directional net meter.
+
+- [Rooftop Solar in Lucknow — MVVNL Net Metering Guide](/rooftop-solar-lucknow.html)
+- [Rooftop Solar in Ayodhya — MVVNL Net Metering Guide](/rooftop-solar-ayodhya.html)
+- [Rooftop Solar in Raebareli — MVVNL Net Metering Guide](/rooftop-solar-raebareli.html)
+
+### PUVVNL — Purvanchal Vidyut Vitran Nigam Limited
+
+PUVVNL covers eastern UP including **Prayagraj**, **Varanasi**, and **Pratapgarh**. The net metering process under PUVVNL follows the same five-step sequence — application by empanelled installer, PUVVNL inspection, bi-directional meter installation, and commissioning. Typical timelines are two to six weeks in these cities.
+
+- [Rooftop Solar in Prayagraj — PUVVNL Net Metering Guide](/rooftop-solar-prayagraj.html)
+- [Rooftop Solar in Varanasi — PUVVNL Net Metering Guide](/rooftop-solar-varanasi.html)
+- [Rooftop Solar in Pratapgarh — PUVVNL Net Metering Guide](/rooftop-solar-pratapgarh.html)
+
+### DVVNL — Dakshinanchal Vidyut Vitran Nigam Limited
+
+DVVNL covers southern UP including **Kanpur**. Net metering applications in Kanpur are processed through DVVNL. The empanelled installer submits the application, DVVNL carries out the technical inspection, and then replaces your existing meter with a net meter.
+
+- [Rooftop Solar in Kanpur — DVVNL Net Metering Guide](/rooftop-solar-kanpur.html)
+
+### Key Point for UP Homeowners
+
+The DISCOM determines which empanelled installer list applies to your city. Before signing a contract, verify your installer is empanelled with the correct DISCOM for your city at **pmsuryaghar.gov.in**. An installer empanelled with one DISCOM cannot necessarily process net metering through another.
