@@ -183,11 +183,9 @@
     },
     "solar-system-size.html": {
       "path": "solar-system-size.html",
-      "title": "Solar System Size Guide India 2026 | Solar AI Advisor",
-      "description": "A complete guide to choosing the right solar system size for your home in India, covering energy needs, roof space, and budget considerations.",
-      "ogType": "article",
-      "breadcrumbLabel": "Solar System Size Guide",
-      "robots": "index,follow"
+      "title": "Solar System Size Guide | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "solar-panel-sizes.html": {
       "path": "solar-panel-sizes.html",
@@ -215,17 +213,9 @@
     },
     "solar-subsidy-india.html": {
       "path": "solar-subsidy-india.html",
-      "title": "Solar Subsidy India 2026 | PM Surya Ghar Yojana Guide",
-      "description": "Complete guide to solar subsidy in India under PM Surya Ghar Muft Yojana. Learn eligibility, subsidy amounts, application process, savings and rooftop solar benefits.",
-      "ogType": "article",
-      "breadcrumbLabel": "Solar Subsidy India",
-      "robots": "index,follow",
-      "faq": [
-        { "question": "Can every homeowner receive solar subsidy?", "answer": "Eligibility depends on applicable government requirements and technical suitability." },
-        { "question": "Does subsidy guarantee approval?", "answer": "No. Applications are subject to verification, eligibility checks and prevailing government rules." },
-        { "question": "Can subsidy reduce solar system cost?", "answer": "Eligible subsidy programs can reduce the effective investment required for rooftop solar." },
-        { "question": "Should I rely only on subsidy when choosing solar?", "answer": "No. Consider total project cost, energy generation, financing options, equipment quality and long-term savings." }
-      ]
+      "title": "Solar Subsidy India | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "solar-loan-financing.html": {
       "path": "solar-loan-financing.html",
@@ -243,17 +233,9 @@
     },
     "net-metering-guide.html": {
       "path": "net-metering-guide.html",
-      "title": "Net Metering Guide India (2026) | Solar AI Advisor",
-      "description": "Learn how net metering works in India for rooftop solar systems. Understand solar exports, electricity credits, billing and homeowner benefits.",
-      "ogType": "article",
-      "breadcrumbLabel": "Net Metering Guide",
-      "robots": "index,follow",
-      "faq": [
-        { "question": "What happens when my solar system generates more electricity than I use?", "answer": "Surplus electricity may be exported to the grid through an approved net metering arrangement, subject to utility rules." },
-        { "question": "Do I need batteries if I have net metering?", "answer": "Many homeowners use net metering without batteries. The best option depends on individual requirements and local conditions." },
-        { "question": "Will net metering eliminate my electricity bill?", "answer": "Results vary depending on system size, electricity usage, export levels and applicable utility policies." },
-        { "question": "Is net metering available everywhere in India?", "answer": "Availability and rules vary between electricity distribution companies and state regulations." }
-      ]
+      "title": "Net Metering Guide | Solar AI Advisor",
+      "robots": "noindex,nofollow",
+      "skipFullSeo": true
     },
     "solar-for-homeowners.html": {
       "path": "solar-for-homeowners.html",

@@ -20,6 +20,20 @@ faq:
 
 Choosing the wrong system size is the most common and costly solar mistake Indian homeowners make. A system that is too small won't meet your savings goals. A system that is too large may not provide enough return on the extra investment. Getting the size right is foundational.
 
+## Quick Reference: Bill Amount to System Size
+
+If you don't have your exact kWh consumption handy, your monthly electricity bill amount is a reasonable first proxy:
+
+| Monthly Bill (approx.) | Suggested System Size |
+|---|---|
+| ₹500 – ₹1,500 | 1–2 kW |
+| ₹1,500 – ₹3,000 | 2–3 kW |
+| ₹3,000 – ₹5,000 | 3–5 kW |
+| ₹5,000 – ₹10,000 | 5–8 kW |
+| ₹10,000+ | 10 kW+ |
+
+These are indicative ranges — actual sizing depends on your consumption pattern, tariff slab, and roof availability. Use the consumption-based calculation below for a more accurate estimate.
+
 ## Step 1: Know Your Monthly Electricity Consumption
 
 Start with your electricity bill. Look for the number of "units" consumed — this is in kilowatt-hours (kWh). Check three to six months of bills to understand your seasonal variation (consumption typically peaks in summer due to air conditioning).

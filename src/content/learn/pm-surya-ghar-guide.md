@@ -45,6 +45,18 @@ To qualify for the scheme, you generally need to:
 
 Eligibility criteria may vary by state, DISCOM, and scheme updates. Always verify directly through the official portal.
 
+## Documents You Will Typically Need
+
+Gather these before starting your application — having them ready speeds up the process:
+
+- **Electricity bill** with consumer number and DISCOM details
+- **Identity proof** (Aadhaar, PAN, or other government-issued ID)
+- **Property proof** confirming rooftop ownership or usage rights (sale deed, property tax receipt)
+- **Bank account details** for subsidy disbursement (account number, IFSC)
+- **Passport-size photograph**
+
+Exact document requirements may vary slightly by DISCOM and state. Check the pmsuryaghar.gov.in portal for the current checklist.
+
 ## Step-by-Step Application Process
 
 **1. Register on the portal.** Visit pmsuryaghar.gov.in, create an account using your electricity consumer number and DISCOM details.
