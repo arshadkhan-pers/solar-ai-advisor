@@ -71,7 +71,7 @@ Regular monitoring is often more valuable than cleaning alone. Key habits:
 
 ## When to Call Your Installer
 
-Contact your installer or a service technician if you notice:
+Contact your installer or a service technician if you notice (see our [guide to choosing a solar installer](/learn/how-to-choose-solar-installer.html) for what good after-sales support looks like):
 - Inverter offline or displaying fault codes
 - Generation consistently below expected by more than 15%
 - Visible physical damage to panels (cracks, burn marks, delamination)
