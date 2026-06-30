@@ -1,0 +1,335 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout pageKey="faq.html" headerVariant="policy">
+
+<section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white py-24">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<div class="uppercase tracking-widest text-indigo-300 text-sm mb-4">HELP CENTER</div>
+<h1 class="text-5xl font-bold mb-6">Frequently Asked Questions</h1>
+<p class="text-xl text-slate-300 max-w-2xl mx-auto">
+  Common questions about rooftop solar in India — subsidies, costs, installers, savings, and how Solar AI Advisor works.
+</p>
+</div>
+</section>
+
+<!-- NAV ANCHORS -->
+<nav class="sticky top-0 z-10 bg-white border-b border-slate-100 shadow-sm">
+<div class="max-w-4xl mx-auto px-6 py-3 flex flex-wrap gap-4 text-sm font-medium text-slate-600">
+  <a href="#about-solar" class="hover:text-indigo-600 transition">About Solar</a>
+  <a href="#subsidies" class="hover:text-indigo-600 transition">Subsidies</a>
+  <a href="#costs-savings" class="hover:text-indigo-600 transition">Costs & Savings</a>
+  <a href="#installers" class="hover:text-indigo-600 transition">Installers</a>
+  <a href="#using-platform" class="hover:text-indigo-600 transition">Using This Platform</a>
+</div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-6 py-20 space-y-20">
+
+<!-- ABOUT SOLAR -->
+<section id="about-solar">
+<h2 class="text-3xl font-bold mb-8">About Rooftop Solar</h2>
+<div class="space-y-4">
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How does rooftop solar work?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Solar panels convert sunlight into direct current (DC) electricity. An inverter converts this into alternating current (AC) that powers your home. During the day, solar generation reduces how much electricity you draw from the grid. Surplus generation can be exported under a net metering arrangement, earning you credits on future bills.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Do solar panels work during cloudy weather?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Yes. Solar panels generate electricity from diffuse light, not direct sunlight alone — so they continue producing power on cloudy days, just at reduced output. In monsoon months in India, generation typically drops 30–50% compared to clear winter months, but does not stop entirely.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Do I need batteries with rooftop solar?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Most residential on-grid solar systems in India operate without batteries. The grid connection acts as effective "storage" — you draw from the grid at night and export surplus during the day. Batteries add cost and maintenance, and are generally recommended only if you have frequent power cuts and need backup, or if you are off-grid.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How long do solar panels last?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Modern solar panels are designed for a 25+ year operational lifetime. Most manufacturers provide a performance warranty guaranteeing at least 80% of rated output after 25 years. Inverters typically have a shorter lifespan (10–15 years) and may need replacement once during the system's life.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What is net metering?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Net metering is a billing arrangement where electricity you export to the grid is credited against your consumption from the grid. Your DISCOM tracks both import and export, and you pay (or receive credit) only for the net difference. This makes solar far more valuable — instead of wasting surplus generation, you bank it for later use. Learn more in our <a href="learn/net-metering-india.html" class="text-indigo-600 underline">net metering guide</a>.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What is the difference between on-grid and off-grid solar?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  On-grid (grid-tied) systems are connected to the utility grid and can export surplus electricity. They are the most common choice for Indian homeowners and the only type eligible for PM Surya Ghar subsidy. Off-grid systems are independent of the grid, require batteries for storage, and are suited for areas without reliable grid access. See our <a href="learn/on-grid-vs-off-grid-solar.html" class="text-indigo-600 underline">comparison guide</a>.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How much roof space do I need?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  As a general rule, you need approximately 100 sq ft of shadow-free roof space per kW of system capacity — so a 3kW system needs around 300 sq ft. Actual requirements depend on panel efficiency, roof orientation, and tilt. See the <a href="learn/solar-panel-sizes.html" class="text-indigo-600 underline">solar panel sizes guide</a> for detailed numbers.
+</p>
+</details>
+
+</div>
+</section>
+
+<!-- SUBSIDIES -->
+<section id="subsidies">
+<h2 class="text-3xl font-bold mb-8">Government Subsidies</h2>
+<div class="space-y-4">
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What is PM Surya Ghar Muft Bijli Yojana?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  PM Surya Ghar Muft Bijli Yojana is India's central government scheme for residential rooftop solar subsidies. It provides direct benefit transfer subsidies to eligible homeowners installing grid-connected rooftop solar systems. The scheme also enables 300 units of free electricity per month for households generating sufficient solar power. See the <a href="learn/pm-surya-ghar-guide.html" class="text-indigo-600 underline">complete guide</a>.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How much subsidy can I get for rooftop solar?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Under PM Surya Ghar, central subsidies for residential systems are approximately ₹30,000 per kW for the first 2kW and ₹18,000 per kW for the 3rd kW — up to a maximum of ₹78,000 for a 3kW system. Systems above 3kW and up to 10kW receive ₹94,500. These figures are subject to change based on government policy updates.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Is the subsidy guaranteed?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  No. Subsidy availability and amounts are subject to government policy, fund availability, and eligibility criteria. Homeowners must use MNRE-empanelled installers and ALMM-listed panels, register on the national portal, and meet documentation requirements. Approval timelines vary.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Do I need to register on a government portal?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Yes. PM Surya Ghar subsidy requires registration on the national portal (pmsuryaghar.gov.in). Applications are submitted with your DISCOM consumer number, Aadhaar, bank details, and after installation, inspection by DISCOM. Reputable MNRE-empanelled installers typically assist with the entire registration process.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Can I get both central and state subsidies?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Some states offer additional subsidies on top of the central PM Surya Ghar benefit. Availability, amount, and eligibility conditions vary by state and are subject to current state government programs. Check with your installer or local DISCOM for current state-level offerings.
+</p>
+</details>
+
+</div>
+</section>
+
+<!-- COSTS & SAVINGS -->
+<section id="costs-savings">
+<h2 class="text-3xl font-bold mb-8">Costs & Savings</h2>
+<div class="space-y-4">
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What does a rooftop solar system cost in India?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  System cost varies with size, panel brand, inverter quality, mounting structure, and location. Prices change frequently — always get multiple quotes from verified installers. Use our <a href="index.html" class="text-indigo-600 underline">AI calculator</a> for an initial estimate based on your electricity bill.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How long does it take to recover the investment (payback period)?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Payback period depends on system cost (after subsidy), your monthly electricity bill, local tariff rates, and how much of the solar generation you consume vs. export. Typical payback ranges are 4–7 years for well-sized on-grid systems in India. After payback, the system continues generating for 20+ years.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Can I finance a solar system with a loan or EMI?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Yes. Solar-specific loans, home improvement loans, and bank EMI programs are available from several lenders. In many cases, monthly electricity savings can offset a portion of the EMI. See the <a href="learn/solar-loan-and-financing.html" class="text-indigo-600 underline">solar financing guide</a> for what to compare before taking a loan.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How much electricity will my system generate?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  A typical on-grid system in India generates approximately 1,300–1,500 units per kW per year, depending on location, roof orientation, and shading. A 3kW system in north India generates roughly 3,900–4,500 units annually. Actual generation is always weather-dependent.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What ongoing maintenance costs should I expect?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Routine maintenance costs are low. Cleaning 2–4 times per year (professional service or DIY) is the main recurring expense. An annual maintenance contract (AMC) from your installer typically covers periodic inspections. The main mid-life cost is inverter replacement around year 10–15. See the <a href="learn/solar-panel-cleaning-maintenance.html" class="text-indigo-600 underline">cleaning & maintenance guide</a>.
+</p>
+</details>
+
+</div>
+</section>
+
+<!-- INSTALLERS -->
+<section id="installers">
+<h2 class="text-3xl font-bold mb-8">Choosing an Installer</h2>
+<div class="space-y-4">
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What is an MNRE-empanelled installer?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  MNRE (Ministry of New and Renewable Energy) maintains a list of empanelled channel partners authorized to install rooftop solar under the PM Surya Ghar scheme. Using an empanelled installer is mandatory to claim the central subsidy. Empanelment is a baseline quality filter but is not a guarantee of installation quality.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How many installer quotes should I get?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  We recommend getting at least 2–3 proposals and comparing them on equipment specifications (panel make, model, inverter brand), warranty terms, total installed cost, and after-sales service commitments — not just on price. The cheapest quote often involves inferior components that reduce long-term performance.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What warranties should the installer provide?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Look for: (1) Panel product warranty of 10–12 years from the manufacturer; (2) Panel performance warranty of 25 years; (3) Inverter warranty of at least 5 years (preferably 10); (4) Workmanship/installation warranty of at least 1–2 years from the installer. Get all warranties in writing before installation.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  What is ALMM and why does it matter?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  ALMM stands for Approved List of Models and Manufacturers — an MNRE-maintained registry of solar panels meeting quality standards for use in government-linked projects and subsidy schemes. Panels must be ALMM-listed to qualify for PM Surya Ghar subsidy. Confirm ALMM status with your installer before purchase.
+</p>
+</details>
+
+</div>
+</section>
+
+<!-- USING PLATFORM -->
+<section id="using-platform">
+<h2 class="text-3xl font-bold mb-8">Using Solar AI Advisor</h2>
+<div class="space-y-4">
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Is Solar AI Advisor free to use?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Yes. The AI solar assessment, guides, and educational resources are free for homeowners. Solar AI Advisor earns through its installer network — homeowners always receive independent, unbiased recommendations regardless of which installers are in the network.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  How accurate is the AI savings estimate?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  The AI estimate is based on your electricity bill amount, location, and standard solar generation data for your region. It provides a useful planning reference — but actual savings depend on final system size, installer quality, your specific roof, and local tariff structures. Always verify with a site assessment from an installer.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Does Solar AI Advisor sell or install solar systems?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  No. Solar AI Advisor is an independent advisory platform. We do not sell solar equipment, install systems, or act as a solar installer. We connect homeowners with verified independent installers and provide unbiased education and analysis.
+</p>
+</details>
+
+<details class="bg-white rounded-2xl border border-slate-100 shadow-sm open:shadow-md transition-shadow">
+<summary class="p-6 font-semibold cursor-pointer list-none flex justify-between items-center">
+  Is my data kept private?
+  <span class="text-slate-400 text-xl leading-none">+</span>
+</summary>
+<p class="px-6 pb-6 text-slate-600 leading-relaxed">
+  Yes. We follow strict data privacy practices. Electricity bill and contact information submitted through the platform is used only for assessment and installer matching. We do not sell personal data to third parties. Read our full <a href="privacy-policy.html" class="text-indigo-600 underline">Privacy Policy</a>.
+</p>
+</details>
+
+</div>
+</section>
+
+<!-- CTA -->
+<section class="bg-slate-900 text-white rounded-[2rem] p-10 text-center">
+<h2 class="text-3xl font-bold mb-4">Ready to Explore Solar for Your Home?</h2>
+<p class="text-slate-300 mb-8">Get a free AI-powered savings estimate in under 60 seconds.</p>
+<a href="index.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 px-8 py-4 rounded-2xl font-bold transition">
+  Calculate My Solar Savings
+</a>
+</section>
+
+</div>
+
+</BaseLayout>
+
+<style>
+details summary::-webkit-details-marker { display: none; }
+details[open] summary span { transform: rotate(45deg); display: inline-block; }
+</style>
