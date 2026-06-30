@@ -210,6 +210,14 @@
       "breadcrumbLabel": "Solar Glossary",
       "robots": "index,follow"
     },
+    "cities.html": {
+      "path": "cities.html",
+      "title": "Solar Guides by City — Rooftop Solar Across India | Solar AI Advisor",
+      "description": "Find rooftop solar guides for your city — DISCOM net metering rules, PM Surya Ghar subsidy details, installer guidance, and savings estimates. Currently covering Uttar Pradesh with more states coming soon.",
+      "ogType": "website",
+      "breadcrumbLabel": "Solar by City",
+      "robots": "index,follow"
+    },
     "rooftop-solar-ayodhya.html": {
       "path": "rooftop-solar-ayodhya.html",
       "title": "Rooftop Solar in Ayodhya — Cost, Subsidy & MVVNL Net Metering Guide (2026)",
