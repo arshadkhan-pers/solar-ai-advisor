@@ -95,4 +95,6 @@ Hybrid systems are increasingly popular in cities with frequent power cuts. They
 
 **Go off-grid only if:** Your location genuinely has no reliable grid access, or your grid is so unreliable (8+ hours of daily cuts) that a large battery bank becomes economically justified.
 
-For most Indian homeowners, on-grid is the answer. Use our [savings calculator](/index.html) to see your estimated payback period, and then decide whether the additional cost of battery storage is justified for your specific situation.
+For most Indian homeowners, on-grid is the answer. Once you've chosen your system type, the next step is sizing it correctly — see the [solar system sizing guide](/learn/solar-system-sizing-guide.html) — and understanding how [net metering](/learn/net-metering-india.html) will work with your DISCOM.
+
+Use our [savings calculator](/index.html) to see your estimated payback period, and then decide whether the additional cost of battery storage is justified for your specific situation.

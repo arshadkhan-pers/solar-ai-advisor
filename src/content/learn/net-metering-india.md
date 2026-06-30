@@ -77,4 +77,8 @@ If you are considering a hybrid (grid + battery) system, discuss the specific ne
 
 ---
 
-Net metering is the financial backbone of grid-tied solar in India. Understanding how it works — and what to expect from your DISCOM — helps you make a more informed decision about system size and expected payback. Use our [savings calculator](/index.html) to see how net metering credits factor into your estimated savings.
+Net metering is the financial backbone of grid-tied solar in India. Understanding how it works — and what to expect from your DISCOM — helps you make a more informed decision about system size and expected payback.
+
+To understand whether an on-grid, hybrid, or off-grid system is right for your situation, see the [on-grid vs off-grid comparison guide](/learn/on-grid-vs-off-grid-solar.html).
+
+Use our [savings calculator](/index.html) to see how net metering credits factor into your estimated savings.
