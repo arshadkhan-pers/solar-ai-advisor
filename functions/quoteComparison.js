@@ -83,7 +83,7 @@ exports.initiateQuoteSession = onCall({ region: REGION, invoker: "public" }, asy
 // =====================================================================
 
 exports.extractQuoteFromFile = onCall(
-  { region: REGION, invoker: "public", timeoutSeconds: 120, memory: "512MiB" },
+  { region: REGION, invoker: "public", timeoutSeconds: 120, memory: "512MiB", secrets: ["GEMINI_API_KEY"] },
   async (request) => {
     const { sessionId, fileBase64, mimeType, filename } = request.data;
 
@@ -153,7 +153,7 @@ exports.extractQuoteFromFile = onCall(
 // =====================================================================
 
 exports.generateQuoteComparison = onDocumentUpdated(
-  { document: "quote_sessions/{sessionId}", region: REGION, timeoutSeconds: 180, memory: "512MiB" },
+  { document: "quote_sessions/{sessionId}", region: REGION, timeoutSeconds: 180, memory: "512MiB", secrets: ["GEMINI_API_KEY", "ANTHROPIC_API_KEY"] },
   async (event) => {
     const change = event.data;
     if (!change) return null;
