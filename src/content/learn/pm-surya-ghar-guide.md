@@ -103,8 +103,8 @@ Uttar Pradesh is one of the largest states in India for PM Surya Ghar uptake. Th
 |--------|---------------|
 | MVVNL (Madhyanchal) | Lucknow, Ayodhya, Raebareli and surrounding districts |
 | PUVVNL (Purvanchal) | Prayagraj, Varanasi, Pratapgarh and eastern UP |
-| DVVNL (Dakshinanchal) | Kanpur and southern UP |
-| PVVNL (Paschimanchal) | Western UP (Agra, Meerut region) |
+| DVVNL (Dakshinanchal) | Kanpur, Agra and southern UP |
+| PVVNL (Paschimanchal) | Noida, Ghaziabad, Meerut and western UP |
 
 When you register at pmsuryaghar.gov.in, use your exact DISCOM consumer number. The portal uses this to show you the correct empanelled installer list for your city.
 
@@ -131,3 +131,7 @@ For detailed DISCOM-specific guidance, subsidy application steps, and local inst
 - [PM Surya Ghar in Varanasi (PUVVNL)](/rooftop-solar-varanasi.html)
 - [PM Surya Ghar in Pratapgarh (PUVVNL)](/rooftop-solar-pratapgarh.html)
 - [PM Surya Ghar in Kanpur (DVVNL)](/rooftop-solar-kanpur.html)
+- [PM Surya Ghar in Noida (PVVNL)](/rooftop-solar-noida.html)
+- [PM Surya Ghar in Ghaziabad (PVVNL)](/rooftop-solar-ghaziabad.html)
+- [PM Surya Ghar in Meerut (PVVNL)](/rooftop-solar-meerut.html)
+- [PM Surya Ghar in Agra (DVVNL)](/rooftop-solar-agra.html)
