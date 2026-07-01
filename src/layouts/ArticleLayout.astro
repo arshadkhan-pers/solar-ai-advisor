@@ -35,6 +35,7 @@ const jsonLdBlocks: object[] = [
     description: description,
     datePublished: publishedDate,
     dateModified: modifiedDate || publishedDate,
+    author: { "@id": `${siteBaseUrl}/#organization` },
     publisher: { "@id": `${siteBaseUrl}/#organization` },
     mainEntityOfPage: canonical,
   },
