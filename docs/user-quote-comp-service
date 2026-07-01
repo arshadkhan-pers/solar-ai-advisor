@@ -1,0 +1,851 @@
+Since we've been designing Solar AI Advisor as a **premium, Tesla-like AI platform**, I would not give Claude Code just a feature request. I would give it a **Product Requirements Document (PRD)** plus a **Software Architecture Specification**.
+
+This should become one of the flagship modules of your platform.
+
+---
+
+# AI Quote Comparison Service (AQCS)
+
+## Product Vision
+
+### Goal
+
+Enable homeowners to upload one or more solar quotations and receive an AI-powered, unbiased comparison with actionable recommendations.
+
+Unlike traditional comparison tables, the system should:
+
+* Read quotations automatically
+* Extract technical specifications
+* Detect hidden risks
+* Compare equipment quality
+* Estimate long-term value
+* Recommend the most suitable installer
+* Explain every recommendation in natural language
+
+The system should reinforce Solar AI Advisor's positioning as **India's Trusted AI Solar Advisor**, not just another lead-generation website.
+
+---
+
+# User Experience
+
+## Homepage
+
+Add a second hero section directly below the savings calculator.
+
+```
+────────────────────────────────────
+
+Already Have Solar Quotes?
+
+Let AI Compare Them For You
+
+✓ Compare up to 3 quotations
+
+✓ Detect hidden costs
+
+✓ Equipment comparison
+
+✓ AI Recommendation
+
+[Compare Quotes]
+
+────────────────────────────────────
+```
+
+---
+
+# Navigation
+
+```
+Home
+
+Savings Calculator
+
+Quote Comparison ⭐
+
+Learning Center
+
+Installers
+
+About
+```
+
+---
+
+# Wizard Flow
+
+```
+Welcome
+
+↓
+
+Upload Quote
+
+↓
+
+AI Reading
+
+↓
+
+Review Extracted Data
+
+↓
+
+Upload Another Quote
+
+↓
+
+Comparison
+
+↓
+
+AI Recommendation
+
+↓
+
+Download Report
+
+↓
+
+Ask Follow-up Questions
+```
+
+---
+
+# Screen 1
+
+```
+AI Solar Quote Comparison
+
+Upload quotations from different installers.
+
+Supported:
+
+PDF
+
+Image
+
+WhatsApp Screenshot
+
+Email PDF
+
+DOCX
+
+[Start Comparison]
+```
+
+---
+
+# Screen 2
+
+```
+Drag & Drop
+
+OR
+
+Browse Files
+```
+
+Maximum:
+
+```
+3 Quotations
+```
+
+---
+
+# Screen 3
+
+```
+Reading quotation...
+
+█████████░░░░░
+
+Finding
+
+✓ Capacity
+
+✓ Panels
+
+✓ Inverter
+
+✓ Warranty
+
+✓ Structure
+
+✓ Price
+
+✓ Subsidy
+```
+
+---
+
+# Screen 4
+
+Display extracted data.
+
+```
+Installer
+
+ABC Solar
+
+Price
+
+₹2,68,000
+
+Capacity
+
+5.4kW
+
+Panel
+
+Waaree 590W
+
+Inverter
+
+Sungrow
+
+[Looks Correct]
+
+[Edit]
+```
+
+User can correct OCR mistakes.
+
+---
+
+# Screen 5
+
+```
+Upload another quotation?
+
+YES
+
+NO
+```
+
+---
+
+# Screen 6
+
+Comparison dashboard.
+
+Not a spreadsheet.
+
+Cards.
+
+```
+Winner
+
+★★★★★
+
+ABC Solar
+
+Confidence
+
+96%
+
+Reasons
+
+✓ Better inverter
+
+✓ Better warranty
+
+✓ Lower ₹/W
+
+✓ Better ROI
+
+✓ No hidden exclusions
+```
+
+---
+
+# Detail Tabs
+
+```
+Overview
+
+Equipment
+
+Price
+
+Warranty
+
+Installation
+
+Risks
+
+Savings
+
+Ask AI
+```
+
+---
+
+# AI Chat
+
+```
+Ask Solar AI
+
+_________________________
+
+Should I negotiate?
+
+```
+
+---
+
+# Architecture
+
+```
+Frontend
+
+↓
+
+Firebase Storage
+
+↓
+
+Cloud Function
+
+↓
+
+Document AI Service
+
+↓
+
+Quote Extraction
+
+↓
+
+Normalization
+
+↓
+
+Rule Engine
+
+↓
+
+Knowledge Base
+
+↓
+
+Comparison Engine
+
+↓
+
+Reasoning AI
+
+↓
+
+Firestore
+
+↓
+
+Dashboard
+```
+
+---
+
+# Backend Modules
+
+## Module 1
+
+Quote Upload
+
+Responsibilities
+
+* Authentication
+
+* Upload validation
+
+* Virus check
+
+* Storage
+
+Output
+
+```
+fileId
+```
+
+---
+
+## Module 2
+
+Document AI
+
+Responsibilities
+
+Read
+
+PDF
+
+Images
+
+Scanned documents
+
+Output
+
+Raw JSON
+
+---
+
+## Module 3
+
+Entity Extraction
+
+Extract
+
+Installer
+
+Capacity
+
+Panels
+
+Inverter
+
+Price
+
+GST
+
+Subsidy
+
+Warranty
+
+Structure
+
+Earthing
+
+Lightning Arrestor
+
+Net Metering
+
+Cable
+
+Accessories
+
+AMC
+
+---
+
+## Module 4
+
+Normalization
+
+Convert everything into one schema.
+
+```
+capacity_kw
+
+panel_brand
+
+panel_model
+
+panel_count
+
+panel_watt
+
+inverter_brand
+
+price_total
+
+gst
+
+subsidy
+
+...
+```
+
+Regardless of quotation format.
+
+---
+
+## Module 5
+
+Knowledge Base
+
+Firestore collections
+
+```
+panelBrands
+
+panelModels
+
+inverters
+
+installerRatings
+
+equipmentDatabase
+
+stateSubsidy
+
+priceBenchmarks
+
+```
+
+---
+
+## Module 6
+
+Rule Engine
+
+Before AI reasoning.
+
+Example
+
+```
+IF
+
+SPD missing
+
+↓
+
+Critical
+
+```
+
+```
+IF
+
+No Lightning Arrestor
+
+↓
+
+Warning
+
+```
+
+```
+IF
+
+Unknown panel
+
+↓
+
+Risk
+```
+
+---
+
+## Module 7
+
+Comparison Engine
+
+Compare
+
+Price
+
+Price/Watt
+
+Efficiency
+
+Warranty
+
+Equipment
+
+Safety
+
+ROI
+
+Payback
+
+Installer
+
+Output
+
+Comparison JSON
+
+---
+
+## Module 8
+
+AI Recommendation
+
+Prompt
+
+```
+Compare these quotations.
+
+Explain differences.
+
+Identify hidden risks.
+
+Recommend the best quotation.
+
+Do not invent missing information.
+
+Explain trade-offs.
+
+```
+
+---
+
+# Firestore Design
+
+```
+users
+
+    uid
+
+        quoteSessions
+
+            sessionId
+
+                uploadedFiles
+
+                extractedQuotes
+
+                normalizedQuotes
+
+                comparison
+
+                recommendation
+
+                aiChat
+
+```
+
+---
+
+# Normalized Quote Schema
+
+```json
+{
+  "installer": {
+    "name": "",
+    "city": "",
+    "contact": ""
+  },
+  "system": {
+    "capacityKw": 5.4,
+    "type": "On Grid"
+  },
+  "panels": {
+    "brand": "",
+    "model": "",
+    "quantity": 10,
+    "watt": 540
+  },
+  "inverter": {
+    "brand": "",
+    "model": "",
+    "warrantyYears": 10
+  },
+  "pricing": {
+    "total": 268000,
+    "gstIncluded": true,
+    "subsidyIncluded": false
+  },
+  "installation": {
+    "spd": true,
+    "earthing": true,
+    "lightningArrestor": true,
+    "netMetering": true
+  },
+  "warranty": {
+    "panelProduct": 12,
+    "panelPerformance": 25,
+    "installation": 5
+  }
+}
+```
+
+---
+
+# AI Services
+
+## Document Reading
+
+Gemini 2.5 Flash
+
+Purpose
+
+OCR
+
+Tables
+
+Images
+
+PDFs
+
+Output
+
+Structured JSON
+
+---
+
+## Rule Engine
+
+Node.js
+
+Deterministic
+
+Very fast
+
+No AI cost
+
+---
+
+## Recommendation
+
+GPT-5 mini or Gemini or any other suitable for Solar AI Advisor
+
+Purpose
+
+Reasoning
+
+Comparison
+
+Explanation
+
+Negotiation
+
+---
+
+# Cost Optimisation
+
+DO NOT
+
+Upload PDFs directly into GPT.
+
+Instead
+
+```
+PDF
+
+↓
+
+Gemini
+
+↓
+
+JSON
+
+↓
+
+Rules
+
+↓
+
+GPT
+
+```
+
+Tokens reduce by roughly 80%.
+
+---
+
+# Future Roadmap
+
+## Version 1
+
+Single quote analysis
+
+---
+
+## Version 2
+
+Multiple quote comparison
+
+---
+
+## Version 3
+
+Market benchmark
+
+"This quote is 11% higher than the average price in Lucknow."
+
+---
+
+## Version 4
+
+Negotiation AI
+
+Suggest
+
+Which line items to negotiate.
+
+---
+
+## Version 5
+
+Installer Trust Score
+
+Combine
+
+Reviews
+
+Age
+
+Projects
+
+Complaints
+
+Equipment
+
+Service
+
+Response
+
+---
+
+## Version 6
+
+Procurement AI
+
+Not only
+
+Compare quotes
+
+But recommend
+
+Who should be selected.
+
+---
+
+# Success Metrics
+
+| KPI                              | Target      |
+| -------------------------------- | ----------- |
+| Quote extraction accuracy        | >95%        |
+| AI recommendation confidence     | >90%        |
+| Average processing time          | <30 seconds |
+| User correction rate             | <5%         |
+| Quote comparison completion      | >80%        |
+| Report download rate             | >60%        |
+| Lead conversion after comparison | >25%        |
+
+---
+
+## One architectural enhancement I'd add
+
+Given your long-term vision, I would introduce an **AI Orchestration Layer** between the frontend and individual AI providers. Instead of your Cloud Functions calling Gemini or GPT directly, every request would go through a single internal service:
+
+```
+Frontend
+        │
+        ▼
+AI Orchestrator
+        │
+ ┌──────┼────────┐
+ ▼      ▼        ▼
+Gemini  GPT-5   Rule Engine
+(Document) (Reasoning) (Validation)
+        │
+        ▼
+Normalized Quote
+        │
+        ▼
+Comparison Engine
+```
+
+This gives you several long-term benefits:
+
+* Swap AI providers without changing business logic.
+* A/B test different models.
+* Retry with a fallback provider if one fails.
+* Centralize logging, token usage, latency, and cost tracking.
+* Introduce caching for identical or repeated quote analyses.
+
+For a platform you intend to grow into India's leading AI-powered solar advisory service, this separation will make the architecture significantly more maintainable and resilient as both your traffic and AI usage increase.
