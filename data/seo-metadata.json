@@ -14,7 +14,7 @@
         "addressRegion": "Uttar Pradesh",
         "addressCountry": "IN"
       },
-      "areaServed": ["Lucknow", "Raebareli", "Uttar Pradesh"],
+      "areaServed": ["Lucknow", "Ayodhya", "Raebareli", "Prayagraj", "Varanasi", "Pratapgarh", "Kanpur", "Noida", "Ghaziabad", "Meerut", "Agra", "Uttar Pradesh"],
       "sameAs": [
         "https://facebook.solaraiadvisor.com",
         "https://instagram.solaraiadvisor.com",
@@ -33,6 +33,14 @@
       "title": "Solar AI Advisor",
       "description": "Get a free AI-powered solar assessment in 60 seconds — serving homeowners in Lucknow, Raebareli and across India with subsidy intelligence, savings estimates, and verified installer matching.",
       "ogType": "website",
+      "robots": "index,follow"
+    },
+    "quote-comparison.html": {
+      "path": "quote-comparison.html",
+      "title": "AI Solar Quote Comparison — Compare Up to 3 Installer Quotes Free",
+      "description": "Upload solar quotes and let AI compare them for you. Detects hidden risks, compares equipment quality, and recommends the best installer — free for Indian homeowners.",
+      "ogType": "website",
+      "breadcrumbLabel": "Quote Comparison",
       "robots": "index,follow"
     },
     "about.html": {

@@ -1,0 +1,804 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout pageKey="quote-comparison.html" headerVariant="guide" bodyClass="bg-slate-50 text-slate-900">
+
+<!-- Firebase compat SDK -->
+<script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script is:inline src="/js/firebase-init.js"></script>
+
+<main class="min-h-screen bg-slate-50 pb-20">
+
+  <!-- Page Header -->
+  <div class="bg-white border-b border-slate-100 py-8 px-4">
+    <div class="max-w-2xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+        ⭐ New Feature
+      </div>
+      <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">AI Solar Quote Comparison</h1>
+      <p class="text-slate-500 text-sm">Upload 1–3 solar quotes and get an unbiased AI recommendation in under 60 seconds.</p>
+    </div>
+  </div>
+
+  <!-- Wizard Container -->
+  <div class="max-w-2xl mx-auto px-4 pt-8">
+
+    <!-- SCREEN 1: Welcome -->
+    <div id="screen-welcome" class="wizard-screen">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center">
+        <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">⚡</div>
+        <h2 class="text-xl font-bold mb-2">Compare Your Solar Quotes</h2>
+        <p class="text-slate-500 text-sm mb-8">Upload quotations from different installers. Our AI reads them, detects risks, and recommends the best deal.</p>
+
+        <div class="grid grid-cols-2 gap-4 mb-8 text-left">
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <div class="text-green-600 font-bold mb-1">✓ Detects Hidden Risks</div>
+            <div class="text-xs text-slate-500">Missing SPD, poor warranty, unknown brands</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <div class="text-green-600 font-bold mb-1">✓ Price/Watt Analysis</div>
+            <div class="text-xs text-slate-500">Benchmarks against market rates</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <div class="text-green-600 font-bold mb-1">✓ Equipment Quality</div>
+            <div class="text-xs text-slate-500">Panels, inverter, and safety components</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <div class="text-green-600 font-bold mb-1">✓ AI Recommendation</div>
+            <div class="text-xs text-slate-500">Claude AI explains why one quote wins</div>
+          </div>
+        </div>
+
+        <div class="text-xs text-slate-400 mb-6">Supports: PDF · JPG · PNG · WhatsApp screenshots &nbsp;|&nbsp; Max 3 quotes · 10MB each</div>
+        <div class="text-xs text-slate-400 mb-6">3 free comparisons per day · No account required</div>
+
+        <button onclick="startComparison()"
+          class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-green-100 text-sm">
+          Start Free Comparison
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: Upload -->
+    <div id="screen-upload" class="wizard-screen hidden">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+
+        <div class="flex items-center gap-3 mb-6">
+          <button onclick="goToScreen('screen-welcome')" class="text-slate-400 hover:text-slate-600 transition">←</button>
+          <div>
+            <h2 class="font-bold text-slate-900">Upload Your Quote</h2>
+            <p class="text-xs text-slate-500" id="upload-subtitle">Quote 1 of up to 3</p>
+          </div>
+        </div>
+
+        <!-- Error banner -->
+        <div id="rate-limit-error" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-2xl p-4 mb-4">
+          <strong>Daily limit reached.</strong> You've used all 3 free comparisons today. Try again tomorrow.
+        </div>
+
+        <!-- Drop zone -->
+        <div id="dropzone"
+          class="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center cursor-pointer hover:border-green-400 hover:bg-green-50/30 transition-all"
+          onclick="document.getElementById('fileInput').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <div class="text-4xl mb-3">📄</div>
+          <div class="font-semibold text-slate-700 mb-1">Drag & drop your quote here</div>
+          <div class="text-sm text-slate-400 mb-4">or tap to browse files / take a photo</div>
+          <div class="text-xs text-slate-300">PDF · JPG · PNG · Max 10MB</div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.webp"
+          class="hidden" onchange="handleFileSelected(event)">
+
+        <!-- Selected file preview -->
+        <div id="file-preview" class="hidden mt-4 bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+          <div class="text-2xl" id="file-icon">📄</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm text-slate-800 truncate" id="file-name">filename.pdf</div>
+            <div class="text-xs text-slate-400" id="file-size">0 KB</div>
+          </div>
+          <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition text-lg leading-none">×</button>
+        </div>
+
+        <!-- Upload progress -->
+        <div id="upload-progress" class="hidden mt-4">
+          <div class="flex justify-between text-xs text-slate-500 mb-1">
+            <span>Uploading...</span>
+            <span id="upload-pct">0%</span>
+          </div>
+          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div id="upload-bar" class="h-full bg-green-500 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+        </div>
+
+        <button id="upload-btn" onclick="uploadFile()"
+          class="hidden w-full mt-5 bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-green-100 text-sm">
+          Analyse This Quote
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: AI Reading -->
+    <div id="screen-reading" class="wizard-screen hidden">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center">
+        <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        </div>
+        <h2 class="font-bold text-slate-900 mb-2">AI is Reading Your Quote</h2>
+        <p class="text-xs text-slate-400 mb-8">This usually takes 10–20 seconds</p>
+
+        <div class="text-left space-y-3 max-w-xs mx-auto" id="reading-checklist">
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="capacity">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">System capacity</span>
+          </div>
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="panels">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">Solar panels</span>
+          </div>
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="inverter">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">Inverter</span>
+          </div>
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="warranty">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">Warranty terms</span>
+          </div>
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="pricing">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">Pricing & GST</span>
+          </div>
+          <div class="reading-item flex items-center gap-3 text-sm" data-field="safety">
+            <div class="reading-dot w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">·</div>
+            <span class="text-slate-400">Safety components</span>
+          </div>
+        </div>
+
+        <div id="reading-error" class="hidden mt-6 bg-red-50 border border-red-200 text-red-800 text-sm rounded-2xl p-4">
+          <strong>Couldn't read this document.</strong><br>
+          Try a clearer image, or <button onclick="showManualEntry()" class="underline font-semibold">enter details manually</button>.
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Review Extracted Data -->
+    <div id="screen-review" class="wizard-screen hidden">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <h2 class="font-bold text-slate-900 mb-1">Review Extracted Details</h2>
+        <p class="text-xs text-slate-400 mb-6">AI read your quote. Check for any errors before comparing.</p>
+
+        <div id="extracted-cards" class="space-y-4">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Add another / Compare buttons -->
+        <div class="mt-6 space-y-3">
+          <div id="add-another-section">
+            <button onclick="addAnotherQuote()"
+              class="w-full border border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold py-3 rounded-2xl hover:bg-indigo-100 transition text-sm">
+              + Add Another Quote
+            </button>
+            <div class="text-center text-xs text-slate-400 mt-2" id="quote-count-label">1 of 3 maximum</div>
+          </div>
+
+          <button onclick="startFinalComparison()"
+            id="compare-btn"
+            class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-green-100 text-sm">
+            Compare Now ⚡
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: Comparing (AI generating) -->
+    <div id="screen-comparing" class="wizard-screen hidden">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center">
+        <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div class="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+        </div>
+        <h2 class="font-bold text-slate-900 mb-2">AI is Analysing Your Quotes</h2>
+        <p class="text-xs text-slate-400">Running equipment checks, price analysis, and AI reasoning...</p>
+      </div>
+    </div>
+
+    <!-- SCREEN 6: Results -->
+    <div id="screen-results" class="wizard-screen hidden space-y-4">
+
+      <!-- Winner card -->
+      <div id="winner-card" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Quote comparison cards -->
+      <div id="quote-cards" class="space-y-4">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Risk flags -->
+      <div id="risks-section" class="hidden bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <h3 class="font-bold text-slate-900 mb-4">Risk Flags</h3>
+        <div id="risks-list" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Conversion CTA -->
+      <div class="bg-gradient-to-br from-green-700 to-green-800 rounded-3xl p-6 text-white text-center">
+        <div class="text-xs font-semibold uppercase tracking-widest mb-2 text-green-200">Not Happy With Your Quotes?</div>
+        <h3 class="text-lg font-bold mb-2">Get a Competing Quote From a Verified Installer</h3>
+        <p class="text-sm text-green-100 mb-6">Our vetted installer network covers Lucknow, Noida, Kanpur, and 8 more UP cities.</p>
+        <button onclick="openCompetingQuoteForm()"
+          class="bg-white text-green-800 font-bold px-8 py-3 rounded-2xl hover:bg-green-50 transition shadow-lg text-sm">
+          Get a Verified Quote — Free
+        </button>
+      </div>
+
+      <!-- Start over -->
+      <button onclick="startOver()"
+        class="w-full text-slate-400 hover:text-slate-600 text-sm py-2 transition">
+        Compare New Quotes
+      </button>
+
+    </div>
+
+    <!-- SCREEN 7: Error -->
+    <div id="screen-error" class="wizard-screen hidden">
+      <div class="bg-white rounded-3xl shadow-sm border border-red-100 p-8 text-center">
+        <div class="text-4xl mb-4">⚠️</div>
+        <h2 class="font-bold text-slate-900 mb-2">Something Went Wrong</h2>
+        <p class="text-sm text-slate-500 mb-6" id="error-message">An unexpected error occurred. Please try again.</p>
+        <button onclick="startOver()"
+          class="bg-green-700 text-white font-bold px-8 py-3 rounded-2xl hover:bg-green-800 transition text-sm">
+          Try Again
+        </button>
+      </div>
+    </div>
+
+  </div><!-- end wizard container -->
+
+</main>
+
+<!-- Consultation / Competing Quote Modal -->
+<div id="consultationModal"
+  class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[150] backdrop-blur-md p-4">
+  <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl relative">
+    <button onclick="closeConsultationModal()"
+      class="absolute top-4 right-4 w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 text-lg leading-none transition">×</button>
+
+    <div id="cons-form-content">
+      <div class="text-3xl mb-4">☀️</div>
+      <h3 class="text-xl font-bold mb-1">Get a Competing Verified Quote</h3>
+      <p class="text-sm text-slate-500 mb-6">Our network of vetted solar installers will send you a competitive quote — no obligation.</p>
+
+      <div class="space-y-3 text-left">
+        <div>
+          <input type="text" id="cons-name" placeholder="Your Name"
+            class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 text-sm">
+          <p id="cons-name-err" class="text-red-500 text-xs mt-1 ml-1 hidden"></p>
+        </div>
+        <div>
+          <input type="tel" id="cons-phone" placeholder="Mobile Number (10 digits)"
+            class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            maxlength="10" inputmode="numeric">
+          <p id="cons-phone-err" class="text-red-500 text-xs mt-1 ml-1 hidden"></p>
+        </div>
+        <div>
+          <input type="email" id="cons-email" placeholder="Email (optional — for report)"
+            class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 text-sm">
+        </div>
+        <div>
+          <select id="cons-city"
+            class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white">
+            <option value="">Select Your City</option>
+            <option>Lucknow</option>
+            <option>Noida</option>
+            <option>Ghaziabad</option>
+            <option>Meerut</option>
+            <option>Agra</option>
+            <option>Kanpur</option>
+            <option>Varanasi</option>
+            <option>Prayagraj</option>
+            <option>Ayodhya</option>
+            <option>Raebareli</option>
+            <option>Pratapgarh</option>
+            <option>Other</option>
+          </select>
+          <p id="cons-city-err" class="text-red-500 text-xs mt-1 ml-1 hidden"></p>
+        </div>
+      </div>
+
+      <button onclick="submitConsultation()"
+        class="w-full mt-5 bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-green-200 text-sm">
+        Request Verified Quote
+      </button>
+    </div>
+
+    <div id="cons-success" class="hidden">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+      <h3 class="text-xl font-bold mb-2">Request Received!</h3>
+      <p class="text-sm text-slate-500">Our team will contact you within 24 hours with a verified installer quote.</p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+// ====================================================================
+// STATE
+// ====================================================================
+const state = {
+  sessionId: null,
+  extractedQuotes: [],
+  currentFile: null,
+  sessionListener: null
+};
+
+// ====================================================================
+// SCREEN MANAGEMENT
+// ====================================================================
+function goToScreen(id) {
+  document.querySelectorAll(".wizard-screen").forEach(el => el.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ====================================================================
+// SCREEN 1 → START
+// ====================================================================
+async function startComparison() {
+  try {
+    const fn = firebase.app().functions("asia-south2").httpsCallable("initiateQuoteSession");
+    const result = await fn({});
+    state.sessionId = result.data.sessionId;
+    goToScreen("screen-upload");
+  } catch (err) {
+    if (err.code === "functions/resource-exhausted") {
+      goToScreen("screen-upload");
+      document.getElementById("rate-limit-error").classList.remove("hidden");
+    } else {
+      showError(err.message || "Could not start session. Please try again.");
+    }
+  }
+}
+
+// ====================================================================
+// SCREEN 2 — FILE SELECTION
+// ====================================================================
+function handleFileSelected(e) {
+  const file = e.target.files[0];
+  if (file) setFile(file);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById("dropzone").classList.add("border-green-400", "bg-green-50/30");
+}
+
+function handleDragLeave(e) {
+  document.getElementById("dropzone").classList.remove("border-green-400", "bg-green-50/30");
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  handleDragLeave(e);
+  const file = e.dataTransfer?.files[0];
+  if (file) setFile(file);
+}
+
+function setFile(file) {
+  const ALLOWED = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+  if (!ALLOWED.includes(file.type)) {
+    alert("Please upload a PDF, JPG, or PNG file.");
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    alert("File must be under 10MB.");
+    return;
+  }
+  state.currentFile = file;
+  const icons = { "application/pdf": "📄", "image/jpeg": "🖼️", "image/png": "🖼️" };
+  document.getElementById("file-icon").textContent = icons[file.type] || "📎";
+  document.getElementById("file-name").textContent = file.name;
+  document.getElementById("file-size").textContent = formatFileSize(file.size);
+  document.getElementById("file-preview").classList.remove("hidden");
+  document.getElementById("upload-btn").classList.remove("hidden");
+}
+
+function clearFile() {
+  state.currentFile = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("file-preview").classList.add("hidden");
+  document.getElementById("upload-btn").classList.add("hidden");
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+// ====================================================================
+// SCREEN 2 → UPLOAD & EXTRACT
+// ====================================================================
+async function uploadFile() {
+  if (!state.currentFile || !state.sessionId) return;
+
+  goToScreen("screen-reading");
+  animateReadingChecklist();
+
+  try {
+    // Convert to base64
+    const base64 = await fileToBase64(state.currentFile);
+    const mimeType = state.currentFile.type;
+    const filename = state.currentFile.name;
+
+    // Call extractQuoteFromFile Cloud Function
+    const fn = firebase.app().functions("asia-south2").httpsCallable("extractQuoteFromFile");
+    const result = await fn({
+      sessionId: state.sessionId,
+      fileBase64: base64,
+      mimeType,
+      filename
+    });
+
+    const normalized = result.data.normalized;
+    state.extractedQuotes.push(normalized);
+
+    // Show review screen
+    renderReviewScreen();
+    goToScreen("screen-review");
+
+  } catch (err) {
+    console.error("Extraction error:", err);
+    document.getElementById("reading-error").classList.remove("hidden");
+    // After 5s auto-show review with manual entry
+    setTimeout(() => {
+      if (state.extractedQuotes.length > 0) {
+        renderReviewScreen();
+        goToScreen("screen-review");
+      } else {
+        showError(err.message || "Could not read this document.");
+      }
+    }, 5000);
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Strip data URL prefix (e.g. "data:application/pdf;base64,")
+      const result = reader.result.split(",")[1];
+      resolve(result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function animateReadingChecklist() {
+  const items = document.querySelectorAll(".reading-item");
+  items.forEach((item, i) => {
+    setTimeout(() => {
+      const dot = item.querySelector(".reading-dot");
+      const label = item.querySelector("span");
+      dot.classList.remove("bg-slate-100");
+      dot.classList.add("bg-green-100", "text-green-600");
+      dot.textContent = "✓";
+      label.classList.remove("text-slate-400");
+      label.classList.add("text-slate-800", "font-medium");
+    }, (i + 1) * 1800);
+  });
+}
+
+// ====================================================================
+// SCREEN 4 — REVIEW
+// ====================================================================
+function renderReviewScreen() {
+  const container = document.getElementById("extracted-cards");
+  container.innerHTML = "";
+
+  state.extractedQuotes.forEach((q, i) => {
+    const ppw = q.pricing?.pricePerWatt ? `₹${q.pricing.pricePerWatt}/W` : "—";
+    const card = document.createElement("div");
+    card.className = "border border-slate-100 rounded-2xl p-5 bg-slate-50";
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <div class="font-bold text-slate-900">${q.installer?.name || "Installer " + (i + 1)}</div>
+          <div class="text-xs text-slate-400">${q.installer?.city || ""}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-lg font-bold text-green-700">${q.pricing?.total ? "₹" + q.pricing.total.toLocaleString("en-IN") : "—"}</div>
+          <div class="text-xs text-slate-400">${ppw}</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div><span class="text-slate-400">Capacity:</span> <span class="font-medium">${q.system?.capacityKw ? q.system.capacityKw + " kW" : "—"}</span></div>
+        <div><span class="text-slate-400">Type:</span> <span class="font-medium">${q.system?.type || "—"}</span></div>
+        <div><span class="text-slate-400">Panels:</span> <span class="font-medium">${q.panels?.brand || "—"} ${q.panels?.watt ? q.panels.watt + "W" : ""}</span></div>
+        <div><span class="text-slate-400">Inverter:</span> <span class="font-medium">${q.inverter?.brand || "—"}</span></div>
+        <div><span class="text-slate-400">GST:</span> <span class="font-medium">${formatBool(q.pricing?.gstIncluded)}</span></div>
+        <div><span class="text-slate-400">Net Metering:</span> <span class="font-medium">${formatBool(q.installation?.netMetering)}</span></div>
+        <div><span class="text-slate-400">Panel Warranty:</span> <span class="font-medium">${q.warranty?.panelPerformance ? q.warranty.panelPerformance + " yrs" : "—"}</span></div>
+        <div><span class="text-slate-400">Inverter Warranty:</span> <span class="font-medium">${q.inverter?.warrantyYears ? q.inverter.warrantyYears + " yrs" : "—"}</span></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  const count = state.extractedQuotes.length;
+  document.getElementById("quote-count-label").textContent = `${count} of 3 maximum`;
+  if (count >= 3) {
+    document.getElementById("add-another-section").classList.add("hidden");
+  }
+  const compareBtn = document.getElementById("compare-btn");
+  compareBtn.textContent = count > 1 ? `Compare ${count} Quotes ⚡` : "Analyse This Quote ⚡";
+}
+
+function formatBool(val) {
+  if (val === true) return "Included";
+  if (val === false) return "Not included";
+  return "—";
+}
+
+function addAnotherQuote() {
+  state.currentFile = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("file-preview").classList.add("hidden");
+  document.getElementById("upload-btn").classList.add("hidden");
+  document.getElementById("upload-subtitle").textContent = `Quote ${state.extractedQuotes.length + 1} of up to 3`;
+  goToScreen("screen-upload");
+}
+
+// ====================================================================
+// SCREEN 5 — COMPARE (trigger Firestore trigger + listen)
+// ====================================================================
+async function startFinalComparison() {
+  goToScreen("screen-comparing");
+
+  try {
+    // Set status → "comparing" to fire the generateQuoteComparison trigger
+    await window.db.collection("quote_sessions").doc(state.sessionId).update({
+      status: "comparing"
+    });
+
+    // Listen for completion
+    state.sessionListener = window.db
+      .collection("quote_sessions")
+      .doc(state.sessionId)
+      .onSnapshot((doc) => {
+        const data = doc.data();
+        if (!data) return;
+
+        if (data.status === "complete") {
+          if (state.sessionListener) state.sessionListener();
+          renderResults(data);
+        } else if (data.status === "error") {
+          if (state.sessionListener) state.sessionListener();
+          showError(data.errorMessage || "Comparison failed. Please try again.");
+        }
+      });
+
+    // Timeout fallback after 3 minutes
+    setTimeout(() => {
+      if (state.sessionListener) {
+        state.sessionListener();
+        showError("The comparison took too long. Please try again.");
+      }
+    }, 180000);
+
+  } catch (err) {
+    showError(err.message || "Failed to start comparison.");
+  }
+}
+
+// ====================================================================
+// SCREEN 6 — RESULTS
+// ====================================================================
+function renderResults(data) {
+  const rec = data.recommendation || {};
+  const comp = data.comparison || {};
+  const quotes = data.extractedQuotes || state.extractedQuotes;
+  const scores = comp.scores || [];
+  const risksPerQuote = comp.risksPerQuote || [];
+
+  const winnerIndex = rec.winnerIndex;
+  const winner = winnerIndex !== null && winnerIndex !== undefined ? quotes[winnerIndex] : null;
+
+  // Winner card
+  const winnerCard = document.getElementById("winner-card");
+  winnerCard.innerHTML = `
+    <div class="text-center mb-4">
+      <div class="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-3">
+        ⭐ AI Recommendation
+      </div>
+      <h2 class="text-xl font-bold text-slate-900">${winner ? winner.installer?.name || "Best Quote" : "Analysis Complete"}</h2>
+      ${winner?.installer?.city ? `<div class="text-xs text-slate-400">${winner.installer.city}</div>` : ""}
+      <div class="mt-3 inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm font-bold px-4 py-2 rounded-xl">
+        Confidence: ${rec.confidence || 0}%
+      </div>
+    </div>
+
+    ${rec.recommendation ? `<p class="text-sm text-slate-600 mb-5 leading-relaxed">${rec.recommendation}</p>` : ""}
+
+    ${rec.reasons?.length ? `
+      <div class="space-y-2 mb-4">
+        ${rec.reasons.map(r => `
+          <div class="flex items-start gap-2 text-sm">
+            <span class="text-green-500 font-bold mt-0.5 flex-shrink-0">✓</span>
+            <span class="text-slate-700">${r}</span>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
+
+    ${rec.negotiationTips?.length ? `
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 mt-4">
+        <div class="text-xs font-bold text-amber-700 uppercase tracking-wide mb-2">Negotiation Tips</div>
+        <ul class="space-y-1">
+          ${rec.negotiationTips.map(t => `<li class="text-sm text-amber-800">• ${t}</li>`).join("")}
+        </ul>
+      </div>
+    ` : ""}
+  `;
+
+  // Quote comparison cards
+  const quoteCards = document.getElementById("quote-cards");
+  quoteCards.innerHTML = quotes.map((q, i) => {
+    const score = scores.find(s => s.index === i);
+    const isWinner = i === winnerIndex;
+    return `
+      <div class="bg-white rounded-3xl shadow-sm border ${isWinner ? "border-green-200 ring-2 ring-green-100" : "border-slate-100"} p-5">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            ${isWinner ? `<div class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full mb-1">★ Recommended</div>` : ""}
+            <div class="font-bold text-slate-900">${q.installer?.name || "Installer " + (i + 1)}</div>
+            <div class="text-xs text-slate-400">${q.installer?.city || ""}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold ${isWinner ? "text-green-700" : "text-slate-800"}">${q.pricing?.total ? "₹" + Number(q.pricing.total).toLocaleString("en-IN") : "—"}</div>
+            ${q.pricing?.pricePerWatt ? `<div class="text-xs text-slate-400">₹${q.pricing.pricePerWatt}/W</div>` : ""}
+          </div>
+        </div>
+        ${score ? `
+          <div class="grid grid-cols-4 gap-2 mt-3">
+            ${renderScorePill("Price", Math.round(score.price * 100))}
+            ${renderScorePill("Warranty", Math.round(score.warranty * 100))}
+            ${renderScorePill("Equipment", Math.round(score.equipment * 100))}
+            ${renderScorePill("Safety", Math.round(score.safety * 100))}
+          </div>
+          <div class="mt-3 text-center text-xs text-slate-400">Overall Score: <span class="font-bold text-slate-700">${score.total}/100</span></div>
+        ` : ""}
+      </div>
+    `;
+  }).join("");
+
+  // Risk flags
+  const allRisks = risksPerQuote.flat();
+  if (allRisks.length > 0) {
+    document.getElementById("risks-section").classList.remove("hidden");
+    document.getElementById("risks-list").innerHTML = allRisks.map(r => `
+      <div class="flex items-start gap-3 p-3 rounded-2xl ${r.severity === "critical" ? "bg-red-50 border border-red-100" : r.severity === "warning" ? "bg-amber-50 border border-amber-100" : "bg-blue-50 border border-blue-100"}">
+        <div class="flex-shrink-0 text-base mt-0.5">${r.severity === "critical" ? "🔴" : r.severity === "warning" ? "⚠️" : "ℹ️"}</div>
+        <div class="text-xs text-slate-700">${r.message}</div>
+      </div>
+    `).join("");
+  }
+
+  goToScreen("screen-results");
+}
+
+function renderScorePill(label, score) {
+  const color = score >= 75 ? "bg-green-100 text-green-700" : score >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
+  return `<div class="text-center"><div class="text-xs text-slate-400 mb-1">${label}</div><div class="text-xs font-bold ${color} rounded-xl px-2 py-1">${score}</div></div>`;
+}
+
+// ====================================================================
+// CONSULTATION MODAL
+// ====================================================================
+function openCompetingQuoteForm() {
+  document.getElementById("cons-form-content").classList.remove("hidden");
+  document.getElementById("cons-success").classList.add("hidden");
+  document.getElementById("consultationModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeConsultationModal() {
+  document.getElementById("consultationModal").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+async function submitConsultation() {
+  const name = document.getElementById("cons-name").value.trim();
+  const phone = document.getElementById("cons-phone").value.trim();
+  const email = document.getElementById("cons-email").value.trim();
+  const city = document.getElementById("cons-city").value;
+
+  // Validation
+  let valid = true;
+  if (!name) { showFieldError("cons-name", "cons-name-err", "Name is required"); valid = false; }
+  if (!/^[6-9]\d{9}$/.test(phone)) { showFieldError("cons-phone", "cons-phone-err", "Enter a valid 10-digit mobile number"); valid = false; }
+  if (!city) { showFieldError("cons-city", "cons-city-err", "Please select your city"); valid = false; }
+  if (!valid) return;
+
+  try {
+    // Save email on session for completion email trigger
+    if (state.sessionId && email) {
+      await window.db.collection("quote_sessions").doc(state.sessionId).update({ contactEmail: email });
+    }
+
+    await window.db.collection("consultations").add({
+      name,
+      phone,
+      email: email || null,
+      city,
+      source: "quote_comparison",
+      quoteSessionId: state.sessionId || null,
+      status: "new",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    document.getElementById("cons-form-content").classList.add("hidden");
+    document.getElementById("cons-success").classList.remove("hidden");
+    setTimeout(closeConsultationModal, 3000);
+  } catch (err) {
+    alert("Something went wrong. Please try WhatsApp instead.");
+  }
+}
+
+function showFieldError(inputId, errId, msg) {
+  const input = document.getElementById(inputId);
+  const errEl = document.getElementById(errId);
+  if (input) input.style.borderColor = "#ef4444";
+  if (errEl) { errEl.textContent = msg; errEl.classList.remove("hidden"); }
+  setTimeout(() => {
+    if (input) input.style.borderColor = "";
+    if (errEl) errEl.classList.add("hidden");
+  }, 4000);
+}
+
+// ====================================================================
+// UTILITY
+// ====================================================================
+function showError(message) {
+  document.getElementById("error-message").textContent = message;
+  goToScreen("screen-error");
+}
+
+function startOver() {
+  if (state.sessionListener) state.sessionListener();
+  state.sessionId = null;
+  state.extractedQuotes = [];
+  state.currentFile = null;
+  state.sessionListener = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("file-preview").classList.add("hidden");
+  document.getElementById("upload-btn").classList.add("hidden");
+  document.getElementById("reading-error").classList.add("hidden");
+  document.getElementById("add-another-section").classList.remove("hidden");
+  goToScreen("screen-welcome");
+}
+
+function showManualEntry() {
+  // Fallback: if extraction fails, show review with empty quote so user can type
+  state.extractedQuotes.push({
+    _fileIndex: state.extractedQuotes.length,
+    installer: { name: null, city: null, contact: null },
+    system: { capacityKw: null, type: null },
+    panels: { brand: null, model: null, quantity: null, watt: null, brandKnown: false },
+    inverter: { brand: null, model: null, warrantyYears: null, brandKnown: false },
+    pricing: { total: null, gstIncluded: null, subsidyIncluded: null, pricePerWatt: null },
+    installation: { spd: null, earthing: null, lightningArrestor: null, netMetering: null },
+    warranty: { panelProduct: null, panelPerformance: null, installation: null }
+  });
+  renderReviewScreen();
+  goToScreen("screen-review");
+}
+</script>
+
+</BaseLayout>
