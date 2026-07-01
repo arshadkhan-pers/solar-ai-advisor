@@ -820,3 +820,18 @@ require("./deleteConsentWithdrawnLead")
 exports.createLeadSession =
 require("./createLeadSession")
 .createLeadSession;
+
+// =====================================================================
+// AQCS — AI QUOTE COMPARISON SERVICE
+// =====================================================================
+const {
+  initiateQuoteSession,
+  extractQuoteFromFile,
+  generateQuoteComparison
+} = require("./quoteComparison");
+exports.initiateQuoteSession = initiateQuoteSession;
+exports.extractQuoteFromFile = extractQuoteFromFile;
+exports.generateQuoteComparison = generateQuoteComparison;
+
+const { triggerQuoteCompletionEmail } = require("./triggers/triggerQuoteCompletionEmail");
+exports.triggerQuoteCompletionEmail = triggerQuoteCompletionEmail;

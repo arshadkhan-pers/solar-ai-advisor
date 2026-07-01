@@ -35,6 +35,14 @@
       "ogType": "website",
       "robots": "index,follow"
     },
+    "quote-comparison.html": {
+      "path": "quote-comparison.html",
+      "title": "AI Solar Quote Comparison — Compare Up to 3 Installer Quotes Free",
+      "description": "Upload solar quotes and let AI compare them for you. Detects hidden risks, compares equipment quality, and recommends the best installer — free for Indian homeowners.",
+      "ogType": "website",
+      "breadcrumbLabel": "Quote Comparison",
+      "robots": "index,follow"
+    },
     "about.html": {
       "path": "about.html",
       "title": "About Solar AI Advisor",
