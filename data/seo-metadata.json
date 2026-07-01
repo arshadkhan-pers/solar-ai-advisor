@@ -404,6 +404,78 @@
         { "question": "How long do commercial solar systems last?", "answer": "Commercial solar systems are typically designed for long operating lifetimes and often include extensive manufacturer warranties." }
       ]
     },
+    "rooftop-solar-noida.html": {
+      "path": "rooftop-solar-noida.html",
+      "title": "Rooftop Solar in Noida — Cost, Subsidy & PVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Noida homeowners — PVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Noida, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Noida",
+      "robots": "index,follow",
+      "publishedDate": "2026-07-01",
+      "serviceArea": "Noida",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Noida?", "answer": "Most residential areas in Noida and Gautam Buddha Nagar are served by PVVNL (Paschimanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering western UP. All net metering applications for PVVNL-connected homes are processed through PVVNL." },
+        { "question": "How do I apply for net metering with PVVNL in Noida?", "answer": "After installation by a PVVNL-empanelled installer, your installer submits the net metering application to PVVNL. PVVNL inspects the system and installs a bi-directional meter. The process typically takes two to four weeks in Noida." },
+        { "question": "Is PM Surya Ghar subsidy available in Noida?", "answer": "Yes. Noida homeowners with a PVVNL connection are eligible. Use a PVVNL-empanelled installer and apply at pmsuryaghar.gov.in. Verify current subsidy amounts before applying." },
+        { "question": "What solar system size suits most Noida homes?", "answer": "For typical Noida homes with monthly PVVNL bills of ₹2,000–₹5,000, a 2kW to 3kW system covers a significant portion of electricity use. Homes with heavy summer AC use and bills above ₹5,000 often benefit from 3kW to 5kW systems." },
+        { "question": "How much does rooftop solar cost in Noida?", "answer": "Pre-subsidy cost for a quality on-grid system in Noida typically ranges from ₹60,000 to ₹80,000 per kW. After PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), net cost is significantly lower. Compare quotes from at least two PVVNL-empanelled installers." },
+        { "question": "Can apartment residents in Noida get solar?", "answer": "Apartment societies in Noida can install solar on common terraces under group net metering — credits are distributed to participating flat owners' bills. Individual flat owners without dedicated roof access should work through their RWA." }
+      ]
+    },
+    "rooftop-solar-ghaziabad.html": {
+      "path": "rooftop-solar-ghaziabad.html",
+      "title": "Rooftop Solar in Ghaziabad — Cost, Subsidy & PVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Ghaziabad homeowners — PVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Ghaziabad, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Ghaziabad",
+      "robots": "index,follow",
+      "publishedDate": "2026-07-01",
+      "serviceArea": "Ghaziabad",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Ghaziabad?", "answer": "Ghaziabad falls under PVVNL (Paschimanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering western UP. All net metering applications, bi-directional meter installations, and PM Surya Ghar empanelment for Ghaziabad homeowners are processed through PVVNL." },
+        { "question": "How do I apply for net metering with PVVNL in Ghaziabad?", "answer": "After installation by a PVVNL-empanelled installer, your installer submits the net metering application to PVVNL. PVVNL inspects the system and installs a bi-directional meter. The process typically takes two to four weeks in Ghaziabad." },
+        { "question": "Is PM Surya Ghar subsidy available in Ghaziabad?", "answer": "Yes. Ghaziabad homeowners with a PVVNL connection are eligible. Use a PVVNL-empanelled installer and apply at pmsuryaghar.gov.in. Verify current subsidy amounts before applying." },
+        { "question": "What solar system size suits most Ghaziabad homes?", "answer": "For typical Ghaziabad homes with monthly PVVNL bills of ₹2,000–₹5,000, a 2kW to 3kW system is most commonly installed. Homes with heavy AC usage and higher bills benefit from 3kW or 5kW systems." },
+        { "question": "How much does rooftop solar cost in Ghaziabad?", "answer": "Pre-subsidy cost for a quality on-grid system in Ghaziabad typically ranges from ₹60,000 to ₹80,000 per kW. After PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), net cost is significantly lower. Compare quotes from at least two PVVNL-empanelled installers." },
+        { "question": "Is Ghaziabad a good location for solar?", "answer": "Yes. Ghaziabad receives approximately 5 to 5.5 peak sun hours per day on average. Hot NCR summers — when PVVNL bills peak — coincide with peak solar generation, making rooftop solar financially effective for most Ghaziabad homeowners." }
+      ]
+    },
+    "rooftop-solar-meerut.html": {
+      "path": "rooftop-solar-meerut.html",
+      "title": "Rooftop Solar in Meerut — Cost, Subsidy & PVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Meerut homeowners — PVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Meerut, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Meerut",
+      "robots": "index,follow",
+      "publishedDate": "2026-07-01",
+      "serviceArea": "Meerut",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Meerut?", "answer": "Meerut falls under PVVNL (Paschimanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering western UP. All net metering applications and PM Surya Ghar empanelment for Meerut homeowners are processed through PVVNL." },
+        { "question": "How do I apply for net metering with PVVNL in Meerut?", "answer": "After installation by a PVVNL-empanelled installer, your installer submits the net metering application to PVVNL. PVVNL inspects the system and installs a bi-directional meter. The process typically takes two to four weeks in Meerut." },
+        { "question": "Is PM Surya Ghar subsidy available in Meerut?", "answer": "Yes. Meerut homeowners with a PVVNL connection are eligible. Use a PVVNL-empanelled installer and apply at pmsuryaghar.gov.in. Verify current subsidy amounts before applying." },
+        { "question": "What solar system size suits most Meerut homes?", "answer": "For typical Meerut homes with monthly PVVNL bills of ₹1,500–₹4,000, a 2kW to 3kW system is most appropriate. Homes with heavy summer AC use and bills above ₹5,000 often benefit from a 3kW or 5kW system." },
+        { "question": "How much does rooftop solar cost in Meerut?", "answer": "Pre-subsidy cost for a quality on-grid system in Meerut typically ranges from ₹60,000 to ₹80,000 per kW. After PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), net cost is significantly lower. Compare quotes from at least two PVVNL-empanelled installers." },
+        { "question": "Is Meerut a good location for solar?", "answer": "Yes. Meerut receives approximately 5 to 5.5 peak sun hours per day on average. The western UP plains provide excellent solar access, and hot summers mean peak solar generation coincides with peak electricity demand — making rooftop solar financially effective for most Meerut homeowners." }
+      ]
+    },
+    "rooftop-solar-agra.html": {
+      "path": "rooftop-solar-agra.html",
+      "title": "Rooftop Solar in Agra — Cost, Subsidy & DVVNL Net Metering Guide (2026)",
+      "description": "Complete guide to rooftop solar for Agra homeowners — DVVNL net metering process, PM Surya Ghar subsidy, system costs, and how to choose an empanelled installer in Agra, Uttar Pradesh.",
+      "ogType": "article",
+      "breadcrumbLabel": "Rooftop Solar Agra",
+      "robots": "index,follow",
+      "publishedDate": "2026-07-01",
+      "serviceArea": "Agra",
+      "faq": [
+        { "question": "Which electricity company handles rooftop solar in Agra?", "answer": "Agra falls under DVVNL (Dakshinanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering southern Uttar Pradesh. All net metering applications and PM Surya Ghar empanelment for Agra homeowners are processed through DVVNL. This is the same DISCOM as Kanpur." },
+        { "question": "How do I apply for net metering with DVVNL in Agra?", "answer": "After installation by a DVVNL-empanelled installer, your installer submits the net metering application to DVVNL. DVVNL inspects the system and installs a bi-directional meter. The process typically takes two to four weeks in Agra." },
+        { "question": "Is PM Surya Ghar subsidy available in Agra?", "answer": "Yes. Agra homeowners with a DVVNL connection are eligible. Use a DVVNL-empanelled installer and apply at pmsuryaghar.gov.in. Verify current subsidy amounts before applying." },
+        { "question": "What solar system size suits most Agra homes?", "answer": "For typical Agra homes with monthly DVVNL bills of ₹1,500–₹4,000, a 2kW to 3kW system is most appropriate. The city's hot summers mean homes with significant AC use often benefit from 3kW systems." },
+        { "question": "How much does rooftop solar cost in Agra?", "answer": "Pre-subsidy cost for a quality on-grid system in Agra typically ranges from ₹60,000 to ₹80,000 per kW. After PM Surya Ghar central subsidy (up to ₹78,000 for 3kW), net cost is significantly lower. Compare quotes from at least two DVVNL-empanelled installers." },
+        { "question": "Is Agra a good location for solar?", "answer": "Yes. Agra receives approximately 5 to 5.5 peak sun hours per day and has one of the sunniest climates in UP. Extreme summers — when DVVNL bills are highest — align perfectly with peak solar output, making rooftop solar financially very effective for Agra homeowners." }
+      ]
+    },
     "admin.html": {
       "path": "admin.html",
       "title": "Solar AI Admin",

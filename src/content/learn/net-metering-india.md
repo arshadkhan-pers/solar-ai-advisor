@@ -105,9 +105,18 @@ PUVVNL covers eastern UP including **Prayagraj**, **Varanasi**, and **Pratapgarh
 
 ### DVVNL — Dakshinanchal Vidyut Vitran Nigam Limited
 
-DVVNL covers southern UP including **Kanpur**. Net metering applications in Kanpur are processed through DVVNL. The empanelled installer submits the application, DVVNL carries out the technical inspection, and then replaces your existing meter with a net meter.
+DVVNL covers southern UP including **Kanpur** and **Agra**. Net metering applications in these cities are processed through DVVNL. The empanelled installer submits the application, DVVNL carries out the technical inspection, and then replaces your existing meter with a net meter.
 
 - [Rooftop Solar in Kanpur — DVVNL Net Metering Guide](/rooftop-solar-kanpur.html)
+- [Rooftop Solar in Agra — DVVNL Net Metering Guide](/rooftop-solar-agra.html)
+
+### PVVNL — Paschimanchal Vidyut Vitran Nigam Limited
+
+PVVNL covers western UP including **Noida**, **Ghaziabad**, and **Meerut**. Net metering applications in these NCR and western UP cities are processed through PVVNL. The same five-step sequence applies — application by empanelled installer, PVVNL inspection, bi-directional meter installation, and commissioning. Typical timelines are two to four weeks in these cities.
+
+- [Rooftop Solar in Noida — PVVNL Net Metering Guide](/rooftop-solar-noida.html)
+- [Rooftop Solar in Ghaziabad — PVVNL Net Metering Guide](/rooftop-solar-ghaziabad.html)
+- [Rooftop Solar in Meerut — PVVNL Net Metering Guide](/rooftop-solar-meerut.html)
 
 ### Key Point for UP Homeowners
 
