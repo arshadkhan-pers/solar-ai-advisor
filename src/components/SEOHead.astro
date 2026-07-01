@@ -24,6 +24,7 @@ const ogImage = page.skipFullSeo ? null : absoluteUrl(page.ogImage || site.defau
 const jsonLdBlocks = [];
 if (!page.skipFullSeo) {
   if (page.isHome) {
+    // --- LocalBusiness (Organisation node) ---
     const orgNode: Record<string, unknown> = {
       "@type": "LocalBusiness",
       "@id": `${site.baseUrl}/#organization`,
@@ -37,9 +38,7 @@ if (!page.skipFullSeo) {
         ...site.organization.address,
       },
     };
-    if (site.organization.areaServed) {
-      orgNode.areaServed = site.organization.areaServed;
-    }
+    if (site.organization.areaServed) orgNode.areaServed = site.organization.areaServed;
     if (site.organization.geo) {
       orgNode.geo = {
         "@type": "GeoCoordinates",
@@ -47,18 +46,43 @@ if (!page.skipFullSeo) {
         longitude: site.organization.geo.longitude,
       };
     }
+    if (site.organization.sameAs) orgNode.sameAs = site.organization.sameAs;
+
+    // --- WebSite with potentialAction (calculator as primary action) ---
+    const websiteNode: Record<string, unknown> = {
+      "@type": "WebSite",
+      "@id": `${site.baseUrl}/#website`,
+      name: site.name,
+      url: site.baseUrl,
+      publisher: { "@id": `${site.baseUrl}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${site.baseUrl}/?bill={search_term}`,
+        },
+        "query-input": "required name=search_term",
+      },
+    };
+
+    // --- SoftwareApplication (AI calculator declaration) ---
+    const softwareNode: Record<string, unknown> = {
+      "@type": "SoftwareApplication",
+      name: "Solar Savings Calculator",
+      applicationCategory: "UtilityApplication",
+      operatingSystem: "Web",
+      description: "Free AI-powered rooftop solar savings calculator for Indian homeowners. Estimate bill savings, system size, and payback period in under 60 seconds.",
+      url: site.baseUrl,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "INR",
+      },
+    };
+
     jsonLdBlocks.push({
       "@context": "https://schema.org",
-      "@graph": [
-        orgNode,
-        {
-          "@type": "WebSite",
-          "@id": `${site.baseUrl}/#website`,
-          name: site.name,
-          url: site.baseUrl,
-          publisher: { "@id": `${site.baseUrl}/#organization` },
-        },
-      ],
+      "@graph": [orgNode, websiteNode, softwareNode],
     });
   } else if (page.breadcrumbLabel) {
     jsonLdBlocks.push({
@@ -71,6 +95,33 @@ if (!page.skipFullSeo) {
     });
   }
 
+  // --- Article schema for kW system pages and city guide pages ---
+  if (!page.isHome && page.ogType === "article") {
+    jsonLdBlocks.push({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: page.title,
+      description: page.description,
+      mainEntityOfPage: url,
+      datePublished: page.publishedDate || "2026-01-01",
+      author: { "@id": `${site.baseUrl}/#organization` },
+      publisher: { "@id": `${site.baseUrl}/#organization` },
+    });
+  }
+
+  // --- Service schema for city pages ---
+  if (page.serviceArea) {
+    jsonLdBlocks.push({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Rooftop Solar Advisory",
+      provider: { "@id": `${site.baseUrl}/#organization` },
+      areaServed: { "@type": "City", name: page.serviceArea },
+      description: page.description,
+    });
+  }
+
+  // --- FAQPage ---
   if (page.faq && page.faq.length) {
     jsonLdBlocks.push({
       "@context": "https://schema.org",

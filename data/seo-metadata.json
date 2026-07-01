@@ -15,6 +15,11 @@
         "addressCountry": "IN"
       },
       "areaServed": ["Lucknow", "Raebareli", "Uttar Pradesh"],
+      "sameAs": [
+        "https://facebook.solaraiadvisor.com",
+        "https://instagram.solaraiadvisor.com",
+        "https://google.solaraiadvisor.com"
+      ],
       "geo": {
         "latitude": 26.8467,
         "longitude": 80.9462
@@ -217,6 +222,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Prayagraj",
       "robots": "index,follow",
+      "serviceArea": "Prayagraj",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Prayagraj?", "answer": "Prayagraj falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL covering eastern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Prayagraj homeowners are processed through PUVVNL." },
         { "question": "How do I apply for net metering with PUVVNL in Prayagraj?", "answer": "After your rooftop solar system is installed by a PUVVNL-empanelled installer, your installer submits a net metering application to PUVVNL on your behalf. PUVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Prayagraj." },
@@ -233,6 +239,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Pratapgarh",
       "robots": "index,follow",
+      "serviceArea": "Pratapgarh",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Pratapgarh?", "answer": "Pratapgarh falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering eastern Uttar Pradesh. All net metering applications and solar scheme empanelment for Pratapgarh homeowners are processed through PUVVNL." },
         { "question": "How do I apply for net metering in Pratapgarh?", "answer": "After installation by a PUVVNL-empanelled installer, your installer submits the net metering application to PUVVNL on your behalf. PUVVNL inspects the system and installs a bi-directional meter. The process typically takes two to six weeks." },
@@ -249,6 +256,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Varanasi",
       "robots": "index,follow",
+      "serviceArea": "Varanasi",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Varanasi?", "answer": "Varanasi falls under PUVVNL (Purvanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering eastern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Varanasi homeowners are processed through PUVVNL." },
         { "question": "How do I apply for net metering with PUVVNL in Varanasi?", "answer": "After your rooftop solar system is installed by a PUVVNL-empanelled installer, your installer submits the net metering application to PUVVNL. PUVVNL inspects the system and replaces your meter with a bi-directional net meter. The process typically takes two to six weeks in Varanasi." },
@@ -265,6 +273,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Kanpur",
       "robots": "index,follow",
+      "serviceArea": "Kanpur",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Kanpur?", "answer": "Kanpur falls under DVVNL (Dakshinanchal Vidyut Vitran Nigam Limited), a UPPCL subsidiary covering southern Uttar Pradesh. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Kanpur homeowners are processed through DVVNL." },
         { "question": "How do I apply for net metering with DVVNL in Kanpur?", "answer": "After your rooftop solar system is installed by a DVVNL-empanelled installer, your installer submits the net metering application to DVVNL on your behalf. DVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Kanpur." },
@@ -289,6 +298,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Ayodhya",
       "robots": "index,follow",
+      "serviceArea": "Ayodhya",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Ayodhya?", "answer": "Ayodhya falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Ayodhya homeowners are processed through MVVNL." },
         { "question": "How do I apply for net metering with MVVNL in Ayodhya?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Ayodhya." },
@@ -305,6 +315,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Raebareli",
       "robots": "index,follow",
+      "serviceArea": "Raebareli",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Raebareli?", "answer": "Raebareli falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Raebareli homeowners are processed through MVVNL." },
         { "question": "How do I apply for net metering in Raebareli?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks." },
@@ -321,6 +332,7 @@
       "ogType": "article",
       "breadcrumbLabel": "Rooftop Solar Lucknow",
       "robots": "index,follow",
+      "serviceArea": "Lucknow",
       "faq": [
         { "question": "Which electricity company handles rooftop solar in Lucknow?", "answer": "Lucknow falls under MVVNL (Madhyanchal Vidyut Vitran Nigam Limited), a subsidiary of UPPCL. All net metering applications, bi-directional meter installations, and solar scheme empanelment for Lucknow homeowners are processed through MVVNL." },
         { "question": "How do I apply for net metering with MVVNL in Lucknow?", "answer": "After your rooftop solar system is installed by an MVVNL-empanelled installer, your installer submits a net metering application to MVVNL on your behalf. MVVNL then inspects the system and replaces your existing meter with a bi-directional net meter. The process typically takes two to six weeks in Lucknow." },
