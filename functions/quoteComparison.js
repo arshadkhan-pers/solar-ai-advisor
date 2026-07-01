@@ -25,7 +25,7 @@ const MAX_FREE_SESSIONS_PER_DAY = 3;
 // 1. initiateQuoteSession
 // =====================================================================
 
-exports.initiateQuoteSession = onCall({ region: REGION }, async (request) => {
+exports.initiateQuoteSession = onCall({ region: REGION, invoker: "public" }, async (request) => {
   const db = admin.firestore();
 
   // Derive a stable hash from the caller IP
@@ -83,7 +83,7 @@ exports.initiateQuoteSession = onCall({ region: REGION }, async (request) => {
 // =====================================================================
 
 exports.extractQuoteFromFile = onCall(
-  { region: REGION, timeoutSeconds: 120, memory: "512MiB" },
+  { region: REGION, invoker: "public", timeoutSeconds: 120, memory: "512MiB" },
   async (request) => {
     const { sessionId, fileBase64, mimeType, filename } = request.data;
 

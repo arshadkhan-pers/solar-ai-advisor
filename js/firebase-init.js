@@ -9,4 +9,7 @@ const firebaseConfig = {
 
   firebase.initializeApp(firebaseConfig);
   window.db = firebase.firestore();
-window.auth = firebase.auth();
+  // Auth SDK is only loaded on pages that need it (not quote-comparison)
+  if (typeof firebase.auth === 'function') {
+    window.auth = firebase.auth();
+  }
